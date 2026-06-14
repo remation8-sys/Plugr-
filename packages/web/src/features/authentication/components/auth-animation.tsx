@@ -855,7 +855,7 @@ function Scene4({
             y1="100%"
             x2="20"
             y2="0"
-            stroke="#8b5cf6"
+            stroke="#00D4FF"
             strokeWidth="2"
             strokeOpacity="0.2"
             strokeLinecap="round"
