@@ -7,11 +7,13 @@ import {
 
 import { PageTitle } from '@/app/components/page-title';
 import { authRoutes } from '@/app/routes/auth-routes';
+import { LandingPage } from '@/app/routes/landing';
 import { platformRoutes } from '@/app/routes/platform-routes';
 import { projectRoutes } from '@/app/routes/project-routes';
 import { publicRoutes } from '@/app/routes/public-routes';
 import { RouteLoadingBar } from '@/components/custom/route-loading-bar';
 import { useEmbedding } from '@/components/providers/embed-provider';
+import { authenticationSession } from '@/lib/authentication-session';
 
 import { AllowOnlyLoggedInUserOnlyGuard } from '../components/allow-logged-in-user-only-guard';
 import { ProjectDashboardLayout } from '../components/project-layout';
@@ -44,7 +46,23 @@ const chatRoutes = [
   { path: '/chat/:conversationId', element: chatElement() },
 ];
 
+const RootRoute = () => {
+  const token = authenticationSession.getToken();
+  if (token) {
+    return <DefaultRoute />;
+  }
+  return <LandingPage />;
+};
+
 const routes = [
+  {
+    path: '/',
+    element: (
+      <PageTitle title="Plugr">
+        <RootRoute />
+      </PageTitle>
+    ),
+  },
   ...publicRoutes,
   ...projectRoutes,
   ...authRoutes,
