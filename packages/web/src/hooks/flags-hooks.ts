@@ -40,9 +40,9 @@ export const flagsHooks = {
       websiteName: 'Plugr',
       logos: {
         ...theme.logos,
-        fullLogoUrl: '/logo.svg',
-        logoIconUrl: '/logo.svg',
-        favIconUrl: '/logo.svg',
+        fullLogoUrl: '/plugr-icon.png',
+        logoIconUrl: '/plugr-icon.png',
+        favIconUrl: '/plugr-icon.png',
       },
     };
   },

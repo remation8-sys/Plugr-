@@ -12,7 +12,7 @@ export default defineConfig(({ command, mode }) => {
   const isDev = command === 'serve' || mode === 'development';
 
   const AP_TITLE = 'Plugr';
-  const AP_FAVICON = '/logo.svg';
+  const AP_FAVICON = '/plugr-icon.png';
 
   return {
     root: __dirname,

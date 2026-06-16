@@ -120,7 +120,7 @@ function PrimaryCta({ to, children }: { to: string; children: ReactNode }) {
 function PlugrMark({ dark = false }: { dark?: boolean }) {
   return (
     <Link to="/" className="flex items-center gap-2">
-      <img src="/logo.svg" alt="" className="h-6 w-auto" />
+      <img src="/plugr-icon.png" alt="" className="h-6 w-auto" />
       <span
         className="text-lg font-bold tracking-tight"
         style={{ color: dark ? INK : '#ffffff' }}
