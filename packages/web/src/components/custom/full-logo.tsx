@@ -1,17 +1,10 @@
-import { t } from 'i18next';
-
-import { flagsHooks } from '@/hooks/flags-hooks';
-
 const FullLogo = () => {
-  const branding = flagsHooks.useWebsiteBranding();
-
   return (
-    <div className="h-[60px]">
-      <img
-        className="h-full"
-        src={branding.logos.fullLogoUrl}
-        alt={t('logo')}
-      />
+    <div className="flex h-[60px] items-center gap-2.5">
+      <img className="h-9 w-auto" src="/logo.svg" alt="Plugr" />
+      <span className="text-2xl font-bold tracking-tight text-foreground">
+        Plugr
+      </span>
     </div>
   );
 };

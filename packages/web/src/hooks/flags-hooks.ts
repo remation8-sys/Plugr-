@@ -30,7 +30,21 @@ export const flagsHooks = {
   },
   useWebsiteBranding: () => {
     const { data: theme } = flagsHooks.useFlag<WebsiteBrand>(ApFlagId.THEME);
-    return theme!;
+    if (!theme) {
+      return theme!;
+    }
+    // Plugr brand override — render Plugr assets and name regardless of the
+    // platform branding served by the backend THEME flag.
+    return {
+      ...theme,
+      websiteName: 'Plugr',
+      logos: {
+        ...theme.logos,
+        fullLogoUrl: '/logo.svg',
+        logoIconUrl: '/logo.svg',
+        favIconUrl: '/logo.svg',
+      },
+    };
   },
   useFlag: <T>(flagId: ApFlagId) => {
     const data = useSuspenseQuery<FlagsMap, Error>({
