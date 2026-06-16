@@ -2,18 +2,16 @@ import {
   Activity,
   ArrowRight,
   BarChart3,
-  Boxes,
   Check,
-  Code2,
   Eye,
   Server,
   ShieldCheck,
-  Workflow,
 } from 'lucide-react';
 import { type CSSProperties, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 
 import { PixelCanvas } from './pixel-canvas';
+import { ProductTour } from './product-tour';
 import { WorkflowCanvas } from './workflow-canvas';
 
 /**
@@ -48,24 +46,6 @@ const INTEGRATIONS = [
   'OpenAI',
   'Postgres',
   'Webhooks',
-];
-
-const BUILD_CARDS = [
-  {
-    icon: Workflow,
-    title: 'Build without getting boxed in',
-    body: 'Drag triggers and actions onto a visual canvas. No code required — but the full power of code is there the moment you want it.',
-  },
-  {
-    icon: Code2,
-    title: 'Code when you need it',
-    body: 'Drop into TypeScript or Python for the tricky steps, and keep everything else no-code. One flow, your choice per step.',
-  },
-  {
-    icon: Boxes,
-    title: 'Move fast, break nothing',
-    body: 'Test every step with real data, version your flows, and roll back instantly. Ship automations with confidence.',
-  },
 ];
 
 const OBS_FEATURES = [
@@ -257,53 +237,6 @@ function Hero() {
               </span>
             ))}
           </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function BuildSection() {
-  return (
-    <section id="features" style={{ backgroundColor: '#faf8ff' }}>
-      <div className="mx-auto max-w-6xl px-5 py-20 sm:py-28">
-        <div className="mx-auto max-w-2xl text-center">
-          <Overline>Build</Overline>
-          <h2
-            className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl"
-            style={{ color: INK }}
-          >
-            Plug AI into your own data and hundreds of integrations.
-          </h2>
-          <p className="mt-4 text-lg" style={{ color: '#434656' }}>
-            Use prebuilt actions for the apps you rely on, or build custom
-            connections for anything with an API.
-          </p>
-        </div>
-        <div className="mt-14 grid gap-6 md:grid-cols-3">
-          {BUILD_CARDS.map((card) => (
-            <div
-              key={card.title}
-              className="rounded-xl border bg-white p-6 transition-shadow hover:shadow-lg"
-              style={{ borderColor: '#e1e1ef' }}
-            >
-              <div
-                className="flex size-11 items-center justify-center rounded-lg"
-                style={{ backgroundColor: 'rgba(0,85,255,0.08)', color: BLUE }}
-              >
-                <card.icon className="size-5" strokeWidth={1.5} />
-              </div>
-              <h3
-                className="mt-5 text-lg font-semibold"
-                style={{ color: INK }}
-              >
-                {card.title}
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed" style={{ color: '#434656' }}>
-                {card.body}
-              </p>
-            </div>
-          ))}
         </div>
       </div>
     </section>
@@ -558,7 +491,7 @@ export function LandingPage() {
       <Nav />
       <main>
         <Hero />
-        <BuildSection />
+        <ProductTour />
         <ObservabilitySection />
         <DeploySection />
         <ClosingCta />
