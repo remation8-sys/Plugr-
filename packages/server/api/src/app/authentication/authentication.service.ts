@@ -8,6 +8,7 @@ import { platformService } from '../platform/platform.service'
 import { userService } from '../user/user-service'
 import { userInvitationsService } from '../user-invitations/user-invitation.service'
 import { authenticationUtils } from './authentication-utils'
+import { getRegistrationProjectName, getRegistrationWorkspaceName } from './registration-utils'
 import { userIdentityService } from './user-identity/user-identity-service'
 
 export const authenticationService = (log: FastifyBaseLogger) => ({
@@ -45,11 +46,9 @@ export const authenticationService = (log: FastifyBaseLogger) => ({
             })
         }
 
-        const hasInvitations = await userInvitationsService(log).hasAnyAcceptedInvitationsForEmail({ email: params.email })
-        const isFederatedProvider = params.provider === UserIdentityProvider.GOOGLE || params.provider === UserIdentityProvider.JWT || params.provider === UserIdentityProvider.SAML
         const userIdentity = await userIdentityService(log).create({
             ...params,
-            verified: hasInvitations || isFederatedProvider,
+            verified: true,
         })
         await sendVerificationOrAutoVerify(userIdentity, log)
         await flagService(log).save({ id: ApFlagId.USER_CREATED, value: true })
@@ -72,7 +71,12 @@ export const authenticationService = (log: FastifyBaseLogger) => ({
             return authResponse
         }
         log.info({ email: params.email, provider: params.provider }, 'User signed up without platform')
-        return authenticationUtils(log).getOnboardingResponse({ identityId: userIdentity.id })
+        return platformService(log).createPlatformWithProject({
+            identityId: userIdentity.id,
+            name: getRegistrationWorkspaceName(userIdentity),
+            projectDisplayName: getRegistrationProjectName(userIdentity),
+            invalidatePreviousTokens: false,
+        })
 
     },
     async signInWithPassword(params: SignInWithPasswordParams): Promise<AuthenticationResponse> {

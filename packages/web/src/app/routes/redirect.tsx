@@ -43,7 +43,11 @@ const RedirectPage: React.FC = React.memo(() => {
             navigate('/create-platform');
             return;
           }
-          navigate(from);
+          if (from && from !== '/flows') {
+            navigate(from);
+            return;
+          }
+          navigate(`/projects/${data.projectId}/automations`);
         } catch (e) {
           if (
             api.isError(e) &&
@@ -77,7 +81,7 @@ const RedirectPage: React.FC = React.memo(() => {
     if (!window.opener && !code) {
       navigate('/');
     }
-  }, [location.search]);
+  }, [location.search, navigate]);
 
   return <LoadingScreen />;
 });

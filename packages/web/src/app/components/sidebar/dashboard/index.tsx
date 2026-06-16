@@ -3,7 +3,6 @@ import {
   PROJECT_COLOR_PALETTE,
   PlatformRole,
   ProjectType,
-  TeamProjectsLimit,
   TemplateTelemetryEventType,
 } from '@activepieces/shared';
 import { t } from 'i18next';
@@ -78,21 +77,10 @@ export function ProjectDashboardSidebar({
   }, [searchOpen]);
 
   const shouldShowNewProjectButton = useMemo(() => {
-    if (platform.plan.teamProjectsLimit === TeamProjectsLimit.NONE) {
-      return false;
-    }
     return currentUser?.platformRole === PlatformRole.ADMIN;
-  }, [platform.plan.teamProjectsLimit]);
-
-  const shouldShowSearchButton = useMemo(() => {
-    if (platform.plan.teamProjectsLimit === TeamProjectsLimit.NONE) {
-      return false;
-    }
-    return true;
-  }, [platform.plan.teamProjectsLimit]);
+  }, [currentUser?.platformRole]);
 
   const shouldShowInlineAddButton =
-    platform.plan.teamProjectsLimit !== TeamProjectsLimit.NONE &&
     currentUser?.platformRole === PlatformRole.ADMIN &&
     projects.filter((project) => project.type === ProjectType.TEAM).length ===
       0;
@@ -144,7 +132,7 @@ export function ProjectDashboardSidebar({
       eventType: TemplateTelemetryEventType.EXPLORE_VIEW,
       userId: currentUser?.id,
     });
-  }, []);
+  }, [currentUser?.id]);
 
   const chatLink: SidebarItemType = {
     type: 'link',
@@ -252,39 +240,36 @@ export function ProjectDashboardSidebar({
                 {shouldShowNewProjectButton && (
                   <CreateProjectButton
                     variant="icon"
-                    projects={projects ?? []}
                     onCreate={(project) => {
                       navigate(`/projects/${project.id}/flows`);
                     }}
                   />
                 )}
-                {shouldShowSearchButton && (
-                  <Popover open={searchOpen} onOpenChange={setSearchOpen}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6 hover:bg-accent"
-                      >
-                        <Search />
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent
-                      className="w-[280px] p-3"
-                      align="start"
-                      side="right"
-                      sideOffset={8}
+                <Popover open={searchOpen} onOpenChange={setSearchOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-6 w-6 hover:bg-accent"
                     >
-                      <SearchInput
-                        placeholder={t('Search projects...')}
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e)}
-                        className="h-8"
-                        autoFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                )}
+                      <Search />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent
+                    className="w-[280px] p-3"
+                    align="start"
+                    side="right"
+                    sideOffset={8}
+                  >
+                    <SearchInput
+                      placeholder={t('Search projects...')}
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e)}
+                      className="h-8"
+                      autoFocus
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
             </div>
             <div
@@ -332,7 +317,6 @@ export function ProjectDashboardSidebar({
                   <SidebarMenuItem>
                     <CreateProjectButton
                       variant="sidebar-menu"
-                      projects={projects ?? []}
                       onCreate={(project) => {
                         navigate(`/projects/${project.id}/flows`);
                       }}

@@ -38,7 +38,6 @@ import { flagsHooks } from '@/hooks/flags-hooks';
 import { api } from '@/lib/api';
 import { authenticationSession } from '@/lib/authentication-session';
 import { formatUtils } from '@/lib/format-utils';
-import { useRedirectAfterLogin } from '@/lib/navigation-utils';
 
 import { authMutations } from '../hooks/auth-hooks';
 import { passwordValidation } from '../utils/password-validation-utils';
@@ -85,9 +84,8 @@ const SignUpForm = ({
         return true;
       }
     }
-  }, [edition, websiteName]);
+  }, [edition, form, websiteName]);
 
-  const redirectAfterLogin = useRedirectAfterLogin();
   const navigate = useNavigate();
 
   const { mutate, isPending } = authMutations.useSignUp({
@@ -99,7 +97,7 @@ const SignUpForm = ({
           navigate('/create-platform');
           return;
         }
-        redirectAfterLogin();
+        navigate(`/projects/${data.projectId}/automations`);
       } else {
         setShowCheckYourEmailNote(true);
       }

@@ -29,6 +29,7 @@ import { userIdentityRepository, userIdentityService } from '../authentication/u
 import { repoFactory } from '../core/db/repo-factory'
 import { invalidateSamlClientCache } from '../ee/authentication/saml-authn/saml-client'
 import { platformPlanService } from '../ee/platform/platform-plan/platform-plan.service'
+import { upsertProjectOwnerMember } from '../ee/projects/project-members/project-member-utils'
 import { defaultTheme } from '../flags/theme'
 import { system } from '../helper/system/system'
 import { projectService } from '../project/project-service'
@@ -95,7 +96,8 @@ export const platformService = (log: FastifyBaseLogger) => ({
         log.info({ platformId: savedPlatform.id, ownerId }, 'Platform created')
         return stripFederatedAuth(savedPlatform)
     },
-    async createPlatformWithProject({ identityId, name, invalidatePreviousTokens }: CreatePlatformWithProjectParams): Promise<AuthenticationResponse> {
+    async createPlatformWithProject({ identityId, name, projectDisplayName, invalidatePreviousTokens }: CreatePlatformWithProjectParams): Promise<AuthenticationResponse> {
+        const identity = await userIdentityService(log).getOneOrFail({ id: identityId })
         const newUser = await userService(log).create({
             identityId,
             platformRole: PlatformRole.ADMIN,
@@ -103,10 +105,15 @@ export const platformService = (log: FastifyBaseLogger) => ({
         })
         const platform = await this.create({ ownerId: newUser.id, name })
         const defaultProject = await projectService(log).create({
-            displayName: `${name}'s Project`,
+            displayName: projectDisplayName ?? `${name}'s Project`,
             ownerId: newUser.id,
             platformId: platform.id,
             type: ProjectType.PERSONAL,
+        })
+        await upsertProjectOwnerMember({
+            platformId: platform.id,
+            projectId: defaultProject.id,
+            userId: newUser.id,
         })
         if (invalidatePreviousTokens) {
             await userIdentityRepository().update(identityId, {
@@ -114,7 +121,7 @@ export const platformService = (log: FastifyBaseLogger) => ({
             })
         }
         await authenticationUtils(log).sendTelemetry({
-            identity: await userIdentityService(log).getOneOrFail({ id: identityId }),
+            identity,
             user: newUser,
             projectId: defaultProject.id,
         })
@@ -322,6 +329,7 @@ type UpdateParams = UpdatePlatformRequestBody & {
 type CreatePlatformWithProjectParams = {
     identityId: string
     name: string
+    projectDisplayName?: string
     invalidatePreviousTokens: boolean
 }
 

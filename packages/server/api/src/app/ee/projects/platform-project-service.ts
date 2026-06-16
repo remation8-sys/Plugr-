@@ -16,7 +16,6 @@ import {
     ProjectWithLimits,
     SeekPage,
     spreadIfDefined,
-    TeamProjectsLimit,
     UpdateProjectPlatformRequest,
     UserId } from '@activepieces/shared'
 import { FastifyBaseLogger } from 'fastify'
@@ -197,17 +196,14 @@ export const platformProjectService = (log: FastifyBaseLogger) => ({
                 }
             }
             if (!isNil(request.plan)) {
-                const platform = await platformService(log).getOneWithPlanOrThrow(project.platformId)
-                if (platform.plan.teamProjectsLimit !== TeamProjectsLimit.NONE) {
-                    await projectLimitsService(log).upsert(
-                        {
-                            ...spreadIfDefined('pieces', request.plan.pieces),
-                            ...spreadIfDefined('piecesFilterType', request.plan.piecesFilterType),
-                        },
-                        projectId,
-                        entityManager,
-                    )
-                }
+                await projectLimitsService(log).upsert(
+                    {
+                        ...spreadIfDefined('pieces', request.plan.pieces),
+                        ...spreadIfDefined('piecesFilterType', request.plan.piecesFilterType),
+                    },
+                    projectId,
+                    entityManager,
+                )
             }
         })
         if (resolvedPoolId !== undefined) {

@@ -1,3 +1,4 @@
+import { isNil } from '@activepieces/shared';
 import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
@@ -14,9 +15,13 @@ const AuthenticatePage = () => {
     if (response) {
       const decodedResponse = JSON.parse(response);
       authenticationSession.saveResponse(decodedResponse, false);
-      navigate('/flows');
+      if (isNil(decodedResponse.projectId)) {
+        navigate('/create-platform');
+        return;
+      }
+      navigate(`/projects/${decodedResponse.projectId}/automations`);
     }
-  }, [response]);
+  }, [navigate, response]);
 
   return <>Please wait...</>;
 };

@@ -130,7 +130,7 @@ export const licenseKeysService = (log: FastifyBaseLogger) => ({
     },
     async applyLimits(platformId: string, key: LicenseKeyEntity): Promise<void> {
         const isInternalPlan = !key.ssoEnabled && !key.embeddingEnabled && system.getEdition() === ApEdition.CLOUD
-        const teamProjectsLimit = key.manageProjectsEnabled ? TeamProjectsLimit.UNLIMITED : system.getEdition() === ApEdition.CLOUD ? TeamProjectsLimit.ONE : TeamProjectsLimit.NONE
+        const teamProjectsLimit = TeamProjectsLimit.UNLIMITED
         await platformService(log).update({
             id: platformId,
             plan: {

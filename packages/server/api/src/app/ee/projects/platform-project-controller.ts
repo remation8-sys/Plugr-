@@ -12,7 +12,6 @@ import {
     ProjectWithLimits,
     SeekPage,
     SERVICE_KEY_SECURITY_OPENAPI,
-    TeamProjectsLimit,
     UpdateProjectPlatformRequest,
 } from '@activepieces/shared'
 import { FastifyBaseLogger } from 'fastify'
@@ -38,7 +37,6 @@ export const platformProjectController: FastifyPluginAsyncZod = async (app) => {
     app.post('/', CreateProjectRequest, async (request, reply) => {
         const platformId = request.principal.platform.id
         assertNotNullOrUndefined(platformId, 'platformId')
-        await assertMaximumNumberOfProjectsReachedByEdition(platformId, request.log)
         const projectWithUsage = await platformProjectService(request.log).create({
             platformId,
             displayName: request.body.displayName,
@@ -149,36 +147,6 @@ async function assertProjectIsSafeToDelete(projectId: string, callerPlatformId: 
                 message: 'Personal projects cannot be deleted',
             },
         })
-    }
-}
-
-async function assertMaximumNumberOfProjectsReachedByEdition(platformId: string, log: FastifyBaseLogger): Promise<void> {
-    const platform = await platformService(log).getOneWithPlanOrThrow(platformId)
-
-    switch (platform.plan.teamProjectsLimit) {
-        case TeamProjectsLimit.NONE: {
-            throw new ActivepiecesError({
-                code: ErrorCode.VALIDATION,
-                params: {
-                    message: 'Team projects are not available on your current plan',
-                },
-            })
-        }
-        case TeamProjectsLimit.ONE: {
-            const projectsCount = await projectService(log).countByPlatformIdAndType(platformId, ProjectType.TEAM)
-            if (projectsCount >= 1) {
-                throw new ActivepiecesError({
-                    code: ErrorCode.FEATURE_DISABLED,
-                    params: {
-                        message: 'Maximum limit of 1 team project reached for this plan. Upgrade your plan to add more team projects.',
-                    },
-                })
-            }
-            break
-        }
-        case TeamProjectsLimit.UNLIMITED: {
-            break
-        }
     }
 }
 

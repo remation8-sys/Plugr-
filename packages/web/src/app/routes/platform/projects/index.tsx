@@ -1,8 +1,4 @@
-import {
-  ProjectType,
-  ProjectWithLimits,
-  TeamProjectsLimit,
-} from '@activepieces/shared';
+import { ProjectType, ProjectWithLimits } from '@activepieces/shared';
 import { ColumnDef } from '@tanstack/react-table';
 import { t } from 'i18next';
 import { CheckIcon, Package, Pencil, Trash } from 'lucide-react';
@@ -42,7 +38,6 @@ export default function ProjectsPage() {
   const { platform } = platformHooks.useCurrentPlatform();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const isEnabled = platform.plan.teamProjectsLimit !== TeamProjectsLimit.NONE;
   const { project: currentProject } =
     projectCollectionUtils.useCurrentProject();
 
@@ -57,10 +52,10 @@ export default function ProjectsPage() {
         { replace: true },
       );
     }
-  }, []);
+  }, [searchParams, setSearchParams]);
 
   const displayNameFilter = searchParams.get('displayName') || undefined;
-  const typeFilter = searchParams.getAll('type');
+  const typeFilter = useMemo(() => searchParams.getAll('type'), [searchParams]);
 
   const filters = useMemo(
     () => ({
@@ -70,7 +65,7 @@ export default function ProjectsPage() {
           ? typeFilter.map((t) => t as ProjectType)
           : undefined,
     }),
-    [displayNameFilter, typeFilter.join(',')],
+    [displayNameFilter, typeFilter],
   );
 
   const { data: allProjects } =
@@ -290,14 +285,8 @@ export default function ProjectsPage() {
   );
 
   const toolbarButtons = useMemo(
-    () => [
-      <CreateProjectButton
-        key="new-project"
-        variant="full"
-        projects={allProjects}
-      />,
-    ],
-    [allProjects],
+    () => [<CreateProjectButton key="new-project" variant="full" />],
+    [],
   );
 
   const errorToastMessage = (error: unknown): string | undefined => {
@@ -347,7 +336,7 @@ export default function ProjectsPage() {
   return (
     <LockedFeatureGuard
       featureKey="PROJECTS"
-      locked={!isEnabled}
+      locked={false}
       lockTitle={t('Unlock Projects')}
       lockDescription={t(
         'Orchestrate your automation teams across projects with their own flows, connections and usage quotas',

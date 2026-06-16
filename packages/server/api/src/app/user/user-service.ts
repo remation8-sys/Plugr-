@@ -23,9 +23,11 @@ import dayjs from 'dayjs'
 import { FastifyBaseLogger } from 'fastify'
 import { nanoid } from 'nanoid'
 import { In, IsNull } from 'typeorm'
+import { getRegistrationProjectName } from '../authentication/registration-utils'
 import { userIdentityRepository, userIdentityService } from '../authentication/user-identity/user-identity-service'
 import { repoFactory } from '../core/db/repo-factory'
 import { platformProjectService } from '../ee/projects/platform-project-service'
+import { upsertProjectOwnerMember } from '../ee/projects/project-members/project-member-utils'
 import { projectMemberRepo } from '../ee/projects/project-role/project-role.service'
 import { buildPaginator } from '../helper/pagination/build-paginator'
 import { paginationHelper } from '../helper/pagination/pagination-utils'
@@ -62,14 +64,22 @@ export const userService = (log: FastifyBaseLogger) => ({
                 platformRole: PlatformRole.MEMBER,
             })
 
-            await projectService(log).create({
-                displayName: identity.firstName + '\'s Project',
-                ownerId: newUser.id,
+            await ensurePersonalProjectForUser({
+                identity,
+                user: newUser,
                 platformId,
-                type: ProjectType.PERSONAL,
+                isPrivileged: false,
+                log,
             })
             return newUser
         }
+        await ensurePersonalProjectForUser({
+            identity,
+            user,
+            platformId,
+            isPrivileged: this.isUserPrivileged(user),
+            log,
+        })
         return user
     },
     async updateLastActiveDate({ id }: UpdateLastActiveDateParams): Promise<void> {
@@ -270,6 +280,32 @@ async function assertNotPlatformOwner({ id, platformId, log }: DeleteParams & { 
     }
 }
 
+async function ensurePersonalProjectForUser({
+    identity,
+    user,
+    platformId,
+    isPrivileged,
+    log,
+}: EnsurePersonalProjectForUserParams): Promise<void> {
+    const projects = await projectService(log).getAllForUser({
+        platformId,
+        userId: user.id,
+        isPrivileged,
+    })
+    const personalProject = projects.find((project) => project.ownerId === user.id && project.type === ProjectType.PERSONAL)
+    const project = personalProject ?? await projectService(log).create({
+        displayName: getRegistrationProjectName(identity),
+        ownerId: user.id,
+        platformId,
+        type: ProjectType.PERSONAL,
+    })
+    await upsertProjectOwnerMember({
+        platformId,
+        projectId: project.id,
+        userId: user.id,
+    })
+}
+
 async function getUsersForProject(platformId: PlatformId, projectId: string): Promise<UserId[]> {
     const platformAdmins = await userRepo().find({ where: { platformId, platformRole: PlatformRole.ADMIN } }).then((users) => users.map((user) => user.id))
     const edition = system.getEdition()
@@ -354,4 +390,12 @@ type UpdatePlatformIdParams = {
 type GetOrCreateWithProjectParams = {
     identity: UserIdentity
     platformId: string
+}
+
+type EnsurePersonalProjectForUserParams = {
+    identity: UserIdentity
+    user: User
+    platformId: PlatformId
+    isPrivileged: boolean
+    log: FastifyBaseLogger
 }
