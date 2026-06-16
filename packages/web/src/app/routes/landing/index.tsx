@@ -11,6 +11,7 @@ import { type CSSProperties, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 
 import { PixelCanvas } from './pixel-canvas';
+import { Pricing } from './pricing';
 import { ProductTour } from './product-tour';
 import { WorkflowCanvas } from './workflow-canvas';
 
@@ -146,6 +147,7 @@ function Nav() {
           {[
             { label: 'Features', href: '#features' },
             { label: 'Observability', href: '#observability' },
+            { label: 'Pricing', href: '#pricing' },
             { label: 'Self-hosting', href: '#deploy' },
           ].map((item) => (
             <a
@@ -164,7 +166,7 @@ function Nav() {
           >
             Sign in
           </Link>
-          <PrimaryCta to="/sign-up">Start free</PrimaryCta>
+          <PrimaryCta to="/sign-up">Get started</PrimaryCta>
         </div>
       </nav>
     </header>
@@ -201,7 +203,7 @@ function Hero() {
           </p>
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
             <PrimaryCta to="/sign-up">
-              Start automating free
+              Start automating
               <ArrowRight className="size-4" strokeWidth={1.5} />
             </PrimaryCta>
             <a
@@ -391,11 +393,11 @@ function ClosingCta() {
           Your busywork isn&apos;t going to automate itself.
         </h2>
         <p className="mx-auto mt-5 max-w-xl text-lg text-white/65">
-          Build your first workflow in minutes. Free to start.
+          Build your first workflow in minutes. Plans from $7/month.
         </p>
         <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <PrimaryCta to="/sign-up">
-            Start automating free
+            Get started
             <ArrowRight className="size-4" strokeWidth={1.5} />
           </PrimaryCta>
           <Link
@@ -440,6 +442,11 @@ function Footer() {
                     className="text-white/65 hover:text-white"
                   >
                     Observability
+                  </a>
+                </li>
+                <li>
+                  <a href="#pricing" className="text-white/65 hover:text-white">
+                    Pricing
                   </a>
                 </li>
                 <li>
@@ -494,6 +501,7 @@ export function LandingPage() {
         <ProductTour />
         <ObservabilitySection />
         <DeploySection />
+        <Pricing />
         <ClosingCta />
       </main>
       <Footer />
