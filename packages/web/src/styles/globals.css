@@ -1,8 +1,8 @@
 .welcome-gradient {
     background: linear-gradient(
         to bottom right,
-        rgba(255, 255, 255, 1) 0%,
-        rgba(249, 250, 251, 0.9) 100%
+        hsl(var(--card)) 0%,
+        hsl(var(--background)) 100%
     );
 }
 
@@ -10,8 +10,8 @@
     .welcome-gradient {
         background: linear-gradient(
             to bottom right,
-            rgba(31, 41, 55, 1) 0%,
-            rgba(17, 24, 39, 0.9) 100%
+            hsl(var(--card)) 0%,
+            hsl(var(--background)) 100%
         );
     }
 }
@@ -31,34 +31,34 @@ span.ap-fn-badge.ap-fn-active {
 
 /* Type error on the function */
 span.ap-fn-badge.ap-fn-error {
-    background-color: rgba(239, 68, 68, 0.18) !important;
-    border-color: #ef4444 !important;
-    color: #b91c1c !important;
+    background-color: hsl(var(--destructive) / 0.18) !important;
+    border-color: hsl(var(--destructive)) !important;
+    color: hsl(var(--destructive-700)) !important;
 }
 
 /* Unclosed function — no matching ) badge */
 span.ap-fn-badge.ap-fn-unclosed {
-    background-color: rgba(239, 68, 68, 0.15) !important;
-    border-color: #ef4444 !important;
-    color: #b91c1c !important;
-    text-decoration: underline wavy #ef4444;
+    background-color: hsl(var(--destructive) / 0.15) !important;
+    border-color: hsl(var(--destructive)) !important;
+    color: hsl(var(--destructive-700)) !important;
+    text-decoration: underline wavy hsl(var(--destructive));
     text-underline-offset: 2px;
 }
 
 /* Unknown function name — referenced in a saved formula but not in the registry */
 span.ap-fn-badge.ap-fn-broken {
-    background-color: rgba(239, 68, 68, 0.15) !important;
-    border-color: #ef4444 !important;
-    color: #b91c1c !important;
+    background-color: hsl(var(--destructive) / 0.15) !important;
+    border-color: hsl(var(--destructive)) !important;
+    color: hsl(var(--destructive-700)) !important;
     text-decoration: line-through;
 }
 
 /* Deprecated function — still resolves at runtime, but should be replaced */
 span.ap-fn-badge.ap-fn-deprecated {
-    background-color: rgba(245, 158, 11, 0.15) !important;
-    border-color: #f59e0b !important;
-    color: #b45309 !important;
-    text-decoration: line-through solid #b45309;
+    background-color: hsl(var(--warning) / 0.15) !important;
+    border-color: hsl(var(--warning)) !important;
+    color: hsl(var(--warning-700)) !important;
+    text-decoration: line-through solid hsl(var(--warning-700));
 }
 
 /* Formula Editor */

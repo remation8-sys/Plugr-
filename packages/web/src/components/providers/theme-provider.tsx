@@ -128,7 +128,7 @@ export const useApRipple = () => {
   return RippleHook.default({
     color:
       theme === 'dark'
-        ? 'rgba(233, 233, 233, 0.2)'
+        ? 'rgba(0, 212, 255, 0.18)'
         : 'rgba(155, 155, 155, 0.2)',
     cancelAutomatically: true,
   });

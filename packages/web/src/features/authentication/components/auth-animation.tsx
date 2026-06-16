@@ -574,14 +574,14 @@ function Scene2({
           {/* Main flow: Trigger -> Agent -> Condition */}
           <path
             d="M 195 52 L 195 87"
-            stroke="#9ca3af"
+            stroke="#7AB8CC"
             strokeWidth="2"
             fill="none"
             strokeLinecap="round"
           />
           <path
             d="M 195 139 L 195 174"
-            stroke="#9ca3af"
+            stroke="#7AB8CC"
             strokeWidth="2"
             fill="none"
             strokeLinecap="round"
@@ -589,7 +589,7 @@ function Scene2({
           {/* LEFT BRANCH ENTRY */}
           <path
             d="M 195 226 L 195 241 Q 195 253, 183 253 L 92 253 Q 80 253, 80 265"
-            stroke="#9ca3af"
+            stroke="#7AB8CC"
             strokeWidth="2"
             fill="none"
             strokeLinecap="round"
@@ -598,7 +598,7 @@ function Scene2({
           {/* RIGHT BRANCH ENTRY */}
           <path
             d="M 195 226 L 195 241 Q 195 253, 207 253 L 298 253 Q 310 253, 310 265"
-            stroke="#9ca3af"
+            stroke="#7AB8CC"
             strokeWidth="2"
             fill="none"
             strokeLinecap="round"
@@ -607,7 +607,7 @@ function Scene2({
           {/* LEFT BRANCH vertical */}
           <path
             d="M 80 317 L 80 347"
-            stroke="#9ca3af"
+            stroke="#7AB8CC"
             strokeWidth="2"
             fill="none"
             strokeLinecap="round"
@@ -615,7 +615,7 @@ function Scene2({
           {/* RIGHT BRANCH vertical */}
           <path
             d="M 310 317 L 310 347"
-            stroke="#9ca3af"
+            stroke="#7AB8CC"
             strokeWidth="2"
             fill="none"
             strokeLinecap="round"
@@ -845,7 +845,7 @@ function Scene4({
             y1="0"
             x2="10"
             y2="100%"
-            stroke="#10b981"
+            stroke="#00FF85"
             strokeWidth="2"
             strokeOpacity="0.2"
             strokeLinecap="round"

@@ -47,7 +47,7 @@ export const TextMessage: React.FC<TextMessageProps> = React.memo(
                 <div
                   className={cn(
                     'relative border rounded-md p-4 pt-12',
-                    theme === 'dark' ? 'bg-[#0E1117]' : 'bg-background',
+                    theme === 'dark' ? 'bg-card' : 'bg-background',
                   )}
                 >
                   <ReactCodeMirror

@@ -608,7 +608,7 @@
   }
 
   .react-flow {
-    --xy-edge-stroke: rgba(163, 163, 163, 0.5) !important;
+    --xy-edge-stroke: hsl(var(--muted-foreground) / 0.45) !important;
     --node-boxshadow-selected-default: 0 0 0 0 #b1b1b7 !important;
     --selection-border-default: 0px solid #b1b1b7 !important;
     --node-border-default: 0px solid #b1b1b7 !important;
@@ -689,7 +689,7 @@
 
 .note-node:focus-within:hover {
   ::-webkit-scrollbar-thumb {
-    background: hsla(0, 1%, 66%, 0.328);
+    background: var(--border);
     border-radius: 100px;
     border: 1px;
   }

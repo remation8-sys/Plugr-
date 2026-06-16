@@ -37,7 +37,7 @@ export const TagWithBright = ({
         }`}
         style={{
           backgroundColor: color,
-          color: '#000000',
+          color: '#050D1A',
         }}
       >
         <span

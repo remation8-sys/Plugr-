@@ -4,13 +4,10 @@ import {
   ThirdPartyAuthnProvidersToShowMap,
 } from '@activepieces/shared';
 import { t } from 'i18next';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
-
-import { useTheme } from '@/components/providers/theme-provider';
 import { authenticationSession } from '@/lib/authentication-session';
 import { useRedirectAfterLogin } from '@/lib/navigation-utils';
-import { cn } from '@/lib/utils';
 
 import { FullLogo } from '../../../components/custom/full-logo';
 import { HorizontalSeparatorWithText } from '../../../components/ui/separator';
@@ -113,22 +110,18 @@ const AuthSeparator = ({
   ) : null;
 };
 
-const AuthImage = () => {
-  const [loaded, setLoaded] = useState(false);
-  const onLoad = useCallback(() => setLoaded(true), []);
-
-  return (
-    <img
-      src="https://cdn.activepieces.com/assets/auth-bg.webp"
-      alt=""
-      onLoad={onLoad}
-      className={cn(
-        'absolute inset-0 w-full h-full object-cover transition-opacity duration-300',
-        loaded ? 'opacity-100' : 'opacity-0',
-      )}
+const AuthRightPanel = () => (
+  <div className="absolute inset-0 w-full h-full flex flex-col items-center justify-center gap-6 p-8">
+    <div
+      className="absolute inset-0"
+      style={{
+        background:
+          'radial-gradient(ellipse at 60% 40%, rgb(0 212 255 / 0.12) 0%, transparent 60%), radial-gradient(ellipse at 30% 70%, rgb(0 255 133 / 0.08) 0%, transparent 55%)',
+      }}
     />
-  );
-};
+    <AuthAnimation />
+  </div>
+);
 
 const AuthLayout = ({
   children,
@@ -137,13 +130,8 @@ const AuthLayout = ({
   children: React.ReactNode;
   isSignUp?: boolean;
 }) => {
-  const { setForceLightMode } = useTheme();
-  useEffect(() => {
-    setForceLightMode(true);
-    return () => setForceLightMode(false);
-  }, [setForceLightMode]);
   return (
-    <div className="h-screen w-full overflow-hidden flex bg-white relative">
+    <div className="h-screen w-full overflow-hidden flex bg-background relative">
       {/* Form — left side */}
       <div className="flex flex-col w-full lg:w-1/2 p-5 lg:px-[100px]">
         <div className="pt-3 flex justify-center">
@@ -159,10 +147,10 @@ const AuthLayout = ({
         )}
       </div>
 
-      {/* Right side — animation for sign-up, image for sign-in */}
+      {/* Right side — Plugr branded panel */}
       <div className="hidden lg:flex w-1/2 py-5 pr-5">
-        <div className="relative w-full h-full rounded-2xl overflow-hidden bg-muted">
-          {isSignUp ? <AuthAnimation /> : <AuthImage />}
+        <div className="relative w-full h-full rounded-2xl overflow-hidden bg-card border border-border">
+          <AuthRightPanel />
         </div>
       </div>
     </div>
