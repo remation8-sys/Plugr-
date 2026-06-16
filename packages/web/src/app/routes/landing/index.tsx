@@ -13,6 +13,9 @@ import {
 import { type CSSProperties, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 
+import { PixelCanvas } from './pixel-canvas';
+import { WorkflowCanvas } from './workflow-canvas';
+
 /**
  * Plugr marketing landing page.
  *
@@ -27,6 +30,14 @@ import { Link } from 'react-router-dom';
 
 const BLUE = '#0055ff';
 const INK = '#0d0e1a';
+
+const HERO_PIXELS = [
+  'rgba(0,85,255,0.5)',
+  'rgba(107,140,255,0.4)',
+  'rgba(255,255,255,0.10)',
+  'rgba(255,255,255,0.06)',
+  'rgba(0,85,255,0.25)',
+];
 
 const INTEGRATIONS = [
   'Slack',
@@ -180,58 +191,19 @@ function Nav() {
   );
 }
 
-function HeroTerminal() {
-  const lines = [
-    { dot: '#00c853', label: 'Trigger', detail: 'New row in Google Sheets' },
-    { dot: '#00c853', label: 'AI Agent', detail: 'Enriched company data' },
-    { dot: '#00c853', label: 'Action', detail: 'Sent Slack message · #sales' },
-  ];
-  return (
-    <div
-      className="overflow-hidden rounded-xl border text-left shadow-2xl"
-      style={{ backgroundColor: '#0a0b14', borderColor: 'rgba(255,255,255,0.1)' }}
-    >
-      <div
-        className="flex items-center gap-2 border-b px-4 py-3"
-        style={{ borderColor: 'rgba(255,255,255,0.08)' }}
-      >
-        <span className="h-3 w-3 rounded-full bg-[#ff5f56]" />
-        <span className="h-3 w-3 rounded-full bg-[#ffbd2e]" />
-        <span className="h-3 w-3 rounded-full bg-[#27c93f]" />
-        <span className="ml-3 font-mono text-xs text-white/40">
-          lead-routing.flow
-        </span>
-      </div>
-      <div className="space-y-3 p-5 font-mono text-sm">
-        <div className="text-white/50">
-          <span style={{ color: BLUE }}>$</span> plugr run lead-routing
-        </div>
-        {lines.map((line) => (
-          <div key={line.label} className="flex items-center gap-3">
-            <span
-              className="h-2 w-2 shrink-0 rounded-full"
-              style={{ backgroundColor: line.dot }}
-            />
-            <span className="w-20 shrink-0 text-white/90">{line.label}</span>
-            <span className="text-white/50">{line.detail}</span>
-          </div>
-        ))}
-        <div className="pt-1 text-white/40">● Completed in 1.2s</div>
-      </div>
-    </div>
-  );
-}
-
 function Hero() {
   return (
     <section className="relative overflow-hidden" style={{ backgroundColor: INK }}>
-      <div aria-hidden className="pointer-events-none absolute inset-0" style={GRID_BG} />
+      <PixelCanvas
+        colors={HERO_PIXELS}
+        className="pointer-events-none absolute inset-0 opacity-70"
+      />
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            'radial-gradient(ellipse 60% 50% at 20% 0%, rgba(0,85,255,0.18) 0%, transparent 60%)',
+            'radial-gradient(ellipse 85% 65% at 50% 35%, transparent 0%, #0d0e1a 78%), radial-gradient(ellipse 60% 50% at 20% 0%, rgba(0,85,255,0.18) 0%, transparent 60%)',
         }}
       />
       <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-5 py-20 sm:py-28 lg:grid-cols-2">
@@ -261,7 +233,7 @@ function Hero() {
             </a>
           </div>
         </div>
-        <HeroTerminal />
+        <WorkflowCanvas />
       </div>
 
       {/* Integration strip */}
