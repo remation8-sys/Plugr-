@@ -81,10 +81,13 @@ RUN node -e "\
   process.stdout.write(JSON.stringify(names));\
 " > packages/server/api/dist/src/migration-manifest.json
 
-# Remove piece directories not needed at runtime (keeps only the 4 pieces api imports)
-# Then regenerate bun.lock so it matches the trimmed workspace
-RUN rm -rf packages/pieces/core packages/pieces/custom && \
-    find packages/pieces/community -mindepth 1 -maxdepth 1 -type d \
+# Trim only COMMUNITY pieces down to the ones the API statically imports at
+# runtime (slack, square, facebook-leads, intercom).
+# Core pieces (http, manual-trigger, webhook, schedule, forms, store, ...) and
+# custom pieces are KEPT — the platform must be able to load them locally and
+# must not depend solely on the remote cloud registry.
+# Then regenerate bun.lock so it matches the trimmed workspace.
+RUN find packages/pieces/community -mindepth 1 -maxdepth 1 -type d \
       ! -name slack \
       ! -name square \
       ! -name facebook-leads \
