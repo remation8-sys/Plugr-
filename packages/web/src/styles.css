@@ -610,7 +610,7 @@
   }
 
   .react-flow {
-    --xy-edge-stroke: hsl(var(--muted-foreground) / 0.45) !important;
+    --xy-edge-stroke: hsl(var(--primary) / 0.55) !important;
     --node-boxshadow-selected-default: 0 0 0 0 #b1b1b7 !important;
     --selection-border-default: 0px solid #b1b1b7 !important;
     --node-border-default: 0px solid #b1b1b7 !important;
