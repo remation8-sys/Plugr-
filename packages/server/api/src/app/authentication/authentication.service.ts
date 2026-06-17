@@ -217,7 +217,12 @@ async function sendVerificationOrAutoVerify(userIdentity: UserIdentity, log: Fas
             break
         case ApEdition.COMMUNITY:
         case ApEdition.ENTERPRISE:
-            await userIdentityService(log).verify(userIdentity.id)
+            // Self-hosted editions auto-verify (no email step). The identity may already be
+            // created as verified (e.g. fresh SaaS signup), so guard against re-verifying —
+            // verify() throws "User is already verified" otherwise.
+            if (!userIdentity.verified) {
+                await userIdentityService(log).verify(userIdentity.id)
+            }
             break
     }
 }
