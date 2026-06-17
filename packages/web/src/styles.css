@@ -391,30 +391,31 @@
   }
 
   :root {
-    --background: #050D1A;
-    --foreground: #F0FAFF;
-    --card: #0A1628;
-    --popover: #0A1628;
+    /* Light theme — DESIGN.md "Technical Precision" light surfaces; accents stay on the Plugr brand (cyan) which is injected at runtime from platform branding */
+    --background: #faf8ff;
+    --foreground: #191b25;
+    --card: #ffffff;
+    --popover: #ffffff;
 
-    --secondary: #0099CC;
-    --secondary-foreground: #F0FAFF;
+    --secondary: #dedef6;
+    --secondary-foreground: #434656;
 
-    --muted: #0A1628;
-    --muted-foreground: #7AB8CC;
+    --muted: #ededfb;
+    --muted-foreground: #434656;
 
-    --accent: #0A1628;
-    --accent-foreground: #F0FAFF;
+    --accent: #ededfb;
+    --accent-foreground: #191b25;
 
-    --border: rgb(122 184 204 / 0.24);
-    --input: rgb(122 184 204 / 0.24);
+    --border: #c3c5d9;
+    --input: #c3c5d9;
 
-    --ring: #00D4FF;
+    --ring: #0055ff;
     --radius: 0.5rem;
 
-    --primary-100: 190 100% 88%;
-    --primary: 190 100% 50%;
-    --primary-300: 195 100% 40%;
-    --primary-foreground: 217 68% 6%;
+    --primary-100: 220 100% 93%;
+    --primary: 220 100% 50%;
+    --primary-300: 220 100% 45%;
+    --primary-foreground: 0 0% 100%;
 
     /* Success — Plugr neon green */
     --success-50: 151 100% 96%;
@@ -428,7 +429,7 @@
     --success-800: 151 100% 24%;
     --success-900: 151 100% 18%;
     --success-950: 151 100% 10%;
-    --success: var(--success-500);
+    --success: var(--success-600);
 
     /* Destructive — Plugr coral red */
     --destructive-50: 349 100% 97%;
@@ -442,7 +443,7 @@
     --destructive-800: 349 75% 35%;
     --destructive-900: 349 75% 27%;
     --destructive-950: 349 75% 17%;
-    --destructive: var(--destructive-500);
+    --destructive: var(--destructive-600);
 
     /* Warning — Amber */
     --warning-50: 48 100% 96%;
@@ -456,32 +457,33 @@
     --warning-800: 23 83% 31%;
     --warning-900: 22 78% 26%;
     --warning-950: 21 77% 15%;
-    --warning: var(--warning-500);
+    --warning: var(--warning-600);
 
     --add-button-shadow: 0px 0px 0px 6px hsl(var(--primary-100));
 
     --light-blue: 195 45% 64%;
-    --chart-1: 190 100% 50%;
-    --chart-2: 151 100% 50%;
+    --chart-1: 220 100% 50%;
+    --chart-2: 151 100% 40%;
     --chart-3: 195 100% 40%;
-    --chart-4: 349 100% 65%;
-    --chart-5: 200 100% 97%;
+    --chart-4: 349 88% 56%;
+    --chart-5: 217 33% 45%;
 
-    --sidebar-background: #0A1628;
-    --sidebar-foreground: #F0FAFF;
-    --sidebar-primary: 190 100% 50%;
-    --sidebar-primary-foreground: 217 68% 6%;
+    --sidebar-background: #ffffff;
+    --sidebar-foreground: #191b25;
+    --sidebar-primary: 220 100% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: color-mix(
       in srgb,
-      #00D4FF 18%,
+      #0055ff 12%,
       transparent
     );
-    --sidebar-accent-foreground: #F0FAFF;
-    --sidebar-border: rgb(122 184 204 / 0.24);
-    --sidebar-ring: #00D4FF;
+    --sidebar-accent-foreground: #191b25;
+    --sidebar-border: #c3c5d9;
+    --sidebar-ring: #0055ff;
     --sidebar-progress: 195 45% 64%;
-    --builder-background: #050D1A;
-    --builder-background-pattern: rgb(122 184 204 / 0.32);
+    /* Brighter canvas — light blueprint surface + subtle blue technical grid */
+    --builder-background: #f3f2ff;
+    --builder-background-pattern: rgba(0, 85, 255, 0.07);
   }
 
   .dark {
@@ -498,10 +500,10 @@
     --accent: #0A1628;
     --accent-foreground: #F0FAFF;
 
-    --primary-100: 190 100% 88%;
-    --primary: 190 100% 50%;
-    --primary-300: 195 100% 40%;
-    --primary-foreground: 217 68% 6%;
+    --primary-100: 220 100% 93%;
+    --primary: 220 100% 50%;
+    --primary-300: 220 100% 45%;
+    --primary-foreground: 0 0% 100%;
 
     --success: var(--success-500);
     --destructive: var(--destructive-500);
@@ -511,12 +513,12 @@
     --border: rgb(122 184 204 / 0.24);
     --input: rgb(122 184 204 / 0.24);
 
-    --ring: #00D4FF;
+    --ring: #0055ff;
     --radius: 0.5rem;
 
     --add-button-shadow: 0 0 0 6px hsl(var(--primary-100) / 0.4);
 
-    --chart-1: 190 100% 50%;
+    --chart-1: 220 100% 50%;
     --chart-2: 151 100% 50%;
     --chart-3: 195 100% 40%;
     --chart-4: 349 100% 65%;
@@ -524,12 +526,12 @@
 
     --sidebar-background: #0A1628;
     --sidebar-foreground: #F0FAFF;
-    --sidebar-primary: 190 100% 50%;
-    --sidebar-primary-foreground: 217 68% 6%;
-    --sidebar-accent: rgb(0 212 255 / 0.18);
+    --sidebar-primary: 220 100% 50%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: rgb(0 85 255 / 0.18);
     --sidebar-accent-foreground: #F0FAFF;
     --sidebar-border: rgb(122 184 204 / 0.24);
-    --sidebar-ring: #00D4FF;
+    --sidebar-ring: #0055ff;
     --sidebar-progress: 195 45% 64%;
     --builder-background: #050D1A;
     --builder-background-pattern: rgb(122 184 204 / 0.32);

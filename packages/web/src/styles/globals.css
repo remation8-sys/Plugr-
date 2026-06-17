@@ -20,13 +20,13 @@
 
 /* Cursor is inside this function — subtle outline on the pair */
 span.ap-fn-badge.ap-fn-cursor-active {
-    background-color: #B8F3FF !important;
+    background-color: #bdd3ff !important;
 }
 
 /* Mouse is hovering on a badge — stronger highlight on the pair */
 span.ap-fn-badge.ap-fn-active {
-    background-color: #00D4FF !important;
-    color: #050D1A !important;
+    background-color: #0055ff !important;
+    color: #ffffff !important;
 }
 
 /* Type error on the function */
@@ -79,9 +79,9 @@ span.ap-fn-badge.ap-fn-deprecated {
     margin: 0 1px;
 }
 
-.ap-fn-name-token { color: #00D4FF; font-weight: 600; }
-.ap-fn-paren-open-token { color: #00D4FF; }
-.ap-fn-paren-close-token { color: #00D4FF; }
+.ap-fn-name-token { color: #0055ff; font-weight: 600; }
+.ap-fn-paren-open-token { color: #0055ff; }
+.ap-fn-paren-close-token { color: #0055ff; }
 
 /* CodeMirror formula editor reset */
 .formula-editor .cm-editor { outline: none; }
