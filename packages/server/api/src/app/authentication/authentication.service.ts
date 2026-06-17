@@ -231,15 +231,15 @@ async function getPreferredPlatformIdForFederatedAuthn(email: string, log: Fasti
 }
 
 async function getPreferredPlatformId(identityId: string, log: FastifyBaseLogger): Promise<string | null> {
-    const edition = system.getEdition()
-    if (edition === ApEdition.CLOUD) {
-        const platforms = await platformService(log).listPlatformsForIdentityWithAtleastProject({ identityId }) // this only gets platforms where user is active
-        const identity = await userIdentityService(log).getOneOrFail({ id: identityId })
-        const lastUsed = !isNil(identity.lastLoggedInPlatformId) ? platforms.find((p) => p.id === identity.lastLoggedInPlatformId) : undefined
-        const licensed = platforms.find((p) => !isNil(p.plan.licenseKey))
-        return lastUsed?.id ?? licensed?.id ?? platforms[0]?.id ?? null
-    }
-    return null
+    // Plugr is a multi-tenant SaaS: every user owns their own platform/workspace.
+    // We must resolve the platform the user actually belongs to (like the cloud model)
+    // instead of assuming the single "oldest" platform that self-hosted editions default to.
+    // Without this, customers who sign up into their own workspace could never sign back in.
+    const platforms = await platformService(log).listPlatformsForIdentityWithAtleastProject({ identityId }) // this only gets platforms where user is active
+    const identity = await userIdentityService(log).getOneOrFail({ id: identityId })
+    const lastUsed = !isNil(identity.lastLoggedInPlatformId) ? platforms.find((p) => p.id === identity.lastLoggedInPlatformId) : undefined
+    const licensed = platforms.find((p) => !isNil(p.plan.licenseKey))
+    return lastUsed?.id ?? licensed?.id ?? platforms[0]?.id ?? null
 }
 
 

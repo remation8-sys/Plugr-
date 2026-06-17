@@ -286,7 +286,10 @@ async function getUsage(log: FastifyBaseLogger, platform: PlatformWithoutFederat
 
 async function getPlan(log: FastifyBaseLogger, platform: PlatformWithoutFederatedAuth): Promise<PlatformPlanLimits> {
     const edition = system.getEdition()
-    if (edition === ApEdition.COMMUNITY) {
+    // The operator (David's) platform always reads its real, feature-unlocked plan so the SaaS
+    // admin screens are never blocked — even on COMMUNITY, which otherwise hardcodes the
+    // open-source plan for everyone. getOrCreateForPlatform applies the operator overrides.
+    if (edition === ApEdition.COMMUNITY && !(await isOperatorPlatform(platform.id))) {
         return {
             ...OPEN_SOURCE_PLAN,
             stripeSubscriptionStartDate: 0,
@@ -294,6 +297,28 @@ async function getPlan(log: FastifyBaseLogger, platform: PlatformWithoutFederate
         }
     }
     return platformPlanService(log).getOrCreateForPlatform(platform.id)
+}
+
+// The "operator" platform is the SaaS owner's platform (the first/oldest one created — David's).
+// Its id never changes, so we memoize it. We only cache a real id (never null/undefined) so a
+// fresh install keeps re-checking until the first platform exists.
+let operatorPlatformIdCache: PlatformId | null | undefined
+
+export async function getOperatorPlatformId(): Promise<PlatformId | null> {
+    if (!isNil(operatorPlatformIdCache)) {
+        return operatorPlatformIdCache
+    }
+    const oldest = await platformRepo().findOne({
+        where: {},
+        order: { created: 'ASC' },
+    })
+    operatorPlatformIdCache = oldest?.id ?? null
+    return operatorPlatformIdCache
+}
+
+export async function isOperatorPlatform(platformId: PlatformId): Promise<boolean> {
+    const operatorId = await getOperatorPlatformId()
+    return !isNil(operatorId) && operatorId === platformId
 }
 
 function stripFederatedAuth(platform: Platform): PlatformWithoutFederatedAuth {

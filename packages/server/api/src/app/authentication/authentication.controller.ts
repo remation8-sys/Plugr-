@@ -7,6 +7,7 @@ import { ApplicationEventName,
     UserIdentityProvider,
 } from '@activepieces/shared'
 import { RateLimitOptions } from '@fastify/rate-limit'
+import { FastifyRequest } from 'fastify'
 import { FastifyPluginAsyncZod } from 'fastify-type-provider-zod'
 import { securityAccess } from '../core/security/authorization/fastify-security'
 import { applicationEvents } from '../helper/application-events'
@@ -15,6 +16,7 @@ import { system } from '../helper/system/system'
 import { AppSystemProp } from '../helper/system/system-props'
 import { platformUtils } from '../platform/platform.utils'
 import { userService } from '../user/user-service'
+import { userInvitationsService } from '../user-invitations/user-invitation.service'
 import { authenticationService } from './authentication.service'
 
 export const authenticationController: FastifyPluginAsyncZod = async (
@@ -22,11 +24,15 @@ export const authenticationController: FastifyPluginAsyncZod = async (
 ) => {
     app.post('/sign-up', SignUpRequestOptions, async (request) => {
 
-        const platformId = await platformUtils.getPlatformIdForRequest(request)
+        // Public SaaS signup must create the user's OWN isolated workspace/platform.
+        // We only attach the request's platform (the operator/oldest platform on self-hosted
+        // editions) when the email is actually invited to it. Otherwise we pass null so the
+        // signup service provisions a brand new platform + project for this user.
+        const platformId = await resolveSignUpPlatformId(request, request.body.email)
         const signUpResponse = await authenticationService(request.log).signUp({
             ...request.body,
             provider: UserIdentityProvider.EMAIL,
-            platformId: platformId ?? null,
+            platformId,
         })
 
         if (!isNil(signUpResponse.platformId)) {
@@ -48,11 +54,13 @@ export const authenticationController: FastifyPluginAsyncZod = async (
 
     app.post('/sign-in', SignInRequestOptions, async (request) => {
 
-        const predefinedPlatformId = await platformUtils.getPlatformIdForRequest(request)
+        // Don't pin sign-in to the operator/oldest platform. Each user owns their own
+        // workspace, so we let the service resolve the platform the user actually belongs to
+        // (via their preferred/last-used platform). Passing null enables that resolution.
         const response = await authenticationService(request.log).signInWithPassword({
             email: request.body.email,
             password: request.body.password,
-            predefinedPlatformId,
+            predefinedPlatformId: null,
         })
 
         if (!isNil(response.platformId)) {
@@ -78,6 +86,21 @@ export const authenticationController: FastifyPluginAsyncZod = async (
         })
     })
 
+}
+
+async function resolveSignUpPlatformId(request: FastifyRequest, email: string): Promise<string | null> {
+    const candidatePlatformId = await platformUtils.getPlatformIdForRequest(request)
+    // Cloud-style requests already resolve to null (own platform); nothing to gate.
+    if (isNil(candidatePlatformId)) {
+        return null
+    }
+    // Only join the existing platform when the email has actually been invited to it.
+    // Anyone else gets their own fresh workspace (platformId = null).
+    const isInvited = await userInvitationsService(request.log).hasAnyAcceptedInvitations({
+        platformId: candidatePlatformId,
+        email,
+    })
+    return isInvited ? candidatePlatformId : null
 }
 
 const rateLimitOptions: RateLimitOptions = {

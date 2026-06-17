@@ -1,5 +1,5 @@
 import { apDayjs } from '@activepieces/server-utils'
-import { ActivepiecesError, AiCreditsAutoTopUpState, ApEdition, ApEnvironment, apId, ErrorCode, FlowStatus, isCloudPlanButNotEnterprise, isNil, OPEN_SOURCE_PLAN, PlatformPlan, PlatformPlanLimits, PlatformPlanWithOnlyLimits, PlatformUsage, PlatformUsageMetric, PRICE_ID_MAP, PRICE_NAMES, STANDARD_CLOUD_PLAN, UserWithMetaInformation } from '@activepieces/shared'
+import { ActivepiecesError, AiCreditsAutoTopUpState, ApEdition, ApEnvironment, apId, ErrorCode, FlowStatus, isCloudPlanButNotEnterprise, isNil, OPEN_SOURCE_PLAN, PlanName, PlatformPlan, PlatformPlanLimits, PlatformPlanWithOnlyLimits, PlatformUsage, PlatformUsageMetric, PRICE_ID_MAP, PRICE_NAMES, STANDARD_CLOUD_PLAN, TeamProjectsLimit, UserWithMetaInformation } from '@activepieces/shared'
 import { FastifyBaseLogger } from 'fastify'
 import { repoFactory } from '../../../core/db/repo-factory'
 import { getPlatformPlanNameKey } from '../../../database/redis/keys'
@@ -7,7 +7,7 @@ import { distributedLock, distributedStore } from '../../../database/redis-conne
 import { flowRepo } from '../../../flows/flow/flow.repo'
 import { system } from '../../../helper/system/system'
 import { AppSystemProp } from '../../../helper/system/system-props'
-import { platformService } from '../../../platform/platform.service'
+import { isOperatorPlatform, platformService } from '../../../platform/platform.service'
 import { userService } from '../../../user/user-service'
 import { platformAiCreditsService } from './platform-ai-credits.service'
 import { PlatformPlanEntity } from './platform-plan.entity'
@@ -27,19 +27,8 @@ export const ACTIVE_FLOW_PRICE_ID = getPriceIdFor(PRICE_NAMES.ACTIVE_FLOWS)
 export const platformPlanService = (log: FastifyBaseLogger) => ({
 
     async getOrCreateForPlatform(platformId: string): Promise<PlatformPlan> {
-        const platformPlan = await platformPlanRepo().findOneBy({ platformId })
-        if (!isNil(platformPlan)) return platformPlan
-
-        return distributedLock(log).runExclusive({
-            key: `platform_plan_${platformId}`,
-            timeoutInSeconds: 60,
-            fn: async () => {
-                const platformPlan = await platformPlanRepo().findOneBy({ platformId })
-                if (!isNil(platformPlan)) return platformPlan
-
-                return createInitialBilling(platformId, log)
-            },
-        })
+        const plan = await getOrCreatePlatformPlan(platformId, log)
+        return applyOperatorPlanOverride(platformId, plan)
     },
 
     async getBillingDates(platformPlan: PlatformPlan): Promise<{ startDate: number, endDate: number }> {
@@ -123,6 +112,63 @@ export const platformPlanService = (log: FastifyBaseLogger) => ({
         }
     },
 })
+
+async function getOrCreatePlatformPlan(platformId: string, log: FastifyBaseLogger): Promise<PlatformPlan> {
+    const platformPlan = await platformPlanRepo().findOneBy({ platformId })
+    if (!isNil(platformPlan)) return platformPlan
+
+    return distributedLock(log).runExclusive({
+        key: `platform_plan_${platformId}`,
+        timeoutInSeconds: 60,
+        fn: async () => {
+            const platformPlan = await platformPlanRepo().findOneBy({ platformId })
+            if (!isNil(platformPlan)) return platformPlan
+
+            return createInitialBilling(platformId, log)
+        },
+    })
+}
+
+// Management features the SaaS operator (David's platform) always gets, so the platform-admin
+// screens (branding, pieces, templates, SSO, API keys, audit logs, etc.) are never locked.
+// Applied at read time, so it also covers an already-existing operator plan row and is never
+// wiped by the license trial-tracker (which only touches platforms that hold a license key).
+const PLUGR_OPERATOR_FEATURES: Partial<PlatformPlanWithOnlyLimits> = {
+    tablesEnabled: true,
+    embeddingEnabled: true,
+    agentsEnabled: true,
+    aiProvidersEnabled: true,
+    chatEnabled: true,
+    dataManipulationEnabled: true,
+    globalConnectionsEnabled: true,
+    customRolesEnabled: true,
+    environmentsEnabled: true,
+    eventStreamingEnabled: true,
+    analyticsEnabled: true,
+    auditLogEnabled: true,
+    managePiecesEnabled: true,
+    manageTemplatesEnabled: true,
+    customAppearanceEnabled: true,
+    teamProjectsLimit: TeamProjectsLimit.UNLIMITED,
+    projectRolesEnabled: true,
+    apiKeysEnabled: true,
+    ssoEnabled: true,
+    secretManagersEnabled: true,
+    scimEnabled: true,
+    activeFlowsLimit: null,
+    projectsLimit: null,
+}
+
+async function applyOperatorPlanOverride(platformId: string, plan: PlatformPlan): Promise<PlatformPlan> {
+    if (!(await isOperatorPlatform(platformId))) {
+        return plan
+    }
+    return {
+        ...plan,
+        ...PLUGR_OPERATOR_FEATURES,
+        plan: plan.plan ?? PlanName.ENTERPRISE,
+    }
+}
 
 function getPriceIdFor(price: PRICE_NAMES): string {
     const isDev = stripeSecretKey?.startsWith('sk_test')
