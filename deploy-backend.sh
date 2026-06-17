@@ -33,6 +33,15 @@ test -f dist/packages/engine/main.js                  || { echo "FATAL: engine b
 test -f packages/server/api/dist/src/bootstrap.js     || { echo "FATAL: api build missing"; exit 1; }
 test -f packages/server/worker/dist/src/bootstrap.js  || { echo "FATAL: worker build missing"; exit 1; }
 
+echo "=== esbuild on PATH (Code steps) ==="
+# The worker compiles Code steps by spawning a bare `esbuild`, which must be on
+# PATH. node_modules/.bin is NOT on the PM2 worker's PATH, so expose esbuild in
+# /usr/local/bin (same dir as bun). Symlink targets the .bin shim so it stays
+# valid even when the @esbuild platform version changes on reinstall.
+test -x node_modules/.bin/esbuild || { echo "FATAL: node_modules/.bin/esbuild missing"; exit 1; }
+ln -sf "$(pwd)/node_modules/.bin/esbuild" /usr/local/bin/esbuild
+esbuild --version
+
 echo "=== worker token + container type ==="
 # WORKER_AND_APP keeps the worker from binding its health server to port 3000
 # (the API already owns 3000). The token is a JWT signed with AP_JWT_SECRET.
