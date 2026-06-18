@@ -52,7 +52,7 @@ export const handlerFlowBuilder = {
       tags: [],
       blogUrl: null,
       metadata: null,
-      author: 'Activepieces',
+      author: 'Plugr',
       categories: [],
       pieces: [WEBHOOK_PIECE_NAME],
       platformId: null,

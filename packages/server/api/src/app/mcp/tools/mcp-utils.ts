@@ -158,7 +158,7 @@ function diagnosePieceProps({ props, input, pieceAuth, requireAuth, componentTyp
         parts.push(`Missing required inputs: ${missing.join(', ')}.`)
     }
     if (uiRequired.length > 0) {
-        parts.push(`These inputs require selection from your account and must be configured in the Activepieces UI: ${uiRequired.join(', ')}.`)
+        parts.push(`These inputs require selection from your account and must be configured in the Plugr UI: ${uiRequired.join(', ')}.`)
     }
     if (allProps.length > 0 && unknownKeys.length === 0) {
         parts.push(`Expected inputs: ${allProps.join(', ')}.`)

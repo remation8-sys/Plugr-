@@ -6,7 +6,7 @@ import { SecretManagerProvider, throwConnectionError, throwGetSecretError } from
 async function buildClient(config: OnePasswordProviderConfig) {
     return createClient({
         auth: config.serviceAccountToken,
-        integrationName: 'Activepieces',
+        integrationName: 'Plugr',
         integrationVersion: 'v1.0.0',
     })
 }

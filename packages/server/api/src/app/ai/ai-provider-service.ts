@@ -51,7 +51,7 @@ export const aiProviderService = (log: FastifyBaseLogger) => ({
                 auth: await encryptUtils.encryptObject({}),
                 config: {},
                 provider: AIProviderName.ACTIVEPIECES,
-                displayName: 'Activepieces',
+                displayName: 'Plugr',
                 platformId,
             })
         }
@@ -59,7 +59,7 @@ export const aiProviderService = (log: FastifyBaseLogger) => ({
 
         return configuredProviders.map((p): AIProviderWithoutSensitiveData => ({
             id: p.id,
-            name: p.displayName,
+            name: p.provider === AIProviderName.ACTIVEPIECES ? 'Plugr' : p.displayName,
             provider: p.provider,
             config: p.config,
             enabledForChat: p.enabledForChat ?? false,
@@ -247,7 +247,7 @@ export const aiProviderService = (log: FastifyBaseLogger) => ({
                 auth: await encryptUtils.encryptObject({}),
                 config: {},
                 provider: AIProviderName.ACTIVEPIECES,
-                displayName: 'Activepieces',
+                displayName: 'Plugr',
                 platformId,
             })
         }
@@ -305,7 +305,7 @@ async function enrichWithKeysIfNeeded(aiProvider: AIProviderSchema, platformId: 
         id: aiProvider.id,
         platformId,
         provider: AIProviderName.ACTIVEPIECES,
-        displayName: 'Activepieces',
+        displayName: 'Plugr',
         config: {},
         auth: await encryptUtils.encryptObject(rawAuth),
     })

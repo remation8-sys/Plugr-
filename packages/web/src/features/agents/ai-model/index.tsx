@@ -40,9 +40,9 @@ type AIModelSelectorProps = {
 
 const ACTIVEPIECES_PROVIDER_CONFIG = {
   provider: AIProviderName.ACTIVEPIECES,
-  name: 'Activepieces',
+  name: 'Plugr',
   markdown: '',
-  logoUrl: 'https://cdn.activepieces.com/pieces/activepieces.png',
+  logoUrl: '/plugr-icon.png',
 };
 
 const ALL_PROVIDERS = [...SUPPORTED_AI_PROVIDERS, ACTIVEPIECES_PROVIDER_CONFIG];

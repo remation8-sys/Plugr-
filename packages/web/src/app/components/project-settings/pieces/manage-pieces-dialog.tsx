@@ -58,15 +58,15 @@ export const ManagePiecesDialog = React.memo(
       <Dialog open={open} onOpenChange={(open) => setOpen(open)}>
         <DialogTrigger asChild>
           <Button variant="default" className="flex gap-2 items-center">
-            {t('Manage Pieces')}
+            {t('Manage Plugs')}
           </Button>
         </DialogTrigger>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>{t('Manage Pieces')}</DialogTitle>
+            <DialogTitle>{t('Manage Plugs')}</DialogTitle>
             <DialogDescription>
               {t(
-                'Choose which pieces you want to be available for your current project users',
+                'Choose which plugs you want to be available for your current project users',
               )}
             </DialogDescription>
           </DialogHeader>
@@ -76,9 +76,9 @@ export const ManagePiecesDialog = React.memo(
                 name="pieces"
                 render={({ field }) => (
                   <FormItem className="grid space-y-2">
-                    <Label htmlFor="pieces">{t('Pieces')}</Label>
+                    <Label htmlFor="pieces">{t('Plugs')}</Label>
                     <MultiSelectPieceProperty
-                      placeholder={t('Pieces')}
+                      placeholder={t('Plugs')}
                       options={
                         allPieces?.map((piece) => ({
                           value: piece.name,

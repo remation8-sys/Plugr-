@@ -45,7 +45,7 @@ export const PiecesList: React.FC<PiecesContentProps> = ({
           </div>
         ) : isEmpty ? (
           <div className="h-full flex items-center py-2 justify-center text-muted-foreground">
-            {t('No pieces found')}
+            {t('No plugs found')}
           </div>
         ) : (
           <div className="grid grid-cols-3 gap-4">

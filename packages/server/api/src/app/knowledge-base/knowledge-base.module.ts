@@ -10,7 +10,7 @@ export const knowledgeBaseModule: FastifyPluginAsyncZod = async (app) => {
             throw new ActivepiecesError({
                 code: ErrorCode.FEATURE_DISABLED,
                 params: {
-                    message: 'Knowledge base requires the pgvector extension. Ask your database administrator to run `CREATE EXTENSION vector;` in the Activepieces database, then restart.',
+                    message: 'Knowledge base requires the pgvector extension. Ask your database administrator to run `CREATE EXTENSION vector;` in the Plugr database, then restart.',
                 },
             })
         }

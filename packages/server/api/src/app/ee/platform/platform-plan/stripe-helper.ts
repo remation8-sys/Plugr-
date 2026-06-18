@@ -40,7 +40,7 @@ export const stripeHelper = (log: FastifyBaseLogger) => ({
         const platformBilling = await platformPlanService(log).getOrCreateForPlatform(platformId)
         const session = await stripe.billingPortal.sessions.create({
             customer: platformBilling.stripeCustomerId!,
-            return_url: 'https://cloud.activepieces.com/platform/billing',
+            return_url: `${frontendUrl ?? 'https://plugr.cloud'}/platform/setup/billing`,
         })
 
         return session.url

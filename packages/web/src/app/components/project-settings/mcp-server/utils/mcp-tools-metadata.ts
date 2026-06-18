@@ -35,17 +35,17 @@ export const TOOL_CATEGORIES: ToolCategory[] = [
       {
         name: 'ap_research_pieces',
         description:
-          'Research pieces with actions and triggers — required before adding or updating steps',
+          'Research plugs with actions and triggers — required before adding or updating steps',
       },
       {
         name: 'ap_get_piece_props',
         description:
-          'Get detailed property schema for a specific piece action or trigger',
+          'Get detailed property schema for a specific plug action or trigger',
       },
       {
         name: 'ap_resolve_property_options',
         description:
-          'Resolve dropdown options for a specific piece property — returns available choices with labels and IDs',
+          'Resolve dropdown options for a specific plug property — returns available choices with labels and IDs',
       },
       {
         name: 'ap_resolve_property_chain',

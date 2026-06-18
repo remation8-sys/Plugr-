@@ -131,7 +131,7 @@ const ApplyTags = ({ selectedPieces, onApplyTags }: ApplyTagsProps) => {
                         <ConfirmationDeleteDialog
                           title={t('Delete Tag')}
                           message={t(
-                            'Are you sure you want to delete the tag "{tagName}"? It will be removed from all pieces.',
+                            'Are you sure you want to delete the tag "{tagName}"? It will be removed from all plugs.',
                             { tagName: option.label },
                           )}
                           entityName={option.label}

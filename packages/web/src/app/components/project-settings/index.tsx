@@ -139,7 +139,7 @@ export function ProjectSettingsDialog({
     },
     {
       id: 'pieces' as TabId,
-      label: t('Pieces'),
+      label: t('Plugs'),
       icon: <Puzzle className="w-4 h-4" />,
       disabled: false,
     },

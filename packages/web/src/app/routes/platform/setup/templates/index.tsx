@@ -142,7 +142,7 @@ const PlatformTemplatesPage = () => {
       header: ({ column }) => (
         <DataTableColumnHeader
           column={column}
-          title={t('Pieces')}
+          title={t('Plugs')}
           icon={Puzzle}
         />
       ),

@@ -83,12 +83,12 @@ export function SystemHealthTab({ onSeeRuns }: SystemHealthTabProps) {
                 'The server has sufficient disk space. At least 30GB of disk space is required for optimal operation.',
               )
             : t(
-                'Insufficient disk space. A minimum of 30GB is required for Activepieces to function properly.',
+                'Insufficient disk space. A minimum of 30GB is required for Plugr to function properly.',
               )}
         </span>
       ),
       loading: isPending,
-      link: 'https://www.activepieces.com/docs/install/configuration/hardware#technical-specifications',
+      link: 'https://plugr.cloud',
     },
     {
       id: 'ram',
@@ -106,7 +106,7 @@ export function SystemHealthTab({ onSeeRuns }: SystemHealthTabProps) {
               )}
         </span>
       ),
-      link: 'https://www.activepieces.com/docs/install/configuration/hardware#technical-specifications',
+      link: 'https://plugr.cloud',
       loading: isPending,
     },
     {
@@ -118,14 +118,14 @@ export function SystemHealthTab({ onSeeRuns }: SystemHealthTabProps) {
         <span>
           {systemHealth?.cpu
             ? t(
-                'The server has enough CPU resources. At least 1 CPU core is required to run Activepieces.',
+                'The server has enough CPU resources. At least 1 CPU core is required to run Plugr.',
               )
             : t(
-                'Not enough CPU resources. At least 1 CPU core is necessary to operate Activepieces.',
+                'Not enough CPU resources. At least 1 CPU core is necessary to operate Plugr.',
               )}
         </span>
       ),
-      link: 'https://www.activepieces.com/docs/install/configuration/hardware#technical-specifications',
+      link: 'https://plugr.cloud',
       loading: isPending,
     },
   ];

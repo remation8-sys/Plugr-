@@ -404,7 +404,7 @@ const SamlStep = ({
             markdown={t(
               `
 **Setup Instructions**:
-Please check the following documentation: [SAML SSO](https://activepieces.com/docs/security/sso)
+Please contact Plugr support if you need help configuring SAML SSO.
 
 **Single sign-on URL**:
 \`\`\`text

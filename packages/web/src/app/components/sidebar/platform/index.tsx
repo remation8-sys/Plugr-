@@ -78,7 +78,7 @@ export function PlatformSidebar() {
     },
     {
       to: '/platform/setup/pieces',
-      label: t('Pieces'),
+      label: t('Plugs'),
       icon: PuzzleIcon,
       locked: !platform.plan.managePiecesEnabled,
     },

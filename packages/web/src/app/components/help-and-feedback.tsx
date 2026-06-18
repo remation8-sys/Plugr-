@@ -1,4 +1,4 @@
-import { ApFlagId, supportUrl } from '@activepieces/shared';
+import { ApFlagId } from '@activepieces/shared';
 import { t } from 'i18next';
 import { BookOpen, CircleHelp, History } from 'lucide-react';
 import { Link } from 'react-router-dom';
@@ -25,7 +25,7 @@ export const HelpAndFeedback = () => {
       <DropdownMenuSubContent className="w-[220px]">
         <DropdownMenuItem asChild>
           <Link
-            to="https://activepieces.com/docs"
+            to="https://plugr.cloud"
             target="_blank"
             rel="noopener noreferrer"
             className="flex justify-between w-full"
@@ -58,7 +58,7 @@ export const HelpAndFeedback = () => {
             </div>
             <DropdownMenuItem asChild>
               <Link
-                to={supportUrl}
+                to="mailto:support@plugr.cloud"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="flex justify-between w-full"

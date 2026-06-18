@@ -109,7 +109,7 @@ export function FunctionSearchPopover({
       </div>
       {!hideDocsLink && (
         <a
-          href="https://www.activepieces.com/docs/flows/using-formulas"
+          href="https://plugr.cloud"
           target="_blank"
           rel="noopener noreferrer"
           className={cn(buttonVariants({ variant: 'link', size: 'xs' }))}

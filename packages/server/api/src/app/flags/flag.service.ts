@@ -195,13 +195,13 @@ export const flagService = (log: FastifyBaseLogger) => ({
             },
             {
                 id: ApFlagId.PRIVACY_POLICY_URL,
-                value: 'https://www.activepieces.com/privacy',
+                value: 'https://plugr.cloud/privacy',
                 created,
                 updated,
             },
             {
                 id: ApFlagId.TERMS_OF_SERVICE_URL,
-                value: 'https://www.activepieces.com/terms',
+                value: 'https://plugr.cloud/terms',
                 created,
                 updated,
             },

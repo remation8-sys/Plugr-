@@ -70,7 +70,7 @@ export default function PlatformConnectionsPage() {
     },
     {
       type: 'select',
-      title: t('Piece'),
+      title: t('Plug'),
       accessorKey: 'pieceName',
       icon: Puzzle,
       options: (pieces ?? []).map((piece) => ({

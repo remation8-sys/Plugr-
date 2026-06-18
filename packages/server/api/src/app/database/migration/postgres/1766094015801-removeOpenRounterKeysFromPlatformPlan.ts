@@ -27,7 +27,7 @@ export class RemoveOpenRounterKeysFromPlatformPlan1766094015801 implements Migra
                 apId(),
                 plan.platformId,
                 AIProviderName.ACTIVEPIECES,
-                'Activepieces',
+                'Plugr',
                 encryptedConfig,
             ])
         }

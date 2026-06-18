@@ -147,7 +147,7 @@ const InstallPieceDialog = ({
           case HttpStatusCode.Conflict:
             form.setError('root.serverError', {
               message: t(
-                'A piece with this name and version is already installed. Please update the version number in package.json and try again.',
+                'A plug with this name and version is already installed. Please update the version number in package.json and try again.',
               ),
             });
             break;
@@ -165,16 +165,16 @@ const InstallPieceDialog = ({
     <Dialog open={isOpen} onOpenChange={(open) => setIsOpen(open)}>
       <DialogTrigger asChild>
         <AnimatedIconButton icon={PlusIcon} iconSize={16} size="sm">
-          {t('Install Piece')}
+          {t('Install Plug')}
         </AnimatedIconButton>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>{t('Install a piece')}</DialogTitle>
+          <DialogTitle>{t('Install a plug')}</DialogTitle>
           <DialogDescription>
             <ApMarkdown
               markdown={
-                'Use this to install a [custom piece]("https://www.activepieces.com/docs/build-pieces/building-pieces/create-action") that you (or someone else) created. Once the piece is installed, you can use it in the flow builder.\n\nWarning: Make sure you trust the author as the piece will have access to your flow data and it might not be compatible with the current version of Activepieces.'
+                'Use this to install a custom plug that you (or someone else) created. Once the plug is installed, you can use it in the flow builder.\n\nWarning: Make sure you trust the author as the plug will have access to your flow data and it might not be compatible with the current version of Plugr.'
               }
             />
           </DialogDescription>
@@ -239,7 +239,7 @@ const InstallPieceDialog = ({
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel htmlFor="pieceName">
-                        {t('Piece Name')}
+                        {t('Plug Name')}
                       </FormLabel>
                       <Input
                         {...field}

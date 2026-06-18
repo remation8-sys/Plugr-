@@ -65,8 +65,8 @@ export function generateTheme({
 
 export const defaultTheme = generateTheme({
     primaryColor: '#0055ff',
-    websiteName: 'Activepieces',
-    fullLogoUrl: 'https://cdn.activepieces.com/brand/full-logo.png',
-    favIconUrl: 'https://cdn.activepieces.com/brand/logo.svg',
-    logoIconUrl: 'https://cdn.activepieces.com/brand/logo.svg',
+    websiteName: 'Plugr',
+    fullLogoUrl: '/plugr-icon.png',
+    favIconUrl: '/plugr-icon.png',
+    logoIconUrl: '/plugr-icon.png',
 })

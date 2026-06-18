@@ -26,8 +26,7 @@ import LockedFeatureGuard from '../../../../components/locked-feature-guard';
 
 import { AIProviderCard } from './universal-pieces/ai-provider-card';
 
-const ACTIVEPIECES_LOGO_URL =
-  'https://cdn.activepieces.com/pieces/activepieces.png';
+const ACTIVEPIECES_LOGO_URL = '/plugr-icon.png';
 
 export default function AIProvidersPage() {
   const { data: providers, refetch } = aiProviderQueries.useAiProviders();
@@ -54,7 +53,7 @@ export default function AIProvidersPage() {
       locked={currentUser?.platformRole !== PlatformRole.ADMIN}
       lockTitle={t('Unlock AI')}
       lockDescription={t(
-        'Set your AI providers so your users enjoy a seamless building experience with our universal AI pieces',
+        'Set your AI providers so your users enjoy a seamless building experience with our universal AI plugs',
       )}
     >
       <CenteredPage
@@ -62,10 +61,10 @@ export default function AIProvidersPage() {
         description={
           allowWrite
             ? t(
-                'Set provider credentials that will be used by universal AI pieces, i.e Text AI.',
+                'Set provider credentials that will be used by universal AI plugs, i.e Text AI.',
               )
             : t(
-                'Available AI providers that will be used by universal AI pieces, i.e Text AI.',
+                'Available AI providers that will be used by universal AI plugs, i.e Text AI.',
               )
         }
       >

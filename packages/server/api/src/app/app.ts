@@ -117,7 +117,7 @@ export const setupApp = async (app: FastifyInstance): Promise<FastifyInstance> =
             openapi: '3.1.0',
             servers: [
                 {
-                    url: 'https://cloud.activepieces.com/api',
+                    url: 'https://plugr.cloud/api',
                     description: 'Production Server',
                 },
             ],
@@ -134,11 +134,11 @@ export const setupApp = async (app: FastifyInstance): Promise<FastifyInstance> =
                 },
             },
             info: {
-                title: 'Activepieces Documentation',
+                title: 'Plugr Documentation',
                 version: '0.0.0',
             },
             externalDocs: {
-                url: 'https://www.activepieces.com/docs',
+                url: 'https://plugr.cloud',
                 description: 'Find more info here',
             },
         },
@@ -238,7 +238,7 @@ export const setupApp = async (app: FastifyInstance): Promise<FastifyInstance> =
     const edition = system.getEdition()
     app.log.info({
         edition,
-    }, 'Activepieces Edition')
+    }, 'Plugr Edition')
     switch (edition) {
         case ApEdition.CLOUD:
             await app.register(adminPlatformModule)

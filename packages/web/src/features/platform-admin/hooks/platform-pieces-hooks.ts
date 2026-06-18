@@ -59,9 +59,9 @@ export const platformPiecesMutations = {
         await piecesApi.syncFromCloud();
       },
       onSuccess: () => {
-        toast.success(t('Pieces synced'), {
+        toast.success(t('Plugs synced'), {
           description: t(
-            'Pieces have been synced from the activepieces cloud.',
+            'Plugs have been synced from the Plugr cloud.',
           ),
         });
       },

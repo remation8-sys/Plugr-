@@ -2,7 +2,6 @@ import { t } from 'i18next';
 
 import { AnimatedIconButton } from '@/components/custom/animated-icon-button';
 import { SendIcon } from '@/components/icons/send';
-import { flagsHooks } from '@/hooks/flags-hooks';
 import { userHooks } from '@/hooks/user-hooks';
 
 export type FeatureKey =
@@ -46,28 +45,20 @@ export const RequestTrial = ({
   buttonSize = 'default',
 }: RequestTrialProps) => {
   const { data: currentUser } = userHooks.useCurrentUser();
-  const { data: flags } = flagsHooks.useFlags();
 
-  const createQueryParams = () => {
-    const params = {
-      firstName: currentUser?.firstName || '',
-      lastName: currentUser?.lastName || '',
-      email: currentUser?.email || '',
-      featureKey,
-      flags: btoa(JSON.stringify(flags)),
-    };
-
-    return Object.entries(params)
-      .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
-      .join('&');
-  };
-
-  const handleClick = () =>
+  const handleClick = () => {
+    const supportParams = new URLSearchParams({
+      subject: `Plugr ${featureKey} inquiry`,
+      body: `Hi Plugr team,\n\nI'd like to learn more about ${featureKey}.\n\nName: ${
+        currentUser?.firstName ?? ''
+      } ${currentUser?.lastName ?? ''}\nEmail: ${currentUser?.email ?? ''}`,
+    });
     window.open(
-      `https://www.activepieces.com/sales?${createQueryParams()}`,
+      `mailto:support@plugr.cloud?${supportParams.toString()}`,
       '_blank',
       'noopener noreferrer',
     );
+  };
 
   return (
     <AnimatedIconButton

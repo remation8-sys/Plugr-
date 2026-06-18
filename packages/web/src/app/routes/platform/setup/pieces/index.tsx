@@ -144,15 +144,15 @@ const PlatformPiecesPage = () => {
   return (
     <>
       <DashboardPageHeader
-        description={t('Manage the pieces that are available to your users')}
-        title={t('Pieces')}
+        description={t('Manage the plugs that are available to your users')}
+        title={t('Plugs')}
       />
       <div className="mx-auto w-full flex flex-col flex-1 min-h-0">
         {!isEnabled && (
           <LockedAlert
-            title={t('Control Pieces')}
+            title={t('Control Plugs')}
             description={t(
-              "Show the pieces that matter most to your users and hide the ones you don't like.",
+              "Show the plugs that matter most to your users and hide the ones you don't like.",
             )}
             button={
               <RequestTrial
@@ -163,16 +163,16 @@ const PlatformPiecesPage = () => {
           />
         )}
         <DataTable
-          emptyStateTextTitle={t('No pieces found')}
+          emptyStateTextTitle={t('No plugs found')}
           emptyStateTextDescription={t(
-            'Start by installing pieces that you want to use in your automations',
+            'Start by installing plugs that you want to use in your automations',
           )}
           emptyStateIcon={<Package className="size-14" />}
           columns={columns}
           filters={[
             {
               type: 'input',
-              title: t('Piece Name'),
+              title: t('Plug Name'),
               accessorKey: 'name',
               icon: CheckIcon,
             },

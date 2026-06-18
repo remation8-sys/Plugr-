@@ -143,7 +143,7 @@ function AppConnectionsPage() {
         },
         {
           type: 'select',
-          title: t('Pieces'),
+          title: t('Plugs'),
           accessorKey: 'pieceName',
           icon: Puzzle,
           options: pieceOptions,

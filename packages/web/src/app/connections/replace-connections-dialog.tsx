@@ -238,7 +238,7 @@ const ReplaceConnectionsDialog = ({
                 name="pieceName"
                 render={({ field }) => (
                   <div className="flex flex-col gap-2">
-                    <Label>{t('Piece')}</Label>
+                    <Label>{t('Plug')}</Label>
                     <SearchableSelect
                       value={field.value}
                       onChange={(value) => {

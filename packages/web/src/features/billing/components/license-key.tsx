@@ -58,7 +58,7 @@ export const LicenseKey = ({
         <ItemActions className="gap-4">
           <Button variant="ghost" size="sm" asChild>
             <a
-              href="https://www.activepieces.com/pricing"
+              href="https://plugr.cloud"
               target="_blank"
               rel="noopener noreferrer"
             >

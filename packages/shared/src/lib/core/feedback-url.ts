@@ -1,1 +1,1 @@
-export const feedbackUrl = 'https://feedback.activepieces.com'
+export const feedbackUrl = 'mailto:support@plugr.cloud?subject=Plugr%20feedback'

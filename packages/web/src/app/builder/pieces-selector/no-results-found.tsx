@@ -16,7 +16,7 @@ const NoResultsFound = () => {
   return (
     <div className="flex flex-col gap-2 items-center justify-center h-full ">
       <SearchX className="w-14 h-14" />
-      <div className="text-sm ">{t('No pieces found')}</div>
+      <div className="text-sm ">{t('No plugs found')}</div>
       <div className="text-sm ">{t('Try adjusting your search')}</div>
       {showRequestPieceButton && (
         <Button
@@ -26,7 +26,7 @@ const NoResultsFound = () => {
             window.open(`${feedbackUrl}`, '_blank', 'noopener noreferrer');
           }}
         >
-          {t('Request Piece')}
+          {t('Request Plug')}
         </Button>
       )}
     </div>

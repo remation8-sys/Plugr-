@@ -17,7 +17,7 @@ export const scimDiscoveryController: FastifyPluginAsyncZod = async (app) => {
     app.get('/ServiceProviderConfig', ServiceProviderConfigRequest, async (_request, reply) => {
         return reply.status(StatusCodes.OK).send({
             schemas: [SCIM_SERVICE_PROVIDER_CONFIG_SCHEMA],
-            documentationUri: 'https://www.activepieces.com/docs/admin-guide/guides/scim/overview',
+            documentationUri: 'https://plugr.cloud',
             patch: {
                 supported: true,
             },
@@ -45,7 +45,7 @@ export const scimDiscoveryController: FastifyPluginAsyncZod = async (app) => {
                     name: 'OAuth Bearer Token',
                     description: 'Authentication scheme using the API key as a Bearer token',
                     specUri: 'https://www.rfc-editor.org/info/rfc6750',
-                    documentationUri: 'https://www.activepieces.com/docs',
+                    documentationUri: 'https://plugr.cloud',
                 },
             ],
             meta: {
@@ -74,7 +74,7 @@ export const scimDiscoveryController: FastifyPluginAsyncZod = async (app) => {
                 id: 'Group',
                 name: 'Group',
                 endpoint: '/Groups',
-                description: 'Group (mapped to Activepieces Projects)',
+                description: 'Group (mapped to Plugr Projects)',
                 schema: SCIM_GROUP_SCHEMA,
                 meta: {
                     resourceType: 'ResourceType',
@@ -205,7 +205,7 @@ export const scimDiscoveryController: FastifyPluginAsyncZod = async (app) => {
                 schemas: [SCIM_SCHEMA_SCHEMA],
                 id: SCIM_GROUP_SCHEMA,
                 name: 'Group',
-                description: 'Group (mapped to Activepieces Projects)',
+                description: 'Group (mapped to Plugr Projects)',
                 attributes: [
                     {
                         name: 'displayName',

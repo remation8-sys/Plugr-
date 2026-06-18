@@ -22,13 +22,13 @@ const LICENSE_PROPS_MAP = {
     label: 'Global Connections',
   },
   managePiecesEnabled: {
-    label: 'Manage Pieces',
+    label: 'Manage Plugs',
   },
   manageTemplatesEnabled: {
     label: 'Manage Templates',
   },
   customAppearanceEnabled: {
-    label: 'Brand Activepieces',
+    label: 'Brand Plugr',
   },
   teamProjectsLimit: {
     label: 'Team Projects Limit',

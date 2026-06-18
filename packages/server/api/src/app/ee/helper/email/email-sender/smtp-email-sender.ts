@@ -101,7 +101,7 @@ const renderEmailBody = async ({ platform, templateData }: RenderEmailBodyArgs):
         primaryColorLight,
         fullLogoUrl,
         platformName,
-        footerContent: edition === ApEdition.CLOUD ? 'Activepieces, Inc. 398 11th Street, 2nd floor, San Francisco, CA 94103' : '',
+        footerContent: edition === ApEdition.CLOUD ? 'Plugr' : '',
     },
     {
         footer,

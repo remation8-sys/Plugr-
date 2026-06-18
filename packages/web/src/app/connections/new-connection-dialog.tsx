@@ -92,7 +92,7 @@ const NewConnectionDialog = React.memo(
               <div className="grid grid-cols-4 gap-4">
                 {(isLoading ||
                   (filteredPieces && filteredPieces.length === 0)) && (
-                  <div className="text-center">{t('No pieces found')}</div>
+                  <div className="text-center">{t('No plugs found')}</div>
                 )}
                 {!isLoading &&
                   filteredPieces &&

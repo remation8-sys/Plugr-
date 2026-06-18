@@ -21,7 +21,7 @@ const columns: ColumnDef<RowDataWithActions<PieceMetadataModelSummary>>[] = [
   {
     accessorKey: 'name',
     header: ({ column }) => (
-      <DataTableColumnHeader column={column} title={t('Piece')} icon={Puzzle} />
+      <DataTableColumnHeader column={column} title={t('Plug')} icon={Puzzle} />
     ),
     cell: ({ row }) => {
       return (
@@ -86,9 +86,9 @@ const columns: ColumnDef<RowDataWithActions<PieceMetadataModelSummary>>[] = [
       return (
         <ConfirmationDeleteDialog
           title={t('Delete {name}', { name: row.original.name })}
-          entityName={t('Piece')}
+          entityName={t('Plug')}
           message={t(
-            'This will permanently delete this piece, all steps using it will fail.',
+            'This will permanently delete this plug, all steps using it will fail.',
           )}
           mutationFn={async () => {
             row.original.delete();
@@ -123,7 +123,7 @@ const PiecesSettings = () => {
     () => [
       <DataTableInputPopover
         key="search"
-        title={t('Piece Name')}
+        title={t('Plug Name')}
         filterValue={searchQuery}
         handleFilterChange={setSearchQuery}
       />,
@@ -135,9 +135,9 @@ const PiecesSettings = () => {
     <div className="space-y-6">
       {!platform.plan.managePiecesEnabled && (
         <LockedAlert
-          title={t('Control Pieces')}
+          title={t('Control Plugs')}
           description={t(
-            "Show the pieces that matter most to your users and hide the ones you don't like.",
+            "Show the plugs that matter most to your users and hide the ones you don't like.",
           )}
           button={
             <RequestTrial
@@ -148,9 +148,9 @@ const PiecesSettings = () => {
         />
       )}
       <DataTable
-        emptyStateTextTitle={t('No pieces found')}
+        emptyStateTextTitle={t('No plugs found')}
         emptyStateTextDescription={t(
-          'Add a piece to your project that you want to use in your automations',
+          'Add a plug to your project that you want to use in your automations',
         )}
         emptyStateIcon={<Package className="size-14" />}
         columns={columns}

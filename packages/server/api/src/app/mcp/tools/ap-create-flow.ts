@@ -8,7 +8,7 @@ export const apCreateFlowTool = ({ mcp, userId }: McpToolContext, log: FastifyBa
     return {
         title: 'ap_create_flow',
         permission: Permission.WRITE_FLOW,
-        description: 'Create a new flow in Activepieces',
+        description: 'Create a new flow in Plugr',
         inputSchema: {
             flowName: z.string().trim().min(1, 'Flow name cannot be empty').max(255, 'Flow name must be 255 characters or less').describe('The name of the flow'),
         },

@@ -40,7 +40,8 @@ export function AICreditUsage({ platformSubscription }: AiCreditUsageProps) {
 
   const totalCreditsUsed = usage.totalAiCreditsUsed;
   const creditsRemaining = usage.aiCreditsRemaining;
-  const isCloud = window.location.hostname.includes('cloud.activepieces.com');
+  const { data: edition } = flagsHooks.useFlag<ApEdition>(ApFlagId.EDITION);
+  const isCloud = edition === ApEdition.CLOUD;
   const autoTopUpState =
     plan.aiCreditsAutoTopUpState ?? AiCreditsAutoTopUpState.DISABLED;
 

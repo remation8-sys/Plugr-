@@ -43,7 +43,7 @@ async function connectionGuide(mcp: ProjectScopedMcpServer, log: FastifyBaseLogg
                 text: [
                     'How to set up a connection:',
                     '',
-                    '1. Open your Activepieces dashboard',
+                    '1. Open your Plugr dashboard',
                     '2. Go to Settings → Connections',
                     '3. Click "+ New Connection"',
                     '4. Select the piece/app you want to connect',
@@ -95,7 +95,7 @@ async function connectionGuide(mcp: ProjectScopedMcpServer, log: FastifyBaseLogg
     switch (authType) {
         case PropertyType.OAUTH2:
             lines.push(
-                '1. Open your Activepieces dashboard',
+                '1. Open your Plugr dashboard',
                 '2. Go to Settings → Connections → "+ New Connection"',
                 `3. Select "${piece.displayName}"`,
                 '4. Click "Connect" — an OAuth popup will open',
@@ -105,7 +105,7 @@ async function connectionGuide(mcp: ProjectScopedMcpServer, log: FastifyBaseLogg
             break
         case PropertyType.SECRET_TEXT:
             lines.push(
-                '1. Open your Activepieces dashboard',
+                '1. Open your Plugr dashboard',
                 '2. Go to Settings → Connections → "+ New Connection"',
                 `3. Select "${piece.displayName}"`,
                 `4. Enter your API key or token${'description' in auth && auth.description ? ` (${auth.description})` : ''}`,
@@ -114,7 +114,7 @@ async function connectionGuide(mcp: ProjectScopedMcpServer, log: FastifyBaseLogg
             break
         case PropertyType.BASIC_AUTH:
             lines.push(
-                '1. Open your Activepieces dashboard',
+                '1. Open your Plugr dashboard',
                 '2. Go to Settings → Connections → "+ New Connection"',
                 `3. Select "${piece.displayName}"`,
                 '4. Enter your username and password',
@@ -129,7 +129,7 @@ async function connectionGuide(mcp: ProjectScopedMcpServer, log: FastifyBaseLogg
                 return `  - ${p.displayName ?? key}${req}`
             })
             lines.push(
-                '1. Open your Activepieces dashboard',
+                '1. Open your Plugr dashboard',
                 '2. Go to Settings → Connections → "+ New Connection"',
                 `3. Select "${piece.displayName}"`,
                 '4. Fill in the following fields:',
@@ -140,7 +140,7 @@ async function connectionGuide(mcp: ProjectScopedMcpServer, log: FastifyBaseLogg
         }
         default:
             lines.push(
-                '1. Open your Activepieces dashboard',
+                '1. Open your Plugr dashboard',
                 '2. Go to Settings → Connections → "+ New Connection"',
                 `3. Select "${piece.displayName}"`,
                 '4. Follow the prompts to complete the setup',
@@ -208,7 +208,7 @@ async function aiProviderGuide(mcp: ProjectScopedMcpServer, log: FastifyBaseLogg
 
     lines.push(
         '',
-        '1. Open your Activepieces dashboard',
+        '1. Open your Plugr dashboard',
         '2. Go to Settings → AI Providers',
         '3. Click "+ Add Provider"',
         '4. Select a provider and enter your API key:',
