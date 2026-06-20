@@ -287,7 +287,7 @@ function ChatBoxContent({
               lastAssistantMessage={lastAssistantMessage}
               lastMessageId={lastMessage?.id}
               placeholder={
-                isEmpty ? t('Ask, build, or run a task...') : undefined
+                isEmpty ? t('Tell Plugr what to automate...') : undefined
               }
             />
           </div>

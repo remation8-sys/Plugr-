@@ -112,17 +112,17 @@ function Greeting({
           t('Private Chat')
         ) : firstName ? (
           <>
-            {t("Let's get")}
+            {t('What should I automate')}
             <br />
-            {t('unbusy, {name}?', { name: firstName })} 👋
+            {t('next, {name}?', { name: firstName })} ⚡
           </>
         ) : (
-          <>{t("Let's get unbusy?")} 👋</>
+          <>{t('What should I automate next?')} ⚡</>
         )}
       </h1>
       {!incognito && (
         <p className="text-base text-muted-foreground">
-          {t('I can do all your work, just name it!')}
+          {t("I'm Plugr. Tell me what to automate and I'll handle everything.")}
         </p>
       )}
     </motion.div>
@@ -235,22 +235,23 @@ function TextSuggestions({
 
 const FLOW_CARDS: FlowCardData[] = [
   {
-    title: 'Cleanup Spam Emails',
+    title: 'Clean Up My Inbox',
     description:
-      'Find promotional emails from the last week and move them to spam automatically',
+      'Find junk and promo emails and clear them out of my inbox automatically',
     image: '/chat-suggestions/card-cleanup-spam.svg',
     bgImage: '/chat-suggestions/card-background-1.svg',
   },
   {
-    title: 'Lead Enrichment',
-    description: 'Enrich my leads with person and company info automatically',
+    title: 'Capture and Follow Up Leads',
+    description:
+      'Save new leads from my forms and send them a personalised follow-up automatically',
     image: '/chat-suggestions/card-lead-enrichment.svg',
     bgImage: '/chat-suggestions/card-background-2.svg',
   },
   {
     title: 'Triage Support Tickets',
     description:
-      'Classify incoming support emails and forward each to the right person automatically',
+      'Sort incoming support messages and send each to the right person automatically',
     image: '/chat-suggestions/card-triage-support.svg',
     bgImage: '/chat-suggestions/card-background-3.svg',
     wide: true,

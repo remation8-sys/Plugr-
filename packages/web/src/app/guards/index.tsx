@@ -31,7 +31,7 @@ function chatElement() {
   return (
     <AllowOnlyLoggedInUserOnlyGuard>
       <ProjectDashboardLayout>
-        <PageTitle title="Chat">
+        <PageTitle title="Chat" separator="—">
           <Suspense fallback={<RouteLoadingBar />}>
             <ChatWithAIPage />
           </Suspense>
