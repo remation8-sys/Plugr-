@@ -3,7 +3,7 @@ import { useMutation } from '@tanstack/react-query';
 import { HttpStatusCode } from 'axios';
 import { t } from 'i18next';
 import { useForm, SubmitHandler } from 'react-hook-form';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 
 import { platformApi } from '@/api/platforms-api';
 import { Button } from '@/components/ui/button';
@@ -13,14 +13,13 @@ import { Label } from '@/components/ui/label';
 import { AuthLayout } from '@/features/authentication/components/auth-form-template';
 import { api } from '@/lib/api';
 import { authenticationSession } from '@/lib/authentication-session';
-import { useRedirectAfterLogin } from '@/lib/navigation-utils';
 
 type CreatePlatformSchema = {
   name: string;
 };
 
 function CreatePlatformForm() {
-  const redirectAfterLogin = useRedirectAfterLogin();
+  const navigate = useNavigate();
   const form = useForm<CreatePlatformSchema>({
     defaultValues: {
       name: '',
@@ -32,7 +31,7 @@ function CreatePlatformForm() {
     mutationFn: platformApi.createPlatform,
     onSuccess: (data) => {
       authenticationSession.saveResponse(data, false);
-      redirectAfterLogin();
+      navigate('/onboarding/connect-tools');
     },
     onError: (error) => {
       const isBadRequest =

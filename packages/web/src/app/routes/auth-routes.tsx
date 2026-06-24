@@ -5,6 +5,7 @@ import { AcceptInvitation } from '@/features/members';
 import { ChangePasswordPage } from './change-password';
 import { CreatePlatformPage } from './create-platform';
 import { ResetPasswordPage } from './forget-password';
+import { ConnectToolsPage } from './onboarding/connect-tools';
 import { SignInPage } from './sign-in';
 import { SignUpPage } from './sign-up';
 
@@ -54,6 +55,14 @@ export const authRoutes = [
     element: (
       <PageTitle title="Create Platform">
         <CreatePlatformPage />
+      </PageTitle>
+    ),
+  },
+  {
+    path: '/onboarding/connect-tools',
+    element: (
+      <PageTitle title="Connect Your Tools">
+        <ConnectToolsPage />
       </PageTitle>
     ),
   },
