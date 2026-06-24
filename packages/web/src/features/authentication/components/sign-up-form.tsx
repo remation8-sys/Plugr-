@@ -97,7 +97,7 @@ const SignUpForm = ({
           navigate('/create-platform');
           return;
         }
-        navigate(`/projects/${data.projectId}/automations`);
+        navigate('/onboarding/connect-tools');
       } else {
         setShowCheckYourEmailNote(true);
       }
