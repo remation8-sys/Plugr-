@@ -35,6 +35,78 @@ export const UserEntity = new EntitySchema<UserSchema>({
             type: 'timestamp with time zone',
             nullable: true,
         },
+        subscriptionTier: {
+            type: String,
+            nullable: false,
+            default: 'trial',
+        },
+        subscriptionStatus: {
+            type: String,
+            nullable: false,
+            default: 'trial',
+        },
+        subscriptionPeriod: {
+            type: String,
+            nullable: false,
+            default: 'monthly',
+        },
+        trialStartsAt: {
+            type: 'timestamp with time zone',
+            nullable: true,
+        },
+        trialEndsAt: {
+            type: 'timestamp with time zone',
+            nullable: true,
+        },
+        subscriptionStartsAt: {
+            type: 'timestamp with time zone',
+            nullable: true,
+        },
+        subscriptionEndsAt: {
+            type: 'timestamp with time zone',
+            nullable: true,
+        },
+        flutterwaveCustomerId: {
+            type: String,
+            nullable: true,
+        },
+        flutterwaveSubscriptionId: {
+            type: String,
+            nullable: true,
+        },
+        flutterwavePlanId: {
+            type: String,
+            nullable: true,
+        },
+        billingCountry: {
+            type: String,
+            nullable: false,
+            default: 'OTHER',
+        },
+        billingCurrency: {
+            type: String,
+            nullable: false,
+            default: 'USD',
+        },
+        aiCreditsIncluded: {
+            type: Number,
+            nullable: false,
+            default: 0,
+        },
+        aiCreditsUsed: {
+            type: Number,
+            nullable: false,
+            default: 0,
+        },
+        aiCreditsPurchased: {
+            type: Number,
+            nullable: false,
+            default: 0,
+        },
+        aiCreditsResetAt: {
+            type: 'timestamp with time zone',
+            nullable: true,
+        },
     },
     indices: [
         {

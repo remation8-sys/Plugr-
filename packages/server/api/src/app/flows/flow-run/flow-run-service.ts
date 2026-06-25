@@ -35,6 +35,7 @@ import { context, propagation, trace } from '@opentelemetry/api'
 import { FastifyBaseLogger } from 'fastify'
 import pLimit from 'p-limit'
 import { ArrayContains, In, IsNull, Not, Repository, SelectQueryBuilder } from 'typeorm'
+import { plugrBillingService } from '../../billing/billing.service'
 import { repoFactory } from '../../core/db/repo-factory'
 import { fileService } from '../../file/file.service'
 import { buildPaginator } from '../../helper/pagination/build-paginator'
@@ -326,6 +327,18 @@ export const flowRunService = (log: FastifyBaseLogger) => ({
                 }, log)
                 span.setAttribute('flowRun.id', newFlowRun.id)
 
+                if (environment === RunEnvironment.PRODUCTION) {
+                    const billingBlockedRun = await createBillingBlockedProductionRun({
+                        flowRun: newFlowRun,
+                        flowId,
+                        log,
+                    })
+                    if (!isNil(billingBlockedRun)) {
+                        span.setAttribute('flowRun.billingBlocked', true)
+                        return billingBlockedRun
+                    }
+                }
+
                 await addToQueue({
                     flowRun: newFlowRun,
                     platformId,
@@ -394,6 +407,14 @@ export const flowRunService = (log: FastifyBaseLogger) => ({
             stepNameToTest: undefined,
             triggeredBy,
         }, log)
+        const billingBlockedRun = await createBillingBlockedProductionRun({
+            flowRun,
+            flowId: flowVersion.flowId,
+            log,
+        })
+        if (!isNil(billingBlockedRun)) {
+            return billingBlockedRun
+        }
         return addToQueue({
             flowRun,
             payload: triggerPayload,
@@ -692,9 +713,32 @@ async function queueOrCreateInstantly(params: CreateParams, log: FastifyBaseLogg
     }
 }
 
+async function createBillingBlockedProductionRun({ flowRun, flowId, log }: BillingBlockedRunParams): Promise<FlowRun | null> {
+    const canExecute = await plugrBillingService(log).canExecuteFlow({ flowId })
+    if (canExecute) {
+        return null
+    }
+    const now = apDayjs().toISOString()
+    const blockedFlowRun: FlowRun = {
+        ...flowRun,
+        status: FlowRunStatus.QUOTA_EXCEEDED,
+        startTime: now,
+        finishTime: now,
+        updated: now,
+    }
+    await runsMetadataQueue(log).add(blockedFlowRun)
+    log.info({ runId: flowRun.id, flowId }, 'Flow run blocked by Plugr billing access')
+    return blockedFlowRun
+}
 export function isOutsideRetentionWindow(createdTime: string, retentionDays: number): boolean {
     if (!createdTime) return false
     return apDayjs(createdTime).add(retentionDays, 'day').isBefore(apDayjs())
+}
+
+type BillingBlockedRunParams = {
+    flowRun: FlowRun
+    flowId: FlowId
+    log: FastifyBaseLogger
 }
 
 type CreateParams = {

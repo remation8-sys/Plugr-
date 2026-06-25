@@ -8,6 +8,8 @@ import {
     isNil,
     PlatformId,
     PlatformRole,
+    PlugrBillingCountry,
+    PlugrBillingCurrency,
     ProjectId,
     ProjectType,
     SeekPage,
@@ -42,6 +44,10 @@ export const userRepo = repoFactory(UserEntity)
 export const userService = (log: FastifyBaseLogger) => ({
     async create(params: CreateParams): Promise<User> {
         const isActive = params.isActive ?? true
+        const billingDefaults = createTrialBillingDefaults({
+            billingCountry: params.billingCountry ?? 'OTHER',
+            billingCurrency: params.billingCurrency ?? 'USD',
+        })
         const user: NewUser = {
             id: apId(),
             identityId: params.identityId,
@@ -49,10 +55,11 @@ export const userService = (log: FastifyBaseLogger) => ({
             status: isActive ? UserStatus.ACTIVE : UserStatus.INACTIVE,
             externalId: params.externalId,
             platformId: params.platformId,
+            ...billingDefaults,
         }
         return userRepo().save(user)
     },
-    async getOrCreateWithProject({ identity, platformId }: GetOrCreateWithProjectParams): Promise<User> {
+    async getOrCreateWithProject({ identity, platformId, billingCountry, billingCurrency }: GetOrCreateWithProjectParams): Promise<User> {
         const user = await this.getOneByIdentityAndPlatform({
             identityId: identity.id,
             platformId,
@@ -62,6 +69,8 @@ export const userService = (log: FastifyBaseLogger) => ({
                 identityId: identity.id,
                 platformId,
                 platformRole: PlatformRole.MEMBER,
+                billingCountry,
+                billingCurrency,
             })
 
             await ensurePersonalProjectForUser({
@@ -248,6 +257,7 @@ export const userService = (log: FastifyBaseLogger) => ({
             updated: user.updated,
             lastActiveDate: user.lastActiveDate,
             imageUrl: identity.imageUrl,
+            ...pickUserBillingFields(user),
         }
     },
 
@@ -267,6 +277,49 @@ export const userService = (log: FastifyBaseLogger) => ({
     },
 })
 
+
+function createTrialBillingDefaults({ billingCountry, billingCurrency }: CreateTrialBillingDefaultsParams): UserBillingFields {
+    const now = dayjs()
+    return {
+        subscriptionTier: 'trial',
+        subscriptionStatus: 'trial',
+        subscriptionPeriod: 'monthly',
+        trialStartsAt: now.toISOString(),
+        trialEndsAt: now.add(7, 'day').toISOString(),
+        subscriptionStartsAt: null,
+        subscriptionEndsAt: null,
+        flutterwaveCustomerId: null,
+        flutterwaveSubscriptionId: null,
+        flutterwavePlanId: null,
+        billingCountry,
+        billingCurrency,
+        aiCreditsIncluded: 0,
+        aiCreditsUsed: 0,
+        aiCreditsPurchased: 0,
+        aiCreditsResetAt: null,
+    }
+}
+
+function pickUserBillingFields(user: User): UserBillingFields {
+    return {
+        subscriptionTier: user.subscriptionTier,
+        subscriptionStatus: user.subscriptionStatus,
+        subscriptionPeriod: user.subscriptionPeriod,
+        trialStartsAt: user.trialStartsAt,
+        trialEndsAt: user.trialEndsAt,
+        subscriptionStartsAt: user.subscriptionStartsAt,
+        subscriptionEndsAt: user.subscriptionEndsAt,
+        flutterwaveCustomerId: user.flutterwaveCustomerId,
+        flutterwaveSubscriptionId: user.flutterwaveSubscriptionId,
+        flutterwavePlanId: user.flutterwavePlanId,
+        billingCountry: user.billingCountry,
+        billingCurrency: user.billingCurrency,
+        aiCreditsIncluded: user.aiCreditsIncluded,
+        aiCreditsUsed: user.aiCreditsUsed,
+        aiCreditsPurchased: user.aiCreditsPurchased,
+        aiCreditsResetAt: user.aiCreditsResetAt,
+    }
+}
 
 async function assertNotPlatformOwner({ id, platformId, log }: DeleteParams & { log: FastifyBaseLogger }): Promise<void> {
     const platform = await platformService(log).getOneOrThrow(platformId)
@@ -366,12 +419,21 @@ type CreateParams = {
     externalId?: string
     platformRole: PlatformRole
     isActive?: boolean
+    billingCountry?: PlugrBillingCountry
+    billingCurrency?: PlugrBillingCurrency
 }
 type GetUsersByIdentityIdParams = {
     identityId: string
 }
 
 type NewUser = Omit<User, 'created' | 'updated'>
+
+type UserBillingFields = Pick<User, 'subscriptionTier' | 'subscriptionStatus' | 'subscriptionPeriod' | 'trialStartsAt' | 'trialEndsAt' | 'subscriptionStartsAt' | 'subscriptionEndsAt' | 'flutterwaveCustomerId' | 'flutterwaveSubscriptionId' | 'flutterwavePlanId' | 'billingCountry' | 'billingCurrency' | 'aiCreditsIncluded' | 'aiCreditsUsed' | 'aiCreditsPurchased' | 'aiCreditsResetAt'>
+
+type CreateTrialBillingDefaultsParams = {
+    billingCountry: PlugrBillingCountry
+    billingCurrency: PlugrBillingCurrency
+}
 
 type GetByPlatformAndExternalIdParams = {
     platformId: string
@@ -390,6 +452,8 @@ type UpdatePlatformIdParams = {
 type GetOrCreateWithProjectParams = {
     identity: UserIdentity
     platformId: string
+    billingCountry?: PlugrBillingCountry
+    billingCurrency?: PlugrBillingCurrency
 }
 
 type EnsurePersonalProjectForUserParams = {

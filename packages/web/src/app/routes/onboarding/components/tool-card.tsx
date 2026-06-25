@@ -13,10 +13,10 @@ import { t } from 'i18next';
 import { Check, Eye, EyeOff, RefreshCw } from 'lucide-react';
 import { useState } from 'react';
 
-import { internalErrorToast } from '@/components/ui/sonner';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { internalErrorToast } from '@/components/ui/sonner';
 import { appConnectionsApi } from '@/features/connections/api/app-connections';
 import { PieceIcon } from '@/features/pieces/components/piece-icon';
 import { authenticationSession } from '@/lib/authentication-session';
@@ -27,9 +27,9 @@ type AuthKind = 'oauth2' | 'secret' | 'other' | 'none';
 function getAuthKind(piece: PieceMetadataModelSummary): AuthKind {
   if (isNil(piece.auth)) return 'none';
   const auth = Array.isArray(piece.auth) ? piece.auth[0] : piece.auth;
+  if (isNil(auth)) return 'none';
   if (auth.type === PropertyType.SECRET_TEXT) return 'secret';
   if (auth.type === PropertyType.OAUTH2) return 'oauth2';
-  if (auth.type === PropertyType.NONE) return 'none';
   return 'other';
 }
 

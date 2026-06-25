@@ -1,16 +1,18 @@
 import { ApEdition, ApFlagId, isNil } from '@activepieces/shared';
 import React, { ComponentType } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Navigate, useLocation } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate } from 'react-router-dom';
 
 import { ChartLineIcon } from '@/components/icons/chart-line';
 import { CompassIcon } from '@/components/icons/compass';
 import { TrophyIcon } from '@/components/icons/trophy';
 import { useEmbedding } from '@/components/providers/embed-provider';
+import { Button } from '@/components/ui/button';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar-shadcn';
 import { PurchaseExtraFlowsDialog } from '@/features/billing';
 import { projectHooks } from '@/features/projects';
 import { flagsHooks } from '@/hooks/flags-hooks';
+import { userHooks } from '@/hooks/user-hooks';
 import { cn } from '@/lib/utils';
 
 import { authenticationSession } from '../../../lib/authentication-session';
@@ -81,7 +83,7 @@ export function ProjectDashboardLayout({
     },
     {
       to: '/chat',
-      label: t('Chat'),
+      label: t('Plugr'),
       show: !isEmbedded,
       icon: CompassIcon,
       hasPermission: true,
@@ -108,6 +110,32 @@ export function ProjectDashboardLayout({
   );
 }
 
+function TrialBanner() {
+  const { data: user } = userHooks.useCurrentUser();
+  const location = useLocation();
+  const navigate = useNavigate();
+  if (!user || location.pathname.startsWith('/pricing')) {
+    return null;
+  }
+  if (user.subscriptionStatus !== 'trial' || !user.trialEndsAt) {
+    return null;
+  }
+  const msRemaining = new Date(user.trialEndsAt).getTime() - Date.now();
+  const daysRemaining = Math.max(0, Math.ceil(msRemaining / 86_400_000));
+  return (
+    <div className="flex items-center justify-between gap-3 border-b bg-muted/35 px-4 py-2 text-sm">
+      <div className="min-w-0">
+        <span className="font-medium">Plugr trial</span>
+        <span className="ml-2 text-muted-foreground">
+          {daysRemaining === 1 ? '1 day left' : `${daysRemaining} days left`}
+        </span>
+      </div>
+      <Button size="xs" onClick={() => navigate('/pricing')}>
+        Upgrade
+      </Button>
+    </div>
+  );
+}
 function ProjectDashboardLayoutInner({
   hideHeader,
   isEmbedded,
@@ -142,6 +170,7 @@ function ProjectDashboardLayoutInner({
             {!hideHeader && (
               <ProjectDashboardLayoutHeader key={currentProjectId} />
             )}
+            <TrialBanner />
             <div className="flex-1 overflow-auto">{children}</div>
           </div>
         </div>

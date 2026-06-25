@@ -9,6 +9,7 @@ import { ApplicationEventName,
 import { RateLimitOptions } from '@fastify/rate-limit'
 import { FastifyRequest } from 'fastify'
 import { FastifyPluginAsyncZod } from 'fastify-type-provider-zod'
+import { billingCountryService } from '../billing/billing-country.service'
 import { securityAccess } from '../core/security/authorization/fastify-security'
 import { applicationEvents } from '../helper/application-events'
 import { networkUtils } from '../helper/network-utils'
@@ -29,10 +30,13 @@ export const authenticationController: FastifyPluginAsyncZod = async (
         // editions) when the email is actually invited to it. Otherwise we pass null so the
         // signup service provisions a brand new platform + project for this user.
         const platformId = await resolveSignUpPlatformId(request, request.body.email)
+        const billingLocation = await billingCountryService(request.log).detect(request)
         const signUpResponse = await authenticationService(request.log).signUp({
             ...request.body,
             provider: UserIdentityProvider.EMAIL,
             platformId,
+            billingCountry: billingLocation.country,
+            billingCurrency: billingLocation.currency,
         })
 
         if (!isNil(signUpResponse.platformId)) {

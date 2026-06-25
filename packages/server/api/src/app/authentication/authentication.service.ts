@@ -1,5 +1,5 @@
 import { cryptoUtils } from '@activepieces/server-utils'
-import { ActivepiecesError, ApEdition, ApFlagId, assertNotNullOrUndefined, AuthenticationResponse, ErrorCode, isNil, OtpType, PlatformWithoutSensitiveData, User, UserIdentity, UserIdentityProvider } from '@activepieces/shared'
+import { ActivepiecesError, ApEdition, ApFlagId, assertNotNullOrUndefined, AuthenticationResponse, ErrorCode, isNil, OtpType, PlatformWithoutSensitiveData, PlugrBillingCountry, PlugrBillingCurrency, User, UserIdentity, UserIdentityProvider } from '@activepieces/shared'
 import { FastifyBaseLogger } from 'fastify'
 import { otpService } from '../ee/authentication/otp/otp-service'
 import { flagService } from '../flags/flag.service'
@@ -35,6 +35,8 @@ export const authenticationService = (log: FastifyBaseLogger) => ({
             const user = await userService(log).getOrCreateWithProject({
                 identity: userIdentity,
                 platformId,
+                billingCountry: params.billingCountry,
+                billingCurrency: params.billingCurrency,
             })
             await userInvitationsService(log).provisionUserInvitation({ email: params.email })
 
@@ -60,6 +62,8 @@ export const authenticationService = (log: FastifyBaseLogger) => ({
             const user = await userService(log).getOrCreateWithProject({
                 identity: userIdentity,
                 platformId: preferredPlatformId,
+                billingCountry: params.billingCountry,
+                billingCurrency: params.billingCurrency,
             })
             log.info({ email: params.email, provider: params.provider, preferredPlatformId }, 'User signed up with invitation, returning preferred platform token')
             const authResponse =  await authenticationUtils(log).getProjectAndToken({
@@ -76,6 +80,8 @@ export const authenticationService = (log: FastifyBaseLogger) => ({
             name: getRegistrationWorkspaceName(userIdentity),
             projectDisplayName: getRegistrationProjectName(userIdentity),
             invalidatePreviousTokens: false,
+            billingCountry: params.billingCountry,
+            billingCurrency: params.billingCurrency,
         })
 
     },
@@ -258,6 +264,8 @@ type FederatedAuthnParams = {
     provider: UserIdentityProvider
     predefinedPlatformId: string | null
     imageUrl?: string
+    billingCountry?: PlugrBillingCountry
+    billingCurrency?: PlugrBillingCurrency
 }
 
 type SignUpParams = {
@@ -270,6 +278,8 @@ type SignUpParams = {
     newsLetter: boolean
     provider: UserIdentityProvider
     imageUrl?: string
+    billingCountry?: PlugrBillingCountry
+    billingCurrency?: PlugrBillingCurrency
 }
 
 type SignInWithPasswordParams = {

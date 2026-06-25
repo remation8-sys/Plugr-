@@ -14,6 +14,8 @@ import {
     PlatformUsage,
     PlatformWithoutFederatedAuth,
     PlatformWithoutSensitiveData,
+    PlugrBillingCountry,
+    PlugrBillingCurrency,
     ProjectType,
     spreadIfDefined,
     SsoDomainVerification,
@@ -96,12 +98,14 @@ export const platformService = (log: FastifyBaseLogger) => ({
         log.info({ platformId: savedPlatform.id, ownerId }, 'Platform created')
         return stripFederatedAuth(savedPlatform)
     },
-    async createPlatformWithProject({ identityId, name, projectDisplayName, invalidatePreviousTokens }: CreatePlatformWithProjectParams): Promise<AuthenticationResponse> {
+    async createPlatformWithProject({ identityId, name, projectDisplayName, invalidatePreviousTokens, billingCountry, billingCurrency }: CreatePlatformWithProjectParams): Promise<AuthenticationResponse> {
         const identity = await userIdentityService(log).getOneOrFail({ id: identityId })
         const newUser = await userService(log).create({
             identityId,
             platformRole: PlatformRole.ADMIN,
             platformId: null,
+            billingCountry,
+            billingCurrency,
         })
         const platform = await this.create({ ownerId: newUser.id, name })
         const defaultProject = await projectService(log).create({
@@ -356,6 +360,8 @@ type CreatePlatformWithProjectParams = {
     name: string
     projectDisplayName?: string
     invalidatePreviousTokens: boolean
+    billingCountry?: PlugrBillingCountry
+    billingCurrency?: PlugrBillingCurrency
 }
 
 type ListPlatformsForIdentityParams = {

@@ -1,0 +1,674 @@
+import {
+    ActivepiecesError,
+    apId,
+    ErrorCode,
+    FlowStatus,
+    getPlugrCreditPackPrice,
+    getPlugrCreditsRemaining,
+    getPlugrPlanPrice,
+    getPlugrTierRank,
+    isNil,
+    isPlugrPaidTier,
+    PlugrBillingCurrency,
+    PlugrBillingInfo,
+    PlugrBillingTransaction,
+    PlugrBillingTransactionStatus,
+    PlugrBillingTransactionType,
+    plugrCreditActionCosts,
+    PlugrCreditActionType,
+    PlugrCreditPackSize,
+    PlugrPaidTier,
+    plugrPlanCatalog,
+    PlugrPricingInfo,
+    PlugrSubscriptionPeriod,
+    PlugrUserBilling,
+    User,
+} from '@activepieces/shared'
+import dayjs from 'dayjs'
+import { FastifyBaseLogger, FastifyRequest } from 'fastify'
+import { EntityManager } from 'typeorm'
+import { repoFactory } from '../core/db/repo-factory'
+import { databaseConnection } from '../database/database-connection'
+import { FlowEntity, FlowSchema } from '../flows/flow/flow.entity'
+import { userRepo, userService } from '../user/user-service'
+import { billingCountryService } from './billing-country.service'
+import { billingEnv } from './billing-env'
+import { BillingTransactionEntity, BillingTransactionSchema } from './billing-transaction.entity'
+import { CreditPurchaseEntity, CreditPurchaseSchema } from './credit-purchase.entity'
+import { CreditTransactionEntity, CreditTransactionSchema } from './credit-transaction.entity'
+import { flutterwaveBillingService, FlutterwaveVerifiedTransaction } from './flutterwave-billing.service'
+
+const STARTER_ACTIVE_FLOW_LIMIT = 10
+
+export const billingTransactionRepo = repoFactory<BillingTransactionSchema>(BillingTransactionEntity)
+export const creditPurchaseRepo = repoFactory<CreditPurchaseSchema>(CreditPurchaseEntity)
+export const creditTransactionRepo = repoFactory<CreditTransactionSchema>(CreditTransactionEntity)
+const flowRepo = repoFactory<FlowSchema>(FlowEntity)
+
+export const plugrBillingService = (log: FastifyBaseLogger) => ({
+    async getPricing({ request }: GetPricingParams): Promise<PlugrPricingInfo> {
+        const location = await billingCountryService(log).detect(request)
+        return buildPricingInfo({ currency: location.currency, country: location.country })
+    },
+
+    async getInfo({ userId }: UserIdParams): Promise<PlugrBillingInfo> {
+        const user = await getNormalizedUser({ userId, log })
+        const history = await billingTransactionRepo().find({
+            where: { userId },
+            order: { created: 'DESC' },
+            take: 12,
+        })
+        return {
+            user: pickBillingFields(user),
+            creditsRemaining: getPlugrCreditsRemaining({
+                included: user.aiCreditsIncluded,
+                purchased: user.aiCreditsPurchased,
+                used: user.aiCreditsUsed,
+            }),
+            history: history.map(toBillingTransaction),
+        }
+    },
+
+    async createSubscriptionCheckout(params: CreateSubscriptionCheckoutParams): Promise<{ checkoutUrl: string, reference: string }> {
+        const user = await getNormalizedUser({ userId: params.userId, log })
+        assertCanStartCheckout({ user, tier: params.tier })
+        const location = await billingCountryService(log).detect(params.request)
+        const price = getPlugrPlanPrice({ tier: params.tier, period: params.period, currency: location.currency })
+        const paymentPlanId = params.period === 'monthly'
+            ? billingEnv.getMonthlyPlanId({ tier: params.tier, currency: location.currency })
+            : undefined
+        if (params.period === 'monthly' && isNil(paymentPlanId)) {
+            throw new ActivepiecesError({
+                code: ErrorCode.VALIDATION,
+                params: { message: `Flutterwave monthly plan ID is missing for ${params.tier} ${location.currency}` },
+            })
+        }
+        const userMeta = await userService(log).getMetaInformation({ id: params.userId })
+        const reference = `plg_sub_${apId()}`
+        await savePendingTransaction({
+            userId: params.userId,
+            type: 'subscription',
+            tier: params.tier,
+            period: params.period,
+            creditsPurchased: null,
+            amountPaid: price.total,
+            currency: location.currency,
+            reference,
+        })
+        const checkoutUrl = await flutterwaveBillingService(log).createCheckout({
+            amount: price.total,
+            currency: location.currency,
+            customerEmail: userMeta.email,
+            customerName: `${userMeta.firstName} ${userMeta.lastName}`.trim(),
+            reference,
+            redirectUrl: buildRedirectUrl({ status: 'success' }),
+            title: `Plugr ${plugrPlanCatalog[params.tier].name}`,
+            description: `${plugrPlanCatalog[params.tier].name} plan for Plugr`,
+            metadata: {
+                plugrPaymentType: 'subscription',
+                userId: params.userId,
+                tier: params.tier,
+                period: params.period,
+                currency: location.currency,
+                billingCountry: location.country,
+            },
+            paymentPlanId,
+        })
+        return { checkoutUrl, reference }
+    },
+    async createCreditCheckout(params: CreateCreditCheckoutParams): Promise<{ checkoutUrl: string, reference: string }> {
+        const user = await getNormalizedUser({ userId: params.userId, log })
+        assertPlugrAccess(user)
+        const location = await billingCountryService(log).detect(params.request)
+        const price = getPlugrCreditPackPrice({ pack: params.pack, currency: location.currency })
+        const userMeta = await userService(log).getMetaInformation({ id: params.userId })
+        const reference = `plg_crd_${apId()}`
+        await savePendingTransaction({
+            userId: params.userId,
+            type: 'credits',
+            tier: null,
+            period: null,
+            creditsPurchased: price.credits,
+            amountPaid: price.amount,
+            currency: location.currency,
+            reference,
+        })
+        const checkoutUrl = await flutterwaveBillingService(log).createCheckout({
+            amount: price.amount,
+            currency: location.currency,
+            customerEmail: userMeta.email,
+            customerName: `${userMeta.firstName} ${userMeta.lastName}`.trim(),
+            reference,
+            redirectUrl: buildRedirectUrl({ status: 'success' }),
+            title: `${price.credits} Plugr credits`,
+            description: `${price.credits} Plugr credits`,
+            metadata: {
+                plugrPaymentType: 'credits',
+                userId: params.userId,
+                pack: params.pack,
+                credits: price.credits,
+                currency: location.currency,
+                billingCountry: location.country,
+            },
+        })
+        return { checkoutUrl, reference }
+    },
+
+    async cancelSubscription({ userId }: UserIdParams): Promise<PlugrBillingInfo> {
+        const user = await getNormalizedUser({ userId, log })
+        if (!isPlugrPaidTier(user.subscriptionTier) || user.subscriptionStatus === 'expired') {
+            throw new ActivepiecesError({
+                code: ErrorCode.VALIDATION,
+                params: { message: 'No active Plugr subscription was found' },
+            })
+        }
+        if (!isNil(user.flutterwaveSubscriptionId)) {
+            await flutterwaveBillingService(log).cancelSubscription(user.flutterwaveSubscriptionId)
+        }
+        else {
+            log.warn({ userId }, 'User subscription has no Flutterwave subscription id; cancelling locally')
+        }
+        await userRepo().update({ id: userId }, {
+            subscriptionStatus: 'cancelled',
+            subscriptionEndsAt: user.subscriptionEndsAt ?? dayjs().toISOString(),
+        })
+        return this.getInfo({ userId })
+    },
+
+    async applyVerifiedTransaction(transaction: FlutterwaveVerifiedTransaction): Promise<void> {
+        if (!isSuccessfulTransaction(transaction.status)) {
+            await markTransactionByReference({ reference: transaction.reference, status: 'failed', transactionId: transaction.id })
+            return
+        }
+        const paymentType = getStringMeta(transaction.meta, 'plugrPaymentType')
+        switch (paymentType) {
+            case 'subscription':
+                await applySubscriptionPayment({ transaction, log })
+                return
+            case 'credits':
+                await applyCreditPayment({ transaction, log })
+                return
+            default:
+                log.info({ reference: transaction.reference }, 'Ignoring Flutterwave payment without Plugr metadata')
+        }
+    },
+
+    async markSubscriptionEnded(params: MarkSubscriptionEndedParams): Promise<void> {
+        const user = await findUserFromWebhook(params)
+        if (isNil(user)) {
+            log.warn(params, 'Flutterwave subscription event did not match a Plugr user')
+            return
+        }
+        await userRepo().update({ id: user.id }, {
+            subscriptionStatus: 'expired',
+            subscriptionEndsAt: user.subscriptionEndsAt ?? dayjs().toISOString(),
+        })
+    },
+
+    async assertUserHasAppAccess({ userId }: UserIdParams): Promise<void> {
+        const user = await getNormalizedUser({ userId, log })
+        assertAppAccess(user)
+    },
+
+    async deductCredits(params: DeductCreditsParams): Promise<void> {
+        await deductCredits({ ...params, log })
+    },
+
+    async assertActiveFlowsAllowed({ userId, flowId }: ActiveFlowLimitParams): Promise<void> {
+        const user = await getNormalizedUser({ userId, log })
+        assertAppAccess(user)
+        if (user.subscriptionTier !== 'starter') {
+            return
+        }
+        const activeFlows = await flowRepo().count({
+            where: {
+                ownerId: userId,
+                status: FlowStatus.ENABLED,
+            },
+        })
+        const currentFlow = await flowRepo().findOneBy({ id: flowId })
+        const currentFlowAlreadyEnabled = currentFlow?.status === FlowStatus.ENABLED
+        if (!currentFlowAlreadyEnabled && activeFlows >= STARTER_ACTIVE_FLOW_LIMIT) {
+            throw new ActivepiecesError({
+                code: ErrorCode.FEATURE_DISABLED,
+                params: { message: 'Upgrade to Builder for unlimited flows' },
+            })
+        }
+    },
+
+    async canExecuteFlow({ flowId }: FlowIdParams): Promise<boolean> {
+        const flow = await flowRepo().findOneBy({ id: flowId })
+        if (isNil(flow?.ownerId)) {
+            return true
+        }
+        const user = await getNormalizedUser({ userId: flow.ownerId, log })
+        return hasAppAccess(user)
+    },
+})
+async function deductCredits(params: DeductCreditsParams & { log: FastifyBaseLogger }): Promise<void> {
+    const cost = plugrCreditActionCosts[params.actionType]
+    await databaseConnection().transaction(async (entityManager) => {
+        const user = await getNormalizedUser({ userId: params.userId, log: params.log, entityManager, lock: true })
+        assertPlugrAccess(user)
+        const remaining = getPlugrCreditsRemaining({
+            included: user.aiCreditsIncluded,
+            purchased: user.aiCreditsPurchased,
+            used: user.aiCreditsUsed,
+        })
+        if (remaining < cost) {
+            throw new ActivepiecesError({
+                code: ErrorCode.FEATURE_DISABLED,
+                params: { message: `You need ${cost - remaining} more credits for this. Buy credits or upgrade your plan.` },
+            })
+        }
+        await userRepo(entityManager).update({ id: params.userId }, {
+            aiCreditsUsed: user.aiCreditsUsed + cost,
+        })
+        await creditTransactionRepo(entityManager).save({
+            id: apId(),
+            userId: params.userId,
+            actionType: params.actionType,
+            creditsUsed: cost,
+            flowId: params.flowId ?? null,
+        })
+    })
+}
+
+async function applySubscriptionPayment({ transaction, log }: ApplyTransactionParams): Promise<void> {
+    const userId = getRequiredMeta(transaction.meta, 'userId')
+    const tier = parsePaidTier(getRequiredMeta(transaction.meta, 'tier'))
+    const period = parsePeriod(getRequiredMeta(transaction.meta, 'period'))
+    const expectedPrice = getPlugrPlanPrice({ tier, period, currency: transaction.currency })
+    assertAmountMatches({ actual: transaction.amount, expected: expectedPrice.total, currency: transaction.currency })
+    const now = dayjs()
+    const plan = plugrPlanCatalog[tier]
+    await userRepo().update({ id: userId }, {
+        subscriptionTier: tier,
+        subscriptionStatus: 'active',
+        subscriptionPeriod: period,
+        subscriptionStartsAt: now.toISOString(),
+        subscriptionEndsAt: now.add(expectedPrice.months, 'month').toISOString(),
+        flutterwaveCustomerId: transaction.customerId,
+        flutterwavePlanId: transaction.paymentPlanId,
+        billingCurrency: transaction.currency,
+        billingCountry: transaction.currency === 'NGN' ? 'NG' : 'OTHER',
+        aiCreditsIncluded: plan.includedCredits,
+        aiCreditsUsed: 0,
+        aiCreditsResetAt: now.add(1, 'month').toISOString(),
+    })
+    await markTransactionByReference({ reference: transaction.reference, status: 'successful', transactionId: transaction.id })
+    log.info({ userId, tier, period, reference: transaction.reference }, 'Plugr subscription payment applied')
+}
+
+async function applyCreditPayment({ transaction, log }: ApplyTransactionParams): Promise<void> {
+    const userId = getRequiredMeta(transaction.meta, 'userId')
+    const pack = parseCreditPack(getRequiredMeta(transaction.meta, 'pack'))
+    const expectedPrice = getPlugrCreditPackPrice({ pack, currency: transaction.currency })
+    assertAmountMatches({ actual: transaction.amount, expected: expectedPrice.amount, currency: transaction.currency })
+    await databaseConnection().transaction(async (entityManager) => {
+        const user = await getNormalizedUser({ userId, log, entityManager, lock: true })
+        await userRepo(entityManager).update({ id: userId }, {
+            aiCreditsPurchased: user.aiCreditsPurchased + expectedPrice.credits,
+        })
+        await creditPurchaseRepo(entityManager).save({
+            id: apId(),
+            userId,
+            creditsPurchased: expectedPrice.credits,
+            amountPaid: expectedPrice.amount,
+            currency: transaction.currency,
+            flutterwaveReference: transaction.reference,
+        })
+        await markTransactionByReference({ reference: transaction.reference, status: 'successful', transactionId: transaction.id, entityManager })
+    })
+    log.info({ userId, credits: expectedPrice.credits, reference: transaction.reference }, 'Plugr credits added')
+}
+
+async function getNormalizedUser(params: NormalizeUserParams): Promise<User> {
+    const repo = userRepo(params.entityManager)
+    const query = repo.createQueryBuilder('user').where('user.id = :userId', { userId: params.userId })
+    const user = params.lock ? await query.setLock('pessimistic_write').getOneOrFail() : await query.getOneOrFail()
+    const updates = getBillingNormalizationUpdates(user)
+    if (Object.keys(updates).length === 0) {
+        return user
+    }
+    await repo.update({ id: user.id }, updates)
+    return {
+        ...user,
+        ...updates,
+    }
+}
+
+function getBillingNormalizationUpdates(user: User): Partial<User> {
+    const now = dayjs()
+    const updates: Partial<User> = {}
+    if (user.subscriptionStatus === 'trial' && !isNil(user.trialEndsAt) && dayjs(user.trialEndsAt).isBefore(now)) {
+        updates.subscriptionStatus = 'expired'
+    }
+    if ((user.subscriptionStatus === 'active' || user.subscriptionStatus === 'cancelled') && !isNil(user.subscriptionEndsAt) && dayjs(user.subscriptionEndsAt).isBefore(now)) {
+        updates.subscriptionStatus = 'expired'
+    }
+    if (user.subscriptionStatus === 'active' && isPlugrPaidTier(user.subscriptionTier) && !isNil(user.aiCreditsResetAt) && dayjs(user.aiCreditsResetAt).isBefore(now)) {
+        updates.aiCreditsIncluded = plugrPlanCatalog[user.subscriptionTier].includedCredits
+        updates.aiCreditsUsed = 0
+        updates.aiCreditsResetAt = now.add(1, 'month').toISOString()
+    }
+    return updates
+}
+
+async function savePendingTransaction(params: SavePendingTransactionParams): Promise<void> {
+    await billingTransactionRepo().save({
+        id: apId(),
+        userId: params.userId,
+        type: params.type,
+        status: 'pending',
+        tier: params.tier,
+        period: params.period,
+        creditsPurchased: params.creditsPurchased,
+        amountPaid: params.amountPaid,
+        currency: params.currency,
+        flutterwaveReference: params.reference,
+        flutterwaveTransactionId: null,
+        receiptUrl: null,
+    })
+}
+
+async function markTransactionByReference(params: MarkTransactionParams): Promise<void> {
+    if (params.reference.length === 0) {
+        return
+    }
+    await billingTransactionRepo(params.entityManager).update({ flutterwaveReference: params.reference }, {
+        status: params.status,
+        flutterwaveTransactionId: params.transactionId,
+    })
+}
+
+async function findUserFromWebhook(params: MarkSubscriptionEndedParams): Promise<User | null> {
+    if (!isNil(params.userId)) {
+        return userRepo().findOneBy({ id: params.userId })
+    }
+    if (!isNil(params.subscriptionId)) {
+        return userRepo().findOneBy({ flutterwaveSubscriptionId: params.subscriptionId })
+    }
+    return null
+}
+function assertCanStartCheckout({ user, tier }: AssertCheckoutParams): void {
+    assertAppAccess(user)
+    if (!isPlugrPaidTier(user.subscriptionTier) || user.subscriptionStatus === 'expired') {
+        return
+    }
+    if (getPlugrTierRank(tier) < getPlugrTierRank(user.subscriptionTier)) {
+        throw new ActivepiecesError({
+            code: ErrorCode.VALIDATION,
+            params: { message: 'Downgrades wait until the current paid period ends. Cancel your current plan first, then choose the lower plan after the period ends.' },
+        })
+    }
+}
+
+function assertAppAccess(user: User): void {
+    if (hasAppAccess(user)) {
+        return
+    }
+    const message = user.subscriptionTier === 'trial'
+        ? 'Your 7-day free trial has ended. Choose a plan to keep automating.'
+        : 'Your subscription has ended. Reactivate to continue using Plugr.'
+    throw new ActivepiecesError({
+        code: ErrorCode.FEATURE_DISABLED,
+        params: { message },
+    })
+}
+
+function assertPlugrAccess(user: User): void {
+    assertAppAccess(user)
+    if (user.subscriptionTier === 'trial') {
+        throw new ActivepiecesError({
+            code: ErrorCode.FEATURE_DISABLED,
+            params: { message: 'Plugr is available on paid plans. Start a plan to unlock Plugr.' },
+        })
+    }
+}
+
+function hasAppAccess(user: User): boolean {
+    if (user.subscriptionStatus === 'expired') {
+        return false
+    }
+    if (user.subscriptionStatus === 'trial') {
+        return !isNil(user.trialEndsAt) && dayjs(user.trialEndsAt).isAfter(dayjs())
+    }
+    if (user.subscriptionStatus === 'active') {
+        return true
+    }
+    if (user.subscriptionStatus === 'cancelled') {
+        return !isNil(user.subscriptionEndsAt) && dayjs(user.subscriptionEndsAt).isAfter(dayjs())
+    }
+    return false
+}
+
+function buildPricingInfo({ currency, country }: BuildPricingInfoParams): PlugrPricingInfo {
+    return {
+        country,
+        currency,
+        plans: {
+            starter: buildPlanPricing({ tier: 'starter', currency }),
+            builder: buildPlanPricing({ tier: 'builder', currency }),
+            pro: buildPlanPricing({ tier: 'pro', currency }),
+            business: buildPlanPricing({ tier: 'business', currency }),
+        },
+        creditPacks: {
+            100: getPlugrCreditPackPrice({ pack: '100', currency }),
+            500: getPlugrCreditPackPrice({ pack: '500', currency }),
+            1000: getPlugrCreditPackPrice({ pack: '1000', currency }),
+        },
+    }
+}
+
+function buildPlanPricing({ tier, currency }: BuildPlanPricingParams) {
+    const plan = plugrPlanCatalog[tier]
+    return {
+        tier,
+        name: plan.name,
+        includedCredits: plan.includedCredits,
+        activeFlowsLimit: plan.activeFlowsLimit,
+        popular: plan.popular,
+        features: plan.features,
+        prices: {
+            monthly: getPlugrPlanPrice({ tier, period: 'monthly', currency }),
+            quarterly: getPlugrPlanPrice({ tier, period: 'quarterly', currency }),
+            biannual: getPlugrPlanPrice({ tier, period: 'biannual', currency }),
+            annual: getPlugrPlanPrice({ tier, period: 'annual', currency }),
+        },
+    }
+}
+
+function pickBillingFields(user: User): PlugrUserBilling {
+    return {
+        subscriptionTier: user.subscriptionTier,
+        subscriptionStatus: user.subscriptionStatus,
+        subscriptionPeriod: user.subscriptionPeriod,
+        trialStartsAt: user.trialStartsAt,
+        trialEndsAt: user.trialEndsAt,
+        subscriptionStartsAt: user.subscriptionStartsAt,
+        subscriptionEndsAt: user.subscriptionEndsAt,
+        flutterwaveCustomerId: user.flutterwaveCustomerId,
+        flutterwaveSubscriptionId: user.flutterwaveSubscriptionId,
+        flutterwavePlanId: user.flutterwavePlanId,
+        billingCountry: user.billingCountry,
+        billingCurrency: user.billingCurrency,
+        aiCreditsIncluded: user.aiCreditsIncluded,
+        aiCreditsUsed: user.aiCreditsUsed,
+        aiCreditsPurchased: user.aiCreditsPurchased,
+        aiCreditsResetAt: user.aiCreditsResetAt,
+    }
+}
+
+function toBillingTransaction(transaction: BillingTransactionSchema): PlugrBillingTransaction {
+    return {
+        id: transaction.id,
+        created: transaction.created,
+        type: transaction.type,
+        status: transaction.status,
+        tier: transaction.tier,
+        period: transaction.period,
+        creditsPurchased: transaction.creditsPurchased,
+        amountPaid: transaction.amountPaid,
+        currency: transaction.currency,
+        flutterwaveReference: transaction.flutterwaveReference,
+        flutterwaveTransactionId: transaction.flutterwaveTransactionId,
+        receiptUrl: transaction.receiptUrl,
+    }
+}
+
+function parsePaidTier(value: string): PlugrPaidTier {
+    switch (value) {
+        case 'starter':
+        case 'builder':
+        case 'pro':
+        case 'business':
+            return value
+    }
+    throw new Error(`Invalid Plugr plan tier ${value}`)
+}
+
+function parsePeriod(value: string): PlugrSubscriptionPeriod {
+    switch (value) {
+        case 'monthly':
+        case 'quarterly':
+        case 'biannual':
+        case 'annual':
+            return value
+    }
+    return 'monthly'
+}
+
+function parseCreditPack(value: string): PlugrCreditPackSize {
+    switch (value) {
+        case '100':
+        case '500':
+        case '1000':
+            return value
+    }
+    throw new Error(`Invalid Plugr credit pack ${value}`)
+}
+
+function getRequiredMeta(meta: Record<string, unknown>, key: string): string {
+    const value = getStringMeta(meta, key)
+    if (isNil(value)) {
+        throw new Error(`Flutterwave metadata is missing ${key}`)
+    }
+    return value
+}
+
+function getStringMeta(meta: Record<string, unknown>, key: string): string | undefined {
+    const value = meta[key]
+    if (typeof value === 'string' && value.length > 0) {
+        return value
+    }
+    if (typeof value === 'number') {
+        return String(value)
+    }
+    return undefined
+}
+
+function assertAmountMatches({ actual, expected, currency }: AssertAmountMatchesParams): void {
+    if (actual !== expected) {
+        throw new Error(`Flutterwave amount mismatch for ${currency}. Expected ${expected}, got ${actual}`)
+    }
+}
+
+function isSuccessfulTransaction(status: string | undefined): boolean {
+    return ['successful', 'success', 'succeeded'].includes(status ?? '')
+}
+
+function buildRedirectUrl({ status }: BuildRedirectUrlParams): string {
+    const frontendUrl = (billingEnv.get('FRONTEND_URL') ?? billingEnv.get('AP_FRONTEND_URL') ?? 'http://localhost:8080').replace(/\/$/, '')
+    return `${frontendUrl}/billing/${status}`
+}
+
+type ActiveFlowLimitParams = UserIdParams & {
+    flowId: string
+}
+
+type ApplyTransactionParams = {
+    transaction: FlutterwaveVerifiedTransaction
+    log: FastifyBaseLogger
+}
+
+type AssertAmountMatchesParams = {
+    actual: number
+    expected: number
+    currency: PlugrBillingCurrency
+}
+
+type AssertCheckoutParams = {
+    user: User
+    tier: PlugrPaidTier
+}
+
+type BuildPlanPricingParams = {
+    tier: PlugrPaidTier
+    currency: PlugrBillingCurrency
+}
+
+type BuildPricingInfoParams = {
+    country: 'NG' | 'OTHER'
+    currency: PlugrBillingCurrency
+}
+
+type BuildRedirectUrlParams = {
+    status: 'success' | 'failed'
+}
+
+type CreateCreditCheckoutParams = UserIdParams & {
+    request: FastifyRequest
+    pack: PlugrCreditPackSize
+}
+
+type CreateSubscriptionCheckoutParams = UserIdParams & {
+    request: FastifyRequest
+    tier: PlugrPaidTier
+    period: PlugrSubscriptionPeriod
+}
+
+type DeductCreditsParams = UserIdParams & {
+    actionType: PlugrCreditActionType
+    flowId?: string
+}
+
+type FlowIdParams = {
+    flowId: string
+}
+
+type GetPricingParams = {
+    request: FastifyRequest
+}
+
+type MarkSubscriptionEndedParams = {
+    userId?: string
+    subscriptionId?: string
+}
+
+type MarkTransactionParams = {
+    reference: string
+    status: PlugrBillingTransactionStatus
+    transactionId: string
+    entityManager?: EntityManager
+}
+
+type NormalizeUserParams = UserIdParams & {
+    log: FastifyBaseLogger
+    entityManager?: EntityManager
+    lock?: boolean
+}
+
+type SavePendingTransactionParams = UserIdParams & {
+    type: PlugrBillingTransactionType
+    tier: PlugrPaidTier | null
+    period: PlugrSubscriptionPeriod | null
+    creditsPurchased: number | null
+    amountPaid: number
+    currency: PlugrBillingCurrency
+    reference: string
+}
+
+type UserIdParams = {
+    userId: string
+}

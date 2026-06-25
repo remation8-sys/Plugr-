@@ -7,6 +7,9 @@ import { AIProviderEntity } from '../ai/ai-provider-entity'
 import { PlatformAnalyticsReportEntity } from '../analytics/platform-analytics-report.entity'
 import { AppConnectionEntity } from '../app-connection/app-connection.entity'
 import { UserIdentityEntity } from '../authentication/user-identity/user-identity-entity'
+import { BillingTransactionEntity } from '../billing/billing-transaction.entity'
+import { CreditPurchaseEntity } from '../billing/credit-purchase.entity'
+import { CreditTransactionEntity } from '../billing/credit-transaction.entity'
 import { AlertEntity } from '../ee/alerts/alerts-entity'
 import { ApiKeyEntity } from '../ee/api-keys/api-key-entity'
 import { AppCredentialEntity } from '../ee/app-credentials/app-credentials.entity'
@@ -79,6 +82,9 @@ function getEntities(): EntitySchema<unknown>[] {
         ProjectEntity,
         StoreEntryEntity,
         UserEntity,
+        CreditTransactionEntity,
+        CreditPurchaseEntity,
+        BillingTransactionEntity,
         AppConnectionEntity,
         VariableEntity,
         FolderEntity,

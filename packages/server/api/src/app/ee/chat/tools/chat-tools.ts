@@ -1,6 +1,7 @@
 import { AppConnectionStatus, AppConnectionType, chatToolClassification, FlowRunStatus, FlowStatus, isNil, isObject, parseToJsonIfPossible, Project, RunEnvironment } from '@activepieces/shared'
 import { FastifyBaseLogger } from 'fastify'
 import { appConnectionService } from '../../../app-connection/app-connection-service/app-connection-service'
+import { plugrBillingService } from '../../../billing/billing.service'
 import { flowService } from '../../../flows/flow/flow.service'
 import { flowRunService } from '../../../flows/flow-run/flow-run-service'
 import { formatFlowLine } from '../../../mcp/tools/ap-list-flows'
@@ -234,6 +235,10 @@ async function executeCrossProjectTool({ toolName, toolInput, platformId, userId
             return discoveryResult
         }
         case 'ap_execute_action': {
+            await plugrBillingService(log).deductCredits({
+                userId,
+                actionType: chatToolClassification.isReadActionName(String(toolInput.actionName ?? '')) ? 'audit' : 'build_simple',
+            })
             return runChatAdhocAction({ toolInput, projects, availableProjectIds, conversationId, log })
         }
         case 'ap_explore_data': {

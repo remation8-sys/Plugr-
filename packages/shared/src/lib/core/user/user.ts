@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { PlugrUserBilling } from '../billing'
 import { BaseModelSchema, DateOrString, Nullable } from '../common/base-model'
 import { ApId } from '../common/id-generator'
 import { UserBadge } from './badges'
@@ -42,9 +43,12 @@ export const User = z.object({
     externalId: Nullable(z.string()),
     platformId: Nullable(z.string()),
     lastActiveDate: Nullable(DateOrString),
+    ...PlugrUserBilling.shape,
 })
 
 export type User = z.infer<typeof User>
+
+const OptionalPlugrUserBilling = PlugrUserBilling.partial()
 
 export const UserWithMetaInformation = z.object({
     id: z.string(),
@@ -59,6 +63,7 @@ export const UserWithMetaInformation = z.object({
     updated: DateOrString,
     lastActiveDate: Nullable(DateOrString),
     imageUrl: Nullable(z.string()),
+    ...OptionalPlugrUserBilling.shape,
 })
 
 export type UserWithMetaInformation = z.infer<typeof UserWithMetaInformation>

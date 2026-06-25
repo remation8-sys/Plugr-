@@ -1,29 +1,28 @@
-import { PlugrPlanNameSchema } from '@activepieces/shared';
+import { PlugrPaidTierSchema } from '@activepieces/shared';
 import { t } from 'i18next';
 import { useEffect, useMemo, useRef } from 'react';
 import { Navigate, useSearchParams } from 'react-router-dom';
 
 import { CenteredPage } from '@/app/components/centered-page';
 import { LoadingSpinner } from '@/components/custom/spinner';
-import { billingMutations } from '@/features/billing';
+import { plugrBillingMutations } from '@/features/plugr-billing';
 
 export default function FlutterwaveCheckoutPage() {
   const [searchParams] = useSearchParams();
   const startedRef = useRef(false);
   const planParam = searchParams.get('plan');
   const planResult = useMemo(
-    () => PlugrPlanNameSchema.safeParse(planParam),
+    () => PlugrPaidTierSchema.safeParse(planParam),
     [planParam],
   );
-  const { mutate: createCheckout } =
-    billingMutations.useCreateFlutterwaveCheckout();
+  const { mutate: createCheckout } = plugrBillingMutations.useCreateCheckout();
 
   useEffect(() => {
     if (!planResult.success || startedRef.current) {
       return;
     }
     startedRef.current = true;
-    createCheckout({ plan: planResult.data });
+    createCheckout({ tier: planResult.data, period: 'monthly' });
   }, [createCheckout, planResult]);
 
   if (!planResult.success) {

@@ -12,6 +12,7 @@ import {
 } from '@activepieces/shared'
 import { FastifyBaseLogger } from 'fastify'
 import { aiProviderService } from '../../ai/ai-provider-service'
+import { billingEnv } from '../../billing/billing-env'
 import { repoFactory } from '../../core/db/repo-factory'
 import { projectService } from '../../project/project-service'
 import { userService } from '../../user/user-service'
@@ -51,6 +52,16 @@ async function getUserProjects({ platformId, userId, log }: { platformId: string
 }
 
 async function resolveChatProvider({ platformId, log }: { platformId: string, log: FastifyBaseLogger }): Promise<GetProviderConfigResponse> {
+    const anthropicApiKey = billingEnv.get('ANTHROPIC_API_KEY')
+    if (!isNil(anthropicApiKey)) {
+        return {
+            provider: AIProviderName.ANTHROPIC,
+            auth: { apiKey: anthropicApiKey },
+            config: {},
+            platformId,
+        }
+    }
+
     const chatProvider = await aiProviderService(log).getChatProvider({ platformId })
     if (isNil(chatProvider)) {
         throw new ActivepiecesError({

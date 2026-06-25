@@ -6,7 +6,7 @@ import {
   TemplateTelemetryEventType,
 } from '@activepieces/shared';
 import { t } from 'i18next';
-import { Search } from 'lucide-react';
+import { CreditCard, Search } from 'lucide-react';
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useDebounce } from 'use-debounce';
@@ -137,12 +137,22 @@ export function ProjectDashboardSidebar({
   const chatLink: SidebarItemType = {
     type: 'link',
     to: '/chat',
-    label: t('Chat'),
+    label: t('Plugr'),
     show: platform.plan.chatEnabled,
     icon: SendIcon,
     hasPermission: true,
     isSubItem: false,
     badge: t('Beta'),
+  };
+
+  const billingLink: SidebarItemType = {
+    type: 'link',
+    to: '/pricing',
+    label: t('Billing'),
+    show: true,
+    icon: CreditCard,
+    hasPermission: true,
+    isSubItem: false,
   };
 
   const exploreLink: SidebarItemType = {
@@ -206,7 +216,13 @@ export function ProjectDashboardSidebar({
     },
   };
 
-  const items = [chatLink, exploreLink, impactLink, leaderboardLink]
+  const items = [
+    chatLink,
+    billingLink,
+    exploreLink,
+    impactLink,
+    leaderboardLink,
+  ]
     .filter((item) => item.show !== false)
     .filter(permissionFilter);
 

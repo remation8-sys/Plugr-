@@ -27,11 +27,24 @@ const ChatWithAIPage = React.lazy(() =>
   })),
 );
 
+const PricingPage = React.lazy(() =>
+  import('@/app/routes/pricing').then((m) => ({ default: m.PricingPage })),
+);
+const BillingSuccessPage = React.lazy(() =>
+  import('@/app/routes/billing-result/success').then((m) => ({
+    default: m.BillingSuccessPage,
+  })),
+);
+const BillingFailedPage = React.lazy(() =>
+  import('@/app/routes/billing-result/failed').then((m) => ({
+    default: m.BillingFailedPage,
+  })),
+);
 function chatElement() {
   return (
     <AllowOnlyLoggedInUserOnlyGuard>
       <ProjectDashboardLayout>
-        <PageTitle title="Chat" separator="—">
+        <PageTitle title="Plugr" separator="-">
           <Suspense fallback={<RouteLoadingBar />}>
             <ChatWithAIPage />
           </Suspense>
@@ -46,6 +59,29 @@ const chatRoutes = [
   { path: '/chat/:conversationId', element: chatElement() },
 ];
 
+function billingElement(children: React.ReactNode, title: string) {
+  return (
+    <AllowOnlyLoggedInUserOnlyGuard>
+      <ProjectDashboardLayout>
+        <PageTitle title={title} separator="-">
+          <Suspense fallback={<RouteLoadingBar />}>{children}</Suspense>
+        </PageTitle>
+      </ProjectDashboardLayout>
+    </AllowOnlyLoggedInUserOnlyGuard>
+  );
+}
+
+const billingRoutes = [
+  { path: '/pricing', element: billingElement(<PricingPage />, 'Pricing') },
+  {
+    path: '/billing/success',
+    element: billingElement(<BillingSuccessPage />, 'Payment received'),
+  },
+  {
+    path: '/billing/failed',
+    element: billingElement(<BillingFailedPage />, 'Payment failed'),
+  },
+];
 const RootRoute = () => {
   const token = authenticationSession.getToken();
   if (token) {
@@ -68,6 +104,7 @@ const routes = [
   ...authRoutes,
   ...platformRoutes,
   ...chatRoutes,
+  ...billingRoutes,
   {
     path: '/projects/:projectId',
     element: (

@@ -22,6 +22,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { userHooks, userMutations } from '@/hooks/user-hooks';
 
+import { AccountBilling } from './account-billing';
 import { DeleteAccount } from './delete-account';
 import LanguageToggle from './language-toggle';
 import ThemeToggle from './theme-toggle';
@@ -120,6 +121,8 @@ export function AccountSettingsDialog({
             <UserBadges user={user as UserWithBadges | null} />
 
             <Separator />
+
+            <AccountBilling />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <ThemeToggle />

@@ -1,7 +1,8 @@
-import { FlowStatus, isNil, McpProperty, McpPropertyType, McpToolDefinition, mcpToolNameUtils, McpTrigger, Permission, PopulatedMcpServer, ProjectScopedMcpServer, TelemetryEventName } from '@activepieces/shared'
+import { ActivepiecesError, FlowStatus, isNil, McpProperty, McpPropertyType, McpToolDefinition, mcpToolNameUtils, McpToolResult, McpTrigger, Permission, PlugrCreditActionType, PopulatedMcpServer, ProjectScopedMcpServer, TelemetryEventName } from '@activepieces/shared'
 import { McpServer, ResourceTemplate } from '@modelcontextprotocol/sdk/server/mcp.js'
 import { FastifyBaseLogger } from 'fastify'
 import { z } from 'zod'
+import { plugrBillingService } from '../billing/billing.service'
 import { rejectedPromiseHandler } from '../helper/promise-handler'
 import { telemetry } from '../helper/telemetry.utils'
 import { WebhookFlowVersionToRun, webhookService } from '../webhooks/webhook.service'
@@ -89,7 +90,12 @@ function registerPlatformTools({ server, mcp, userId, selectionScope, resolvePro
 }): void {
     const platformId = mcp.platformId!
     const contextTool = apSetProjectContextTool({ platformId, userId, selectionScope, log })
-    server.registerTool(contextTool.title, buildToolConfig(contextTool), (args: Record<string, unknown>) => contextTool.execute(args))
+    server.registerTool(contextTool.title, buildToolConfig(contextTool), wrapToolWithPlugrCredits({
+        toolTitle: contextTool.title,
+        userId,
+        log,
+        execute: (args: Record<string, unknown>) => contextTool.execute(args),
+    }))
 
     const templateMcp: ProjectScopedMcpServer = { ...mcp, projectId: platformId }
     const allTools = activepiecesTools(templateMcp, userId, log)
@@ -98,36 +104,110 @@ function registerPlatformTools({ server, mcp, userId, selectionScope, resolvePro
 
     tools.forEach((tool) => {
         if (PLATFORM_LEVEL_TOOL_SET.has(tool.title)) {
-            server.registerTool(tool.title, buildToolConfig(tool), (args: Record<string, unknown>) => tool.execute(args))
+            server.registerTool(tool.title, buildToolConfig(tool), wrapToolWithPlugrCredits({
+                toolTitle: tool.title,
+                userId,
+                log,
+                execute: (args: Record<string, unknown>) => tool.execute(args),
+            }))
             return
         }
 
-        server.registerTool(tool.title, buildToolConfig(tool), async (args: Record<string, unknown>) => {
-            const selectedProjectId = await mcpProjectSelection.get(selectionScope)
-            if (isNil(selectedProjectId)) {
-                return {
-                    content: [{
-                        type: 'text' as const,
-                        text: 'No project selected. Use ap_set_project_context to select a project first.',
-                    }],
+        server.registerTool(tool.title, buildToolConfig(tool), wrapToolWithPlugrCredits({
+            toolTitle: tool.title,
+            userId,
+            log,
+            execute: async (args: Record<string, unknown>) => {
+                const selectedProjectId = await mcpProjectSelection.get(selectionScope)
+                if (isNil(selectedProjectId)) {
+                    return {
+                        content: [{
+                            type: 'text' as const,
+                            text: 'No project selected. Use ap_set_project_context to select a project first.',
+                        }],
+                    }
                 }
-            }
-            const projectMcp = await resolveProjectMcp(selectedProjectId)
-            const projectScopedMcp: ProjectScopedMcpServer = { ...projectMcp, projectId: selectedProjectId }
-            const permissionChecker = await resolvePermissionChecker({ userId, projectId: selectedProjectId, log })
-            const realTools = activepiecesTools(projectScopedMcp, userId, log)
-            const realTool = realTools.find(t => t.title === tool.title)
-            if (isNil(realTool)) {
-                return {
-                    content: [{ type: 'text' as const, text: `Tool "${tool.title}" is not available for this project.` }],
+                const projectMcp = await resolveProjectMcp(selectedProjectId)
+                const projectScopedMcp: ProjectScopedMcpServer = { ...projectMcp, projectId: selectedProjectId }
+                const permissionChecker = await resolvePermissionChecker({ userId, projectId: selectedProjectId, log })
+                const realTools = activepiecesTools(projectScopedMcp, userId, log)
+                const realTool = realTools.find(t => t.title === tool.title)
+                if (isNil(realTool)) {
+                    return {
+                        content: [{ type: 'text' as const, text: `Tool "${tool.title}" is not available for this project.` }],
+                    }
                 }
-            }
-            const execute = permissionChecker.wrapExecute({ execute: realTool.execute, permission: realTool.permission, toolTitle: realTool.title })
-            return execute(args)
-        })
+                const execute = permissionChecker.wrapExecute({ execute: realTool.execute, permission: realTool.permission, toolTitle: realTool.title })
+                return execute(args)
+            },
+        }))
     })
 }
 
+function wrapToolWithPlugrCredits({ toolTitle, userId, log, execute }: PlugrToolBillingParams): (args: Record<string, unknown>) => Promise<McpToolResult> {
+    return async (args: Record<string, unknown>) => {
+        const actionType = resolvePlugrCreditAction({ toolTitle, args })
+        if (!isNil(userId) && !isNil(actionType)) {
+            try {
+                await plugrBillingService(log).deductCredits({
+                    userId,
+                    actionType,
+                    flowId: typeof args.flowId === 'string' ? args.flowId : undefined,
+                })
+            }
+            catch (error) {
+                if (error instanceof ActivepiecesError) {
+                    return { content: [{ type: 'text' as const, text: error.message }] }
+                }
+                throw error
+            }
+        }
+        return execute(args)
+    }
+}
+
+function resolvePlugrCreditAction({ toolTitle, args }: ResolvePlugrCreditActionParams): PlugrCreditActionType | null {
+    switch (toolTitle) {
+        case 'ap_build_flow':
+            return getBuildFlowStepCount(args) > 3 ? 'build_complex' : 'build_simple'
+        case 'ap_create_flow':
+        case 'ap_duplicate_flow':
+            return 'build_simple'
+        case 'ap_update_trigger':
+        case 'ap_add_step':
+        case 'ap_update_step':
+        case 'ap_delete_step':
+        case 'ap_add_branch':
+        case 'ap_update_branch':
+        case 'ap_delete_branch':
+        case 'ap_lock_and_publish':
+        case 'ap_change_flow_status':
+        case 'ap_rename_flow':
+        case 'ap_manage_notes':
+        case 'ap_create_table':
+        case 'ap_insert_records':
+        case 'ap_update_record':
+        case 'ap_delete_records':
+        case 'ap_manage_fields':
+        case 'ap_delete_table':
+            return 'modify'
+        case 'ap_test_flow':
+        case 'ap_test_step':
+        case 'ap_validate_flow':
+        case 'ap_validate_step_config':
+        case 'ap_retry_run':
+            return 'audit'
+        case 'ap_run_action':
+            return 'build_simple'
+        default:
+            return null
+    }
+}
+
+function getBuildFlowStepCount(args: Record<string, unknown>): number {
+    const steps = args.steps
+    return Array.isArray(steps) ? steps.length : 0
+}
 function registerFlowTools({ server, mcp, projectId, permissionChecker, log }: RegisterToolsParams): void {
     const enabledFlows = mcp.flows.filter((flow) => flow.status === FlowStatus.ENABLED)
     for (const flow of enabledFlows) {
@@ -186,7 +266,12 @@ function registerStaticTools({ server, mcp, projectId, userId, permissionChecker
 
     tools.forEach((tool) => {
         const execute = permissionChecker.wrapExecute({ execute: tool.execute, permission: tool.permission, toolTitle: tool.title })
-        server.registerTool(tool.title, buildToolConfig(tool), (args: Record<string, unknown>) => execute(args))
+        server.registerTool(tool.title, buildToolConfig(tool), wrapToolWithPlugrCredits({
+            toolTitle: tool.title,
+            userId,
+            log,
+            execute: (args: Record<string, unknown>) => execute(args),
+        }))
     })
 }
 
@@ -236,13 +321,25 @@ function registerEmptyResourcesAndPrompts(server: McpServer): void {
     server.registerPrompt('_', {}, () => ({ messages: [] }))
 }
 
-function buildToolConfig(tool: McpToolDefinition): Record<string, unknown> {
+function buildToolConfig(tool: McpToolDefinition): Pick<McpToolDefinition, 'title' | 'description' | 'inputSchema' | 'annotations'> {
     return {
         title: tool.title,
         description: tool.description,
         inputSchema: tool.inputSchema,
         annotations: tool.annotations,
     }
+}
+
+type PlugrToolBillingParams = {
+    toolTitle: string
+    userId?: string
+    log: FastifyBaseLogger
+    execute: (args: Record<string, unknown>) => Promise<McpToolResult>
+}
+
+type ResolvePlugrCreditActionParams = {
+    toolTitle: string
+    args: Record<string, unknown>
 }
 
 type RegisterToolsParams = {

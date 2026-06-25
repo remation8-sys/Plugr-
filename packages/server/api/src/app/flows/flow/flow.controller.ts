@@ -23,6 +23,7 @@ import { StatusCodes } from 'http-status-codes'
 import { z } from 'zod'
 import { authenticationUtils } from '../../authentication/authentication-utils'
 import { entitiesMustBeOwnedByCurrentProject } from '../../authentication/authorization'
+import { plugrBillingService } from '../../billing/billing.service'
 import { ProjectResourceType } from '../../core/security/authorization/common'
 import { securityAccess } from '../../core/security/authorization/fastify-security'
 import { assertUserHasPermissionToFlow } from '../../ee/authentication/project-role/rbac-middleware'
@@ -109,6 +110,12 @@ export const flowController: FastifyPluginAsyncZod = async (app) => {
                 request.principal.platform.id,
                 PlatformUsageMetric.ACTIVE_FLOWS,
             )
+            if (request.principal.type === PrincipalType.USER) {
+                await plugrBillingService(request.log).assertActiveFlowsAllowed({
+                    userId,
+                    flowId: request.params.id,
+                })
+            }
         }
         const updatedFlow = await flowService(request.log).update({
             id: request.params.id,

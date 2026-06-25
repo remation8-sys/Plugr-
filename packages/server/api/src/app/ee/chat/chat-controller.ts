@@ -17,6 +17,7 @@ import { FastifyPluginAsyncZod } from 'fastify-type-provider-zod'
 import { StatusCodes } from 'http-status-codes'
 import { z } from 'zod'
 import { aiProviderService } from '../../ai/ai-provider-service'
+import { plugrBillingService } from '../../billing/billing.service'
 import { securityAccess } from '../../core/security/authorization/fastify-security'
 import { jobQueue, JobType } from '../../workers/job-queue/job-queue'
 import { platformAiCreditsService } from '../platform/platform-plan/platform-ai-credits.service'
@@ -108,6 +109,7 @@ export const chatController: FastifyPluginAsyncZod = async (app) => {
             })
         }
 
+        await plugrBillingService(log).assertUserHasAppAccess({ userId })
         await assertAiCreditsNotExhausted({ platformId, log })
 
         const runId = typeof clientRunId === 'string' ? clientRunId : apId()
