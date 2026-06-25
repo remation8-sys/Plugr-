@@ -1,3 +1,4 @@
+import { plugrPaidTierValues, plugrPlanCatalog } from '@activepieces/shared';
 import { Check } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -5,64 +6,29 @@ import { Link } from 'react-router-dom';
  * Pricing section for the landing page.
  *
  * Adapted from the 21st.dev glassy-pricing community component — frosted cards
- * with a "most popular" highlight — recolored to the Stitch blue palette and
- * driven by Plugr's real tiers. The heavy full-screen WebGL shader from the
- * original is replaced with a lightweight animated CSS glow for performance.
+ * with a "most popular" highlight — recolored to the Stitch blue palette.
+ *
+ * Tiers, USD prices and features are read straight from the shared
+ * `plugrPlanCatalog` (the same source the billing API and in-app pricing page
+ * use), so this section can never drift from what customers are actually
+ * charged. It stays static — the catalog is a bundled constant, so no API or
+ * auth call is needed and it renders for logged-out visitors. Marketing flavor
+ * (the one-line blurbs) is the only copy defined here.
  */
 
 const BLUE = '#0055ff';
 const INK = '#0d0e1a';
 
-type Plan = {
-  name: string;
-  price: number;
-  blurb: string;
-  features: string[];
-  cta: string;
-  popular?: boolean;
+const BLURBS: Record<string, string> = {
+  starter: 'Ship your first automations.',
+  builder: 'For the flows you run every day.',
+  pro: 'More volume, priority help.',
+  business: 'Hands-on support at scale.',
 };
 
-const PLANS: Plan[] = [
-  {
-    name: 'Starter',
-    price: 7,
-    blurb: 'Get your first automations live.',
-    features: [
-      '10 Flows',
-      '2,000 executions / month',
-      'All 749+ Plugs',
-      'Community support',
-    ],
-    cta: 'Get started',
-  },
-  {
-    name: 'Builder',
-    price: 12,
-    blurb: 'Scale up across your team.',
-    features: [
-      'Unlimited Flows',
-      '10,000 executions / month',
-      'All Plugs',
-      'Templates',
-      'Email support',
-    ],
-    cta: 'Choose Builder',
-    popular: true,
-  },
-  {
-    name: 'Pro',
-    price: 29,
-    blurb: 'Everything, unlocked.',
-    features: [
-      'Unlimited everything',
-      'Rem AI agent',
-      'Priority support',
-    ],
-    cta: 'Go Pro',
-  },
-];
-
 export function Pricing() {
+  const startingPrice = plugrPlanCatalog.starter.prices.USD;
+
   return (
     <section
       id="pricing"
@@ -107,81 +73,91 @@ export function Pricing() {
             Simple plans that scale with you.
           </h2>
           <p className="mt-4 text-lg text-white/65">
-            Start building for $7 a month. Upgrade any time as your automations
+            Start at ${startingPrice} a month. Every plan includes monthly Plugr
+            credits and all 700+ Plugs — upgrade any time as your automations
             grow.
           </p>
         </div>
 
-        <div className="mt-14 grid items-start gap-6 lg:grid-cols-3">
-          {PLANS.map((plan) => (
-            <div
-              key={plan.name}
-              className="relative flex flex-col rounded-2xl border p-7 backdrop-blur-xl"
-              style={{
-                background: plan.popular
-                  ? 'linear-gradient(160deg, rgba(0,85,255,0.18), rgba(255,255,255,0.04))'
-                  : 'linear-gradient(160deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02))',
-                borderColor: plan.popular
-                  ? 'rgba(0,85,255,0.5)'
-                  : 'rgba(255,255,255,0.1)',
-                boxShadow: plan.popular
-                  ? '0 0 0 1px rgba(0,85,255,0.3), 0 24px 60px rgba(0,0,0,0.4)'
-                  : 'none',
-              }}
-            >
-              {plan.popular && (
-                <div
-                  className="absolute -top-3 left-7 rounded-full px-3 py-1 text-[11px] font-semibold text-white"
-                  style={{ backgroundColor: BLUE }}
-                >
-                  Most popular
-                </div>
-              )}
-              <h3 className="text-lg font-semibold text-white">{plan.name}</h3>
-              <p className="mt-1 text-sm text-white/55">{plan.blurb}</p>
-              <div className="mt-5 flex items-baseline gap-1.5">
-                <span className="text-5xl font-light text-white">
-                  ${plan.price}
-                </span>
-                <span className="text-sm text-white/55">/month</span>
-              </div>
+        <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {plugrPaidTierValues.map((tier) => {
+            const plan = plugrPlanCatalog[tier];
+            const blurb = BLURBS[tier];
+            return (
               <div
-                className="my-6 h-px w-full"
+                key={tier}
+                className="relative flex h-full flex-col rounded-2xl border p-6 backdrop-blur-xl"
                 style={{
-                  background:
-                    'linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent)',
+                  background: plan.popular
+                    ? 'linear-gradient(160deg, rgba(0,85,255,0.18), rgba(255,255,255,0.04))'
+                    : 'linear-gradient(160deg, rgba(255,255,255,0.08), rgba(255,255,255,0.02))',
+                  borderColor: plan.popular
+                    ? 'rgba(0,85,255,0.5)'
+                    : 'rgba(255,255,255,0.1)',
+                  boxShadow: plan.popular
+                    ? '0 0 0 1px rgba(0,85,255,0.3), 0 24px 60px rgba(0,0,0,0.4)'
+                    : 'none',
                 }}
-              />
-              <ul className="flex flex-col gap-3">
-                {plan.features.map((feature) => (
-                  <li key={feature} className="flex items-start gap-2.5">
-                    <Check
-                      className="mt-0.5 size-4 shrink-0"
-                      style={{ color: plan.popular ? '#6b8cff' : BLUE }}
-                      strokeWidth={2.5}
-                    />
-                    <span className="text-sm text-white/85">{feature}</span>
-                  </li>
-                ))}
-              </ul>
-              <Link
-                to="/sign-up"
-                className="mt-8 inline-flex h-11 w-full items-center justify-center rounded-xl text-sm font-semibold transition-opacity hover:opacity-90"
-                style={
-                  plan.popular
-                    ? { backgroundColor: BLUE, color: '#ffffff' }
-                    : {
-                        backgroundColor: 'rgba(255,255,255,0.08)',
-                        color: '#ffffff',
-                        border: '1px solid rgba(255,255,255,0.15)',
-                      }
-                }
               >
-                {plan.cta}
-              </Link>
-            </div>
-          ))}
+                {plan.popular && (
+                  <div
+                    className="absolute -top-3 left-6 rounded-full px-3 py-1 text-[11px] font-semibold text-white"
+                    style={{ backgroundColor: BLUE }}
+                  >
+                    Most popular
+                  </div>
+                )}
+                <h3 className="text-lg font-semibold text-white">{plan.name}</h3>
+                {blurb && <p className="mt-1 text-sm text-white/55">{blurb}</p>}
+                <div className="mt-5 flex items-baseline gap-1.5">
+                  <span className="text-5xl font-light text-white">
+                    ${plan.prices.USD}
+                  </span>
+                  <span className="text-sm text-white/55">/month</span>
+                </div>
+                <div
+                  className="my-6 h-px w-full"
+                  style={{
+                    background:
+                      'linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent)',
+                  }}
+                />
+                <ul className="flex flex-1 flex-col gap-3">
+                  {plan.features.map((feature) => (
+                    <li key={feature} className="flex items-start gap-2.5">
+                      <Check
+                        className="mt-0.5 size-4 shrink-0"
+                        style={{ color: plan.popular ? '#6b8cff' : BLUE }}
+                        strokeWidth={2.5}
+                      />
+                      <span className="text-sm text-white/85">{feature}</span>
+                    </li>
+                  ))}
+                </ul>
+                <Link
+                  to="/sign-up"
+                  className="mt-8 inline-flex h-11 w-full items-center justify-center rounded-xl text-sm font-semibold transition-opacity hover:opacity-90"
+                  style={
+                    plan.popular
+                      ? { backgroundColor: BLUE, color: '#ffffff' }
+                      : {
+                          backgroundColor: 'rgba(255,255,255,0.08)',
+                          color: '#ffffff',
+                          border: '1px solid rgba(255,255,255,0.15)',
+                        }
+                  }
+                >
+                  {plan.popular ? `Choose ${plan.name}` : 'Get started'}
+                </Link>
+              </div>
+            );
+          })}
         </div>
+
+        <p className="mt-10 text-center text-xs text-white/45">
+          Prices in USD, billed monthly. Save up to 30% on quarterly, biannual,
+          and annual billing. Local currency shown at checkout.
+        </p>
       </div>
     </section>
   );
