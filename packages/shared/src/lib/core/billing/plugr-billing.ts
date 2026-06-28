@@ -104,12 +104,14 @@ const plugrPlanCatalog: Record<PlugrPaidTier, PlugrPlanCatalogEntry> = {
             NGN: 14400,
         },
         includedCredits: 10,
-        activeFlowsLimit: 10,
+        activeFlowsLimit: null,
         features: [
             '10 Plugr credits monthly',
-            'Up to 10 active flows',
+            'Unlimited flows',
+            'Unlimited executions',
             'All 700+ Plugs',
             'Templates',
+            'Community support',
         ],
     },
     builder: {
@@ -124,9 +126,11 @@ const plugrPlanCatalog: Record<PlugrPaidTier, PlugrPlanCatalogEntry> = {
         popular: true,
         features: [
             '50 Plugr credits monthly',
-            'Unlimited active flows',
+            'Unlimited flows',
+            'Unlimited executions',
             'All 700+ Plugs',
             'Templates',
+            'Email support',
         ],
     },
     pro: {
@@ -140,8 +144,12 @@ const plugrPlanCatalog: Record<PlugrPaidTier, PlugrPlanCatalogEntry> = {
         activeFlowsLimit: null,
         features: [
             '200 Plugr credits monthly',
-            'Unlimited active flows',
-            'Priority support',
+            'Unlimited flows',
+            'Unlimited executions',
+            'All 700+ Plugs',
+            'Templates',
+            'Priority support 24-48hrs',
+            'Advanced analytics',
         ],
     },
     business: {
@@ -155,10 +163,13 @@ const plugrPlanCatalog: Record<PlugrPaidTier, PlugrPlanCatalogEntry> = {
         activeFlowsLimit: null,
         features: [
             '400 Plugr credits monthly',
+            'Unlimited flows',
+            'Unlimited executions',
+            'All 700+ Plugs',
+            'Templates',
             'Specialist workflow agent',
-            'Strategy call',
-            'Slack support',
-            'Account manager',
+            'Dedicated account manager',
+            'Fastest priority support',
         ],
     },
 }

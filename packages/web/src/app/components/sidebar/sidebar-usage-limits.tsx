@@ -4,22 +4,35 @@ import { ChevronRight, Info } from 'lucide-react';
 import React from 'react';
 import { Link } from 'react-router-dom';
 
+import { Progress } from '@/components/ui/progress';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
+import {
+  getPlugrCreditsRemaining,
+  plugrBillingQueries,
+} from '@/features/plugr-billing';
 import { projectCollectionUtils } from '@/features/projects';
 import { flagsHooks } from '@/hooks/flags-hooks';
-import { platformHooks } from '@/hooks/platform-hooks';
 import { userHooks } from '@/hooks/user-hooks';
 import { formatUtils } from '@/lib/format-utils';
 
 const SidebarUsageLimits = React.memo(() => {
   const { project } = projectCollectionUtils.useCurrentProject();
-  const { platform } = platformHooks.useCurrentPlatform();
   const currentUser = userHooks.useCurrentUser();
+  const billingQuery = plugrBillingQueries.useInfo();
+  const billingUser = billingQuery.data?.user ?? currentUser.data;
+  const creditsRemaining =
+    billingQuery.data?.creditsRemaining ?? getPlugrCreditsRemaining(billingUser);
+  const totalCredits = Math.max(
+    0,
+    (billingUser?.aiCreditsIncluded ?? 0) + (billingUser?.aiCreditsPurchased ?? 0),
+  );
+  const creditsPercent =
+    totalCredits > 0 ? (creditsRemaining / totalCredits) * 100 : 0;
   const isPlatformAdmin = currentUser.data?.platformRole === PlatformRole.ADMIN;
   const { data: edition } = flagsHooks.useFlag<ApEdition>(ApFlagId.EDITION);
 
@@ -49,19 +62,11 @@ const SidebarUsageLimits = React.memo(() => {
     <div className="flex flex-col w-full p-2.5 bg-background rounded-md border">
       <div className="flex flex-col gap-1.5">
         <UsageRow name={t('Runs')} isUnlimited={true} />
-        <UsageRow
-          name={t('AI Credits')}
-          value={Math.round(platform.usage?.aiCreditsRemaining ?? 0)}
-          suffix={t('remaining')}
-          tooltip={t(
-            'Used when running AI plugs with Plugr as the provider instead of your own API keys.',
-          )}
+        <CreditUsage
+          remaining={Math.round(creditsRemaining)}
+          percent={creditsPercent}
         />
-        <UsageRow
-          name={t('Active Flows')}
-          value={platform.usage?.activeFlows ?? 0}
-          max={platform?.plan.activeFlowsLimit}
-        />
+        <UsageRow name={t('Active Flows')} isUnlimited={true} />
         {isPlatformAdmin && (
           <Link
             to="/platform/setup/billing"
@@ -76,6 +81,31 @@ const SidebarUsageLimits = React.memo(() => {
   );
 });
 
+
+const CreditUsage = ({
+  remaining,
+  percent,
+}: {
+  remaining: number;
+  percent: number;
+}) => {
+  return (
+    <div className="flex flex-col gap-1.5 rounded border border-dashed px-2 py-2">
+      <UsageRow
+        name={t('Plugr credits')}
+        value={remaining}
+        suffix={t('remaining')}
+      />
+      <Progress value={Math.min(100, Math.max(0, percent))} className="h-1" />
+      <Link
+        to="/pricing"
+        className="w-fit text-xs font-medium text-foreground/80 hover:text-foreground"
+      >
+        {t('Buy credits')}
+      </Link>
+    </div>
+  );
+};
 type UsageRowProps = {
   name: string;
   value?: number | null;

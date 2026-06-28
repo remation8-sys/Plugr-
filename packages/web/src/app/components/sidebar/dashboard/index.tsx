@@ -41,6 +41,7 @@ import {
   projectCollectionUtils,
   getProjectName,
 } from '@/features/projects';
+import { canUsePlugr, hasMinimumPlugrTier } from '@/features/plugr-billing';
 import { templatesTelemetryApi } from '@/features/templates';
 import { useIsPlatformAdmin } from '@/hooks/authorization-hooks';
 import { platformHooks } from '@/hooks/platform-hooks';
@@ -70,6 +71,10 @@ export function ProjectDashboardSidebar({
   const navigate = useNavigate();
   const { data: currentUser } = userHooks.useCurrentUser();
   const { platform } = platformHooks.useCurrentPlatform();
+  const plugrLocked = currentUser ? !canUsePlugr(currentUser) : false;
+  const analyticsLocked = currentUser
+    ? !hasMinimumPlugrTier(currentUser, 'pro')
+    : false;
   useEffect(() => {
     if (!searchOpen) {
       setSearchQuery('');
@@ -142,7 +147,9 @@ export function ProjectDashboardSidebar({
     icon: SendIcon,
     hasPermission: true,
     isSubItem: false,
-    badge: t('Beta'),
+    badge: plugrLocked ? undefined : t('Beta'),
+    locked: plugrLocked,
+    lockedTooltip: t('Available on Starter plan'),
   };
 
   const billingLink: SidebarItemType = {
@@ -184,6 +191,8 @@ export function ProjectDashboardSidebar({
     show: true,
     hasPermission: true,
     isSubItem: false,
+    locked: analyticsLocked,
+    lockedTooltip: t('Available on Pro plan'),
     onClick: () => {
       const page = STATIC_PAGES.find((p) => p.href === '/impact');
       if (page)
@@ -204,6 +213,8 @@ export function ProjectDashboardSidebar({
     show: true,
     hasPermission: true,
     isSubItem: false,
+    locked: analyticsLocked,
+    lockedTooltip: t('Available on Pro plan'),
     onClick: () => {
       const page = STATIC_PAGES.find((p) => p.href === '/leaderboard');
       if (page)

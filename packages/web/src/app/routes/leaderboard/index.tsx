@@ -48,8 +48,10 @@ import {
   RefreshAnalyticsContext,
   RefreshAnalyticsProvider,
 } from '@/features/platform-admin';
+import { hasMinimumPlugrTier } from '@/features/plugr-billing';
 import { projectCollectionUtils } from '@/features/projects';
 import { platformHooks } from '@/hooks/platform-hooks';
+import { userHooks } from '@/hooks/user-hooks';
 import { downloadFile } from '@/lib/dom-utils';
 import { formatUtils } from '@/lib/format-utils';
 import { cn, DASHBOARD_CONTENT_PADDING_X } from '@/lib/utils';
@@ -100,6 +102,9 @@ function applyTimeSavedFilter<T extends { minutesSaved: number }>(
 
 export default function LeaderboardPage() {
   const { platform } = platformHooks.useCurrentPlatform();
+  const { data: user } = userHooks.useCurrentUser();
+  const analyticsLocked =
+    !platform.plan.analyticsEnabled || !hasMinimumPlugrTier(user, 'pro');
   const [timePeriod, setTimePeriod] = useState<AnalyticsTimePeriod>(
     AnalyticsTimePeriod.LAST_WEEK,
   );
@@ -342,11 +347,11 @@ export default function LeaderboardPage() {
   return (
     <LockedFeatureGuard
       featureKey="ANALYTICS"
-      locked={!platform.plan.analyticsEnabled}
-      lockTitle={t('Unlock Leaderboard')}
-      lockDescription={t(
-        'See top performers by flows created and time saved across your platform',
-      )}
+      locked={analyticsLocked}
+      lockTitle={t('Unlock Advanced Analytics')}
+      lockDescription={t('Available on Pro plan.')}
+      upgradeHref="/pricing"
+      upgradeLabel={t('Upgrade')}
     >
       <RefreshAnalyticsProvider>
         <div className="flex flex-col gap-2 w-full">

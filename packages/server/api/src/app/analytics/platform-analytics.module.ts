@@ -1,6 +1,7 @@
 import { ActivepiecesError, AnalyticsReportRequest, ErrorCode, LeaderboardRequest, PrincipalType } from '@activepieces/shared'
 import { FastifyBaseLogger } from 'fastify'
 import { FastifyPluginAsyncZod } from 'fastify-type-provider-zod'
+import { requireTier } from '../billing/billing-guards'
 import { securityAccess } from '../core/security/authorization/fastify-security'
 import { platformMustHaveFeatureEnabled } from '../ee/authentication/ee-authorization'
 import { userIdentityHelper } from '../helper/user-identity-helper'
@@ -9,6 +10,7 @@ import { platformAnalyticsReportService } from './platform-analytics-report.serv
 
 export const platformAnalyticsModule: FastifyPluginAsyncZod = async (app) => {
     app.addHook('preHandler', platformMustHaveFeatureEnabled((platform) => platform.plan.analyticsEnabled))
+    app.addHook('preHandler', requireTier('pro', 'Advanced analytics is available on the Pro plan.'))
     await piecesAnalyticsService(app.log).init()
     await app.register(platformAnalyticsController, { prefix: '/v1/analytics' })
 }

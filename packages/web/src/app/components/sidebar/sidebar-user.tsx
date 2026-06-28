@@ -5,6 +5,7 @@ import { ChevronsUpDown, LogOut, UserCogIcon } from 'lucide-react';
 import { useState } from 'react';
 
 import { UserAvatar } from '@/components/custom/user-avatar';
+import { getPlugrTierLabel } from '@/features/plugr-billing';
 import { useEmbedding } from '@/components/providers/embed-provider';
 import { useTelemetry } from '@/components/providers/telemetry-provider';
 import {
@@ -68,10 +69,13 @@ export function SidebarUser() {
 
               {!isCollapsed && (
                 <>
-                  <span className="truncate">
-                    {user.firstName + ' ' + user.lastName}
-                  </span>
-                  <ChevronsUpDown className="ml-auto size-4" />
+                  <div className="grid min-w-0 flex-1 leading-tight">
+                    <span className="truncate text-sm">
+                      {user.firstName + ' ' + user.lastName}
+                    </span>
+                    <TierBadge tier={user.subscriptionTier} compact />
+                  </div>
+                  <ChevronsUpDown className="ml-auto size-4 shrink-0" />
                 </>
               )}
             </SidebarMenuButton>
@@ -100,6 +104,7 @@ export function SidebarUser() {
                     {user.firstName + ' ' + user.lastName}
                   </span>
                   <span className="truncate text-xs">{user.email}</span>
+                  <TierBadge tier={user.subscriptionTier} />
                 </div>
               </div>
             </DropdownMenuLabel>
@@ -126,5 +131,30 @@ export function SidebarUser() {
         onClose={() => setAccountSettingsOpen(false)}
       />
     </SidebarMenu>
+  );
+}
+
+function TierBadge({
+  tier,
+  compact = false,
+}: {
+  tier: Parameters<typeof getPlugrTierLabel>[0];
+  compact?: boolean;
+}) {
+  const isBusiness = tier === 'business';
+  const isTrial = tier === 'trial';
+  return (
+    <span
+      className={cn(
+        'w-fit rounded px-1.5 py-0.5 text-[10px] font-medium leading-none',
+        compact && 'mt-0.5',
+        isTrial && 'bg-muted text-muted-foreground',
+        !isTrial && !isBusiness && 'bg-primary/10 text-primary',
+        isBusiness &&
+          'border border-primary/40 bg-primary/10 text-primary shadow-[0_0_10px_rgba(34,211,238,0.28)]',
+      )}
+    >
+      {getPlugrTierLabel(tier)}
+    </span>
   );
 }

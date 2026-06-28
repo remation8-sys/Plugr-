@@ -61,7 +61,7 @@ export const chatRpcHandlers = (log: FastifyBaseLogger) => ({
             ? candidateProjectId
             : null
 
-        const tier = chatHelpers.resolveTier({ tierId: modelName ?? conversation.modelName ?? null })
+        const tier = chatHelpers.resolveTier({ tierId: null })
         const resolvedModelId = chatHelpers.resolveModelIdForProvider({ tier, provider: providerConfig.provider })
 
         const frontendUrl = system.getOrThrow(AppSystemProp.FRONTEND_URL)

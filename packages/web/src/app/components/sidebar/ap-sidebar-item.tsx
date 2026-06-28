@@ -4,6 +4,11 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 import { Dot } from '@/components/custom/dot';
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import {
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
@@ -26,6 +31,7 @@ export type SidebarItemType = {
   badge?: string;
   iconClassName?: string;
   highlight?: boolean;
+  lockedTooltip?: string;
 };
 
 export const ApSidebarItem = (item: SidebarItemType) => {
@@ -82,7 +88,20 @@ export const ApSidebarItem = (item: SidebarItemType) => {
     </SidebarMenuButton>
   );
 
-  return <SidebarMenuItem>{button}</SidebarMenuItem>;
+  return (
+    <SidebarMenuItem>
+      {item.locked && item.lockedTooltip ? (
+        <Tooltip>
+          <TooltipTrigger asChild>{button}</TooltipTrigger>
+          <TooltipContent side="right" className="max-w-[220px]">
+            {item.lockedTooltip}
+          </TooltipContent>
+        </Tooltip>
+      ) : (
+        button
+      )}
+    </SidebarMenuItem>
+  );
 };
 
 function renderIcon(

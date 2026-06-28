@@ -1,4 +1,7 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
+
+import { Button } from '@/components/ui/button';
 
 import { FeatureKey, RequestTrial } from './request-trial';
 
@@ -11,6 +14,8 @@ type LockedFeatureGuardProps = {
   lockDocumentationUrl?: string;
   featureKey: FeatureKey;
   showContactSales?: boolean;
+  upgradeHref?: string;
+  upgradeLabel?: string;
 };
 
 export const LockedFeatureGuard = ({
@@ -22,6 +27,8 @@ export const LockedFeatureGuard = ({
   lockDocumentationUrl,
   featureKey,
   showContactSales = true,
+  upgradeHref,
+  upgradeLabel = 'Upgrade',
 }: LockedFeatureGuardProps) => {
   if (!locked) {
     return children;
@@ -48,11 +55,18 @@ export const LockedFeatureGuard = ({
               </>
             )}
           </p>
-
-          {showContactSales && (
+          {upgradeHref ? (
             <div className="my-4">
-              <RequestTrial featureKey={featureKey} />
+              <Button asChild>
+                <Link to={upgradeHref}>{upgradeLabel}</Link>
+              </Button>
             </div>
+          ) : (
+            showContactSales && (
+              <div className="my-4">
+                <RequestTrial featureKey={featureKey} />
+              </div>
+            )
           )}
         </div>
 

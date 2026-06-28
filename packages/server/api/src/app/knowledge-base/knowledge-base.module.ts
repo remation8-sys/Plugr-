@@ -1,9 +1,11 @@
 import { ActivepiecesError, ErrorCode } from '@activepieces/shared'
 import { FastifyPluginAsyncZod } from 'fastify-type-provider-zod'
+import { plugrUserMustHaveAppAccess } from '../billing/billing-guards'
 import { knowledgeBaseSchema } from './knowledge-base-schema'
 import { knowledgeBaseController } from './knowledge-base.controller'
 
 export const knowledgeBaseModule: FastifyPluginAsyncZod = async (app) => {
+    app.addHook('preHandler', plugrUserMustHaveAppAccess)
     app.addHook('preHandler', async () => {
         const available = await knowledgeBaseSchema.isVectorExtensionInstalled()
         if (!available) {

@@ -1,10 +1,7 @@
 import {
-    ActivepiecesError,
-    AIProviderName,
     apId,
     ChatConversationStatus,
     CreateChatConversationRequest,
-    ErrorCode,
     LATEST_JOB_DATA_SCHEMA_VERSION,
     PrincipalType,
     SendChatMessageRequest,
@@ -12,15 +9,12 @@ import {
     UpdateChatConversationRequest,
     WorkerJobType,
 } from '@activepieces/shared'
-import { FastifyBaseLogger } from 'fastify'
 import { FastifyPluginAsyncZod } from 'fastify-type-provider-zod'
 import { StatusCodes } from 'http-status-codes'
 import { z } from 'zod'
-import { aiProviderService } from '../../ai/ai-provider-service'
 import { plugrBillingService } from '../../billing/billing.service'
 import { securityAccess } from '../../core/security/authorization/fastify-security'
 import { jobQueue, JobType } from '../../workers/job-queue/job-queue'
-import { platformAiCreditsService } from '../platform/platform-plan/platform-ai-credits.service'
 import { chatApprovalGate } from './chat-approval-gate'
 import { chatHelpers } from './chat-helpers'
 import { chatService } from './chat-service'
@@ -109,8 +103,7 @@ export const chatController: FastifyPluginAsyncZod = async (app) => {
             })
         }
 
-        await plugrBillingService(log).assertUserHasAppAccess({ userId })
-        await assertAiCreditsNotExhausted({ platformId, log })
+        await plugrBillingService(log).assertUserHasPlugrAccess({ userId })
 
         const runId = typeof clientRunId === 'string' ? clientRunId : apId()
         await chatApprovalGate.storeActiveRunId({ conversationId, runId })
@@ -190,23 +183,6 @@ export const chatController: FastifyPluginAsyncZod = async (app) => {
         return reply.status(StatusCodes.OK).send([])
     })
 
-}
-
-async function assertAiCreditsNotExhausted({ platformId, log }: { platformId: string, log: FastifyBaseLogger }): Promise<void> {
-    const chatProvider = await aiProviderService(log).getChatProvider({ platformId })
-    if (!chatProvider || chatProvider.provider !== AIProviderName.ACTIVEPIECES) {
-        return
-    }
-    const usage = await platformAiCreditsService(log).getUsage(platformId)
-    if (usage.usageRemaining <= 0) {
-        throw new ActivepiecesError({
-            code: ErrorCode.AI_CREDIT_LIMIT_EXCEEDED,
-            params: {
-                usage: usage.usage,
-                limit: usage.limit,
-            },
-        })
-    }
 }
 
 const CreateConversationRoute = {

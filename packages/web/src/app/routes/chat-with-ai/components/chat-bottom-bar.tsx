@@ -17,7 +17,6 @@ import {
 
 import { ActionPreviewCard } from './action-preview-card';
 import { ChatInput } from './chat-input';
-import { ChatModelSelector } from './chat-model-selector';
 import { ConnectionPickerCard } from './connection-picker-card';
 import {
   ConnectionRequiredData,
@@ -31,8 +30,6 @@ export function ChatBottomBar({
   onSend,
   onStop,
   onInputChange,
-  selectedModel,
-  onModelChange,
   lastAssistantMessage,
   lastMessageId,
   placeholder,
@@ -115,12 +112,7 @@ export function ChatBottomBar({
         onStop={onStop}
         onInputChange={onInputChange}
         placeholder={placeholder ?? t('Reply...')}
-        rightActions={
-          <ChatModelSelector
-            selectedModel={selectedModel}
-            onModelChange={onModelChange}
-          />
-        }
+        rightActions={null}
       />
     </motion.div>
   );
@@ -183,8 +175,6 @@ type ChatBottomBarProps = {
   onSend: (text: string, files?: File[]) => void;
   onStop: () => void;
   onInputChange?: (hasInput: boolean) => void;
-  selectedModel: string | null;
-  onModelChange: (modelId: string) => void;
   lastAssistantMessage: ChatUIMessage | undefined;
   lastMessageId: string | undefined;
   placeholder?: string;

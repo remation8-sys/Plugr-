@@ -15,7 +15,9 @@ import {
   StepMetadataWithSuggestions,
   usePieceSearchContext,
 } from '@/features/pieces';
+import { hasMinimumPlugrTier } from '@/features/plugr-billing';
 import { flagsHooks } from '@/hooks/flags-hooks';
+import { userHooks } from '@/hooks/user-hooks';
 
 import { useBuilderStateContext } from '../../builder-hooks';
 import { convertStepMetadataToPieceSelectorItems } from '../piece-actions-or-triggers-list';
@@ -51,6 +53,7 @@ export const AIPieceActionsList: React.FC<AIPieceActionsListProps> = ({
   const { data: isAgentsConfigured } = flagsHooks.useFlag<boolean>(
     ApFlagId.AGENTS_CONFIGURED,
   );
+  const { data: user } = userHooks.useCurrentUser();
   const navigate = useNavigate();
 
   const aiActions = convertStepMetadataToPieceSelectorItems(
@@ -75,6 +78,25 @@ export const AIPieceActionsList: React.FC<AIPieceActionsListProps> = ({
                 logoUrl: actionIcon,
               }}
               onClick={() => {
+                if (
+                  item.type === FlowActionType.PIECE &&
+                  item.actionOrTrigger.name === 'run_agent' &&
+                  !hasMinimumPlugrTier(user, 'business')
+                ) {
+                  toast('The specialist agent is available on the Business plan.', {
+                    description: t(
+                      'A real expert will build and fix your flows within 24-48hrs.',
+                    ),
+                    action: {
+                      label: t('Upgrade to Business'),
+                      onClick: () => {
+                        navigate('/pricing');
+                      },
+                    },
+                  });
+                  return;
+                }
+
                 if (!isAgentsConfigured) {
                   toast('Connect to OpenAI', {
                     description: t(

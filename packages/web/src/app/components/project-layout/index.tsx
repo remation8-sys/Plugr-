@@ -1,4 +1,5 @@
 import { ApEdition, ApFlagId, isNil } from '@activepieces/shared';
+import { Zap } from 'lucide-react';
 import React, { ComponentType } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
@@ -10,6 +11,10 @@ import { useEmbedding } from '@/components/providers/embed-provider';
 import { Button } from '@/components/ui/button';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar-shadcn';
 import { PurchaseExtraFlowsDialog } from '@/features/billing';
+import {
+  getTrialDaysRemaining,
+  PlugrAppAccessGuard,
+} from '@/features/plugr-billing';
 import { projectHooks } from '@/features/projects';
 import { flagsHooks } from '@/hooks/flags-hooks';
 import { userHooks } from '@/hooks/user-hooks';
@@ -120,14 +125,18 @@ function TrialBanner() {
   if (user.subscriptionStatus !== 'trial' || !user.trialEndsAt) {
     return null;
   }
-  const msRemaining = new Date(user.trialEndsAt).getTime() - Date.now();
-  const daysRemaining = Math.max(0, Math.ceil(msRemaining / 86_400_000));
+  const daysRemaining = getTrialDaysRemaining(user);
+  if (daysRemaining === null) {
+    return null;
+  }
   return (
     <div className="flex items-center justify-between gap-3 border-b bg-muted/35 px-4 py-2 text-sm">
-      <div className="min-w-0">
-        <span className="font-medium">Plugr trial</span>
-        <span className="ml-2 text-muted-foreground">
-          {daysRemaining === 1 ? '1 day left' : `${daysRemaining} days left`}
+      <div className="flex min-w-0 items-center gap-2">
+        <Zap className="size-4 text-primary" />
+        <span className="truncate font-medium">
+          {daysRemaining === 1
+            ? '1 day left in your free trial'
+            : `${daysRemaining} days left in your free trial`}
         </span>
       </div>
       <Button size="xs" onClick={() => navigate('/pricing')}>
@@ -150,7 +159,8 @@ function ProjectDashboardLayoutInner({
   const { open: searchOpen } = useGlobalSearch();
 
   return (
-    <SidebarProvider hoverMode={!searchOpen}>
+    <PlugrAppAccessGuard>
+      <SidebarProvider hoverMode={!searchOpen}>
       {!isEmbedded && <ProjectDashboardSidebar />}
       <SidebarInset className="flex flex-col h-full overflow-hidden bg-sidebar">
         <div
@@ -175,6 +185,7 @@ function ProjectDashboardLayoutInner({
           </div>
         </div>
       </SidebarInset>
-    </SidebarProvider>
+      </SidebarProvider>
+    </PlugrAppAccessGuard>
   );
 }

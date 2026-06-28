@@ -27,8 +27,10 @@ import {
   platformAnalyticsHooks,
   RefreshAnalyticsContext,
 } from '@/features/platform-admin';
+import { hasMinimumPlugrTier } from '@/features/plugr-billing';
 import { projectCollectionUtils } from '@/features/projects';
 import { platformHooks } from '@/hooks/platform-hooks';
+import { userHooks } from '@/hooks/user-hooks';
 import { cn, DASHBOARD_CONTENT_PADDING_X } from '@/lib/utils';
 
 import { ProjectSelect } from './components/project-select';
@@ -42,6 +44,9 @@ type TabValue = 'analytics' | 'details';
 
 export default function ImpactPage() {
   const { platform } = platformHooks.useCurrentPlatform();
+  const { data: user } = userHooks.useCurrentUser();
+  const analyticsLocked =
+    !platform.plan.analyticsEnabled || !hasMinimumPlugrTier(user, 'pro');
   const [searchParams, setSearchParams] = useSearchParams();
   const selectedProjectId = searchParams.get('projectId') || undefined;
   const selectedTimePeriod =
@@ -99,11 +104,11 @@ export default function ImpactPage() {
   return (
     <LockedFeatureGuard
       featureKey="ANALYTICS"
-      locked={!platform.plan.analyticsEnabled}
-      lockTitle={t('Unlock Impact Analytics')}
-      lockDescription={t(
-        'View impact analytics and metrics for the active flows across your platform',
-      )}
+      locked={analyticsLocked}
+      lockTitle={t('Unlock Advanced Analytics')}
+      lockDescription={t('Available on Pro plan.')}
+      upgradeHref="/pricing"
+      upgradeLabel={t('Upgrade')}
     >
       <div className="flex flex-col gap-4 w-full">
         <PageHeader

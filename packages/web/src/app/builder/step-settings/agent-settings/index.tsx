@@ -2,10 +2,12 @@ import {
   AgentPieceProps,
   AgentProviderModel,
   AIProviderName,
+  PLUGR_SPECIALIST_AGENT_MODEL,
   isNil,
   PieceAction,
   PieceActionSettings,
 } from '@activepieces/shared';
+import { useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 
 import { AgentTools } from '@/app/builder/step-settings/agent-settings/agent-tools';
@@ -29,6 +31,14 @@ export const AgentSettings = (props: AgentSettingsProps) => {
   const { pieceModel, updateFormSchema, updatePropertySettingsSchema } =
     useStepSettingsContext();
   const form = useFormContext();
+
+  useEffect(() => {
+    form.setValue(
+      `settings.input.${AgentPieceProps.AI_PROVIDER_MODEL}`,
+      PLUGR_SPECIALIST_AGENT_MODEL,
+      { shouldValidate: true },
+    );
+  }, [form]);
 
   if (isNil(pieceModel)) {
     return (
@@ -122,14 +132,14 @@ const selectAgentFormComponentForProperty = (
       );
     }
     case AgentPieceProps.AI_PROVIDER_MODEL: {
-      const provider = (field.value as AgentProviderModel).provider;
-      const model = (field.value as AgentProviderModel).model;
+      const provider = PLUGR_SPECIALIST_AGENT_MODEL.provider;
+      const model = PLUGR_SPECIALIST_AGENT_MODEL.model;
       return (
         <AIModelSelector
           defaultModel={model}
           defaultProvider={provider}
-          onChange={field.onChange}
-          disabled={disabled}
+          onChange={() => field.onChange(PLUGR_SPECIALIST_AGENT_MODEL)}
+          disabled={true}
         />
       );
     }

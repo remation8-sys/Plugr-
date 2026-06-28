@@ -29,6 +29,11 @@ import { agentUtils } from './utils';
 import { constructAgentTools } from './tools';
 import { buildWebSearchOptionsProperty, buildWebSearchConfig, WebSearchOptions } from '../../common/web-search';
 
+const PLUGR_SPECIALIST_AGENT_MODEL: AgentProviderModel = {
+  provider: AIProviderName.ACTIVEPIECES,
+  model: 'anthropic/claude-opus-4.8',
+}
+
 const agentToolArrayItems: ArraySubProps<boolean> = {
   type: Property.ShortText({
     displayName: 'Tool Type',
@@ -92,6 +97,7 @@ export const runAgent = createAction({
     [AgentPieceProps.AI_PROVIDER_MODEL]: Property.Object({
       displayName: 'AI Model',
       required: true,
+      defaultValue: PLUGR_SPECIALIST_AGENT_MODEL,
     }),
     [AgentPieceProps.AGENT_TOOLS]: Property.Array({
       displayName: 'Agent Tools',
@@ -140,8 +146,8 @@ export const runAgent = createAction({
     ),
   },
   async run(context) {
-    const { prompt, maxSteps, aiProviderModel } = context.propsValue;
-    const agentProviderModel = aiProviderModel as AgentProviderModel
+    const { prompt, maxSteps } = context.propsValue;
+    const agentProviderModel: AgentProviderModel = { ...PLUGR_SPECIALIST_AGENT_MODEL }
     const provider = agentProviderModel.provider as AIProviderName;
     const webSearchEnabled = !!(context.propsValue.webSearch);
     const webSearchOptions = (context.propsValue.webSearchOptions ?? {}) as WebSearchOptions;

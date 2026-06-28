@@ -13,6 +13,7 @@ import { projectRoutes } from '@/app/routes/project-routes';
 import { publicRoutes } from '@/app/routes/public-routes';
 import { RouteLoadingBar } from '@/components/custom/route-loading-bar';
 import { useEmbedding } from '@/components/providers/embed-provider';
+import { PlugrAccessGuard } from '@/features/plugr-billing';
 import { authenticationSession } from '@/lib/authentication-session';
 
 import { AllowOnlyLoggedInUserOnlyGuard } from '../components/allow-logged-in-user-only-guard';
@@ -45,9 +46,11 @@ function chatElement() {
     <AllowOnlyLoggedInUserOnlyGuard>
       <ProjectDashboardLayout>
         <PageTitle title="Plugr" separator="-">
-          <Suspense fallback={<RouteLoadingBar />}>
-            <ChatWithAIPage />
-          </Suspense>
+          <PlugrAccessGuard>
+            <Suspense fallback={<RouteLoadingBar />}>
+              <ChatWithAIPage />
+            </Suspense>
+          </PlugrAccessGuard>
         </PageTitle>
       </ProjectDashboardLayout>
     </AllowOnlyLoggedInUserOnlyGuard>

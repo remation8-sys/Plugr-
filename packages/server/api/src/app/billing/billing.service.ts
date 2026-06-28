@@ -2,7 +2,6 @@ import {
     ActivepiecesError,
     apId,
     ErrorCode,
-    FlowStatus,
     getPlugrCreditPackPrice,
     getPlugrCreditsRemaining,
     getPlugrPlanPrice,
@@ -37,8 +36,6 @@ import { BillingTransactionEntity, BillingTransactionSchema } from './billing-tr
 import { CreditPurchaseEntity, CreditPurchaseSchema } from './credit-purchase.entity'
 import { CreditTransactionEntity, CreditTransactionSchema } from './credit-transaction.entity'
 import { flutterwaveBillingService, FlutterwaveVerifiedTransaction } from './flutterwave-billing.service'
-
-const STARTER_ACTIVE_FLOW_LIMIT = 10
 
 export const billingTransactionRepo = repoFactory<BillingTransactionSchema>(BillingTransactionEntity)
 export const creditPurchaseRepo = repoFactory<CreditPurchaseSchema>(CreditPurchaseEntity)
@@ -210,30 +207,23 @@ export const plugrBillingService = (log: FastifyBaseLogger) => ({
         assertAppAccess(user)
     },
 
+    async assertUserHasPlugrAccess({ userId }: UserIdParams): Promise<void> {
+        const user = await getNormalizedUser({ userId, log })
+        assertPlugrAccess(user)
+    },
+
+    async assertUserHasMinimumTier(params: MinimumTierParams): Promise<void> {
+        const user = await getNormalizedUser({ userId: params.userId, log })
+        assertMinimumTier({ user, minimumTier: params.minimumTier, message: params.message })
+    },
+
     async deductCredits(params: DeductCreditsParams): Promise<void> {
         await deductCredits({ ...params, log })
     },
 
-    async assertActiveFlowsAllowed({ userId, flowId }: ActiveFlowLimitParams): Promise<void> {
+    async assertActiveFlowsAllowed({ userId }: ActiveFlowLimitParams): Promise<void> {
         const user = await getNormalizedUser({ userId, log })
         assertAppAccess(user)
-        if (user.subscriptionTier !== 'starter') {
-            return
-        }
-        const activeFlows = await flowRepo().count({
-            where: {
-                ownerId: userId,
-                status: FlowStatus.ENABLED,
-            },
-        })
-        const currentFlow = await flowRepo().findOneBy({ id: flowId })
-        const currentFlowAlreadyEnabled = currentFlow?.status === FlowStatus.ENABLED
-        if (!currentFlowAlreadyEnabled && activeFlows >= STARTER_ACTIVE_FLOW_LIMIT) {
-            throw new ActivepiecesError({
-                code: ErrorCode.FEATURE_DISABLED,
-                params: { message: 'Upgrade to Builder for unlimited flows' },
-            })
-        }
     },
 
     async canExecuteFlow({ flowId }: FlowIdParams): Promise<boolean> {
@@ -392,10 +382,10 @@ async function findUserFromWebhook(params: MarkSubscriptionEndedParams): Promise
     return null
 }
 function assertCanStartCheckout({ user, tier }: AssertCheckoutParams): void {
-    assertAppAccess(user)
-    if (!isPlugrPaidTier(user.subscriptionTier) || user.subscriptionStatus === 'expired') {
+    if (user.subscriptionStatus === 'expired' || !isPlugrPaidTier(user.subscriptionTier)) {
         return
     }
+    assertAppAccess(user)
     if (getPlugrTierRank(tier) < getPlugrTierRank(user.subscriptionTier)) {
         throw new ActivepiecesError({
             code: ErrorCode.VALIDATION,
@@ -425,6 +415,18 @@ function assertPlugrAccess(user: User): void {
             params: { message: 'Plugr is available on paid plans. Start a plan to unlock Plugr.' },
         })
     }
+}
+
+function assertMinimumTier({ user, minimumTier, message }: AssertMinimumTierParams): void {
+    assertAppAccess(user)
+    if (getPlugrTierRank(user.subscriptionTier) >= getPlugrTierRank(minimumTier)) {
+        return
+    }
+    const planName = plugrPlanCatalog[minimumTier].name
+    throw new ActivepiecesError({
+        code: ErrorCode.FEATURE_DISABLED,
+        params: { message: message ?? 'Available on ' + planName + ' plan.' },
+    })
 }
 
 function hasAppAccess(user: User): boolean {
@@ -587,6 +589,12 @@ type ActiveFlowLimitParams = UserIdParams & {
     flowId: string
 }
 
+type AssertMinimumTierParams = {
+    user: User
+    minimumTier: PlugrPaidTier
+    message?: string
+}
+
 type ApplyTransactionParams = {
     transaction: FlutterwaveVerifiedTransaction
     log: FastifyBaseLogger
@@ -644,6 +652,11 @@ type GetPricingParams = {
 type MarkSubscriptionEndedParams = {
     userId?: string
     subscriptionId?: string
+}
+
+type MinimumTierParams = UserIdParams & {
+    minimumTier: PlugrPaidTier
+    message?: string
 }
 
 type MarkTransactionParams = {

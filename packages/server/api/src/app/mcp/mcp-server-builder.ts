@@ -147,13 +147,16 @@ function registerPlatformTools({ server, mcp, userId, selectionScope, resolvePro
 function wrapToolWithPlugrCredits({ toolTitle, userId, log, execute }: PlugrToolBillingParams): (args: Record<string, unknown>) => Promise<McpToolResult> {
     return async (args: Record<string, unknown>) => {
         const actionType = resolvePlugrCreditAction({ toolTitle, args })
-        if (!isNil(userId) && !isNil(actionType)) {
+        if (!isNil(userId)) {
             try {
-                await plugrBillingService(log).deductCredits({
-                    userId,
-                    actionType,
-                    flowId: typeof args.flowId === 'string' ? args.flowId : undefined,
-                })
+                await plugrBillingService(log).assertUserHasPlugrAccess({ userId })
+                if (!isNil(actionType)) {
+                    await plugrBillingService(log).deductCredits({
+                        userId,
+                        actionType,
+                        flowId: typeof args.flowId === 'string' ? args.flowId : undefined,
+                    })
+                }
             }
             catch (error) {
                 if (error instanceof ActivepiecesError) {

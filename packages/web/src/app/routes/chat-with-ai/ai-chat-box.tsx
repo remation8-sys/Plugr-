@@ -73,7 +73,6 @@ function ChatBoxContent({
 
   const {
     messages,
-    modelName,
     isStreaming,
     wasCancelled,
     isLoadingHistory,
@@ -81,7 +80,6 @@ function ChatBoxContent({
     sendMessage,
     cancelStream,
     setConversationId,
-    setModelName,
   } = useAgentChat({
     onTitleUpdate,
     onConversationCreated,
@@ -282,8 +280,6 @@ function ChatBoxContent({
               onSend={handleSend}
               onStop={cancelStream}
               onInputChange={setHasInput}
-              selectedModel={modelName}
-              onModelChange={setModelName}
               lastAssistantMessage={lastAssistantMessage}
               lastMessageId={lastMessage?.id}
               placeholder={
