@@ -16,6 +16,7 @@ import dayjs from 'dayjs'
 import { FastifyBaseLogger } from 'fastify'
 import cron from 'node-cron'
 import { In } from 'typeorm'
+import { billingEnv } from '../billing/billing-env'
 import { repoFactory } from '../core/db/repo-factory'
 import { openRouterApi } from '../ee/platform/platform-plan/openrouter/openrouter-api'
 import { platformPlanService } from '../ee/platform/platform-plan/platform-plan.service'
@@ -57,13 +58,32 @@ export const aiProviderService = (log: FastifyBaseLogger) => ({
         }
         const configuredProviders = await aiProviderRepo().findBy({ platformId })
 
-        return configuredProviders.map((p): AIProviderWithoutSensitiveData => ({
+        const providers = configuredProviders.map((p): AIProviderWithoutSensitiveData => ({
             id: p.id,
             name: p.provider === AIProviderName.ACTIVEPIECES ? 'Plugr' : p.displayName,
             provider: p.provider,
             config: p.config,
             enabledForChat: p.enabledForChat ?? false,
         }))
+
+        // Plugr powers chat with a single global key (AP_OPENROUTER_API_KEY /
+        // AP_ANTHROPIC_API_KEY) shared across every platform, so customers never
+        // configure their own provider. Surface it as a managed chat provider so the
+        // chat UI's "has provider" check passes on every workspace; the real LLM call
+        // resolves the global key server-side (chat-helpers.resolveChatProvider).
+        const globalOpenRouterKey = billingEnv.get('OPENROUTER_API_KEY')
+        const globalAnthropicKey = billingEnv.get('ANTHROPIC_API_KEY')
+        const globalChatKey = globalOpenRouterKey ?? globalAnthropicKey
+        if (!isNil(globalChatKey) && !providers.some((p) => p.enabledForChat)) {
+            providers.push({
+                id: 'plugr-managed-chat',
+                name: 'Plugr',
+                provider: isNil(globalOpenRouterKey) ? AIProviderName.ANTHROPIC : AIProviderName.OPENROUTER,
+                config: {},
+                enabledForChat: true,
+            })
+        }
+        return providers
     },
 
     async listModels(platformId: PlatformId, provider: AIProviderName): Promise<AIProviderModel[]> {
