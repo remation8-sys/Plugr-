@@ -62,6 +62,18 @@ async function resolveChatProvider({ platformId, log }: { platformId: string, lo
         }
     }
 
+    // Global OpenRouter key (AP_OPENROUTER_API_KEY) powers chat for ALL platforms,
+    // so every paying customer gets AI without configuring a provider per platform.
+    const openrouterApiKey = billingEnv.get('OPENROUTER_API_KEY')
+    if (!isNil(openrouterApiKey)) {
+        return {
+            provider: AIProviderName.OPENROUTER,
+            auth: { apiKey: openrouterApiKey },
+            config: {},
+            platformId,
+        }
+    }
+
     const chatProvider = await aiProviderService(log).getChatProvider({ platformId })
     if (isNil(chatProvider)) {
         throw new ActivepiecesError({

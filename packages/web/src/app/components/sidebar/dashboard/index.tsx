@@ -143,7 +143,9 @@ export function ProjectDashboardSidebar({
     type: 'link',
     to: '/chat',
     label: t('Plugr'),
-    show: platform.plan.chatEnabled,
+    // Plugr AI is shown to all signed-in users (gated/locked by subscription via
+    // `locked: plugrLocked` + the route guard), not by Activepieces' chatEnabled flag.
+    show: !!currentUser,
     icon: SendIcon,
     hasPermission: true,
     isSubItem: false,
