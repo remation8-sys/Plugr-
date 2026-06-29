@@ -284,6 +284,39 @@ function buildStepParts({ content }: {
     return parts
 }
 
+// USD per 1M tokens, per Claude model. cacheRead = 0.1x input, cacheWrite = 1.25x input (Anthropic 5-min cache).
+const CHAT_MODEL_PRICING_USD_PER_MTOK: Record<string, { input: number, cacheRead: number, cacheWrite: number, output: number }> = {
+    'claude-haiku-4.5': { input: 1, cacheRead: 0.1, cacheWrite: 1.25, output: 5 },
+    'claude-sonnet-4.6': { input: 3, cacheRead: 0.3, cacheWrite: 3.75, output: 15 },
+    'claude-opus-4.8': { input: 5, cacheRead: 0.5, cacheWrite: 6.25, output: 25 },
+}
+
+const DEFAULT_CHAT_MODEL_PRICING = { input: 3, cacheRead: 0.3, cacheWrite: 3.75, output: 15 }
+
+/**
+ * Best-effort USD cost of one chat turn (the whole agent loop), from aggregate
+ * token usage (use totalUsage, not usage, so it covers every step). Prices the
+ * disjoint token classes separately so cached reads/writes are counted right.
+ */
+function estimateChatCostUsd({ modelId, inputTokens, noCacheInputTokens, cacheReadTokens, cacheWriteTokens, outputTokens }: {
+    modelId: string
+    inputTokens: number
+    noCacheInputTokens: number
+    cacheReadTokens: number
+    cacheWriteTokens: number
+    outputTokens: number
+}): number {
+    const pricing = Object.entries(CHAT_MODEL_PRICING_USD_PER_MTOK).find(([key]) => modelId.includes(key))?.[1] ?? DEFAULT_CHAT_MODEL_PRICING
+    const freshInput = noCacheInputTokens > 0
+        ? noCacheInputTokens
+        : Math.max(0, inputTokens - cacheReadTokens - cacheWriteTokens)
+    const cost = (freshInput * pricing.input
+        + cacheReadTokens * pricing.cacheRead
+        + cacheWriteTokens * pricing.cacheWrite
+        + outputTokens * pricing.output) / 1_000_000
+    return Math.round(cost * 1e6) / 1e6
+}
+
 export const chatAiUtils = {
     createChatModel,
     stripThinkingBlocks,
@@ -292,6 +325,7 @@ export const chatAiUtils = {
     buildProviderOptions,
     buildSystemPromptWithCaching,
     buildStepParts,
+    estimateChatCostUsd,
 }
 
 export type { ContentPartLike }

@@ -16,7 +16,7 @@ import {
     tryCatch,
     WorkerJobType,
 } from '@activepieces/shared'
-import { createUIMessageStream, generateText, isLoopFinished, LanguageModelUsage, ModelMessage, streamText } from 'ai'
+import { createUIMessageStream, generateText, isLoopFinished, ModelMessage, streamText } from 'ai'
 import { FireAndForgetJobResult, JobContext, JobHandler, JobResultKind } from '../../../types'
 import { chatMcpClient } from './chat-mcp-client'
 import { chatWorkerTools } from './chat-worker-tools'
@@ -120,9 +120,11 @@ export const executeChatAgentJob: JobHandler<ExecuteChatAgentJobData, FireAndFor
             let continuations = 0
             let emptyContinuations = 0
             let truncatedAfterRetries = false
-            let usage: LanguageModelUsage | undefined
             let totalInputTokens = 0
             let totalOutputTokens = 0
+            let totalCacheReadTokens = 0
+            let totalCacheWriteTokens = 0
+            let totalNoCacheInputTokens = 0
 
             const autoTitlePromise = generateTitleIfFirstTurn({
                 model, userMessage, previousUiMessages: config.previousUiMessages as unknown[], log, conversationId, abortSignal: abortController.signal,
@@ -197,13 +199,15 @@ export const executeChatAgentJob: JobHandler<ExecuteChatAgentJobData, FireAndFor
 
                 const [steps, attemptUsage, finishReason] = await Promise.all([
                     result.steps,
-                    result.usage,
+                    result.totalUsage,
                     result.finishReason,
                 ])
                 const stepMessages = chatAiUtils.collectStepMessages(steps)
-                usage = attemptUsage
                 totalInputTokens += attemptUsage.inputTokens ?? 0
                 totalOutputTokens += attemptUsage.outputTokens ?? 0
+                totalCacheReadTokens += attemptUsage.inputTokenDetails?.cacheReadTokens ?? 0
+                totalCacheWriteTokens += attemptUsage.inputTokenDetails?.cacheWriteTokens ?? 0
+                totalNoCacheInputTokens += attemptUsage.inputTokenDetails?.noCacheTokens ?? 0
 
                 const producedVisibleOutput = uiParts.length > uiPartsCountBefore
                 const decision = decideLoopAction({ finishReason, producedVisibleOutput, continuations, emptyContinuations })
@@ -267,13 +271,23 @@ export const executeChatAgentJob: JobHandler<ExecuteChatAgentJobData, FireAndFor
 
             const autoTitle = await autoTitlePromise
 
+            const costUsd = chatAiUtils.estimateChatCostUsd({
+                modelId: config.modelId,
+                inputTokens: totalInputTokens,
+                noCacheInputTokens: totalNoCacheInputTokens,
+                cacheReadTokens: totalCacheReadTokens,
+                cacheWriteTokens: totalCacheWriteTokens,
+                outputTokens: totalOutputTokens,
+            })
             log.info({
                 conversationId,
                 continuations,
                 inputTokens: totalInputTokens,
                 outputTokens: totalOutputTokens,
-                ...spreadIfDefined('cacheReadTokens', usage?.inputTokenDetails?.cacheReadTokens),
-                ...spreadIfDefined('cacheWriteTokens', usage?.inputTokenDetails?.cacheWriteTokens),
+                cacheReadTokens: totalCacheReadTokens,
+                cacheWriteTokens: totalCacheWriteTokens,
+                costUsd,
+                modelId: config.modelId,
                 provider: config.provider,
             }, 'Chat message completed')
 
