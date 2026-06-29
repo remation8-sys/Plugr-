@@ -167,7 +167,7 @@ function buildProviderOptions({ provider, tier }: { provider: AIProviderName, ti
             return { anthropic: { thinking: { type: 'enabled', budgetTokens: tier.thinkingBudget } } }
         case AIProviderName.ACTIVEPIECES:
         case AIProviderName.OPENROUTER:
-            return { openrouter: { cache_control: { type: 'ephemeral' }, reasoning: { max_tokens: tier.thinkingBudget } } }
+            return { openrouter: { reasoning: { max_tokens: tier.thinkingBudget } } }
         default:
             return {}
     }
@@ -178,6 +178,12 @@ function buildSystemPromptWithCaching({ systemPrompt, provider }: { systemPrompt
         case AIProviderName.ANTHROPIC:
         case AIProviderName.BEDROCK:
             return { role: 'system', content: systemPrompt, providerOptions: { anthropic: { cacheControl: { type: 'ephemeral' } } } }
+        case AIProviderName.OPENROUTER:
+        case AIProviderName.ACTIVEPIECES:
+            // OpenRouter only honors cache_control set on a message's providerOptions
+            // (see getCacheControl in the provider). A global flag is dropped, so the
+            // ~20k-token system+tools prefix must be cached via the system message itself.
+            return { role: 'system', content: systemPrompt, providerOptions: { openrouter: { cacheControl: { type: 'ephemeral' } } } }
         default:
             return systemPrompt
     }
