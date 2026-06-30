@@ -29,6 +29,7 @@ import { flowService } from '../../flows/flow/flow.service'
 import { flowRunService } from '../../flows/flow-run/flow-run-service'
 import { runsMetadataQueue } from '../../flows/flow-run/flow-runs-queue'
 import { flowVersionService } from '../../flows/flow-version/flow-version.service'
+import { healthStatusService } from '../../health/health.service'
 import { rejectedPromiseHandler } from '../../helper/promise-handler'
 import { pubsub } from '../../helper/pubsub'
 import { system } from '../../helper/system/system'
@@ -49,6 +50,7 @@ export function createHandlers(log: FastifyBaseLogger, workerGroupId?: string): 
     return {
         async poll(input) {
             log.info({ workerId: input.workerId, workerGroupId }, '[workerRpc#poll] Poll request received')
+            await healthStatusService(log).markWorkerHealthy()
             await machineService(log).onConnection(input, workerGroupId)
             const workerVersion = input.workerProps.version
             const appVersion = apVersionUtil.getCurrentRelease()
