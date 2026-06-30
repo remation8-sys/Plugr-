@@ -435,6 +435,70 @@ function AppConnectionsPage() {
         onSelectedRowsChange={setSelectedRows}
         bulkActions={bulkActions}
         toolbarButtons={toolbarButtons}
+        mobileCard={(row) => {
+          const { variant, icon: Icon } = appConnectionUtils.getStatusIcon(
+            row.status,
+          );
+          const isPlatformConnection =
+            row.scope === AppConnectionScope.PLATFORM;
+          const userHasPermissionToRename = isPlatformConnection
+            ? userPlatformRole === PlatformRole.ADMIN
+            : userHasPermissionToWriteAppConnection;
+          return (
+            <div className="flex items-center gap-3 rounded-2xl border border-border bg-card px-3.5 py-3">
+              <PieceIconWithPieceName
+                pieceName={row.pieceName}
+                showTooltip={false}
+                size="sm"
+              />
+              <div className="flex-1 min-w-0">
+                <p className="text-[15px] font-semibold text-foreground truncate leading-snug">
+                  {row.displayName}
+                </p>
+                <div className="flex items-center gap-1.5 mt-1 text-[12px] text-muted-foreground">
+                  <StatusIconWithText
+                    icon={Icon}
+                    text={formatUtils.convertEnumToHumanReadable(row.status)}
+                    variant={variant}
+                  />
+                  <span>·</span>
+                  <span>
+                    {row.flowIds?.length ?? 0} {t('flows')}
+                  </span>
+                </div>
+              </div>
+              <div
+                className="flex items-center gap-1 shrink-0"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {row.scope === AppConnectionScope.PROJECT ? (
+                  <RenameConnectionDialog
+                    connectionId={row.id}
+                    currentName={row.displayName}
+                    onRename={() => refetch()}
+                    userHasPermissionToRename={userHasPermissionToRename}
+                  />
+                ) : (
+                  <EditGlobalConnectionDialog
+                    connectionId={row.id}
+                    currentName={row.displayName}
+                    projectIds={row.projectIds}
+                    userHasPermissionToEdit={userHasPermissionToRename}
+                    onEdit={() => refetch()}
+                    preSelectForNewProjects={
+                      row.preSelectForNewProjects ?? false
+                    }
+                  />
+                )}
+                <ReconnectButtonDialog
+                  hasPermission={userHasPermissionToRename}
+                  connection={row}
+                  onConnectionCreated={() => refetch()}
+                />
+              </div>
+            </div>
+          );
+        }}
       />
     </div>
   );

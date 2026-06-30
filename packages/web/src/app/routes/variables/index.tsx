@@ -285,6 +285,73 @@ function VariablesPage() {
         selectColumn={true}
         onSelectedRowsChange={setSelectedRows}
         bulkActions={bulkActions}
+        mobileCard={(row) => (
+          <div className="flex items-center gap-3 rounded-2xl border border-border bg-card px-3.5 py-3">
+            <div className="shrink-0 flex items-center justify-center w-10 h-10 rounded-xl bg-primary/15 text-primary">
+              <Variable className="w-5 h-5" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-mono text-sm font-semibold text-foreground truncate">
+                {row.name}
+              </p>
+              <p className="text-[12px] text-muted-foreground mt-1">
+                <FormattedDate date={new Date(row.updated)} />
+              </p>
+            </div>
+            <DropdownMenu modal={false}>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-10 w-10 shrink-0 rounded-full text-muted-foreground hover:text-foreground"
+                  aria-label={t('Open menu')}
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <MoreVertical className="h-5 w-5" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                align="end"
+                className="w-48"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <DropdownMenuItem
+                  disabled={!canWrite}
+                  className="gap-3 py-2.5"
+                  onSelect={(e) => {
+                    e.preventDefault();
+                    setEditing(row);
+                  }}
+                >
+                  <Pencil className="h-4 w-4" />
+                  {t('Edit')}
+                </DropdownMenuItem>
+                <DropdownMenuItem
+                  className="gap-3 py-2.5"
+                  onSelect={(e) => {
+                    e.preventDefault();
+                    void copyReferenceToClipboard(row.name);
+                  }}
+                >
+                  <Link2 className="h-4 w-4" />
+                  {t('Copy reference')}
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  disabled={!canWrite}
+                  className="gap-3 py-2.5 text-destructive focus:text-destructive"
+                  onSelect={(e) => {
+                    e.preventDefault();
+                    setDeleting(row);
+                  }}
+                >
+                  <Trash2 className="h-4 w-4" />
+                  {t('Delete')}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        )}
       />
       <VariableDialog
         open={createOpen}

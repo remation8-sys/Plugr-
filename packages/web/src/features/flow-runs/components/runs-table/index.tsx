@@ -31,8 +31,10 @@ import {
   DataTableFilters,
 } from '@/components/custom/data-table';
 import { getDefaultRange } from '@/components/custom/date-time-picker-range';
+import { FormattedDate } from '@/components/custom/formatted-date';
 import { MessageTooltip } from '@/components/custom/message-tooltip';
 import { PermissionNeededTooltip } from '@/components/custom/permission-needed-tooltip';
+import { StatusIconWithText } from '@/components/custom/status-icon-with-text';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -68,6 +70,40 @@ type SelectedRow = {
   id: string;
   status: FlowRunStatus;
 };
+
+function RunMobileCard({ run }: { run: FlowRun }) {
+  const { variant, Icon } = flowRunUtils.getStatusIcon(run.status);
+  const duration =
+    run.startTime && run.finishTime
+      ? new Date(run.finishTime).getTime() - new Date(run.startTime).getTime()
+      : undefined;
+  return (
+    <div className="flex items-center gap-3 rounded-2xl border border-border bg-card px-3.5 py-3 active:scale-[0.98] transition-transform duration-100">
+      <div className="flex-1 min-w-0">
+        <p className="text-[15px] font-semibold text-foreground truncate leading-snug">
+          {run.flowVersion?.displayName ?? '—'}
+        </p>
+        <div className="flex items-center gap-1.5 mt-1 text-[12px] text-muted-foreground">
+          <FormattedDate date={new Date(run.created ?? new Date())} includeTime />
+          {run.finishTime && (
+            <>
+              <span>·</span>
+              <span>{formatUtils.formatDuration(duration)}</span>
+            </>
+          )}
+        </div>
+      </div>
+      <div className="shrink-0">
+        <StatusIconWithText
+          icon={Icon}
+          text={formatUtils.convertEnumToReadable(run.status)}
+          variant={variant}
+        />
+      </div>
+    </div>
+  );
+}
+
 export const RunsTable = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [selectedRows, setSelectedRows] = useState<Array<SelectedRow>>([]);
@@ -597,6 +633,7 @@ export const RunsTable = () => {
         customFilters={customFilters}
         toolbarButtons={[<RunsStatusChart key="status-chart" />]}
         hidePagination={retriedRunsInQueryParams.length > 0}
+        mobileCard={(row) => <RunMobileCard run={row} />}
       />
       <RetriedRunsSnackbar
         retriedRunsIds={retriedRunsIds}

@@ -34,6 +34,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 
 import { DataTableBulkActions } from './data-table-bulk-actions';
@@ -89,6 +90,12 @@ interface DataTableProps<
   clientPagination?: boolean;
   getRowClassName?: (row: RowDataWithActions<TData>, index: number) => string;
   virtualizeRows?: boolean;
+  /**
+   * Optional mobile presentation. When provided and the viewport is < 768px,
+   * each row renders through this instead of the table (which is unusable on a
+   * phone). Reuses all data/pagination/selection logic. Desktop is unaffected.
+   */
+  mobileCard?: (row: RowDataWithActions<TData>) => React.ReactNode;
 }
 
 export type DataTableFilters<Keys extends string> = DataTableFilterProps & {
@@ -126,7 +133,10 @@ export function DataTable<
   clientPagination = false,
   getRowClassName,
   virtualizeRows = false,
+  mobileCard,
 }: DataTableProps<TData, TValue, Keys>) {
+  const isMobile = useIsMobile();
+  const useMobileCards = isMobile && !!mobileCard;
   const selectColumnDef: ColumnDef<RowDataWithActions<TData>, TValue> = {
     id: 'select',
     accessorKey: 'select',
@@ -355,11 +365,43 @@ export function DataTable<
       <div
         ref={scrollContainerRef}
         className={cn('mt-0', {
-          'overflow-x-auto': !virtualizeRows,
+          'overflow-x-auto': !virtualizeRows && !useMobileCards,
           'flex-1 min-h-0 overflow-auto': virtualizeRows,
         })}
       >
-        <Table className="table-fixed">
+        {useMobileCards ? (
+          <div className="px-4 py-3 space-y-2.5">
+            {isLoading ? (
+              Array.from({ length: 6 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="h-[72px] rounded-2xl border border-border bg-card animate-pulse"
+                />
+              ))
+            ) : rows.length ? (
+              rows.map((row) => (
+                <div
+                  key={row.id}
+                  onClick={(e) => onRowClick?.(row.original, e.ctrlKey, e)}
+                  className={cn(onRowClick && 'cursor-pointer')}
+                >
+                  {mobileCard!(row.original)}
+                </div>
+              ))
+            ) : (
+              <div className="flex flex-col items-center justify-center gap-2 py-24 text-center">
+                {emptyStateIcon ? emptyStateIcon : <></>}
+                <p className="text-lg font-semibold">{emptyStateTextTitle}</p>
+                {emptyStateTextDescription && (
+                  <p className="text-sm text-muted-foreground">
+                    {emptyStateTextDescription}
+                  </p>
+                )}
+              </div>
+            )}
+          </div>
+        ) : (
+          <Table className="table-fixed">
           <TableHeader
             className={cn(virtualizeRows ? 'sticky top-0 z-10' : undefined)}
           >
@@ -610,6 +652,7 @@ export function DataTable<
             )}
           </TableBody>
         </Table>
+        )}
       </div>
       {!hidePagination && !virtualizeRows && (
         <div className="flex items-center justify-end gap-4 px-2 py-4 text-sm">
