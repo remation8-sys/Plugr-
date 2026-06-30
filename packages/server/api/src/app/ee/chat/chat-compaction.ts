@@ -180,11 +180,16 @@ function truncateLargeToolResults(messages: ModelMessage[]): ModelMessage[] {
             if (typeof part !== 'object' || part === null || !('type' in part)) return part
             if (part.type !== 'tool-result' || !('output' in part)) return part
 
-            const output = typeof part.output === 'string' ? part.output : JSON.stringify(part.output)
-            if (output.length <= MAX_TOOL_RESULT_CHARS_FOR_LLM) return part
+            // output is { type: 'text', value: string } | { type: 'json', value: JSONValue }
+            const rawOutput = part.output as { type: string; value: unknown }
+            const outputStr = rawOutput?.type === 'text' && typeof rawOutput.value === 'string'
+                ? rawOutput.value
+                : JSON.stringify(rawOutput?.value ?? rawOutput)
 
-            const truncatedOutput = `${output.slice(0, MAX_TOOL_RESULT_CHARS_FOR_LLM)}\n\n[Result truncated: ${output.length - MAX_TOOL_RESULT_CHARS_FOR_LLM} additional characters omitted. The data above contains the first results — if you need more, use pagination or a more specific query.]`
-            return { ...part, output: truncatedOutput }
+            if (outputStr.length <= MAX_TOOL_RESULT_CHARS_FOR_LLM) return part
+
+            const truncated = `${outputStr.slice(0, MAX_TOOL_RESULT_CHARS_FOR_LLM)}\n\n[Result truncated: ${outputStr.length - MAX_TOOL_RESULT_CHARS_FOR_LLM} additional characters omitted. The data above contains the first results — if you need more, use pagination or a more specific query.]`
+            return { ...part, output: { type: 'text' as const, value: truncated } }
         })
 
         return { ...message, content: truncatedContent }
