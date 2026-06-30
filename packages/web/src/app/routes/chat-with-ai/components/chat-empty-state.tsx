@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { userHooks } from '@/hooks/user-hooks';
 import { cn } from '@/lib/utils';
 
@@ -22,10 +23,17 @@ export function EmptyState({
 }) {
   const { data: currentUser } = userHooks.useCurrentUser();
   const firstName = currentUser?.firstName ?? '';
+  const isMobile = useIsMobile();
 
   return (
-    <div className="pt-8 pb-6">
-      <div className="max-w-3xl mx-auto px-6">
+    <div className="relative pt-10 pb-6 md:pt-8">
+      {isMobile && (
+        <div
+          aria-hidden
+          className="bg-hero-glow pointer-events-none absolute inset-x-0 top-0 h-80"
+        />
+      )}
+      <div className="relative max-w-3xl mx-auto px-6">
         <Greeting firstName={firstName} incognito={incognito} />
       </div>
       {!incognito && (
@@ -107,7 +115,7 @@ function Greeting({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
     >
-      <h1 className="text-4xl font-bold leading-tight text-balance font-sentient">
+      <h1 className="text-[2.4rem] leading-[1.08] md:text-4xl md:leading-tight font-bold text-balance font-sentient">
         {incognito ? (
           t('Private Chat')
         ) : firstName ? (
@@ -136,7 +144,7 @@ function FlowCards({
 }) {
   return (
     <div
-      className="mt-6 flex gap-4 overflow-x-auto scrollbar-none pb-1"
+      className="mt-6 flex gap-4 overflow-x-auto scrollbar-none pb-1 max-md:snap-x max-md:snap-mandatory"
       style={{
         paddingLeft: 'max(1.5rem, calc((100% - 48rem) / 2 + 1.5rem))',
         paddingRight: 'max(1.5rem, calc((100% - 48rem) / 2 + 1.5rem))',
@@ -147,7 +155,7 @@ function FlowCards({
           key={card.title}
           type="button"
           className={cn(
-            'shrink-0 text-left cursor-pointer group',
+            'shrink-0 text-left cursor-pointer group max-md:snap-start',
             card.wide ? 'w-[380px]' : 'w-[245px]',
           )}
           onClick={() => onSuggestionClick(card.description)}

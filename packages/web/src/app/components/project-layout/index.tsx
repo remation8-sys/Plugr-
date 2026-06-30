@@ -176,6 +176,7 @@ function ProjectDashboardLayoutInner({
               id="dashboard-content-container"
               className={cn(
                 'relative flex flex-col h-full bg-background overflow-clip',
+                isMobile && 'pt-[env(safe-area-inset-top)]',
                 !isEmbedded &&
                   !isMobile &&
                   'rounded-xl shadow-[2px_0px_4px_-2px_rgba(0,0,0,0.05),0px_2px_4px_-2px_rgba(0,0,0,0.05)] border',
@@ -185,7 +186,7 @@ function ProjectDashboardLayoutInner({
                 <ProjectDashboardLayoutHeader key={currentProjectId} />
               )}
               <TrialBanner />
-              <div className={cn('flex-1 overflow-auto', isMobile && 'pb-16')}>
+              <div className={cn('flex-1 overflow-auto', isMobile && 'pb-28')}>
                 {children}
               </div>
             </div>

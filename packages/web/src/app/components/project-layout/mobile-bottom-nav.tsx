@@ -43,45 +43,51 @@ export function MobileBottomNav() {
   const tabs = useMobileNavTabs();
 
   return (
-    <nav
-      className="fixed bottom-0 left-0 right-0 z-50 flex items-stretch border-t border-border/40 bg-background/95 backdrop-blur-md"
-      style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+    <div
+      className="fixed inset-x-0 bottom-0 z-50 pointer-events-none px-4"
+      style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 0.75rem)' }}
     >
-      {tabs.map((tab) => {
-        const isActive = location.pathname.includes(tab.matchSegment);
-        const Icon = tab.icon;
-        return (
-          <button
-            key={tab.to}
-            aria-current={isActive ? 'page' : undefined}
-            aria-label={tab.label}
-            onClick={() => navigate(tab.to)}
-            className="flex flex-1 flex-col items-center justify-center gap-0.5 py-2 touch-manipulation"
-          >
-            <div
-              className={cn(
-                'flex items-center justify-center w-12 h-7 rounded-full transition-colors duration-150',
-                isActive ? 'bg-primary/10' : 'bg-transparent',
-              )}
+      <nav className="pointer-events-auto mx-auto flex h-16 max-w-md items-stretch gap-1 rounded-[26px] border border-border bg-card/80 px-2 shadow-[0_10px_40px_-12px_rgba(0,0,0,0.7)] backdrop-blur-xl">
+        {tabs.map((tab) => {
+          const isActive = location.pathname.includes(tab.matchSegment);
+          const Icon = tab.icon;
+          return (
+            <button
+              key={tab.to}
+              aria-current={isActive ? 'page' : undefined}
+              aria-label={tab.label}
+              onClick={() => navigate(tab.to)}
+              className="group flex flex-1 flex-col items-center justify-center gap-1 touch-manipulation active:scale-95 transition-transform duration-100"
             >
-              <Icon
+              <div
                 className={cn(
-                  'size-6 transition-colors duration-150',
+                  'flex items-center justify-center w-11 h-8 rounded-full transition-all duration-200',
+                  isActive
+                    ? 'bg-primary/15 glow-primary'
+                    : 'bg-transparent',
+                )}
+              >
+                <Icon
+                  className={cn(
+                    'size-[22px] transition-colors duration-200',
+                    isActive
+                      ? 'text-primary'
+                      : 'text-muted-foreground group-active:text-foreground',
+                  )}
+                />
+              </div>
+              <span
+                className={cn(
+                  'text-[10px] font-semibold leading-none tracking-tight transition-colors duration-200',
                   isActive ? 'text-primary' : 'text-muted-foreground',
                 )}
-              />
-            </div>
-            <span
-              className={cn(
-                'text-[11px] font-medium leading-none transition-colors duration-150',
-                isActive ? 'text-primary' : 'text-muted-foreground',
-              )}
-            >
-              {tab.label}
-            </span>
-          </button>
-        );
-      })}
-    </nav>
+              >
+                {tab.label}
+              </span>
+            </button>
+          );
+        })}
+      </nav>
+    </div>
   );
 }

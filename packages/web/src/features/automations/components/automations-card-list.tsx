@@ -85,23 +85,25 @@ function isTableItem(
 }
 
 function CardIcon({ item }: { item: TreeItem }) {
+  const base =
+    'w-11 h-11 rounded-xl flex items-center justify-center shrink-0';
   switch (item.type) {
     case 'folder':
       return (
-        <div className="w-10 h-10 rounded-[10px] bg-amber-500/10 flex items-center justify-center shrink-0">
-          <Folder className="h-5 w-5 text-amber-500 fill-amber-500/20" />
+        <div className={cn(base, 'bg-amber-400/15')}>
+          <Folder className="h-5 w-5 text-amber-400 fill-amber-400/30" />
         </div>
       );
     case 'flow':
       return (
-        <div className="w-10 h-10 rounded-[10px] bg-primary/10 flex items-center justify-center shrink-0">
+        <div className={cn(base, 'bg-primary/15')}>
           <Workflow className="h-5 w-5 text-primary" />
         </div>
       );
     default:
       return (
-        <div className="w-10 h-10 rounded-[10px] bg-emerald-500/10 flex items-center justify-center shrink-0">
-          <Table2 className="h-5 w-5 text-emerald-600" />
+        <div className={cn(base, 'bg-emerald-400/15')}>
+          <Table2 className="h-5 w-5 text-emerald-400" />
         </div>
       );
   }
@@ -109,8 +111,8 @@ function CardIcon({ item }: { item: TreeItem }) {
 
 function SkeletonCard() {
   return (
-    <div className="flex items-center px-4 py-3.5 gap-3">
-      <Skeleton className="w-10 h-10 rounded-[10px] shrink-0" />
+    <div className="flex items-center gap-3 rounded-2xl border border-border bg-card px-3.5 py-3">
+      <Skeleton className="w-11 h-11 rounded-xl shrink-0" />
       <div className="flex-1 min-w-0 space-y-2">
         <Skeleton className="h-[15px] w-36" />
         <Skeleton className="h-3 w-20" />
@@ -155,7 +157,7 @@ function CardActionMenu({
           <Button
             variant="ghost"
             size="icon"
-            className="h-11 w-11 shrink-0 rounded-full text-muted-foreground hover:text-foreground"
+            className="h-10 w-10 shrink-0 rounded-full text-muted-foreground hover:text-foreground"
             onClick={(e) => e.stopPropagation()}
           >
             <MoreHorizontal className="h-5 w-5" />
@@ -257,12 +259,15 @@ function CardActionMenu({
   );
 }
 
+const cardClass =
+  'group flex items-center gap-3 rounded-2xl border border-border bg-card px-3.5 py-3 ' +
+  'touch-manipulation active:scale-[0.98] transition-transform duration-100 cursor-pointer';
+
 function AutomationCard({
   item,
   folders,
   isMoving,
   isDuplicating,
-  indent = false,
   onRowClick,
   onRenameItem,
   onDeleteItem,
@@ -275,7 +280,6 @@ function AutomationCard({
   folders: FolderDto[];
   isMoving: boolean;
   isDuplicating: boolean;
-  indent?: boolean;
   onRowClick: (item: TreeItem) => void;
   onRenameItem: (item: TreeItem) => void;
   onDeleteItem: (item: TreeItem) => void;
@@ -285,22 +289,14 @@ function AutomationCard({
   onExportTable: (table: Table) => void;
 }) {
   return (
-    <div
-      className={cn(
-        'flex items-center gap-3 border-b border-border/40',
-        'px-4 py-3.5 min-h-[68px]',
-        'touch-manipulation active:bg-muted/40 transition-colors duration-100 cursor-pointer',
-        indent && 'pl-8',
-      )}
-      onClick={() => onRowClick(item)}
-    >
+    <div className={cardClass} onClick={() => onRowClick(item)}>
       <CardIcon item={item} />
 
       <div className="flex-1 min-w-0">
         <p className="text-[15px] font-semibold text-foreground truncate leading-snug">
           {item.name}
         </p>
-        <div className="flex items-center gap-1.5 mt-1">
+        <div className="flex items-center gap-2 mt-1">
           {isFlowItem(item) && (
             <PieceIconList
               trigger={item.data.version.trigger}
@@ -313,21 +309,11 @@ function AutomationCard({
               <FormattedDate date={new Date((item.data as any).updated)} />
             </span>
           )}
-          {item.type === 'folder' && (
-            <span className="text-[12px] text-muted-foreground">
-              {item.childCount === 1
-                ? t('1 automation')
-                : t('{count} automations', { count: item.childCount })}
-            </span>
-          )}
         </div>
       </div>
 
       {isFlowItem(item) && (
-        <div
-          className="shrink-0"
-          onClick={(e) => e.stopPropagation()}
-        >
+        <div className="shrink-0" onClick={(e) => e.stopPropagation()}>
           <FlowStatusToggle flow={item.data} />
         </div>
       )}
@@ -376,10 +362,7 @@ function FolderCard({
   onExportTable: (table: Table) => void;
 }) {
   return (
-    <div
-      className="flex items-center gap-3 px-4 py-3.5 min-h-[68px] touch-manipulation active:bg-muted/40 transition-colors duration-100 cursor-pointer"
-      onClick={() => onRowClick(item)}
-    >
+    <div className={cardClass} onClick={() => onRowClick(item)}>
       <CardIcon item={item} />
 
       <div className="flex-1 min-w-0">
@@ -395,7 +378,7 @@ function FolderCard({
 
       <ChevronRight
         className={cn(
-          'h-4 w-4 text-muted-foreground/60 shrink-0 transition-transform duration-200',
+          'h-5 w-5 text-muted-foreground shrink-0 transition-transform duration-200',
           isExpanded && 'rotate-90',
         )}
       />
@@ -436,7 +419,7 @@ export function AutomationsCardList({
 
   if (isLoading) {
     return (
-      <div className="divide-y divide-border/40">
+      <div className="px-4 py-3 space-y-2.5">
         {Array.from({ length: 6 }).map((_, i) => (
           <SkeletonCard key={i} />
         ))}
@@ -445,92 +428,97 @@ export function AutomationsCardList({
   }
 
   return (
-    <AccordionPrimitive.Root
-      type="multiple"
-      value={Array.from(expandedFolders)}
-    >
-      {groups.map((group) => {
-        const isFolder = group.item.type === 'folder';
+    <div className="px-4 py-3">
+      <AccordionPrimitive.Root
+        type="multiple"
+        value={Array.from(expandedFolders)}
+        className="space-y-2.5"
+      >
+        {groups.map((group) => {
+          const isFolder = group.item.type === 'folder';
 
-        if (isFolder) {
+          if (isFolder) {
+            return (
+              <AccordionPrimitive.Item
+                key={`folder-${group.item.id}`}
+                value={group.item.id}
+              >
+                <FolderCard
+                  item={group.item}
+                  isExpanded={expandedFolders.has(group.item.id)}
+                  folders={folders}
+                  isMoving={isMoving}
+                  isDuplicating={isDuplicating}
+                  onRowClick={onRowClick}
+                  onRenameItem={onRenameItem}
+                  onDeleteItem={onDeleteItem}
+                  onDuplicateFlow={onDuplicateFlow}
+                  onMoveItem={onMoveItem}
+                  onExportFlow={onExportFlow}
+                  onExportTable={onExportTable}
+                />
+
+                <AccordionPrimitive.Content className="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down">
+                  <div className="ml-5 mt-2.5 space-y-2.5 border-l border-border pl-3">
+                    {group.children.map((child) => {
+                      if (child.type === 'load-more-folder') {
+                        return (
+                          <button
+                            key={`load-more-${child.id}`}
+                            className="w-full flex items-center justify-center gap-2 py-3 text-[13px] text-primary font-semibold touch-manipulation active:opacity-70 transition-opacity"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onLoadMoreInFolder(child.folderId!);
+                            }}
+                          >
+                            <ChevronDown className="h-4 w-4" />
+                            {t('Load {count} more', {
+                              count: child.loadMoreCount,
+                            })}
+                          </button>
+                        );
+                      }
+                      return (
+                        <AutomationCard
+                          key={`${child.type}-${child.id}`}
+                          item={child}
+                          folders={folders}
+                          isMoving={isMoving}
+                          isDuplicating={isDuplicating}
+                          onRowClick={onRowClick}
+                          onRenameItem={onRenameItem}
+                          onDeleteItem={onDeleteItem}
+                          onDuplicateFlow={onDuplicateFlow}
+                          onMoveItem={onMoveItem}
+                          onExportFlow={onExportFlow}
+                          onExportTable={onExportTable}
+                        />
+                      );
+                    })}
+                  </div>
+                </AccordionPrimitive.Content>
+              </AccordionPrimitive.Item>
+            );
+          }
+
           return (
-            <AccordionPrimitive.Item
-              key={`folder-${group.item.id}`}
-              value={group.item.id}
-              className="border-b border-border/40"
-            >
-              <FolderCard
-                item={group.item}
-                isExpanded={expandedFolders.has(group.item.id)}
-                folders={folders}
-                isMoving={isMoving}
-                isDuplicating={isDuplicating}
-                onRowClick={onRowClick}
-                onRenameItem={onRenameItem}
-                onDeleteItem={onDeleteItem}
-                onDuplicateFlow={onDuplicateFlow}
-                onMoveItem={onMoveItem}
-                onExportFlow={onExportFlow}
-                onExportTable={onExportTable}
-              />
-
-              <AccordionPrimitive.Content className="overflow-hidden data-[state=closed]:animate-accordion-up data-[state=open]:animate-accordion-down bg-muted/20">
-                {group.children.map((child) => {
-                  if (child.type === 'load-more-folder') {
-                    return (
-                      <button
-                        key={`load-more-${child.id}`}
-                        className="w-full flex items-center justify-center gap-2 py-3.5 text-[13px] text-primary font-medium touch-manipulation active:opacity-70 transition-opacity"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onLoadMoreInFolder(child.folderId!);
-                        }}
-                      >
-                        <ChevronDown className="h-4 w-4" />
-                        {t('Load {count} more', { count: child.loadMoreCount })}
-                      </button>
-                    );
-                  }
-                  return (
-                    <AutomationCard
-                      key={`${child.type}-${child.id}`}
-                      item={child}
-                      folders={folders}
-                      isMoving={isMoving}
-                      isDuplicating={isDuplicating}
-                      indent
-                      onRowClick={onRowClick}
-                      onRenameItem={onRenameItem}
-                      onDeleteItem={onDeleteItem}
-                      onDuplicateFlow={onDuplicateFlow}
-                      onMoveItem={onMoveItem}
-                      onExportFlow={onExportFlow}
-                      onExportTable={onExportTable}
-                    />
-                  );
-                })}
-              </AccordionPrimitive.Content>
-            </AccordionPrimitive.Item>
+            <AutomationCard
+              key={`${group.item.type}-${group.item.id}`}
+              item={group.item}
+              folders={folders}
+              isMoving={isMoving}
+              isDuplicating={isDuplicating}
+              onRowClick={onRowClick}
+              onRenameItem={onRenameItem}
+              onDeleteItem={onDeleteItem}
+              onDuplicateFlow={onDuplicateFlow}
+              onMoveItem={onMoveItem}
+              onExportFlow={onExportFlow}
+              onExportTable={onExportTable}
+            />
           );
-        }
-
-        return (
-          <AutomationCard
-            key={`${group.item.type}-${group.item.id}`}
-            item={group.item}
-            folders={folders}
-            isMoving={isMoving}
-            isDuplicating={isDuplicating}
-            onRowClick={onRowClick}
-            onRenameItem={onRenameItem}
-            onDeleteItem={onDeleteItem}
-            onDuplicateFlow={onDuplicateFlow}
-            onMoveItem={onMoveItem}
-            onExportFlow={onExportFlow}
-            onExportTable={onExportTable}
-          />
-        );
-      })}
-    </AccordionPrimitive.Root>
+        })}
+      </AccordionPrimitive.Root>
+    </div>
   );
 }

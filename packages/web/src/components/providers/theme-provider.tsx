@@ -46,6 +46,18 @@ export function ThemeProvider({
     () => (localStorage.getItem(storageKey) as Theme) || defaultTheme,
   );
   const [forceLightMode, setForceLightMode] = useState(false);
+  // Plugr mobile is a premium dark experience. Phones (<768px) force the dark
+  // palette so every portal (dropdowns, drawers, dialogs, toasts) inherits it.
+  // Desktop is unaffected. Tracks the breakpoint live so rotate/resize re-resolves.
+  const [isMobileViewport, setIsMobileViewport] = useState(
+    () => typeof window !== 'undefined' && window.innerWidth < 768,
+  );
+  useEffect(() => {
+    const mql = window.matchMedia('(max-width: 767px)');
+    const onChange = () => setIsMobileViewport(window.innerWidth < 768);
+    mql.addEventListener('change', onChange);
+    return () => mql.removeEventListener('change', onChange);
+  }, []);
   const branding = flagsHooks.useWebsiteBranding();
   useEffect(() => {
     if (!branding) {
@@ -56,6 +68,8 @@ export function ThemeProvider({
 
     const resolvedTheme = forceLightMode
       ? 'light'
+      : isMobileViewport
+      ? 'dark'
       : theme === 'system'
       ? 'light'
       : theme;
@@ -95,7 +109,7 @@ export function ThemeProvider({
     }
 
     root.classList.add(resolvedTheme);
-  }, [theme, branding, forceLightMode]);
+  }, [theme, branding, forceLightMode, isMobileViewport]);
 
   const value = {
     theme,

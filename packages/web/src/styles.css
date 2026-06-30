@@ -374,6 +374,20 @@
   animation: dash 2s linear infinite;
 }
 
+/* Premium mobile accents — soft brand glow on primary CTAs and a top-centered
+   radial glow behind hero sections (Plugr chat). Brand-color aware via --primary. */
+@utility glow-primary {
+  box-shadow: 0 0 24px -4px hsl(var(--primary) / 0.45);
+}
+
+@utility bg-hero-glow {
+  background-image: radial-gradient(
+    120% 80% at 50% -10%,
+    hsl(var(--primary) / 0.2) 0%,
+    transparent 55%
+  );
+}
+
 @utility scrollbar-none {
   scrollbar-width: none;
 
