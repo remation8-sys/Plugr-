@@ -11,6 +11,8 @@ import { gmailNewAttachmentTrigger } from './lib/triggers/new-attachment';
 import { gmailNewLabelTrigger } from './lib/triggers/new-label';
 import { gmailSearchMailAction } from './lib/actions/search-email-action';
 import { gmailGetEmailAction } from './lib/actions/get-mail-action';
+import { gmailMoveToSpamAction } from './lib/actions/move-to-spam-action';
+import { gmailModifyEmailLabelsAction } from './lib/actions/modify-email-labels-action';
 import { gmailAuth, getAccessToken, GmailAuthValue } from './lib/auth';
 
 export {
@@ -34,6 +36,8 @@ export const gmail = createPiece({
     gmailCreateDraftReplyAction,
     gmailGetEmailAction,
     gmailSearchMailAction,
+    gmailMoveToSpamAction,
+    gmailModifyEmailLabelsAction,
     createCustomApiCallAction({
       baseUrl: () => 'https://gmail.googleapis.com/gmail/v1',
       auth: gmailAuth,
