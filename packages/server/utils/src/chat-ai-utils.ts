@@ -210,19 +210,15 @@ function applyConversationCacheBreakpoint({ messages, provider }: {
 
     const breakpointIdx = messages.length - 2
     const msg = messages[breakpointIdx]
-    const existingProviderOptions = typeof msg.providerOptions === 'object' && msg.providerOptions !== null
-        ? msg.providerOptions as Record<string, unknown>
-        : {}
-    const existingForKey = typeof existingProviderOptions[providerKey] === 'object' && existingProviderOptions[providerKey] !== null
-        ? existingProviderOptions[providerKey] as Record<string, unknown>
-        : {}
+    const existing = (msg.providerOptions ?? {}) as SharedV3ProviderOptions
+    const existingForKey = (existing[providerKey] ?? {}) as Record<string, unknown>
 
     const patched: ModelMessage = {
         ...msg,
         providerOptions: {
-            ...existingProviderOptions,
+            ...existing,
             [providerKey]: { ...existingForKey, cacheControl: { type: 'ephemeral' } },
-        },
+        } as SharedV3ProviderOptions,
     }
     return [...messages.slice(0, breakpointIdx), patched, messages[messages.length - 1]]
 }
