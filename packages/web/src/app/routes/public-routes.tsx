@@ -11,6 +11,7 @@ import AuthenticatePage from './authenticate';
 import { EmbedPage } from './embed';
 import { EmbeddedConnectionDialog } from './embed/embedded-connection-dialog';
 import { McpAuthorizePage } from './mcp-authorize';
+import { PrivacyPage } from './privacy';
 import { RedirectPage } from './redirect';
 
 const ChatPage = React.lazy(() =>
@@ -93,6 +94,14 @@ export const publicRoutes = [
     element: (
       <PageTitle title="Not Found">
         <NotFoundPage />
+      </PageTitle>
+    ),
+  },
+  {
+    path: '/privacy',
+    element: (
+      <PageTitle title="Privacy Policy">
+        <PrivacyPage />
       </PageTitle>
     ),
   },
