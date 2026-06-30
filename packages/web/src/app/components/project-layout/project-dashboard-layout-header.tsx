@@ -125,8 +125,8 @@ export const ProjectDashboardLayoutHeader = () => {
     <div className="flex flex-col">
       {!isEmbedded && <ProjectDashboardPageHeader />}
       {!embedState.hideSideNav && (
-        <Tabs className="px-3 pt-2 border-b">
-          <TabsList variant="outline">
+        <Tabs className="px-3 pt-2 border-b overflow-x-auto scrollbar-none">
+          <TabsList variant="outline" className="flex-nowrap">
             {visiblePrimaryTabs.map((tab) => (
               <AnimatedTab
                 key={tab.to}

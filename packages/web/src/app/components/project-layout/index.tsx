@@ -26,7 +26,9 @@ import {
   useGlobalSearch,
 } from '../global-search/global-search-context';
 import { ProjectDashboardSidebar } from '../sidebar/dashboard';
+import { useIsMobile } from '@/hooks/use-mobile';
 
+import { MobileBottomNav } from './mobile-bottom-nav';
 import { ProjectDashboardLayoutHeader } from './project-dashboard-layout-header';
 
 export type ProjectDashboardLayoutHeaderTab = {
@@ -157,34 +159,39 @@ function ProjectDashboardLayoutInner({
   children: React.ReactNode;
 }) {
   const { open: searchOpen } = useGlobalSearch();
+  const isMobile = useIsMobile();
 
   return (
     <PlugrAppAccessGuard>
       <SidebarProvider hoverMode={!searchOpen}>
-      {!isEmbedded && <ProjectDashboardSidebar />}
-      <SidebarInset className="flex flex-col h-full overflow-hidden bg-sidebar">
-        <div
-          className={cn(
-            'flex-1 flex flex-col overflow-hidden',
-            !isEmbedded && 'pr-2 pt-3 pb-3',
-          )}
-        >
+        {!isEmbedded && !isMobile && <ProjectDashboardSidebar />}
+        <SidebarInset className="flex flex-col h-full overflow-hidden bg-sidebar">
           <div
-            id="dashboard-content-container"
             className={cn(
-              'relative flex flex-col h-full bg-background overflow-clip',
-              !isEmbedded &&
-                'rounded-xl shadow-[2px_0px_4px_-2px_rgba(0,0,0,0.05),0px_2px_4px_-2px_rgba(0,0,0,0.05)] border',
+              'flex-1 flex flex-col overflow-hidden',
+              !isEmbedded && !isMobile && 'pr-2 pt-3 pb-3',
             )}
           >
-            {!hideHeader && (
-              <ProjectDashboardLayoutHeader key={currentProjectId} />
-            )}
-            <TrialBanner />
-            <div className="flex-1 overflow-auto">{children}</div>
+            <div
+              id="dashboard-content-container"
+              className={cn(
+                'relative flex flex-col h-full bg-background overflow-clip',
+                !isEmbedded &&
+                  !isMobile &&
+                  'rounded-xl shadow-[2px_0px_4px_-2px_rgba(0,0,0,0.05),0px_2px_4px_-2px_rgba(0,0,0,0.05)] border',
+              )}
+            >
+              {!hideHeader && (
+                <ProjectDashboardLayoutHeader key={currentProjectId} />
+              )}
+              <TrialBanner />
+              <div className={cn('flex-1 overflow-auto', isMobile && 'pb-16')}>
+                {children}
+              </div>
+            </div>
           </div>
-        </div>
-      </SidebarInset>
+        </SidebarInset>
+        {!isEmbedded && isMobile && <MobileBottomNav />}
       </SidebarProvider>
     </PlugrAppAccessGuard>
   );
