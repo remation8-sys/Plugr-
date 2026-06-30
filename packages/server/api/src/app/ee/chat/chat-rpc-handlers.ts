@@ -87,10 +87,11 @@ export const chatRpcHandlers = (log: FastifyBaseLogger) => ({
         })
         await chatApprovalGate.clearCancel({ conversationId })
 
-        const estimatedTokens = chatCompaction.estimateTokenCount({ messages: llmHistory, systemPromptLength: systemPromptText.length })
+        const llmHistoryTruncated = chatCompaction.truncateLargeToolResults(llmHistory)
+        const estimatedTokens = chatCompaction.estimateTokenCount({ messages: llmHistoryTruncated, systemPromptLength: systemPromptText.length })
         let compactionState = { summary: conversation.summary ?? null, summarizedUpToIndex: conversation.summarizedUpToIndex ?? null }
 
-        if (chatCompaction.shouldCompact({ estimatedTokens, provider: providerConfig.provider, messageCount: llmHistory.length })) {
+        if (chatCompaction.shouldCompact({ estimatedTokens, provider: providerConfig.provider, messageCount: llmHistoryTruncated.length })) {
             const model = chatAiUtils.createChatModel({
                 provider: providerConfig.provider,
                 auth: providerConfig.auth as Record<string, unknown>,
@@ -98,7 +99,7 @@ export const chatRpcHandlers = (log: FastifyBaseLogger) => ({
                 modelId: resolvedModelId,
             })
             compactionState = await chatCompaction.compactMessages({
-                messages: llmHistory,
+                messages: llmHistoryTruncated,
                 existingSummary: compactionState.summary,
                 summarizedUpToIndex: compactionState.summarizedUpToIndex,
                 provider: providerConfig.provider,
@@ -112,7 +113,7 @@ export const chatRpcHandlers = (log: FastifyBaseLogger) => ({
         }
 
         const messagesForLlm = chatCompaction.buildCompactedPayload({
-            messages: llmHistory,
+            messages: llmHistoryTruncated,
             summary: compactionState.summary,
             summarizedUpToIndex: compactionState.summarizedUpToIndex,
             provider: providerConfig.provider,

@@ -10,6 +10,10 @@ const CHARS_PER_TOKEN_ESTIMATE = 4
 const MIN_MESSAGES_BEFORE_COMPACTION = 6
 const ESTIMATED_TOKENS_PER_MESSAGE = 200
 const MAX_TOOL_RESULT_CHARS_FOR_SUMMARY = 2_000
+// Cap individual tool results sent to the LLM to prevent a single large
+// API response (e.g. Gmail search returning thousands of emails) from
+// exceeding the model's context window in one shot.
+const MAX_TOOL_RESULT_CHARS_FOR_LLM = 80_000
 
 const COMPACTION_SYSTEM_PROMPT = readFileSync(
     path.resolve('packages/server/api/src/assets/prompts/chat-compaction-prompt.md'),
@@ -167,6 +171,26 @@ function truncateForSummary(output: string): string {
     return `${codePoints.slice(0, MAX_TOOL_RESULT_CHARS_FOR_SUMMARY).join('')}…[truncated ${codePoints.length - MAX_TOOL_RESULT_CHARS_FOR_SUMMARY} chars]`
 }
 
+function truncateLargeToolResults(messages: ModelMessage[]): ModelMessage[] {
+    return messages.map((message) => {
+        if (message.role !== 'tool') return message
+        if (!Array.isArray(message.content)) return message
+
+        const truncatedContent = message.content.map((part) => {
+            if (typeof part !== 'object' || part === null || !('type' in part)) return part
+            if (part.type !== 'tool-result' || !('output' in part)) return part
+
+            const output = typeof part.output === 'string' ? part.output : JSON.stringify(part.output)
+            if (output.length <= MAX_TOOL_RESULT_CHARS_FOR_LLM) return part
+
+            const truncatedOutput = `${output.slice(0, MAX_TOOL_RESULT_CHARS_FOR_LLM)}\n\n[Result truncated: ${output.length - MAX_TOOL_RESULT_CHARS_FOR_LLM} additional characters omitted. The data above contains the first results — if you need more, use pagination or a more specific query.]`
+            return { ...part, output: truncatedOutput }
+        })
+
+        return { ...message, content: truncatedContent }
+    })
+}
+
 function extractTextContent(message: ModelMessage): string {
     if (typeof message.content === 'string') return message.content
     if (!Array.isArray(message.content)) return ''
@@ -196,4 +220,5 @@ export const chatCompaction = {
     shouldCompact,
     compactMessages,
     buildCompactedPayload,
+    truncateLargeToolResults,
 }
