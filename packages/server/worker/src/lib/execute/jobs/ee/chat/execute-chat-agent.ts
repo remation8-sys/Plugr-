@@ -136,7 +136,10 @@ export const executeChatAgentJob: JobHandler<ExecuteChatAgentJobData, FireAndFor
                 maxOutputTokens: config.tier.thinkingBudget + MAX_RESPONSE_OUTPUT_TOKENS,
                 abortSignal: abortController.signal,
                 system: chatAiUtils.buildSystemPromptWithCaching({ systemPrompt: config.systemPrompt, provider }),
-                messages: chatAiUtils.stripThinkingBlocks(messages, provider),
+                messages: chatAiUtils.applyConversationCacheBreakpoint({
+                    messages: chatAiUtils.stripThinkingBlocks(messages, provider),
+                    provider,
+                }),
                 tools: allTools,
                 providerOptions: chatAiUtils.buildProviderOptions({ provider, tier: config.tier }),
                 stopWhen: isLoopFinished(),

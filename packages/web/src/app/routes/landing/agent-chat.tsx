@@ -1,5 +1,5 @@
-import { motion } from 'motion/react';
 import { Send, Sparkles } from 'lucide-react';
+import { motion } from 'motion/react';
 import { useState } from 'react';
 
 /**
@@ -15,13 +15,13 @@ type Message = { sender: 'ai' | 'user'; text: string };
 const BLUE = '#0055ff';
 
 const SCRIPTED_REPLY =
-  'On it — I’ll watch for new leads, enrich each one, and post a summary to #sales. Want me to add a follow-up email step?';
+  'I can help with that — I’ll discover the available app actions and fields live, map the flow, then validate each step before I hand it back.';
 
 export function AgentChat() {
   const [messages, setMessages] = useState<Message[]>([
     {
       sender: 'ai',
-      text: 'Hi — I’m your Plugr agent. Tell me what to automate.',
+      text: 'Hi — tell me what you want to automate and I’ll help map the flow.',
     },
   ]);
   const [input, setInput] = useState('');
@@ -88,13 +88,13 @@ export function AgentChat() {
           >
             <Sparkles className="size-4" strokeWidth={1.5} />
           </div>
-          <span className="text-sm font-semibold text-white">Plugr Agent</span>
+          <span className="text-sm font-semibold text-white">Plugr AI</span>
           <span className="ml-auto flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-white/40">
             <span
               className="h-1.5 w-1.5 rounded-full"
               style={{ backgroundColor: '#00c853' }}
             />
-            online
+            interactive preview
           </span>
         </div>
 
@@ -149,7 +149,7 @@ export function AgentChat() {
           <input
             className="flex-1 rounded-lg border bg-black/40 px-3 py-2 text-sm text-white placeholder:text-white/35 focus:outline-none"
             style={{ borderColor: 'rgba(255,255,255,0.12)' }}
-            placeholder="Describe an automation…"
+            placeholder="Describe a workflow…"
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && send()}

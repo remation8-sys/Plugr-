@@ -103,29 +103,29 @@ const plugrPlanCatalog: Record<PlugrPaidTier, PlugrPlanCatalogEntry> = {
             USD: 9,
             NGN: 14400,
         },
-        includedCredits: 10,
+        includedCredits: 0,
         activeFlowsLimit: null,
         features: [
-            '10 Plugr credits monthly',
             'Unlimited flows',
             'Unlimited executions',
             'All 700+ Plugs',
             'Templates',
             'Community support',
+            'Plugr AI not included',
         ],
     },
     builder: {
         tier: 'builder',
         name: 'Builder',
         prices: {
-            USD: 19,
-            NGN: 30400,
+            USD: 24,
+            NGN: 38400,
         },
-        includedCredits: 50,
+        includedCredits: 30,
         activeFlowsLimit: null,
         popular: true,
         features: [
-            '50 Plugr credits monthly',
+            '30 Plugr credits monthly',
             'Unlimited flows',
             'Unlimited executions',
             'All 700+ Plugs',
@@ -140,10 +140,10 @@ const plugrPlanCatalog: Record<PlugrPaidTier, PlugrPlanCatalogEntry> = {
             USD: 49,
             NGN: 78400,
         },
-        includedCredits: 200,
+        includedCredits: 75,
         activeFlowsLimit: null,
         features: [
-            '200 Plugr credits monthly',
+            '75 Plugr credits monthly',
             'Unlimited flows',
             'Unlimited executions',
             'All 700+ Plugs',
@@ -159,10 +159,10 @@ const plugrPlanCatalog: Record<PlugrPaidTier, PlugrPlanCatalogEntry> = {
             USD: 99,
             NGN: 158400,
         },
-        includedCredits: 400,
+        includedCredits: 150,
         activeFlowsLimit: null,
         features: [
-            '400 Plugr credits monthly',
+            '150 Plugr credits monthly',
             'Unlimited flows',
             'Unlimited executions',
             'All 700+ Plugs',
@@ -178,33 +178,33 @@ const plugrCreditPacks: Record<PlugrCreditPackSize, PlugrCreditPack> = {
     100: {
         credits: 100,
         prices: {
-            USD: 8,
-            NGN: 12800,
+            USD: 50,
+            NGN: 80000,
         },
     },
     500: {
         credits: 500,
         prices: {
-            USD: 35,
-            NGN: 56000,
+            USD: 220,
+            NGN: 352000,
         },
     },
     1000: {
         credits: 1000,
         prices: {
-            USD: 60,
-            NGN: 96000,
+            USD: 420,
+            NGN: 672000,
         },
     },
 }
 
 const plugrCreditActionCosts: Record<PlugrCreditActionType, number> = {
-    build_simple: 5,
-    build_complex: 15,
-    audit: 3,
-    fix: 5,
-    modify: 3,
-    report: 2,
+    build_simple: 10,
+    build_complex: 30,
+    audit: 6,
+    fix: 10,
+    modify: 6,
+    report: 4,
 }
 
 const PlugrUserBilling = z.object({

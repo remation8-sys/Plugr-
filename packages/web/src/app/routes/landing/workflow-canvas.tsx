@@ -1,4 +1,3 @@
-import { motion, type PanInfo } from 'motion/react';
 import {
   Bot,
   Database,
@@ -9,6 +8,7 @@ import {
   Zap,
   type LucideIcon,
 } from 'lucide-react';
+import { motion, type PanInfo } from 'motion/react';
 import { useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 
@@ -46,11 +46,41 @@ const AMBER = '#ffab00';
 const VIOLET = '#8b7bff';
 
 const TEMPLATES: Omit<WfNode, 'id' | 'position'>[] = [
-  { type: 'action', title: 'Send Slack message', subtitle: 'Notify #sales', icon: Mail, accent: BLUE },
-  { type: 'action', title: 'Query database', subtitle: 'Fetch user record', icon: Database, accent: BLUE },
-  { type: 'condition', title: 'Condition', subtitle: 'If priority = high', icon: GitBranch, accent: AMBER },
-  { type: 'action', title: 'Log event', subtitle: 'Record activity', icon: Zap, accent: VIOLET },
-  { type: 'agent', title: 'AI Agent', subtitle: 'Classify & decide', icon: Bot, accent: BLUE },
+  {
+    type: 'action',
+    title: 'Send Slack message',
+    subtitle: 'Notify #sales',
+    icon: Mail,
+    accent: BLUE,
+  },
+  {
+    type: 'action',
+    title: 'Query database',
+    subtitle: 'Fetch user record',
+    icon: Database,
+    accent: BLUE,
+  },
+  {
+    type: 'condition',
+    title: 'Condition',
+    subtitle: 'If priority = high',
+    icon: GitBranch,
+    accent: AMBER,
+  },
+  {
+    type: 'action',
+    title: 'Log event',
+    subtitle: 'Record activity',
+    icon: Zap,
+    accent: VIOLET,
+  },
+  {
+    type: 'agent',
+    title: 'AI Agent',
+    subtitle: 'Classify & decide',
+    icon: Bot,
+    accent: BLUE,
+  },
 ];
 
 const INITIAL_NODES: WfNode[] = [
@@ -169,7 +199,10 @@ export function WorkflowCanvas() {
   return (
     <div
       className="overflow-hidden rounded-xl border shadow-2xl"
-      style={{ backgroundColor: '#0a0b14', borderColor: 'rgba(255,255,255,0.1)' }}
+      style={{
+        backgroundColor: '#0a0b14',
+        borderColor: 'rgba(255,255,255,0.1)',
+      }}
     >
       {/* Header */}
       <div
@@ -182,17 +215,17 @@ export function WorkflowCanvas() {
             style={{ backgroundColor: GREEN }}
           />
           <span className="font-mono text-xs uppercase tracking-wider text-white/50">
-            Workflow builder
+            Interactive workflow preview
           </span>
         </div>
         <button
           onClick={addNode}
           className="inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 font-mono text-xs text-white/70 transition-colors hover:text-white"
           style={{ borderColor: 'rgba(255,255,255,0.15)' }}
-          aria-label="Add node"
+          aria-label="Add example step"
         >
           <Plus className="size-3" strokeWidth={1.5} />
-          Add node
+          Add example step
         </button>
       </div>
 
@@ -293,7 +326,7 @@ export function WorkflowCanvas() {
       >
         <div className="flex items-center gap-4 font-mono text-[11px] text-white/50">
           <span>
-            {nodes.length} {nodes.length === 1 ? 'node' : 'nodes'}
+            {nodes.length} {nodes.length === 1 ? 'step' : 'steps'}
           </span>
           <span>
             {connections.length}{' '}
@@ -301,7 +334,7 @@ export function WorkflowCanvas() {
           </span>
         </div>
         <span className="font-mono text-[10px] uppercase tracking-wider text-white/35">
-          Drag to reposition
+          Drag preview steps
         </span>
       </div>
     </div>

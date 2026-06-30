@@ -189,6 +189,44 @@ function buildSystemPromptWithCaching({ systemPrompt, provider }: { systemPrompt
     }
 }
 
+/**
+ * Marks the last prior-turn message with an ephemeral cache breakpoint so the
+ * full conversation history up to (but not including) the current user message
+ * is served from cache on subsequent steps within this turn and on follow-up
+ * turns within the 5-minute cache TTL.
+ *
+ * No-ops when there is no prior history (first message) or for providers that
+ * don't support prompt caching.
+ */
+function applyConversationCacheBreakpoint({ messages, provider }: {
+    messages: ModelMessage[]
+    provider: AIProviderName
+}): ModelMessage[] {
+    const supported = [AIProviderName.ANTHROPIC, AIProviderName.BEDROCK, AIProviderName.OPENROUTER, AIProviderName.ACTIVEPIECES]
+    if (!supported.includes(provider) || messages.length < 2) return messages
+
+    const providerKey = (provider === AIProviderName.OPENROUTER || provider === AIProviderName.ACTIVEPIECES)
+        ? 'openrouter' : 'anthropic'
+
+    const breakpointIdx = messages.length - 2
+    const msg = messages[breakpointIdx]
+    const existingProviderOptions = typeof msg.providerOptions === 'object' && msg.providerOptions !== null
+        ? msg.providerOptions as Record<string, unknown>
+        : {}
+    const existingForKey = typeof existingProviderOptions[providerKey] === 'object' && existingProviderOptions[providerKey] !== null
+        ? existingProviderOptions[providerKey] as Record<string, unknown>
+        : {}
+
+    const patched: ModelMessage = {
+        ...msg,
+        providerOptions: {
+            ...existingProviderOptions,
+            [providerKey]: { ...existingForKey, cacheControl: { type: 'ephemeral' } },
+        },
+    }
+    return [...messages.slice(0, breakpointIdx), patched, messages[messages.length - 1]]
+}
+
 function toRecord(value: unknown): Record<string, unknown> {
     return typeof value === 'object' && value !== null && !Array.isArray(value) ? value as Record<string, unknown> : {}
 }
@@ -324,6 +362,7 @@ export const chatAiUtils = {
     collectStepMessages,
     buildProviderOptions,
     buildSystemPromptWithCaching,
+    applyConversationCacheBreakpoint,
     buildStepParts,
     estimateChatCostUsd,
 }

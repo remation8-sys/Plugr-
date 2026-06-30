@@ -1,4 +1,8 @@
-import { plugrPaidTierValues, plugrPlanCatalog } from '@activepieces/shared';
+import {
+  plugrPaidTierValues,
+  plugrPlanCatalog,
+  plugrSubscriptionPeriods,
+} from '@activepieces/shared';
 import { Check } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -12,22 +16,20 @@ import { Link } from 'react-router-dom';
  * `plugrPlanCatalog` (the same source the billing API and in-app pricing page
  * use), so this section can never drift from what customers are actually
  * charged. It stays static — the catalog is a bundled constant, so no API or
- * auth call is needed and it renders for logged-out visitors. Marketing flavor
- * (the one-line blurbs) is the only copy defined here.
+ * auth call is needed and it renders for logged-out visitors.
  */
 
 const BLUE = '#0055ff';
 const INK = '#0d0e1a';
 
-const BLURBS: Record<string, string> = {
-  starter: 'Ship your first automations.',
-  builder: 'For the flows you run every day.',
-  pro: 'More volume, priority help.',
-  business: 'Hands-on support at scale.',
-};
-
 export function Pricing() {
-  const startingPrice = plugrPlanCatalog.starter.prices.USD;
+  const plans = plugrPaidTierValues.map((tier) => plugrPlanCatalog[tier]);
+  const startingPrice = Math.min(...plans.map((plan) => plan.prices.USD));
+  const maximumDiscount = Math.max(
+    ...Object.values(plugrSubscriptionPeriods).map(
+      (period) => period.discountPercent,
+    ),
+  );
 
   return (
     <section
@@ -73,19 +75,17 @@ export function Pricing() {
             Simple plans that scale with you.
           </h2>
           <p className="mt-4 text-lg text-white/65">
-            Start at ${startingPrice} a month. Every plan includes monthly Plugr
-            credits and all 700+ Plugs — upgrade any time as your automations
-            grow.
+            Start at ${startingPrice} a month. All plans include unlimited flows,
+            executions, and the full integration library. Builder and above
+            include Plugr AI credits.
           </p>
         </div>
 
         <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {plugrPaidTierValues.map((tier) => {
-            const plan = plugrPlanCatalog[tier];
-            const blurb = BLURBS[tier];
+          {plans.map((plan) => {
             return (
               <div
-                key={tier}
+                key={plan.tier}
                 className="relative flex h-full flex-col rounded-2xl border p-6 backdrop-blur-xl"
                 style={{
                   background: plan.popular
@@ -107,8 +107,9 @@ export function Pricing() {
                     Most popular
                   </div>
                 )}
-                <h3 className="text-lg font-semibold text-white">{plan.name}</h3>
-                {blurb && <p className="mt-1 text-sm text-white/55">{blurb}</p>}
+                <h3 className="text-lg font-semibold text-white">
+                  {plan.name}
+                </h3>
                 <div className="mt-5 flex items-baseline gap-1.5">
                   <span className="text-5xl font-light text-white">
                     ${plan.prices.USD}
@@ -147,17 +148,23 @@ export function Pricing() {
                         }
                   }
                 >
-                  {plan.popular ? `Choose ${plan.name}` : 'Get started'}
+                  Create account
                 </Link>
               </div>
             );
           })}
         </div>
 
-        <p className="mt-10 text-center text-xs text-white/45">
-          Prices in USD, billed monthly. Save up to 30% on quarterly, biannual,
-          and annual billing. Local currency shown at checkout.
-        </p>
+        <div className="mt-10 space-y-2 text-center text-xs text-white/45">
+          <p>
+            Prices in USD, billed monthly. Save up to {maximumDiscount}% with a
+            longer billing period. Local currency is shown at checkout.
+          </p>
+          <p>
+            Plugr credits cover AI-assisted building, audits, fixes,
+            modifications, and reports.
+          </p>
+        </div>
       </div>
     </section>
   );

@@ -42,37 +42,37 @@ const TABS: {
     icon: Workflow,
     title: 'Drag, drop, automate.',
     description:
-      'Lay out triggers and actions on a canvas your whole team can read. No code required — drop into code only where you want it.',
+      'Lay out triggers and actions on a visual canvas. Start no-code, then add code steps only where you need them.',
     bullets: [
-      'Hundreds of prebuilt app integrations',
+      '700+ prebuilt app integrations',
       'Branches, loops, and custom code steps',
-      'Test every step with real data',
+      'Test individual steps or the whole flow',
     ],
   },
   {
     id: 'ai',
-    label: 'Automate with AI',
+    label: 'Build with Plugr AI',
     icon: Bot,
-    title: 'Hand off the judgment calls.',
+    title: 'Turn a request into a flow.',
     description:
-      'Describe what you want in plain language. Plugr’s AI agents read, decide, and act right inside your workflows.',
+      'Describe an automation in chat. Plugr AI discovers the available integrations and fields live, then builds a flow you can inspect.',
     bullets: [
-      'Agents that classify, draft, and route',
-      'Bring your own model and prompts',
-      'Keep a human in the loop when it matters',
+      'Build, validate, test, and troubleshoot from chat',
+      'Live discovery instead of stale integration guesses',
+      'Business adds tool-using AI agent steps inside workflows',
     ],
   },
   {
     id: 'measure',
     label: 'Run & measure',
     icon: BarChart3,
-    title: 'Know it actually works.',
+    title: 'See what ran and what happened.',
     description:
-      'Plugr runs your flows 24/7, retries failures, and shows the impact — runs, success rate, and hours saved.',
+      'Review run history and step results, retry failed runs, and use Pro analytics to track volume and estimated time saved.',
     bullets: [
-      'Live run logs you can inspect',
-      'Automatic retries and failure alerts',
-      'Impact analytics, not vanity metrics',
+      'Step-by-step run status and output',
+      'Retry failed runs in one click',
+      'Advanced analytics on Pro and Business',
     ],
   },
 ];
@@ -87,7 +87,10 @@ function FlowMock() {
   return (
     <div
       className="rounded-xl border p-5 shadow-2xl"
-      style={{ backgroundColor: '#0a0b14', borderColor: 'rgba(255,255,255,0.1)' }}
+      style={{
+        backgroundColor: '#0a0b14',
+        borderColor: 'rgba(255,255,255,0.1)',
+      }}
     >
       <div className="space-y-3">
         {steps.map((s, i) => (
@@ -113,7 +116,10 @@ function FlowMock() {
               </div>
             </div>
             {i < steps.length - 1 && (
-              <div className="ml-7 h-3 w-px" style={{ backgroundColor: BLUE }} />
+              <div
+                className="ml-7 h-3 w-px"
+                style={{ backgroundColor: BLUE }}
+              />
             )}
           </div>
         ))}
@@ -125,20 +131,26 @@ function FlowMock() {
 function StatsMock() {
   const stats = [
     { label: 'Runs this week', value: '2,481' },
-    { label: 'Success rate', value: '99.2%' },
-    { label: 'Hours saved', value: '146' },
+    { label: 'Active flows', value: '18' },
+    { label: 'Est. hours saved', value: '146' },
   ];
   const log = [
     ['12:04', 'lead-routing', 'succeeded', GREEN],
     ['12:01', 'invoice-sync', 'succeeded', GREEN],
     ['11:58', 'support-triage', 'succeeded', GREEN],
-    ['11:52', 'data-export', 'retried · ok', BLUE],
+    ['11:52', 'data-export', 'failed', '#ff6b6b'],
   ];
   return (
     <div
       className="rounded-xl border p-5 shadow-2xl"
-      style={{ backgroundColor: '#0a0b14', borderColor: 'rgba(255,255,255,0.1)' }}
+      style={{
+        backgroundColor: '#0a0b14',
+        borderColor: 'rgba(255,255,255,0.1)',
+      }}
     >
+      <div className="mb-3 font-mono text-[10px] uppercase tracking-wider text-white/35">
+        Illustrative Pro analytics
+      </div>
       <div className="grid grid-cols-3 gap-3">
         {stats.map((s) => (
           <div
@@ -194,10 +206,11 @@ export function ProductTour() {
             className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl"
             style={{ color: INK }}
           >
-            One platform for the whole automation loop.
+            Build, run, and inspect in one place.
           </h2>
           <p className="mt-4 text-lg" style={{ color: '#434656' }}>
-            Build it, let AI run it, and measure what it saves.
+            Build with chat or the visual canvas, run on events or schedules,
+            and trace the result step by step.
           </p>
         </div>
 
@@ -223,7 +236,10 @@ export function ProductTour() {
         </div>
 
         {/* Active tab content */}
-        <div className="mt-8 rounded-2xl border bg-white p-6 sm:p-10" style={{ borderColor: '#e1e1ef' }}>
+        <div
+          className="mt-8 rounded-2xl border bg-white p-6 sm:p-10"
+          style={{ borderColor: '#e1e1ef' }}
+        >
           <div className="grid items-center gap-10 lg:grid-cols-2">
             <div>
               <h3
@@ -254,9 +270,13 @@ export function ProductTour() {
                 className="mt-7 inline-flex h-11 items-center justify-center gap-2 rounded-lg px-6 text-sm font-semibold text-white transition-colors hover:opacity-90"
                 style={{ backgroundColor: BLUE }}
               >
-                Start automating free
+                Start free trial
                 <ArrowRight className="size-4" strokeWidth={1.5} />
               </Link>
+              <p className="mt-3 text-xs" style={{ color: '#6b6e7c' }}>
+                Visual workflow tools are included in the trial. Plugr AI is
+                available on paid plans.
+              </p>
             </div>
             <div>
               <TabVisual id={tab.id} />

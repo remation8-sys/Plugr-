@@ -52,31 +52,31 @@ const INTEGRATIONS = [
 const OBS_FEATURES = [
   {
     icon: Eye,
-    title: 'Run history & live logs',
-    body: 'Watch each step execute in real time, with the inputs and outputs you can actually inspect.',
+    title: 'Run history & step details',
+    body: 'Open a run to inspect its status and step results, then retry a failed run when you are ready.',
   },
   {
     icon: BarChart3,
-    title: 'Impact analytics',
-    body: 'See runs, success rates, and the hours your automations save — not just activity counters.',
+    title: 'Advanced analytics on Pro',
+    body: 'Pro and Business track run volume, active flows, active users, and estimated time saved from values you set.',
   },
 ];
 
 const DEPLOY_COLS = [
   {
     icon: Server,
-    title: 'Self-hosting & control',
-    body: 'Deploy on your own servers with Docker. No vendor lock-in, no per-task billing surprises.',
+    title: 'Fully managed cloud',
+    body: 'Plugr runs on our infrastructure — nothing to provision, patch, or scale. Sign in and start building.',
   },
   {
     icon: Activity,
-    title: 'Observability built in',
-    body: 'Full run logs, failure alerts, and impact dashboards — out of the box, on every plan.',
+    title: 'Operational visibility',
+    body: 'Inspect run history, open any run to see step-by-step results, and retry a failed run whenever you choose.',
   },
   {
     icon: ShieldCheck,
-    title: 'Secure connections',
-    body: 'Managed, encrypted connections to every app, with access scoped and controlled by you.',
+    title: 'Encrypted connections',
+    body: 'Connection values are encrypted before storage so workflows can use connected accounts without exposing raw credentials.',
   },
 ];
 
@@ -148,7 +148,7 @@ function Nav() {
             { label: 'Features', href: '#features' },
             { label: 'Observability', href: '#observability' },
             { label: 'Pricing', href: '#pricing' },
-            { label: 'Self-hosting', href: '#deploy' },
+            { label: 'Reliability', href: '#reliability' },
           ].map((item) => (
             <a
               key={item.href}
@@ -166,7 +166,7 @@ function Nav() {
           >
             Sign in
           </Link>
-          <PrimaryCta to="/sign-up">Get started</PrimaryCta>
+          <PrimaryCta to="/sign-up">Start free trial</PrimaryCta>
         </div>
       </nav>
     </header>
@@ -175,7 +175,10 @@ function Nav() {
 
 function Hero() {
   return (
-    <section className="relative overflow-hidden" style={{ backgroundColor: INK }}>
+    <section
+      className="relative overflow-hidden"
+      style={{ backgroundColor: INK }}
+    >
       <PixelCanvas
         colors={HERO_PIXELS}
         className="pointer-events-none absolute inset-0 opacity-70"
@@ -190,20 +193,20 @@ function Hero() {
       />
       <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-5 py-20 sm:py-28 lg:grid-cols-2">
         <div>
-          <Overline>Workflow automation · AI agents</Overline>
+          <Overline>Visual automation · AI-assisted building</Overline>
           <h1 className="mt-5 text-4xl font-bold leading-[1.1] tracking-tight text-white sm:text-6xl">
-            AI agents and workflows you can{' '}
-            <span style={{ color: '#6b8cff' }}>see and control.</span>
+            Describe the work.{' '}
+            <span style={{ color: '#6b8cff' }}>Inspect the workflow.</span>
           </h1>
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-white/65">
-            Plugr is the visual automation platform where you build flows on a
-            canvas, drop in AI agents, and connect the apps you already use —
-            then watch every run happen in real time. Deploy on our cloud or
-            your own servers.
+            Plugr combines a visual workflow canvas with an AI builder that
+            discovers integration actions and fields live, then creates a flow
+            you can inspect, validate, and test. Run it on events or schedules,
+            and trace what happened step by step.
           </p>
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
             <PrimaryCta to="/sign-up">
-              Start automating
+              Start free trial
               <ArrowRight className="size-4" strokeWidth={1.5} />
             </PrimaryCta>
             <a
@@ -214,6 +217,10 @@ function Hero() {
               See how it works
             </a>
           </div>
+          <p className="mt-3 text-xs text-white/45">
+            The trial includes visual workflow tools. Plugr AI is available on
+            paid plans.
+          </p>
         </div>
         <WorkflowCanvas />
       </div>
@@ -231,10 +238,7 @@ function Hero() {
           </p>
           <div className="mt-5 flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
             {INTEGRATIONS.map((name) => (
-              <span
-                key={name}
-                className="text-sm font-medium text-white/45"
-              >
+              <span key={name} className="text-sm font-medium text-white/45">
                 {name}
               </span>
             ))}
@@ -252,16 +256,20 @@ function ObservabilitySection() {
       className="relative overflow-hidden"
       style={{ backgroundColor: INK }}
     >
-      <div aria-hidden className="pointer-events-none absolute inset-0" style={GRID_BG} />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={GRID_BG}
+      />
       <div className="relative mx-auto grid max-w-6xl items-center gap-12 px-5 py-20 sm:py-28 lg:grid-cols-2">
         <div>
           <Overline>Observability</Overline>
           <h2 className="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-            The command center for every automation you run.
+            See what ran. Inspect every step.
           </h2>
           <p className="mt-4 text-lg text-white/65">
-            Turn complex flows into reliable automations. Plugr monitors every
-            run, retries failures, and shows you exactly what happened.
+            Plugr records run history and step results. Open any run to inspect
+            its steps, and retry a failed run whenever you choose.
           </p>
           <div className="mt-8 space-y-6">
             {OBS_FEATURES.map((feature) => (
@@ -298,7 +306,9 @@ function ObservabilitySection() {
             className="flex items-center justify-between border-b px-4 py-3"
             style={{ borderColor: 'rgba(255,255,255,0.08)' }}
           >
-            <span className="font-mono text-xs text-white/40">run · #8f2a1c</span>
+            <span className="font-mono text-xs text-white/40">
+              example run · #8f2a1c
+            </span>
             <span
               className="font-mono text-xs font-medium uppercase tracking-wide"
               style={{ color: '#00c853' }}
@@ -334,19 +344,19 @@ function ObservabilitySection() {
 
 function DeploySection() {
   return (
-    <section id="deploy" style={{ backgroundColor: '#f3f2ff' }}>
+    <section id="reliability" style={{ backgroundColor: '#f3f2ff' }}>
       <div className="mx-auto max-w-6xl px-5 py-20 sm:py-28">
         <div className="mx-auto max-w-2xl text-center">
-          <Overline>Deploy anywhere</Overline>
+          <Overline>Built for production</Overline>
           <h2
             className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl"
             style={{ color: INK }}
           >
-            Reliable. Scalable. Yours.
+            Runs in the cloud, ready when your work is.
           </h2>
           <p className="mt-4 text-lg" style={{ color: '#434656' }}>
-            Run Plugr on our cloud, or self-host on your own infrastructure.
-            Your data and connections stay exactly where you want them.
+            Plugr is a fully managed service — we run the servers, keep them
+            patched, and scale them so you can focus on your automations.
           </p>
         </div>
         <div className="mt-14 grid gap-6 md:grid-cols-3">
@@ -365,7 +375,10 @@ function DeploySection() {
               <h3 className="mt-5 text-lg font-semibold" style={{ color: INK }}>
                 {col.title}
               </h3>
-              <p className="mt-2 text-sm leading-relaxed" style={{ color: '#434656' }}>
+              <p
+                className="mt-2 text-sm leading-relaxed"
+                style={{ color: '#434656' }}
+              >
                 {col.body}
               </p>
             </div>
@@ -378,8 +391,15 @@ function DeploySection() {
 
 function ClosingCta() {
   return (
-    <section className="relative overflow-hidden" style={{ backgroundColor: INK }}>
-      <div aria-hidden className="pointer-events-none absolute inset-0" style={GRID_BG} />
+    <section
+      className="relative overflow-hidden"
+      style={{ backgroundColor: INK }}
+    >
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0"
+        style={GRID_BG}
+      />
       <div
         aria-hidden
         className="pointer-events-none absolute inset-0"
@@ -390,14 +410,15 @@ function ClosingCta() {
       />
       <div className="relative mx-auto max-w-3xl px-5 py-24 text-center sm:py-32">
         <h2 className="text-3xl font-bold tracking-tight text-white sm:text-5xl">
-          Your busywork isn&apos;t going to automate itself.
+          Turn the next manual process into a workflow.
         </h2>
         <p className="mx-auto mt-5 max-w-xl text-lg text-white/65">
-          Build your first workflow in minutes. Plans from $7/month.
+          Build visually during the free trial. Upgrade to any paid plan to use
+          the Plugr AI builder and monthly Plugr credits.
         </p>
         <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <PrimaryCta to="/sign-up">
-            Get started
+            Start free trial
             <ArrowRight className="size-4" strokeWidth={1.5} />
           </PrimaryCta>
           <Link
@@ -421,8 +442,8 @@ function Footer() {
           <div className="max-w-xs">
             <PlugrMark />
             <p className="mt-4 text-sm text-white/45">
-              The visual automation platform for workflows and AI agents you can
-              see and control.
+              Visual workflow automation with an AI builder that discovers live
+              tools and keeps every flow visible and editable.
             </p>
           </div>
           <div className="grid grid-cols-2 gap-12">
@@ -432,7 +453,10 @@ function Footer() {
               </h4>
               <ul className="mt-4 space-y-3 text-sm">
                 <li>
-                  <a href="#features" className="text-white/65 hover:text-white">
+                  <a
+                    href="#features"
+                    className="text-white/65 hover:text-white"
+                  >
                     Features
                   </a>
                 </li>
@@ -450,8 +474,11 @@ function Footer() {
                   </a>
                 </li>
                 <li>
-                  <a href="#deploy" className="text-white/65 hover:text-white">
-                    Self-hosting
+                  <a
+                    href="#reliability"
+                    className="text-white/65 hover:text-white"
+                  >
+                    Reliability
                   </a>
                 </li>
               </ul>
@@ -462,12 +489,18 @@ function Footer() {
               </h4>
               <ul className="mt-4 space-y-3 text-sm">
                 <li>
-                  <Link to="/sign-in" className="text-white/65 hover:text-white">
+                  <Link
+                    to="/sign-in"
+                    className="text-white/65 hover:text-white"
+                  >
                     Sign in
                   </Link>
                 </li>
                 <li>
-                  <Link to="/sign-up" className="text-white/65 hover:text-white">
+                  <Link
+                    to="/sign-up"
+                    className="text-white/65 hover:text-white"
+                  >
                     Create account
                   </Link>
                 </li>
@@ -484,7 +517,7 @@ function Footer() {
           </p>
           <div className="flex items-center gap-2 font-mono text-xs text-white/40">
             <Check className="size-3" style={{ color: '#00c853' }} />
-            All systems operational
+            Fully managed cloud
           </div>
         </div>
       </div>
