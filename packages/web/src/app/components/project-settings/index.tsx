@@ -211,23 +211,25 @@ export function ProjectSettingsDialog({
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-5xl w-full max-h-[95vh] rounded-sm flex flex-col p-0">
-        <div className="flex h-[700px]">
-          <div className="w-[238px]">
-            <nav className="bg-sidebar space-y-1 bg-muted rounded-sm rounded-r-none h-full flex flex-col rounded-l-md">
-              <ApProjectDisplay
-                title={form.watch('projectName') ?? project.displayName}
-                icon={form.watch('icon') ?? project.icon}
-                containerClassName="px-3 my-4"
-                titleClassName="text-sm font-medium"
-                maxLengthToNotShowTooltip={18}
-                projectType={project.type}
-              />
-              <div className="flex flex-col px-2 gap-1">
+        <div className="flex flex-col md:flex-row h-[85vh] md:h-[700px]">
+          <div className="w-full md:w-[238px] shrink-0">
+            <nav className="bg-sidebar bg-muted rounded-sm md:rounded-r-none h-auto md:h-full flex flex-col md:rounded-l-md">
+              <div className="hidden md:block">
+                <ApProjectDisplay
+                  title={form.watch('projectName') ?? project.displayName}
+                  icon={form.watch('icon') ?? project.icon}
+                  containerClassName="px-3 my-4"
+                  titleClassName="text-sm font-medium"
+                  maxLengthToNotShowTooltip={18}
+                  projectType={project.type}
+                />
+              </div>
+              <div className="flex flex-row md:flex-col px-2 py-2 md:py-0 gap-1 overflow-x-auto md:overflow-visible scrollbar-none">
                 {tabs.map((tab) => (
                   <div
                     key={tab.id}
                     className={cn(
-                      'flex items-center gap-2 rounded-sm px-2 py-1.5 text-sm font-medium transition-all cursor-pointer hover:bg-sidebar-accent',
+                      'flex items-center gap-2 rounded-sm px-3 py-2 md:px-2 md:py-1.5 text-sm font-medium transition-all cursor-pointer hover:bg-sidebar-accent shrink-0 whitespace-nowrap',
                       {
                         'bg-sidebar-accent': activeTab === tab.id,
                       },
@@ -253,7 +255,7 @@ export function ProjectSettingsDialog({
                     showBackground={true}
                   />
                 )}
-                <div className="flex flex-col gap-3 px-10 pt-4">
+                <div className="flex flex-col gap-3 px-5 md:px-10 pt-4">
                   {renderTabHeader()}
                   {renderTabContent()}
                 </div>

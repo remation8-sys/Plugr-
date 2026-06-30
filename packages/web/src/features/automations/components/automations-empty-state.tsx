@@ -258,7 +258,7 @@ export const AutomationsEmptyState = ({
             brandName: branding.websiteName ?? platform.name,
           })}
         </h2>
-        <div className="flex gap-4">
+        <div className="flex flex-col sm:flex-row gap-4">
           <GetStartedCard
             icon={<Workflow className="h-5 w-5 text-primary" />}
             iconBgClass="bg-primary-100"

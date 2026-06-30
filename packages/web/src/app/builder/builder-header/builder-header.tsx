@@ -176,11 +176,11 @@ export const BuilderHeader = () => {
   );
 
   const rightContent = (
-    <div className="flex items-center justify-center gap-4">
+    <div className="flex items-center justify-center gap-2 md:gap-4">
       {showSupport && (
         <Button
           variant="ghost"
-          className="gap-2 px-2"
+          className="hidden md:flex gap-2 px-2"
           onClick={() => openNewWindow(supportUrl)}
         >
           <CircleHelp className="w-4 h-4"></CircleHelp>
@@ -195,12 +195,14 @@ export const BuilderHeader = () => {
           className="gap-2 px-2"
         >
           <HistoryIcon className="w-4 h-4" />
-          {t('Runs')}
+          <span className="hidden md:inline">{t('Runs')}</span>
         </Button>
       )}
 
       <BuilderFlowStatusSection></BuilderFlowStatusSection>
-      <FlowCreatedByBadge createdBy={flow.createdBy} />
+      <span className="hidden md:block">
+        <FlowCreatedByBadge createdBy={flow.createdBy} />
+      </span>
     </div>
   );
 
