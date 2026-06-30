@@ -25,7 +25,7 @@ export const PageHeader = ({
         className,
       )}
     >
-      <div className="flex items-center gap-1 grow">
+      <div className="flex items-center gap-1 grow min-w-0">
         {showSidebarToggle && <ApSidebarToggle />}
         <div className="grow">
           {typeof title === 'string' ? (

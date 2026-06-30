@@ -11,11 +11,13 @@ import { Activity, Clock, Info, Type, User } from 'lucide-react';
 import { useEmbedding } from '@/components/providers/embed-provider';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 
 import { SelectedItemsMap, TreeItem } from '../lib/types';
 import { groupTreeItemsByFolder } from '../lib/utils';
 
+import { AutomationsCardList } from './automations-card-list';
 import { AutomationsTableRow } from './automations-table-row';
 import { CreateInFolderKind } from './create-new-menu';
 
@@ -118,6 +120,42 @@ export const AutomationsTable = ({
   isItemSelected,
 }: AutomationsTableProps) => {
   const { embedState } = useEmbedding();
+  const isMobile = useIsMobile();
+
+  if (isMobile) {
+    return (
+      <AutomationsCardList
+        items={items}
+        isLoading={isLoading}
+        selectedItems={selectedItems}
+        expandedFolders={expandedFolders}
+        projectMembers={projectMembers}
+        folders={folders}
+        selectableCount={selectableCount}
+        isPinned={isPinned}
+        onTogglePin={onTogglePin}
+        onToggleAllSelection={onToggleAllSelection}
+        onToggleItemSelection={onToggleItemSelection}
+        onRowClick={onRowClick}
+        onRenameItem={onRenameItem}
+        onDeleteItem={onDeleteItem}
+        onDuplicateFlow={onDuplicateFlow}
+        onMoveItem={onMoveItem}
+        onExportFlow={onExportFlow}
+        onExportTable={onExportTable}
+        onCreateInFolder={onCreateInFolder}
+        userHasPermissionToWriteFlow={userHasPermissionToWriteFlow}
+        userHasPermissionToWriteTable={userHasPermissionToWriteTable}
+        isCreatingFlow={isCreatingFlow}
+        isCreatingTable={isCreatingTable}
+        isMoving={isMoving}
+        isDuplicating={isDuplicating}
+        onLoadMoreInFolder={onLoadMoreInFolder}
+        isItemSelected={isItemSelected}
+      />
+    );
+  }
+
   const groups = groupTreeItemsByFolder(items);
 
   return (

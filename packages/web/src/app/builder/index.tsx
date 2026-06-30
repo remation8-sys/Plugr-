@@ -16,6 +16,7 @@ import { StepSettingsProvider } from '@/app/builder/step-settings/step-settings-
 import { RightSideBarType } from '@/app/builder/types';
 import { ChatDrawer } from '@/app/routes/chat/chat-drawer';
 import { ShowPoweredBy } from '@/components/custom/show-powered-by';
+import { Drawer, DrawerContent } from '@/components/ui/drawer';
 import {
   ResizableHandle,
   ResizablePanel,
@@ -24,6 +25,7 @@ import {
 import { piecesHooks } from '@/features/pieces';
 import { platformHooks } from '@/hooks/platform-hooks';
 import { useElementSize } from '@/hooks/use-element-size';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 
 import { BuilderHeader } from './builder-header/builder-header';
@@ -45,6 +47,7 @@ const SPLIT_MODE_COLLAPSE_THRESHOLD_PX = 700;
 
 const BuilderPage = () => {
   const { platform } = platformHooks.useCurrentPlatform();
+  const isMobile = useIsMobile();
   const [
     flowVersion,
     rightSidebar,
@@ -55,6 +58,7 @@ const BuilderPage = () => {
     isStepDataPanelOpen,
     setStepDataPanelView,
     setStepDataPanelOpen,
+    exitStepSettings,
   ] = useBuilderStateContext((state) => [
     state.flowVersion,
     state.rightSidebar,
@@ -68,7 +72,9 @@ const BuilderPage = () => {
     state.isStepDataPanelOpen,
     state.setStepDataPanelView,
     state.setStepDataPanelOpen,
+    state.exitStepSettings,
   ]);
+  const mobileDrawerOpen = isMobile && rightSidebar !== RightSideBarType.NONE;
   useEffect(() => {
     return () => {
       removeAllStepTestsListeners();
@@ -145,6 +151,80 @@ const BuilderPage = () => {
 
   const [hasCanvasBeenInitialised, setHasCanvasBeenInitialised] =
     useState(false);
+
+  if (isMobile) {
+    return (
+      <div
+        className="flex w-full flex-col relative"
+        style={{ height: '100dvh' }}
+      >
+        <div className="z-40">
+          <BuilderHeader />
+        </div>
+
+        <div ref={middlePanelRef} className="relative flex-1 w-full min-h-0">
+          <CursorPositionProvider>
+            <FlowCanvas
+              setHasCanvasBeenInitialised={setHasCanvasBeenInitialised}
+            />
+          </CursorPositionProvider>
+
+          <BuilderBanner />
+          {middlePanelRef.current &&
+            middlePanelRef.current.clientWidth > 0 && (
+              <CanvasControls
+                canvasHeight={middlePanelRef.current?.clientHeight ?? 0}
+                canvasWidth={middlePanelRef.current?.clientWidth ?? 0}
+                hasCanvasBeenInitialised={hasCanvasBeenInitialised}
+                selectedStep={selectedStepName}
+              />
+            )}
+
+          <ShowPoweredBy
+            position="absolute"
+            show={platform?.plan.showPoweredBy}
+          />
+          <DataSelector
+            parentHeight={middlePanelSize.height}
+            parentWidth={middlePanelSize.width}
+          />
+        </div>
+
+        <Drawer
+          open={mobileDrawerOpen}
+          onOpenChange={(open) => {
+            if (!open) exitStepSettings();
+          }}
+          direction="bottom"
+          modal={false}
+        >
+          <DrawerContent
+            className="flex flex-col overflow-hidden"
+            style={{ height: '85dvh' }}
+          >
+            {rightSidebar === RightSideBarType.PIECE_SETTINGS &&
+              selectedStep && (
+                <StepSettingsProvider
+                  pieceModel={pieceModel}
+                  selectedStep={selectedStep}
+                  key={constructContainerKey({
+                    flowVersionId: flowVersion.id,
+                    step: selectedStep,
+                    hasPieceModelLoaded: !!pieceModel,
+                  })}
+                >
+                  <StepSettingsContainer />
+                </StepSettingsProvider>
+              )}
+            {rightSidebar === RightSideBarType.RUNS && <RunsList />}
+            {rightSidebar === RightSideBarType.VERSIONS && <FlowVersionsList />}
+          </DrawerContent>
+        </Drawer>
+
+        <ChatDrawer />
+      </div>
+    );
+  }
 
   return (
     <div className="flex h-full w-full flex-col relative max-h-[100vh]">

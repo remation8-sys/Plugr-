@@ -133,7 +133,7 @@ export const ProjectDashboardPageHeader = ({
       {showProjectMembersIcons && (
         <Button
           variant="ghost"
-          className="gap-2"
+          className="hidden md:flex gap-2"
           aria-label={`View ${activeProjectMembers?.length} team member${
             activeProjectMembers?.length !== 1 ? 's' : ''
           }`}
@@ -156,7 +156,7 @@ export const ProjectDashboardPageHeader = ({
           size="sm"
           onClick={() => setInviteOpen(true)}
         >
-          <span className="text-sm font-medium">{t('Add Members')}</span>
+          <span className="hidden md:inline text-sm font-medium">{t('Add Members')}</span>
         </AnimatedIconButton>
       )}
       <AnimatedIconButton
