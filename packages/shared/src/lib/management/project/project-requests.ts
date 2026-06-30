@@ -6,7 +6,7 @@ import { PiecesFilterType, ProjectIcon, ProjectType } from './project'
 
 export const UpdateProjectPlatformRequest = z.object({
     releasesEnabled: z.boolean().optional(),
-    displayName: z.string().regex(new RegExp(SAFE_STRING_PATTERN)).optional(),
+    displayName: z.string().min(1).max(200).regex(new RegExp(SAFE_STRING_PATTERN)).optional(),
     externalId: z.string().optional(),
     metadata: Metadata.optional(),
     icon: ProjectIcon.optional(),
@@ -21,7 +21,7 @@ export const UpdateProjectPlatformRequest = z.object({
 export type UpdateProjectPlatformRequest = z.infer<typeof UpdateProjectPlatformRequest>
 
 export const CreatePlatformProjectRequest = z.object({
-    displayName: z.string().regex(new RegExp(SAFE_STRING_PATTERN)),
+    displayName: z.string().min(1).max(200).regex(new RegExp(SAFE_STRING_PATTERN)),
     externalId: Nullable(z.string()),
     metadata: Nullable(Metadata),
     maxConcurrentJobs: Nullable(z.number()),

@@ -107,7 +107,7 @@ async function resolveSignUpPlatformId(request: FastifyRequest, email: string): 
     return isInvited ? candidatePlatformId : null
 }
 
-const rateLimitOptions: RateLimitOptions = {
+const authnRateLimitOptions: RateLimitOptions = {
     max: Number.parseInt(
         system.getOrThrow(AppSystemProp.API_RATE_LIMIT_AUTHN_MAX),
         10,
@@ -115,12 +115,18 @@ const rateLimitOptions: RateLimitOptions = {
     timeWindow: system.getOrThrow(AppSystemProp.API_RATE_LIMIT_AUTHN_WINDOW),
 }
 
-
+const signInRateLimitOptions: RateLimitOptions = {
+    max: Number.parseInt(
+        system.getOrThrow(AppSystemProp.API_RATE_LIMIT_LOGIN_MAX),
+        10,
+    ),
+    timeWindow: system.getOrThrow(AppSystemProp.API_RATE_LIMIT_LOGIN_WINDOW),
+}
 
 const SwitchPlatformRequestOptions = {
     config: {
         security: securityAccess.publicPlatform([PrincipalType.USER]),
-        rateLimit: rateLimitOptions,
+        rateLimit: authnRateLimitOptions,
     },
     schema: {
         body: SwitchPlatformRequest,
@@ -130,7 +136,7 @@ const SwitchPlatformRequestOptions = {
 const SignUpRequestOptions = {
     config: {
         security: securityAccess.public(),
-        rateLimit: rateLimitOptions,
+        rateLimit: authnRateLimitOptions,
     },
     schema: {
         body: SignUpRequest,
@@ -140,7 +146,7 @@ const SignUpRequestOptions = {
 const SignInRequestOptions = {
     config: {
         security: securityAccess.public(),
-        rateLimit: rateLimitOptions,
+        rateLimit: signInRateLimitOptions,
     },
     schema: {
         body: SignInRequest,

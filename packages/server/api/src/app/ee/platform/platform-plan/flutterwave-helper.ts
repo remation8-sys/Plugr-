@@ -1,6 +1,8 @@
+import { safeHttp } from '@activepieces/server-utils'
 import { assertNotNullOrUndefined } from '@activepieces/shared'
+import { AxiosError } from 'axios'
 import { FastifyBaseLogger } from 'fastify'
-import { randomUUID } from 'node:crypto'
+import { randomUUID, timingSafeEqual } from 'node:crypto'
 import { system } from '../../../helper/system/system'
 import { AppSystemProp } from '../../../helper/system/system-props'
 
@@ -8,6 +10,7 @@ const FLUTTERWAVE_TOKEN_URL = 'https://idp.flutterwave.com/realms/flutterwave/pr
 const DEFAULT_FLUTTERWAVE_API_BASE_URL = 'https://developersandbox-api.flutterwave.com'
 const DEFAULT_FLUTTERWAVE_CHECKOUT_BASE_URL = 'https://api.flutterwave.com/v3'
 const TOKEN_REFRESH_BUFFER_MS = 60 * 1000
+const REQUEST_TIMEOUT_MS = 15_000
 
 let cachedToken: { accessToken: string, expiresAt: number } | undefined
 
@@ -80,25 +83,27 @@ export const flutterwaveHelper = (log: FastifyBaseLogger) => ({
 
     isValidWebhookSignature(signature: string | undefined): boolean {
         const secretHash = system.get(AppSystemProp.FLUTTERWAVE_SECRET_HASH)
-        return Boolean(secretHash && signature && signature === secretHash)
+        if (!secretHash || !signature) {
+            return false
+        }
+        const a = Buffer.from(signature)
+        const b = Buffer.from(secretHash)
+        return a.length === b.length && timingSafeEqual(a, b)
     },
 
     async createHostedCheckout(params: CreateHostedCheckoutParams): Promise<string> {
+        const secretKey = system.getOrThrow(AppSystemProp.FLUTTERWAVE_SECRET_KEY)
+        const checkoutBaseUrl = (system.get(AppSystemProp.FLUTTERWAVE_CHECKOUT_BASE_URL) ?? DEFAULT_FLUTTERWAVE_CHECKOUT_BASE_URL).replace(/\/$/, '')
         const reference = createPaymentReference(params.plan)
-        const response = await this.hostedCheckoutRequest<FlutterwaveHostedCheckoutResponse>('/payments', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
+        const client = safeHttp.createAxios({ baseURL: checkoutBaseUrl, timeout: REQUEST_TIMEOUT_MS })
+        let response: FlutterwaveHostedCheckoutResponse
+        try {
+            const { data } = await client.post<FlutterwaveHostedCheckoutResponse>('/payments', {
                 tx_ref: reference,
                 amount: params.amount,
                 currency: params.currency,
                 redirect_url: params.redirectUrl,
-                customer: {
-                    email: params.email,
-                    name: params.name,
-                },
+                customer: { email: params.email, name: params.name },
                 customizations: {
                     title: `Plugr ${params.plan} plan`,
                     description: `Monthly subscription for Plugr ${params.plan}`,
@@ -109,73 +114,73 @@ export const flutterwaveHelper = (log: FastifyBaseLogger) => ({
                     provider: 'flutterwave',
                     billingCycle: 'monthly',
                 },
-            }),
-        })
-
+            }, {
+                headers: { Authorization: `Bearer ${secretKey}` },
+            })
+            response = data
+        }
+        catch (err) {
+            const status = err instanceof AxiosError ? err.response?.status : undefined
+            log.warn({ status }, 'Flutterwave hosted checkout request failed')
+            throw new Error('Flutterwave hosted checkout request failed')
+        }
         const checkoutUrl = response.data?.link
         assertNotNullOrUndefined(checkoutUrl, response.message ?? 'Flutterwave checkout response is missing a payment link')
         return checkoutUrl
     },
 
     async retrieveCharge(chargeId: string): Promise<FlutterwaveCharge> {
-        const response = await this.request<FlutterwaveApiResponse<FlutterwaveCharge>>(`/charges/${chargeId}`)
-        assertNotNullOrUndefined(response.data, `Flutterwave charge ${chargeId} was not found`)
+        assertNumericId(chargeId, 'charge')
+        const accessToken = await this.getAccessToken()
+        const apiBaseUrl = (system.get(AppSystemProp.FLUTTERWAVE_API_BASE_URL) ?? DEFAULT_FLUTTERWAVE_API_BASE_URL).replace(/\/$/, '')
+        const client = safeHttp.createAxios({ baseURL: apiBaseUrl, timeout: REQUEST_TIMEOUT_MS })
+        let response: FlutterwaveApiResponse<FlutterwaveCharge>
+        try {
+            const { data } = await client.get<FlutterwaveApiResponse<FlutterwaveCharge>>(`/charges/${chargeId}`, {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    'X-Trace-Id': randomUUID(),
+                },
+            })
+            response = data
+        }
+        catch (err) {
+            const status = err instanceof AxiosError ? err.response?.status : undefined
+            log.warn({ status }, 'Flutterwave API request failed')
+            throw new Error('Flutterwave API request failed')
+        }
+        assertNotNullOrUndefined(response.data, 'Flutterwave charge was not found')
         return response.data
     },
 
     async verifyHostedPayment(transactionId: string): Promise<FlutterwaveCharge> {
-        const response = await this.hostedCheckoutRequest<FlutterwaveTransactionVerificationResponse>(`/transactions/${transactionId}/verify`)
-        const data = response.data
-        assertNotNullOrUndefined(data, `Flutterwave transaction ${transactionId} was not found`)
-        return {
-            id: String(data.id),
-            status: data.status,
-            amount: Number(data.amount),
-            currency: data.currency,
-            reference: data.tx_ref,
-            tx_ref: data.tx_ref,
-            meta: data.meta,
-        }
-    },
-
-    async request<T>(path: string, init?: RequestInit): Promise<T> {
-        const accessToken = await this.getAccessToken()
-        const apiBaseUrl = (system.get(AppSystemProp.FLUTTERWAVE_API_BASE_URL) ?? DEFAULT_FLUTTERWAVE_API_BASE_URL).replace(/\/$/, '')
-        const response = await fetch(`${apiBaseUrl}${path}`, {
-            ...init,
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-                'Content-Type': 'application/json',
-                'X-Trace-Id': randomUUID(),
-                ...init?.headers,
-            },
-        })
-
-        if (!response.ok) {
-            log.warn({ status: response.status, path }, 'Flutterwave API request failed')
-            throw new Error(`Flutterwave API request failed with status ${response.status}`)
-        }
-
-        return response.json() as Promise<T>
-    },
-
-    async hostedCheckoutRequest<T>(path: string, init?: RequestInit): Promise<T> {
+        assertNumericId(transactionId, 'transaction')
         const secretKey = system.getOrThrow(AppSystemProp.FLUTTERWAVE_SECRET_KEY)
         const checkoutBaseUrl = (system.get(AppSystemProp.FLUTTERWAVE_CHECKOUT_BASE_URL) ?? DEFAULT_FLUTTERWAVE_CHECKOUT_BASE_URL).replace(/\/$/, '')
-        const response = await fetch(`${checkoutBaseUrl}${path}`, {
-            ...init,
-            headers: {
-                Authorization: `Bearer ${secretKey}`,
-                ...init?.headers,
-            },
-        })
-
-        if (!response.ok) {
-            log.warn({ status: response.status, path }, 'Flutterwave hosted checkout request failed')
-            throw new Error(`Flutterwave hosted checkout request failed with status ${response.status}`)
+        const client = safeHttp.createAxios({ baseURL: checkoutBaseUrl, timeout: REQUEST_TIMEOUT_MS })
+        let response: FlutterwaveTransactionVerificationResponse
+        try {
+            const { data } = await client.get<FlutterwaveTransactionVerificationResponse>(`/transactions/${transactionId}/verify`, {
+                headers: { Authorization: `Bearer ${secretKey}` },
+            })
+            response = data
         }
-
-        return response.json() as Promise<T>
+        catch (err) {
+            const status = err instanceof AxiosError ? err.response?.status : undefined
+            log.warn({ status }, 'Flutterwave hosted checkout request failed')
+            throw new Error('Flutterwave hosted checkout request failed')
+        }
+        const txData = response.data
+        assertNotNullOrUndefined(txData, 'Flutterwave transaction was not found')
+        return {
+            id: String(txData.id),
+            status: txData.status,
+            amount: Number(txData.amount),
+            currency: txData.currency,
+            reference: txData.tx_ref,
+            tx_ref: txData.tx_ref,
+            meta: txData.meta,
+        }
     },
 
     async getAccessToken(): Promise<string> {
@@ -185,35 +190,41 @@ export const flutterwaveHelper = (log: FastifyBaseLogger) => ({
 
         const clientId = system.getOrThrow(AppSystemProp.FLUTTERWAVE_CLIENT_ID)
         const clientSecret = system.getOrThrow(AppSystemProp.FLUTTERWAVE_CLIENT_SECRET)
-
-        const response = await fetch(FLUTTERWAVE_TOKEN_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: new URLSearchParams({
-                client_id: clientId,
-                client_secret: clientSecret,
-                grant_type: 'client_credentials',
-            }),
-        })
-
-        if (!response.ok) {
-            log.warn({ status: response.status }, 'Flutterwave token request failed')
-            throw new Error(`Flutterwave token request failed with status ${response.status}`)
+        let tokenData: FlutterwaveTokenResponse
+        try {
+            const client = safeHttp.createAxios({ timeout: REQUEST_TIMEOUT_MS })
+            const { data } = await client.post<FlutterwaveTokenResponse>(
+                FLUTTERWAVE_TOKEN_URL,
+                new URLSearchParams({
+                    client_id: clientId,
+                    client_secret: clientSecret,
+                    grant_type: 'client_credentials',
+                }).toString(),
+                {
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                },
+            )
+            tokenData = data
         }
-
-        const body = await response.json() as FlutterwaveTokenResponse
-        assertNotNullOrUndefined(body.access_token, 'Flutterwave token response is missing access_token')
-
+        catch (err) {
+            const status = err instanceof AxiosError ? err.response?.status : undefined
+            log.warn({ status }, 'Flutterwave token request failed')
+            throw new Error('Flutterwave token request failed')
+        }
+        assertNotNullOrUndefined(tokenData.access_token, 'Flutterwave token response is missing access_token')
         cachedToken = {
-            accessToken: body.access_token,
-            expiresAt: Date.now() + ((body.expires_in ?? 600) * 1000),
+            accessToken: tokenData.access_token,
+            expiresAt: Date.now() + ((tokenData.expires_in ?? 600) * 1000),
         }
-
         return cachedToken.accessToken
     },
 })
+
+function assertNumericId(id: string, label: string): void {
+    if (!/^\d{1,20}$/.test(id)) {
+        throw new Error(`Invalid Flutterwave ${label} id: must be numeric`)
+    }
+}
 
 function createPaymentReference(plan: PlugrPlanName): string {
     return `plg-${plan.slice(0, 3)}-${randomUUID().replace(/-/g, '').slice(0, 24)}`

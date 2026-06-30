@@ -5,6 +5,7 @@ import { redisConnections } from '../../database/redis-connections'
 import { networkUtils } from '../../helper/network-utils'
 import { system } from '../../helper/system/system'
 import { AppSystemProp } from '../../helper/system/system-props'
+import { buildUserApiRateLimitHook } from './redis-rate-limiter'
 
 const API_RATE_LIMIT_AUTHN_ENABLED = system.getBoolean(
     AppSystemProp.API_RATE_LIMIT_AUTHN_ENABLED,
@@ -21,3 +22,9 @@ export const rateLimitModule: FastifyPluginAsyncZod = FastifyPlugin(
         }
     },
 )
+
+export const userApiRateLimitHook = buildUserApiRateLimitHook({
+    keyPrefix: 'rate:api:user',
+    max: Number.parseInt(system.getOrThrow(AppSystemProp.API_RATE_LIMIT_API_MAX), 10),
+    windowSeconds: Number.parseInt(system.getOrThrow(AppSystemProp.API_RATE_LIMIT_API_WINDOW), 10),
+})

@@ -18,7 +18,7 @@ import { authenticationModule } from './authentication/authentication.module'
 import { plugrBillingModule } from './billing/billing.module'
 import { canaryRoutingMiddleware } from './core/canary/canary-routing.middleware'
 import { collaborativeModule } from './core/collaborative/collaborative.module'
-import { rateLimitModule } from './core/security/rate-limit'
+import { rateLimitModule, userApiRateLimitHook } from './core/security/rate-limit'
 import { authenticationMiddleware } from './core/security/v2/authn/authentication-middleware'
 import { authorizationMiddleware } from './core/security/v2/authz/authorization-middleware'
 import { distributedLock, redisConnections } from './database/redis-connections'
@@ -168,6 +168,7 @@ export const setupApp = async (app: FastifyInstance): Promise<FastifyInstance> =
     app.addHook('preHandler', authenticationMiddleware)
     app.addHook('preHandler', authorizationMiddleware)
     app.addHook('preHandler', rbacMiddleware)
+    app.addHook('preHandler', userApiRateLimitHook)
 
     const canaryAppUrl = system.get(AppSystemProp.CANARY_APP_URL)
     if (!isNil(canaryAppUrl)) {

@@ -9,20 +9,20 @@ const StaticDropdownData = z.object({
 })
 
 export const CreateFieldRequest = z.union([z.object({
-    name: z.string(),
+    name: z.string().min(1).max(100),
     type: z.literal(FieldType.STATIC_DROPDOWN),
     tableId: z.string(),
     data: StaticDropdownData,
     externalId: z.string().optional(),
 }), z.object({
-    name: z.string(),
+    name: z.string().min(1).max(100),
     type: z.union([z.literal(FieldType.TEXT), z.literal(FieldType.NUMBER), z.literal(FieldType.DATE)]),
     tableId: z.string(),
     externalId: z.string().optional(),
 })])
 
 export const UpdateFieldRequest = z.object({
-    name: z.string(),
+    name: z.string().min(1).max(100),
 })
 
 export const ListFieldsRequestQuery = z.object({

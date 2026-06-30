@@ -2,7 +2,7 @@ import { z } from 'zod'
 import { RoleType, SAFE_STRING_PATTERN } from '../../core/common'
 
 export const CreateProjectRoleRequestBody = z.object({
-    name: z.string().regex(new RegExp(SAFE_STRING_PATTERN)),
+    name: z.string().min(1).max(100).regex(new RegExp(SAFE_STRING_PATTERN)),
     permissions: z.array(z.string()),
     type: z.nativeEnum(RoleType),
 })
@@ -10,7 +10,7 @@ export const CreateProjectRoleRequestBody = z.object({
 export type CreateProjectRoleRequestBody = z.infer<typeof CreateProjectRoleRequestBody>
 
 export const UpdateProjectRoleRequestBody = z.object({
-    name: z.string().regex(new RegExp(SAFE_STRING_PATTERN)).optional(),
+    name: z.string().min(1).max(100).regex(new RegExp(SAFE_STRING_PATTERN)).optional(),
     permissions: z.array(z.string()).optional(),
 })
 

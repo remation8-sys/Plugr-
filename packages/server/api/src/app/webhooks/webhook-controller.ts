@@ -4,10 +4,13 @@ import {
     WebhookUrlParams,
     WebsocketClientEvent,
 } from '@activepieces/shared'
+import { RateLimitOptions } from '@fastify/rate-limit'
 import { trace } from '@opentelemetry/api'
 import { FastifyRequest } from 'fastify'
 import { FastifyPluginAsyncZod } from 'fastify-type-provider-zod'
 import { securityAccess } from '../core/security/authorization/fastify-security'
+import { system } from '../helper/system/system'
+import { AppSystemProp } from '../helper/system/system-props'
 import { triggerSourceService } from '../trigger/trigger-source/trigger-source-service'
 import { convertRequest, extractHeaderFromRequest } from './webhook-request-converter'
 import { WebhookFlowVersionToRun, webhookService } from './webhook.service'
@@ -153,10 +156,16 @@ export const webhookController: FastifyPluginAsyncZod = async (app) => {
 }
 
 
+const webhookRateLimitOptions: RateLimitOptions = {
+    max: Number.parseInt(system.getOrThrow(AppSystemProp.API_RATE_LIMIT_WEBHOOK_MAX), 10),
+    timeWindow: system.getOrThrow(AppSystemProp.API_RATE_LIMIT_WEBHOOK_WINDOW),
+}
+
 const WEBHOOK_PARAMS = {
     config: {
         security: securityAccess.public(),
         rawBody: true,
+        rateLimit: webhookRateLimitOptions,
     },
     schema: {
         params: WebhookUrlParams,

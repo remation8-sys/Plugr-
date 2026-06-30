@@ -59,7 +59,7 @@ export const UpsertPlatformOAuth2Request = z.object({
         ...commonOAuth2ValueProps,
         props: propsSchema.optional(),
         type: z.literal(AppConnectionType.PLATFORM_OAUTH2),
-        redirect_url: z.string().min(1),
+        redirect_url: z.string().url(),
     }),
 }).describe('Platform OAuth2')
 
@@ -93,7 +93,7 @@ export const UpsertOAuth2Request = z.object({
         grant_type: z.nativeEnum(OAuth2GrantType).optional(),
         props: z.record(z.string(), z.any()).optional(),
         authorization_method: z.nativeEnum(OAuth2AuthorizationMethod).optional(),
-        redirect_url: z.string().min(1),
+        redirect_url: z.string().url(),
         type: z.literal(AppConnectionType.OAUTH2),
     }),
 }).describe('OAuth2')
@@ -168,7 +168,7 @@ export const GetOAuth2AuthorizationUrlRequestBody = z.object({
     pieceVersion: z.string().optional(),
     projectId: z.string().optional(),
     clientId: z.string(),
-    redirectUrl: z.string(),
+    redirectUrl: z.string().url(),
     scopes: z.array(z.string()).optional(),
     props: z.record(z.string(), z.unknown()).optional(),
 })

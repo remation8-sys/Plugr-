@@ -99,14 +99,15 @@ export const flutterwaveBillingController: FastifyPluginAsyncZod = async (fastif
         WebhookRequest,
         async (request: FastifyRequest, reply) => {
             const helper = flutterwaveHelper(request.log)
+
+            const signature = getHeaderValue(request.headers['flutterwave-signature']) ?? getHeaderValue(request.headers['verif-hash'])
+            if (!helper.isValidWebhookSignature(signature)) {
+                return reply.status(StatusCodes.UNAUTHORIZED).send({ received: false })
+            }
+
             if (!helper.isConfigured()) {
                 request.log.warn('Flutterwave webhook received while Flutterwave is not configured')
                 return reply.status(StatusCodes.OK).send({ received: true, ignored: true })
-            }
-
-            const signature = getHeaderValue(request.headers['flutterwave-signature'])
-            if (!helper.isValidWebhookSignature(signature)) {
-                return reply.status(StatusCodes.UNAUTHORIZED).send({ received: false })
             }
 
             const payload = request.body as FlutterwaveWebhookPayload
@@ -131,9 +132,15 @@ export const flutterwaveBillingController: FastifyPluginAsyncZod = async (fastif
                     return reply.status(StatusCodes.OK).send({ received: true, ignored: true })
                 }
 
+                const chargeIdStr = String(chargeId)
+                if (!/^\d{1,20}$/.test(chargeIdStr)) {
+                    await markProcessed(eventKey)
+                    return reply.status(StatusCodes.OK).send({ received: true, ignored: true })
+                }
+
                 const charge = helper.isHostedCheckoutConfigured()
-                    ? await helper.verifyHostedPayment(String(chargeId))
-                    : await helper.retrieveCharge(String(chargeId))
+                    ? await helper.verifyHostedPayment(chargeIdStr)
+                    : await helper.retrieveCharge(chargeIdStr)
                 await applyVerifiedCharge({ charge, log: request.log })
                 await markProcessed(eventKey)
                 return reply.status(StatusCodes.OK).send({ received: true })
@@ -193,7 +200,7 @@ function assertChargeMatchesPlan(params: { charge: FlutterwaveCharge, plan: keyo
 }
 
 function isKnownPlugrPlan(plan: string): plan is PlugrPlanName {
-    return plan in PLUGR_PLAN_LIMITS
+    return Object.hasOwn(PLUGR_PLAN_LIMITS, plan)
 }
 
 function isSuccessfulChargeEvent(type: string | undefined): boolean {
@@ -216,6 +223,10 @@ function getHeaderValue(value: string | string[] | undefined): string | undefine
 const WebhookRequest = {
     config: {
         security: securityAccess.public(),
+        rateLimit: {
+            max: 100,
+            timeWindow: '1 minute',
+        },
     },
 }
 

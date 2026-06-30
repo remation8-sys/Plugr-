@@ -2,16 +2,20 @@ import { z } from 'zod'
 import { OptionalArrayFromQuery } from '../../../core/common/base-model'
 import { Cursor } from '../../../core/common/seek-page'
 
+const MAX_CELL_VALUE_LENGTH = 50_000
+const MAX_RECORDS_PER_REQUEST = 500
+const MAX_CELLS_PER_RECORD = 200
+
 const coerceToString = z.preprocess(
     (v) => (v === null || v === undefined ? v : String(v)),
-    z.string().nullable(),
+    z.string().max(MAX_CELL_VALUE_LENGTH).nullable(),
 )
 
 export const CreateRecordsRequest = z.object({
     records: z.array(z.array(z.object({
         fieldId: z.string(),
         value: coerceToString,
-    }))),
+    })).max(MAX_CELLS_PER_RECORD)).max(MAX_RECORDS_PER_REQUEST),
     tableId: z.string(),
 })
 
@@ -21,7 +25,7 @@ export const UpdateRecordRequest = z.object({
     cells: z.array(z.object({
         fieldId: z.string(),
         value: coerceToString,
-    })).optional(),
+    })).max(MAX_CELLS_PER_RECORD).optional(),
     tableId: z.string(),
     agentUpdate: z.boolean().optional(),
 })
@@ -68,7 +72,7 @@ export type Filter = z.infer<typeof Filter>
 
 export const ListRecordsRequest = z.object({
     tableId: z.string(),
-    limit: z.coerce.number().optional(),
+    limit: z.coerce.number().int().min(1).max(1000).optional(),
     cursor: z.string().optional(),
     filters: OptionalArrayFromQuery(Filter),
 })
@@ -77,7 +81,7 @@ export type ListRecordsRequest = Omit<z.infer<typeof ListRecordsRequest>, 'curso
 
 export const DeleteRecordsRequest = z.object({
     tableId: z.string(),
-    ids: z.array(z.string()),
+    ids: z.array(z.string()).max(MAX_RECORDS_PER_REQUEST),
 })
 
 export type DeleteRecordsRequest = z.infer<typeof DeleteRecordsRequest>

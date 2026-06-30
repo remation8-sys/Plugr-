@@ -31,7 +31,7 @@ export enum UserStatus {
     INACTIVE = 'INACTIVE',
 }
 
-export const EmailType = z.string().email()
+export const EmailType = z.string().email().max(254)
 
 export const PasswordType = z.string().min(8).max(64)
 
