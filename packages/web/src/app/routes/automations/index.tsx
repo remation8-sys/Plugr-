@@ -347,14 +347,16 @@ const AutomationsPageContent = ({ projectId }: { projectId: string }) => {
             isItemSelected={isItemSelected}
           />
 
-          <AutomationsPagination
-            currentPage={rootPage}
-            totalPages={totalPages}
-            pageSize={pageSize}
-            onPageSizeChange={handlePageSizeChange}
-            onPrevPage={handlePrevPage}
-            onNextPage={handleNextPage}
-          />
+          <div className="hidden md:block">
+            <AutomationsPagination
+              currentPage={rootPage}
+              totalPages={totalPages}
+              pageSize={pageSize}
+              onPageSizeChange={handlePageSizeChange}
+              onPrevPage={handlePrevPage}
+              onNextPage={handleNextPage}
+            />
+          </div>
         </>
       )}
 
