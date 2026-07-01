@@ -252,11 +252,55 @@ export const AutomationsEmptyState = ({
 
   return (
     <div className="flex flex-col gap-8 py-8 px-4 max-w-5xl mx-auto">
+      {(hasTemplates || isLoadingTemplates) && (
+        <div>
+          <div className="flex items-center justify-between mb-4 gap-3">
+            <div className="min-w-0">
+              <h2 className="text-lg font-semibold flex items-center gap-2 font-sentient">
+                {t('Start from a template')}
+                <Sparkles className="h-4 w-4 text-yellow-500 shrink-0" />
+              </h2>
+              <p className="text-sm text-muted-foreground mt-0.5">
+                {t(
+                  'Pick a ready-made automation, connect your apps, and go live in minutes.',
+                )}
+              </p>
+            </div>
+            <button
+              onClick={handleViewAllTemplates}
+              className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors shrink-0"
+            >
+              {t('All templates')}
+              <ChevronRight className="h-4 w-4" />
+            </button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            {isLoadingTemplates ? (
+              <>
+                <TemplateCardSkeleton />
+                <TemplateCardSkeleton />
+                <TemplateCardSkeleton />
+              </>
+            ) : (
+              topTemplates.map((template) => (
+                <SuggestedTemplateCard
+                  key={template.id}
+                  template={template}
+                  onSelect={handleTemplateSelect}
+                />
+              ))
+            )}
+          </div>
+        </div>
+      )}
+
       <div>
         <h2 className="text-sm font-medium text-muted-foreground mb-4">
-          {t('Get started with {brandName}', {
-            brandName: branding.websiteName ?? platform.name,
-          })}
+          {hasTemplates || isLoadingTemplates
+            ? t('Or build your own')
+            : t('Get started with {brandName}', {
+                brandName: branding.websiteName ?? platform.name,
+              })}
         </h2>
         <div className="flex flex-col sm:flex-row gap-4">
           <GetStartedCard
@@ -294,18 +338,6 @@ export const AutomationsEmptyState = ({
                 </button>
               </ImportFlowDialog>
             </PermissionNeededTooltip>
-            <ActionRow
-              icon={<Sparkles className="h-4 w-4" />}
-              label={t('Use Templates')}
-              onClick={() => {
-                if (embedState.isEmbedded) {
-                  setIsTemplatesBrowseDialogOpen(true);
-                } else {
-                  navigate('/templates');
-                }
-              }}
-              hasPermission={userHasPermissionToWriteFlow}
-            />
           </GetStartedCard>
 
           {!embedState.hideTables && (
@@ -332,41 +364,6 @@ export const AutomationsEmptyState = ({
           )}
         </div>
       </div>
-
-      {(hasTemplates || isLoadingTemplates) && (
-        <div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-              {t('Templates For You')}
-              <Sparkles className="h-4 w-4 text-yellow-500" />
-            </h2>
-            <button
-              onClick={handleViewAllTemplates}
-              className="text-sm text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
-            >
-              {t('All templates')}
-              <ChevronRight className="h-4 w-4" />
-            </button>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {isLoadingTemplates ? (
-              <>
-                <TemplateCardSkeleton />
-                <TemplateCardSkeleton />
-                <TemplateCardSkeleton />
-              </>
-            ) : (
-              topTemplates.map((template) => (
-                <SuggestedTemplateCard
-                  key={template.id}
-                  template={template}
-                  onSelect={handleTemplateSelect}
-                />
-              ))
-            )}
-          </div>
-        </div>
-      )}
 
       {!embedState.hideTables && (
         <ImportTableDialog
