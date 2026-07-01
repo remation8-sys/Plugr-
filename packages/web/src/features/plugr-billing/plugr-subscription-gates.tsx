@@ -52,6 +52,17 @@ export function canUsePlugr(user: PlugrBillingUser | null | undefined) {
   return hasPlugrAppAccess(user) && user?.subscriptionTier !== 'trial';
 }
 
+/**
+ * AI access = the plan includes AI credits (Builder/Pro/Business) or the user
+ * bought credits. Starter includes 0 credits, so Starter users get the upsell
+ * teaser instead of the chat. Credit *exhaustion* (used all included) is a
+ * separate in-chat state, so we key off entitlement, not remaining balance.
+ */
+export function hasPlugrAiAccess(user: PlugrBillingUser | null | undefined) {
+  if (!canUsePlugr(user)) return false;
+  return (user!.aiCreditsIncluded ?? 0) > 0 || (user!.aiCreditsPurchased ?? 0) > 0;
+}
+
 export function hasMinimumPlugrTier(
   user: PlugrBillingUser | null | undefined,
   minimumTier: PlugrPaidTier,
@@ -107,6 +118,22 @@ export function PlugrAccessGuard({ children }: { children: React.ReactNode }) {
       title="Unlock Plugr"
       description="Plugr is available on paid plans. Start a plan to unlock Plugr."
       ctaLabel="View plans"
+    />
+  );
+}
+
+export function PlugrAiAccessGuard({ children }: { children: React.ReactNode }) {
+  const { data: user } = userHooks.useCurrentUser();
+
+  if (!user) return null;
+  if (!hasPlugrAppAccess(user)) return <Navigate to="/pricing" replace />;
+  if (hasPlugrAiAccess(user)) return <>{children}</>;
+
+  return (
+    <PlugrLockedFeature
+      title="Build with Plugr AI"
+      description="Describe what you want in plain words and Plugr builds the automation for you. Available on the Builder, Pro, and Business plans."
+      ctaLabel="See plans"
     />
   );
 }

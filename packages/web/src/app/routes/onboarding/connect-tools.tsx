@@ -7,7 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import { t } from 'i18next';
 import { ArrowRight } from 'lucide-react';
 import { useDeferredValue, useEffect, useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 
 import { CreateOrEditConnectionDialog } from '@/app/connections/create-edit-connection-dialog';
 import { Button } from '@/components/ui/button';
@@ -18,7 +18,6 @@ import { FullLogo } from '@/components/custom/full-logo';
 import { appConnectionsApi } from '@/features/connections/api/app-connections';
 import { piecesApi } from '@/features/pieces/api/pieces-api';
 import { authenticationSession } from '@/lib/authentication-session';
-import { useRedirectAfterLogin } from '@/lib/navigation-utils';
 
 import { CategoryFilter } from './components/category-filter';
 import { SuccessAnimation } from './components/success-animation';
@@ -42,8 +41,17 @@ export function ConnectToolsPage() {
 }
 
 function ConnectToolsContent() {
-  const redirectAfterLogin = useRedirectAfterLogin();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const projectId = authenticationSession.getProjectId();
+
+  // After onboarding, land the user in the templates gallery — the fastest path
+  // to a first working automation on ANY plan (Starter has no AI, so chat is not
+  // a universal entry point). Honor an explicit deep-link (`from`) if present.
+  const goToFirstAutomation = () => {
+    const from = searchParams.get('from');
+    navigate(from ?? '/templates');
+  };
 
   const [searchQuery, setSearchQuery] = useState('');
   const deferredSearch = useDeferredValue(searchQuery);
@@ -111,7 +119,7 @@ function ConnectToolsContent() {
 
   const handleSkip = () => {
     localStorage.setItem(TOOLS_COMPLETED_KEY, '1');
-    redirectAfterLogin();
+    goToFirstAutomation();
   };
 
   const handleContinue = () => {
@@ -120,7 +128,7 @@ function ConnectToolsContent() {
   };
 
   const handleSuccessComplete = () => {
-    redirectAfterLogin();
+    goToFirstAutomation();
   };
 
   if (showSuccess) {
