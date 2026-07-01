@@ -38,7 +38,11 @@ export const AgentSettings = (props: AgentSettingsProps) => {
       PLUGR_SPECIALIST_AGENT_MODEL,
       { shouldValidate: true },
     );
-  }, [form]);
+    // Run once on mount; `form` from useFormContext() is a new ref each render
+    // (FormProvider spreads props as its context value), so listing it here
+    // causes an infinite setValue→revalidate→render loop (React #185).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (isNil(pieceModel)) {
     return (
