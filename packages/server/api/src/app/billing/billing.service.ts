@@ -21,6 +21,7 @@ import {
     PlugrPricingInfo,
     PlugrSubscriptionPeriod,
     PlugrUserBilling,
+    PlugrVerifyTransactionResponse,
     User,
 } from '@activepieces/shared'
 import dayjs from 'dayjs'
@@ -190,6 +191,33 @@ export const plugrBillingService = (log: FastifyBaseLogger) => ({
         }
     },
 
+    async verifyAndApplyTransaction(params: VerifyTransactionParams): Promise<PlugrVerifyTransactionResponse> {
+        let status: PlugrVerifyTransactionResponse['status'] = 'pending'
+        if (!isNil(params.transactionId) && params.transactionId.length > 0) {
+            const transaction = await flutterwaveBillingService(log).verifyTransaction(params.transactionId)
+            const ownerId = getStringMeta(transaction.meta, 'userId')
+            if (!isNil(ownerId) && ownerId !== params.userId) {
+                throw new ActivepiecesError({
+                    code: ErrorCode.AUTHORIZATION,
+                    params: { message: 'This transaction does not belong to your account' },
+                })
+            }
+            await this.applyVerifiedTransaction(transaction)
+            status = isSuccessfulTransaction(transaction.status) ? 'successful' : 'failed'
+        }
+        else if (!isNil(params.reference) && params.reference.length > 0) {
+            const record = await billingTransactionRepo().findOneBy({ userId: params.userId, flutterwaveReference: params.reference })
+            if (record?.status === 'successful') {
+                status = 'successful'
+            }
+            else if (record?.status === 'failed') {
+                status = 'failed'
+            }
+        }
+        const billing = await this.getInfo({ userId: params.userId })
+        return { status, billing }
+    },
+
     async markSubscriptionEnded(params: MarkSubscriptionEndedParams): Promise<void> {
         const user = await findUserFromWebhook(params)
         if (isNil(user)) {
@@ -270,24 +298,32 @@ async function applySubscriptionPayment({ transaction, log }: ApplyTransactionPa
     const period = parsePeriod(getRequiredMeta(transaction.meta, 'period'))
     const expectedPrice = getPlugrPlanPrice({ tier, period, currency: transaction.currency })
     assertAmountMatches({ actual: transaction.amount, expected: expectedPrice.total, currency: transaction.currency })
-    const now = dayjs()
-    const plan = plugrPlanCatalog[tier]
-    await userRepo().update({ id: userId }, {
-        subscriptionTier: tier,
-        subscriptionStatus: 'active',
-        subscriptionPeriod: period,
-        subscriptionStartsAt: now.toISOString(),
-        subscriptionEndsAt: now.add(expectedPrice.months, 'month').toISOString(),
-        flutterwaveCustomerId: transaction.customerId,
-        flutterwavePlanId: transaction.paymentPlanId,
-        billingCurrency: transaction.currency,
-        billingCountry: transaction.currency === 'NGN' ? 'NG' : 'OTHER',
-        aiCreditsIncluded: plan.includedCredits,
-        aiCreditsUsed: 0,
-        aiCreditsResetAt: now.add(1, 'month').toISOString(),
+    const applied = await databaseConnection().transaction(async (entityManager) => {
+        if (await isTransactionAlreadyApplied({ reference: transaction.reference, entityManager })) {
+            return false
+        }
+        const now = dayjs()
+        const plan = plugrPlanCatalog[tier]
+        await userRepo(entityManager).update({ id: userId }, {
+            subscriptionTier: tier,
+            subscriptionStatus: 'active',
+            subscriptionPeriod: period,
+            subscriptionStartsAt: now.toISOString(),
+            subscriptionEndsAt: now.add(expectedPrice.months, 'month').toISOString(),
+            flutterwaveCustomerId: transaction.customerId,
+            flutterwavePlanId: transaction.paymentPlanId,
+            billingCurrency: transaction.currency,
+            billingCountry: transaction.currency === 'NGN' ? 'NG' : 'OTHER',
+            aiCreditsIncluded: plan.includedCredits,
+            aiCreditsUsed: 0,
+            aiCreditsResetAt: now.add(1, 'month').toISOString(),
+        })
+        await markTransactionByReference({ reference: transaction.reference, status: 'successful', transactionId: transaction.id, entityManager })
+        return true
     })
-    await markTransactionByReference({ reference: transaction.reference, status: 'successful', transactionId: transaction.id })
-    log.info({ userId, tier, period, reference: transaction.reference }, 'Plugr subscription payment applied')
+    if (applied) {
+        log.info({ userId, tier, period, reference: transaction.reference }, 'Plugr subscription payment applied')
+    }
 }
 
 async function applyCreditPayment({ transaction, log }: ApplyTransactionParams): Promise<void> {
@@ -295,7 +331,10 @@ async function applyCreditPayment({ transaction, log }: ApplyTransactionParams):
     const pack = parseCreditPack(getRequiredMeta(transaction.meta, 'pack'))
     const expectedPrice = getPlugrCreditPackPrice({ pack, currency: transaction.currency })
     assertAmountMatches({ actual: transaction.amount, expected: expectedPrice.amount, currency: transaction.currency })
-    await databaseConnection().transaction(async (entityManager) => {
+    const applied = await databaseConnection().transaction(async (entityManager) => {
+        if (await isTransactionAlreadyApplied({ reference: transaction.reference, entityManager })) {
+            return false
+        }
         const user = await getNormalizedUser({ userId, log, entityManager, lock: true })
         await userRepo(entityManager).update({ id: userId }, {
             aiCreditsPurchased: user.aiCreditsPurchased + expectedPrice.credits,
@@ -309,8 +348,22 @@ async function applyCreditPayment({ transaction, log }: ApplyTransactionParams):
             flutterwaveReference: transaction.reference,
         })
         await markTransactionByReference({ reference: transaction.reference, status: 'successful', transactionId: transaction.id, entityManager })
+        return true
     })
-    log.info({ userId, credits: expectedPrice.credits, reference: transaction.reference }, 'Plugr credits added')
+    if (applied) {
+        log.info({ userId, credits: expectedPrice.credits, reference: transaction.reference }, 'Plugr credits added')
+    }
+}
+
+async function isTransactionAlreadyApplied({ reference, entityManager }: IsTransactionAppliedParams): Promise<boolean> {
+    if (reference.length === 0) {
+        return false
+    }
+    const record = await billingTransactionRepo(entityManager).findOne({
+        where: { flutterwaveReference: reference },
+        lock: { mode: 'pessimistic_write' },
+    })
+    return record?.status === 'successful'
 }
 
 async function getNormalizedUser(params: NormalizeUserParams): Promise<User> {
@@ -657,6 +710,16 @@ type MarkSubscriptionEndedParams = {
 type MinimumTierParams = UserIdParams & {
     minimumTier: PlugrPaidTier
     message?: string
+}
+
+type VerifyTransactionParams = UserIdParams & {
+    transactionId?: string
+    reference?: string
+}
+
+type IsTransactionAppliedParams = {
+    reference: string
+    entityManager: EntityManager
 }
 
 type MarkTransactionParams = {

@@ -5,6 +5,8 @@ import {
     PlugrCreateCheckoutRequest,
     PlugrCreateCreditCheckoutRequest,
     PlugrPricingInfo,
+    PlugrVerifyTransactionRequest,
+    PlugrVerifyTransactionResponse,
     PrincipalType,
     SERVICE_KEY_SECURITY_OPENAPI,
 } from '@activepieces/shared'
@@ -44,6 +46,14 @@ export const plugrBillingController: FastifyPluginAsyncZod = async (app) => {
             request,
             userId: request.principal.id,
             pack: request.body.pack,
+        })
+    })
+
+    app.post('/verify', VerifyRoute, async (request) => {
+        return plugrBillingService(request.log).verifyAndApplyTransaction({
+            userId: request.principal.id,
+            transactionId: request.body.transactionId,
+            reference: request.body.reference,
         })
     })
 
@@ -181,6 +191,21 @@ const CreditCheckoutRoute = {
         body: PlugrCreateCreditCheckoutRequest,
         response: {
             [StatusCodes.OK]: PlugrCheckoutResponse,
+        },
+    },
+}
+
+const VerifyRoute = {
+    config: {
+        security: securityAccess.publicPlatform(BILLING_PRINCIPALS),
+        rateLimit: BillingRateLimit,
+    },
+    schema: {
+        tags: ['plugr-billing'],
+        security: [SERVICE_KEY_SECURITY_OPENAPI],
+        body: PlugrVerifyTransactionRequest,
+        response: {
+            [StatusCodes.OK]: PlugrVerifyTransactionResponse,
         },
     },
 }

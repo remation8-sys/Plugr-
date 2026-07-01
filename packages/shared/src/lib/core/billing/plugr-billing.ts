@@ -292,6 +292,16 @@ const PlugrCheckoutResponse = z.object({
     reference: z.string(),
 })
 
+const PlugrVerifyTransactionRequest = z.object({
+    transactionId: z.string().optional(),
+    reference: z.string().optional(),
+})
+
+const PlugrVerifyTransactionResponse = z.object({
+    status: z.enum(['successful', 'pending', 'failed']),
+    billing: PlugrBillingInfo,
+})
+
 const PlugrTrialStartResponse = z.object({
     trialEndsAt: DateOrString,
 })
@@ -333,6 +343,8 @@ export {
     PlugrSubscriptionTierSchema,
     PlugrTrialStartResponse,
     PlugrUserBilling,
+    PlugrVerifyTransactionRequest,
+    PlugrVerifyTransactionResponse,
 }
 
 export type GetPlugrCreditPackPriceParams = {
@@ -362,6 +374,8 @@ export type PlugrCancelSubscriptionRequest = z.infer<typeof PlugrCancelSubscript
 export type PlugrCheckoutResponse = z.infer<typeof PlugrCheckoutResponse>
 export type PlugrCreateCheckoutRequest = z.infer<typeof PlugrCreateCheckoutRequest>
 export type PlugrCreateCreditCheckoutRequest = z.infer<typeof PlugrCreateCreditCheckoutRequest>
+export type PlugrVerifyTransactionRequest = z.infer<typeof PlugrVerifyTransactionRequest>
+export type PlugrVerifyTransactionResponse = z.infer<typeof PlugrVerifyTransactionResponse>
 export type PlugrCreditActionType = z.infer<typeof PlugrCreditActionTypeSchema>
 export type PlugrCreditPackSize = z.infer<typeof PlugrCreditPackSizeSchema>
 export type PlugrPaidTier = z.infer<typeof PlugrPaidTierSchema>

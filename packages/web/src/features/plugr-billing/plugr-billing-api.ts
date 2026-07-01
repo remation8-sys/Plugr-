@@ -4,6 +4,8 @@
   PlugrCreateCheckoutRequest,
   PlugrCreateCreditCheckoutRequest,
   PlugrPricingInfo,
+  PlugrVerifyTransactionRequest,
+  PlugrVerifyTransactionResponse,
 } from '@activepieces/shared';
 
 import { api } from '@/lib/api';
@@ -31,5 +33,11 @@ export const plugrBillingApi = {
     return api.post<PlugrBillingInfo>('/v1/user-billing/cancel', {
       confirmation: 'CANCEL',
     });
+  },
+  verifyTransaction(request: PlugrVerifyTransactionRequest) {
+    return api.post<PlugrVerifyTransactionResponse>(
+      '/v1/user-billing/verify',
+      request,
+    );
   },
 };
