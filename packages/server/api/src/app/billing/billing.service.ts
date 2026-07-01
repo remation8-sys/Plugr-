@@ -69,6 +69,8 @@ export const plugrBillingService = (log: FastifyBaseLogger) => ({
     },
 
     async createSubscriptionCheckout(params: CreateSubscriptionCheckoutParams): Promise<{ checkoutUrl: string, reference: string, inline?: PlugrInlineCheckoutParams }> {
+        // Plugr bills monthly only — ignore any other period the client sends.
+        params.period = 'monthly'
         const user = await getNormalizedUser({ userId: params.userId, log })
         assertCanStartCheckout({ user, tier: params.tier })
         const location = await billingCountryService(log).detect(params.request)

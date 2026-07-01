@@ -1,10 +1,5 @@
-﻿import {
-  PlugrPaidTier,
-  PlugrSubscriptionPeriod,
-  plugrSubscriptionPeriods,
-} from '@activepieces/shared';
+﻿import { PlugrPaidTier } from '@activepieces/shared';
 import { Check, CreditCard, Sparkles } from 'lucide-react';
-import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -17,15 +12,8 @@ import {
 import { cn } from '@/lib/utils';
 
 const planOrder: PlugrPaidTier[] = ['starter', 'builder', 'pro', 'business'];
-const periodOrder: PlugrSubscriptionPeriod[] = [
-  'monthly',
-  'quarterly',
-  'biannual',
-  'annual',
-];
 
 export function PricingPage() {
-  const [period, setPeriod] = useState<PlugrSubscriptionPeriod>('monthly');
   const pricingQuery = plugrBillingQueries.usePricing();
   const checkoutMutation = plugrBillingMutations.useCreateCheckout();
 
@@ -47,37 +35,18 @@ export function PricingPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 p-6">
-      <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-normal">Pricing</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Plugr credits reset monthly. Extra credit packs stay available until
-            used.
-          </p>
-        </div>
-        <div className="inline-flex w-fit rounded-lg border bg-muted p-1">
-          {periodOrder.map((value) => (
-            <button
-              key={value}
-              type="button"
-              onClick={() => setPeriod(value)}
-              className={cn(
-                'rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
-                period === value
-                  ? 'bg-background text-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground',
-              )}
-            >
-              {plugrSubscriptionPeriods[value].label}
-            </button>
-          ))}
-        </div>
+      <div>
+        <h1 className="text-2xl font-semibold tracking-normal">Pricing</h1>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Simple monthly billing. Plugr credits reset every month, and extra
+          credit packs stay available until used.
+        </p>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-4">
         {planOrder.map((tier) => {
           const plan = data.plans[tier];
-          const price = plan.prices[period];
+          const price = plan.prices.monthly;
           return (
             <Card
               key={tier}
@@ -101,15 +70,8 @@ export function PricingPage() {
                     {formatPlugrMoney(price.total, data.currency)}
                   </div>
                   <div className="mt-1 text-xs text-muted-foreground">
-                    {price.months === 1
-                      ? 'per user monthly'
-                      : `${price.months} months upfront`}
+                    per user monthly
                   </div>
-                  {price.savings > 0 && (
-                    <div className="mt-2 text-xs font-medium text-primary">
-                      Save {formatPlugrMoney(price.savings, data.currency)}
-                    </div>
-                  )}
                 </div>
               </CardHeader>
               <CardContent className="flex flex-1 flex-col gap-4">
@@ -131,7 +93,9 @@ export function PricingPage() {
                 </ul>
                 <Button
                   className="w-full"
-                  onClick={() => checkoutMutation.mutate({ tier, period })}
+                  onClick={() =>
+                    checkoutMutation.mutate({ tier, period: 'monthly' })
+                  }
                   disabled={checkoutMutation.isPending}
                 >
                   <CreditCard className="mr-2 size-4" />

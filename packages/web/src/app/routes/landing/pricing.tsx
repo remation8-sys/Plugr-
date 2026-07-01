@@ -1,8 +1,4 @@
-import {
-  plugrPaidTierValues,
-  plugrPlanCatalog,
-  plugrSubscriptionPeriods,
-} from '@activepieces/shared';
+import { plugrPaidTierValues, plugrPlanCatalog } from '@activepieces/shared';
 import { Check } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -25,11 +21,6 @@ const INK = '#0d0e1a';
 export function Pricing() {
   const plans = plugrPaidTierValues.map((tier) => plugrPlanCatalog[tier]);
   const startingPrice = Math.min(...plans.map((plan) => plan.prices.USD));
-  const maximumDiscount = Math.max(
-    ...Object.values(plugrSubscriptionPeriods).map(
-      (period) => period.discountPercent,
-    ),
-  );
 
   return (
     <section
@@ -75,9 +66,9 @@ export function Pricing() {
             Simple plans that scale with you.
           </h2>
           <p className="mt-4 text-lg text-white/65">
-            Start at ${startingPrice} a month. All plans include unlimited flows,
-            executions, and the full integration library. Builder and above
-            include Plugr AI credits.
+            Start at ${startingPrice} a month. All plans include unlimited
+            flows, executions, and the full integration library. Builder and
+            above include Plugr AI credits.
           </p>
         </div>
 
@@ -157,8 +148,7 @@ export function Pricing() {
 
         <div className="mt-10 space-y-2 text-center text-xs text-white/45">
           <p>
-            Prices in USD, billed monthly. Save up to {maximumDiscount}% with a
-            longer billing period. Local currency is shown at checkout.
+            Prices in USD, billed monthly. Local currency is shown at checkout.
           </p>
           <p>
             Plugr credits cover AI-assisted building, audits, fixes,
