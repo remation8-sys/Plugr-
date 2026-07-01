@@ -153,6 +153,11 @@ export default defineConfig(({ command, mode }) => {
         },
         workbox: {
           globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,ttf}'],
+          // The chat-suggestion card backgrounds are multi-MB decorative SVGs.
+          // Don't bloat the precache with them — they load fine at runtime.
+          globIgnores: ['**/chat-suggestions/**'],
+          // Allow the ~4.8MB app-shell JS bundle to be precached (default is 2 MiB).
+          maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
           navigateFallback: '/index.html',
           navigateFallbackDenylist: [/^\/api\//, /^\/mcp\//],
           runtimeCaching: [
