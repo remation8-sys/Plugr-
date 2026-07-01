@@ -16,6 +16,7 @@ import {
     plugrCreditActionCosts,
     PlugrCreditActionType,
     PlugrCreditPackSize,
+    PlugrInlineCheckoutParams,
     PlugrPaidTier,
     plugrPlanCatalog,
     PlugrPricingInfo,
@@ -67,7 +68,7 @@ export const plugrBillingService = (log: FastifyBaseLogger) => ({
         }
     },
 
-    async createSubscriptionCheckout(params: CreateSubscriptionCheckoutParams): Promise<{ checkoutUrl: string, reference: string }> {
+    async createSubscriptionCheckout(params: CreateSubscriptionCheckoutParams): Promise<{ checkoutUrl: string, reference: string, inline?: PlugrInlineCheckoutParams }> {
         const user = await getNormalizedUser({ userId: params.userId, log })
         assertCanStartCheckout({ user, tier: params.tier })
         const location = await billingCountryService(log).detect(params.request)
@@ -93,28 +94,46 @@ export const plugrBillingService = (log: FastifyBaseLogger) => ({
             currency: location.currency,
             reference,
         })
+        const customerName = `${userMeta.firstName} ${userMeta.lastName}`.trim()
+        const title = `Plugr ${plugrPlanCatalog[params.tier].name}`
+        const description = `${plugrPlanCatalog[params.tier].name} plan for Plugr`
+        const metadata = {
+            plugrPaymentType: 'subscription',
+            userId: params.userId,
+            tier: params.tier,
+            period: params.period,
+            currency: location.currency,
+            billingCountry: location.country,
+        }
         const checkoutUrl = await flutterwaveBillingService(log).createCheckout({
             amount: price.total,
             currency: location.currency,
             customerEmail: userMeta.email,
-            customerName: `${userMeta.firstName} ${userMeta.lastName}`.trim(),
+            customerName,
             reference,
             redirectUrl: buildRedirectUrl({ status: 'success' }),
-            title: `Plugr ${plugrPlanCatalog[params.tier].name}`,
-            description: `${plugrPlanCatalog[params.tier].name} plan for Plugr`,
-            metadata: {
-                plugrPaymentType: 'subscription',
-                userId: params.userId,
-                tier: params.tier,
-                period: params.period,
-                currency: location.currency,
-                billingCountry: location.country,
-            },
+            title,
+            description,
+            metadata,
             paymentPlanId,
         })
-        return { checkoutUrl, reference }
+        return {
+            checkoutUrl,
+            reference,
+            inline: buildInlineParams({
+                amount: price.total,
+                currency: location.currency,
+                reference,
+                customerEmail: userMeta.email,
+                customerName,
+                title,
+                description,
+                metadata,
+                paymentPlanId,
+            }),
+        }
     },
-    async createCreditCheckout(params: CreateCreditCheckoutParams): Promise<{ checkoutUrl: string, reference: string }> {
+    async createCreditCheckout(params: CreateCreditCheckoutParams): Promise<{ checkoutUrl: string, reference: string, inline?: PlugrInlineCheckoutParams }> {
         const user = await getNormalizedUser({ userId: params.userId, log })
         assertPlugrAccess(user)
         const location = await billingCountryService(log).detect(params.request)
@@ -131,25 +150,42 @@ export const plugrBillingService = (log: FastifyBaseLogger) => ({
             currency: location.currency,
             reference,
         })
+        const customerName = `${userMeta.firstName} ${userMeta.lastName}`.trim()
+        const title = `${price.credits} Plugr credits`
+        const description = `${price.credits} Plugr credits`
+        const metadata = {
+            plugrPaymentType: 'credits',
+            userId: params.userId,
+            pack: params.pack,
+            credits: price.credits,
+            currency: location.currency,
+            billingCountry: location.country,
+        }
         const checkoutUrl = await flutterwaveBillingService(log).createCheckout({
             amount: price.amount,
             currency: location.currency,
             customerEmail: userMeta.email,
-            customerName: `${userMeta.firstName} ${userMeta.lastName}`.trim(),
+            customerName,
             reference,
             redirectUrl: buildRedirectUrl({ status: 'success' }),
-            title: `${price.credits} Plugr credits`,
-            description: `${price.credits} Plugr credits`,
-            metadata: {
-                plugrPaymentType: 'credits',
-                userId: params.userId,
-                pack: params.pack,
-                credits: price.credits,
-                currency: location.currency,
-                billingCountry: location.country,
-            },
+            title,
+            description,
+            metadata,
         })
-        return { checkoutUrl, reference }
+        return {
+            checkoutUrl,
+            reference,
+            inline: buildInlineParams({
+                amount: price.amount,
+                currency: location.currency,
+                reference,
+                customerEmail: userMeta.email,
+                customerName,
+                title,
+                description,
+                metadata,
+            }),
+        }
     },
 
     async cancelSubscription({ userId }: UserIdParams): Promise<PlugrBillingInfo> {
@@ -633,9 +669,38 @@ function isSuccessfulTransaction(status: string | undefined): boolean {
     return ['successful', 'success', 'succeeded'].includes(status ?? '')
 }
 
+function getFrontendUrl(): string {
+    return (billingEnv.get('FRONTEND_URL') ?? 'http://localhost:8080').replace(/\/$/, '')
+}
+
 function buildRedirectUrl({ status }: BuildRedirectUrlParams): string {
-    const frontendUrl = (billingEnv.get('FRONTEND_URL') ?? billingEnv.get('AP_FRONTEND_URL') ?? 'http://localhost:8080').replace(/\/$/, '')
-    return `${frontendUrl}/billing/${status}`
+    return `${getFrontendUrl()}/billing/${status}`
+}
+
+function buildInlineParams(params: BuildInlineParams): PlugrInlineCheckoutParams | undefined {
+    const publicKey = billingEnv.get('FLUTTERWAVE_PUBLIC_KEY')
+    if (isNil(publicKey)) {
+        return undefined
+    }
+    return {
+        publicKey,
+        txRef: params.reference,
+        amount: params.amount,
+        currency: params.currency,
+        paymentPlanId: params.paymentPlanId,
+        paymentOptions: 'card,banktransfer,ussd',
+        redirectUrl: buildRedirectUrl({ status: 'success' }),
+        customer: {
+            email: params.customerEmail,
+            name: params.customerName,
+        },
+        meta: params.metadata,
+        customizations: {
+            title: params.title,
+            description: params.description,
+            logo: `${getFrontendUrl()}/plugr-logo-v2.png`,
+        },
+    }
 }
 
 type ActiveFlowLimitParams = UserIdParams & {
@@ -676,6 +741,18 @@ type BuildPricingInfoParams = {
 
 type BuildRedirectUrlParams = {
     status: 'success' | 'failed'
+}
+
+type BuildInlineParams = {
+    amount: number
+    currency: PlugrBillingCurrency
+    reference: string
+    customerEmail: string
+    customerName: string
+    title: string
+    description: string
+    metadata: Record<string, string | number | boolean | null>
+    paymentPlanId?: string
 }
 
 type CreateCreditCheckoutParams = UserIdParams & {

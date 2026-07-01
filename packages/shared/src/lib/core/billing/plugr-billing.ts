@@ -287,9 +287,30 @@ const PlugrCancelSubscriptionRequest = z.object({
     confirmation: z.literal('CANCEL'),
 })
 
+const PlugrInlineCheckoutParams = z.object({
+    publicKey: z.string(),
+    txRef: z.string(),
+    amount: z.number(),
+    currency: PlugrBillingCurrencySchema,
+    paymentPlanId: z.string().optional(),
+    paymentOptions: z.string(),
+    redirectUrl: z.string(),
+    customer: z.object({
+        email: z.string(),
+        name: z.string().optional(),
+    }),
+    meta: z.record(z.string(), z.union([z.string(), z.number(), z.boolean(), z.null()])),
+    customizations: z.object({
+        title: z.string(),
+        description: z.string(),
+        logo: z.string().optional(),
+    }),
+})
+
 const PlugrCheckoutResponse = z.object({
     checkoutUrl: z.string(),
     reference: z.string(),
+    inline: PlugrInlineCheckoutParams.optional(),
 })
 
 const PlugrVerifyTransactionRequest = z.object({
@@ -324,6 +345,7 @@ export {
     PlugrCheckoutResponse,
     PlugrCreateCheckoutRequest,
     PlugrCreateCreditCheckoutRequest,
+    PlugrInlineCheckoutParams,
     plugrCreditActionCosts,
     plugrCreditActionTypeValues,
     PlugrCreditActionTypeSchema,
@@ -372,6 +394,7 @@ export type PlugrBillingTransactionStatus = z.infer<typeof PlugrBillingTransacti
 export type PlugrBillingTransactionType = z.infer<typeof PlugrBillingTransactionTypeSchema>
 export type PlugrCancelSubscriptionRequest = z.infer<typeof PlugrCancelSubscriptionRequest>
 export type PlugrCheckoutResponse = z.infer<typeof PlugrCheckoutResponse>
+export type PlugrInlineCheckoutParams = z.infer<typeof PlugrInlineCheckoutParams>
 export type PlugrCreateCheckoutRequest = z.infer<typeof PlugrCreateCheckoutRequest>
 export type PlugrCreateCreditCheckoutRequest = z.infer<typeof PlugrCreateCreditCheckoutRequest>
 export type PlugrVerifyTransactionRequest = z.infer<typeof PlugrVerifyTransactionRequest>

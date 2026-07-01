@@ -6,7 +6,25 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { t } from 'i18next';
 import { toast } from 'sonner';
 
+import { openPlugrInlineCheckout } from './flutterwave-inline';
 import { plugrBillingApi } from './plugr-billing-api';
+
+async function startCheckout(response: {
+  checkoutUrl: string;
+  inline?: Parameters<typeof openPlugrInlineCheckout>[0];
+}): Promise<void> {
+  // Prefer the on-site Inline modal; fall back to the hosted checkout page if
+  // the Flutterwave script is unavailable (blocked, offline, etc.).
+  if (response.inline) {
+    try {
+      await openPlugrInlineCheckout(response.inline);
+      return;
+    } catch {
+      // fall through to hosted redirect
+    }
+  }
+  window.location.href = response.checkoutUrl;
+}
 
 export const plugrBillingKeys = {
   pricing: ['plugr-billing-pricing'] as const,
@@ -33,7 +51,7 @@ export const plugrBillingMutations = {
     return useMutation({
       mutationFn: async (request: PlugrCreateCheckoutRequest) => {
         const response = await plugrBillingApi.createCheckout(request);
-        window.location.href = response.checkoutUrl;
+        await startCheckout(response);
       },
       onError: (error) => {
         toast.error(t('Could not start checkout'), {
@@ -46,7 +64,7 @@ export const plugrBillingMutations = {
     return useMutation({
       mutationFn: async (request: PlugrCreateCreditCheckoutRequest) => {
         const response = await plugrBillingApi.createCreditCheckout(request);
-        window.location.href = response.checkoutUrl;
+        await startCheckout(response);
       },
       onError: (error) => {
         toast.error(t('Could not start checkout'), {
