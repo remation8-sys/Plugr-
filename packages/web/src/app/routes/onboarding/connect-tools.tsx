@@ -158,7 +158,7 @@ function ConnectToolsContent() {
   const connectedCount = connectedNames.size;
 
   return (
-    <div className="flex min-h-screen flex-col bg-background">
+    <div className="flex min-h-screen flex-col bg-background pt-[env(safe-area-inset-top)]">
       <div className="flex justify-center pt-6">
         <FullLogo />
       </div>

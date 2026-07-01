@@ -6,6 +6,7 @@ import react from '@vitejs/plugin-react';
 import { defineConfig } from 'vite';
 import checker from 'vite-plugin-checker';
 import tailwindcss from '@tailwindcss/vite';
+import { VitePWA } from 'vite-plugin-pwa';
 import customHtmlPlugin from './vite-plugins/html-plugin';
 
 export default defineConfig(({ command, mode }) => {
@@ -129,6 +130,39 @@ export default defineConfig(({ command, mode }) => {
             }),
           ]
         : []),
+      VitePWA({
+        registerType: 'autoUpdate',
+        includeAssets: ['favicon.ico', 'favicon.svg', 'logo-180.png', 'logo-192.png', 'plugr-icon.png'],
+        manifest: {
+          name: 'Plugr',
+          short_name: 'Plugr',
+          description: 'Build and run automations with Plugr',
+          theme_color: '#050D1A',
+          background_color: '#050D1A',
+          display: 'standalone',
+          orientation: 'portrait',
+          start_url: '/',
+          scope: '/',
+          icons: [
+            { src: 'favicon-32.png', sizes: '32x32', type: 'image/png' },
+            { src: 'logo-180.png', sizes: '180x180', type: 'image/png' },
+            { src: 'logo-192.png', sizes: '192x192', type: 'image/png' },
+            { src: 'plugr-icon.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
+            { src: 'favicon.svg', sizes: 'any', type: 'image/svg+xml' },
+          ],
+        },
+        workbox: {
+          globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,ttf}'],
+          navigateFallback: '/index.html',
+          navigateFallbackDenylist: [/^\/api\//, /^\/mcp\//],
+          runtimeCaching: [
+            {
+              urlPattern: /^\/api\//,
+              handler: 'NetworkOnly',
+            },
+          ],
+        },
+      }),
     ],
 
     build: {
