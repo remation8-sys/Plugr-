@@ -142,10 +142,17 @@ export const UpdateChatConversationRequest = z.object({
 })
 export type UpdateChatConversationRequest = z.infer<typeof UpdateChatConversationRequest>
 
+export const ChatBuilderContext = z.object({
+    flowId: z.string(),
+    projectId: z.string(),
+})
+export type ChatBuilderContext = z.infer<typeof ChatBuilderContext>
+
 export const SendChatMessageRequest = z.object({
     content: z.string().max(51200),
     runId: z.string().optional(),
     files: z.array(ChatMessageFile).max(10).optional(),
+    builderContext: ChatBuilderContext.optional(),
 }).refine(
     (val) => val.content.length > 0 || (val.files && val.files.length > 0),
     { message: formErrors.messageRequiresContentOrFiles },

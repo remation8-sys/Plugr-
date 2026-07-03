@@ -35,6 +35,11 @@ import {
   ConnectionsRequiredCard,
 } from './connections-required-card';
 import { CopyIconButton } from './copy-icon-button';
+import {
+  extractFlowPreviewFromPart,
+  FlowPreviewCard,
+  FlowPreviewData,
+} from './flow-preview-card';
 import { ProjectPickerCard } from './project-picker-card';
 import { StreamingText } from './streaming-text';
 import { ToolShimmerPills } from './tool-shimmer-pills';
@@ -152,6 +157,13 @@ export const AssistantMessage = memo(function AssistantMessage({
             result.push({ kind: 'batch-progress', data: batchPart });
           }
           pushToolStep(p);
+        } else if (toolName === 'ap_build_flow') {
+          pushToolStep(p);
+          const preview = extractFlowPreviewFromPart(p);
+          if (preview) {
+            flushThinking();
+            result.push({ kind: 'flow-preview', data: preview });
+          }
         } else {
           pushToolStep(p);
         }
@@ -387,6 +399,15 @@ export const AssistantMessage = memo(function AssistantMessage({
                     <BatchProgressCard progress={block.data} />
                   </div>
                 );
+              case 'flow-preview':
+                return (
+                  <div
+                    key={`flow-preview-${block.data.flowId}-${i}`}
+                    className="py-2"
+                  >
+                    <FlowPreviewCard preview={block.data} />
+                  </div>
+                );
               case 'action-receipt': {
                 const receipt = toolCallMeta[block.toolCallId]?.actionReceipt;
                 if (!receipt) return null;
@@ -606,4 +627,5 @@ type MessageBlock =
   | { kind: 'text'; text: string }
   | { kind: 'display-tool'; part: AnyToolPart }
   | { kind: 'batch-progress'; data: BatchProgressData }
+  | { kind: 'flow-preview'; data: FlowPreviewData }
   | { kind: 'action-receipt'; toolCallId: string };

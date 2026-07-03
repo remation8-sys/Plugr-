@@ -192,12 +192,14 @@ export const apBuildFlowTool = ({ mcp, userId }: McpToolContext, log: FastifyBas
                 const flowUrl = await domainHelper.getPublicUrl({ path: `/projects/${projectId}/flows/${flowId}` })
                 const structured = {
                     flowId: flowId!,
+                    projectId,
                     flowUrl,
                     displayName: flowName,
                     stepCount: allSteps.length,
                     validCount,
                     invalidSteps,
                     skippedSteps,
+                    steps: allSteps.map((s) => s.displayName),
                 }
                 if (invalidSteps.length === 0 && skippedSteps.length === 0) {
                     return { content: [{ type: 'text', text: `✅ Flow "${flowName}" created (id: ${flowId}) with ${allSteps.length} ${stepWord}, all valid. Open: ${flowUrl}` }], structuredContent: structured }

@@ -3,6 +3,7 @@ import {
   ActionReceiptEvent,
   apId,
   ChatAllowedMimeType,
+  ChatBuilderContext,
   ChatConversationStatus,
   ChatHistoryMessage,
   CHAT_ALLOWED_MIME_TYPES,
@@ -160,10 +161,16 @@ export function useAgentChat({
   onTitleUpdate,
   onConversationCreated,
   onCreditsExhausted,
+  onAssistantTurnFinished,
+  builderContext,
 }: {
   onTitleUpdate?: (title: string) => void;
   onConversationCreated?: (conversationId: string) => void;
   onCreditsExhausted?: () => void;
+  /** Fires when the agent finishes (or errors out of) a reply turn. */
+  onAssistantTurnFinished?: () => void;
+  /** Attached to every sent message so the agent knows the flow open in the builder. */
+  builderContext?: ChatBuilderContext;
 } = {}) {
   const store = useChatStoreApi();
 
@@ -179,6 +186,10 @@ export function useAgentChat({
   const sendStatusRef = useRef<SendStatus>({ type: 'idle' });
   const onCreditsExhaustedRef = useRef(onCreditsExhausted);
   onCreditsExhaustedRef.current = onCreditsExhausted;
+  const onAssistantTurnFinishedRef = useRef(onAssistantTurnFinished);
+  onAssistantTurnFinishedRef.current = onAssistantTurnFinished;
+  const builderContextRef = useRef(builderContext);
+  builderContextRef.current = builderContext;
 
   const [persistedMessages, setPersistedMessages] = useState<ChatUIMessage[]>(
     [],
@@ -308,12 +319,15 @@ export function useAgentChat({
     onActionReceipt: handleActionReceipt,
     onStreamFinished: (convId) => {
       reconcileAndClearRef.current(convId);
+      onAssistantTurnFinishedRef.current?.();
     },
     onStreamError: ({ conversationId: convId, errorCode }) => {
       if (errorCode === ErrorCode.AI_CREDIT_LIMIT_EXCEEDED) {
         onCreditsExhaustedRef.current?.();
       }
       reconcileAndClearRef.current(convId);
+      // the agent may have edited the flow before failing, so still notify
+      onAssistantTurnFinishedRef.current?.();
     },
     onStaleCheck: (convId) => {
       void tryCatch(async () => {
@@ -490,6 +504,7 @@ export function useAgentChat({
           content,
           runId,
           files: pendingFilesRef.current,
+          builderContext: builderContextRef.current,
         }),
       );
       if (sendError) {

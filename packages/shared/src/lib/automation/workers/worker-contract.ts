@@ -124,6 +124,7 @@ export type GetChatConfigRequest = {
     userMessage: string
     modelName: string | null
     files?: Array<{ name: string, mimeType: string, data: string }>
+    builderContext?: { flowId: string, projectId: string }
 }
 
 export type ChatConfigResponse = {

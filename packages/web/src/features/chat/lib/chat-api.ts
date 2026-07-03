@@ -1,6 +1,7 @@
 import {
   type ChatHistoryMessage,
   type PersistedChatMessage,
+  ChatBuilderContext,
   ChatConversation,
   ConnectionOption,
   CreateChatConversationRequest,
@@ -57,15 +58,17 @@ async function sendMessage({
   content,
   runId,
   files,
+  builderContext,
 }: {
   conversationId: string;
   content: string;
   runId?: string;
   files?: Array<{ name: string; mimeType: string; data: string }>;
+  builderContext?: ChatBuilderContext;
 }): Promise<{ conversationId: string; runId?: string }> {
   return api.post<{ conversationId: string; runId?: string }>(
     `/v1/chat/conversations/${conversationId}/messages`,
-    { content, runId, files },
+    { content, runId, files, builderContext },
   );
 }
 

@@ -34,6 +34,8 @@ import { flowCanvasHooks } from './flow-canvas/hooks';
 import { flowCanvasConsts } from './flow-canvas/utils/consts';
 import { BuilderBanner } from './flow-canvas/widgets/builder-banner';
 import { FlowVersionsList } from './flow-versions';
+import { PlugrChatPanel } from './plugr-chat/plugr-chat-panel';
+import { PlugrChatWidget } from './plugr-chat/plugr-chat-widget';
 import { RunsList } from './run-list';
 import { CursorPositionProvider } from './state/cursor-position-context';
 import { StepSettingsContainer } from './step-settings';
@@ -170,15 +172,14 @@ const BuilderPage = () => {
           </CursorPositionProvider>
 
           <BuilderBanner />
-          {middlePanelRef.current &&
-            middlePanelRef.current.clientWidth > 0 && (
-              <CanvasControls
-                canvasHeight={middlePanelRef.current?.clientHeight ?? 0}
-                canvasWidth={middlePanelRef.current?.clientWidth ?? 0}
-                hasCanvasBeenInitialised={hasCanvasBeenInitialised}
-                selectedStep={selectedStepName}
-              />
-            )}
+          {middlePanelRef.current && middlePanelRef.current.clientWidth > 0 && (
+            <CanvasControls
+              canvasHeight={middlePanelRef.current?.clientHeight ?? 0}
+              canvasWidth={middlePanelRef.current?.clientWidth ?? 0}
+              hasCanvasBeenInitialised={hasCanvasBeenInitialised}
+              selectedStep={selectedStepName}
+            />
+          )}
 
           <ShowPoweredBy
             position="absolute"
@@ -188,6 +189,7 @@ const BuilderPage = () => {
             parentHeight={middlePanelSize.height}
             parentWidth={middlePanelSize.width}
           />
+          <PlugrChatWidget />
         </div>
 
         <Drawer
@@ -222,6 +224,7 @@ const BuilderPage = () => {
         </Drawer>
 
         <ChatDrawer />
+        <PlugrChatPanel />
       </div>
     );
   }
@@ -231,92 +234,100 @@ const BuilderPage = () => {
       <div className="z-40">
         <BuilderHeader />
       </div>
-      <ResizablePanelGroup orientation="horizontal">
-        <ResizablePanel defaultSize="100%" id="flow-canvas">
-          <div ref={middlePanelRef} className="relative h-full w-full">
-            <CursorPositionProvider>
-              <FlowCanvas
-                setHasCanvasBeenInitialised={setHasCanvasBeenInitialised}
-              ></FlowCanvas>
-            </CursorPositionProvider>
+      <div className="flex min-h-0 w-full flex-1">
+        <ResizablePanelGroup orientation="horizontal" className="min-w-0">
+          <ResizablePanel defaultSize="100%" id="flow-canvas">
+            <div ref={middlePanelRef} className="relative h-full w-full">
+              <CursorPositionProvider>
+                <FlowCanvas
+                  setHasCanvasBeenInitialised={setHasCanvasBeenInitialised}
+                ></FlowCanvas>
+              </CursorPositionProvider>
 
-            <BuilderBanner />
-            {middlePanelRef.current &&
-              middlePanelRef.current.clientWidth > 0 && (
-                <CanvasControls
-                  canvasHeight={middlePanelRef.current?.clientHeight ?? 0}
-                  canvasWidth={middlePanelRef.current?.clientWidth ?? 0}
-                  hasCanvasBeenInitialised={hasCanvasBeenInitialised}
-                  selectedStep={selectedStepName}
-                ></CanvasControls>
+              <BuilderBanner />
+              {middlePanelRef.current &&
+                middlePanelRef.current.clientWidth > 0 && (
+                  <CanvasControls
+                    canvasHeight={middlePanelRef.current?.clientHeight ?? 0}
+                    canvasWidth={middlePanelRef.current?.clientWidth ?? 0}
+                    hasCanvasBeenInitialised={hasCanvasBeenInitialised}
+                    selectedStep={selectedStepName}
+                  ></CanvasControls>
+                )}
+
+              <ShowPoweredBy
+                position="absolute"
+                show={platform?.plan.showPoweredBy}
+              />
+              <DataSelector
+                parentHeight={middlePanelSize.height}
+                parentWidth={middlePanelSize.width}
+              ></DataSelector>
+              <PlugrChatWidget />
+            </div>
+          </ResizablePanel>
+
+          <ResizableHandle
+            disabled={rightSidebar === RightSideBarType.NONE}
+            withHandle={rightSidebar !== RightSideBarType.NONE}
+            onPointerDown={() => setIsDraggingHandle(true)}
+            onPointerUp={() => setIsDraggingHandle(false)}
+            onPointerCancel={() => setIsDraggingHandle(false)}
+            className={
+              rightSidebar === RightSideBarType.NONE ? 'bg-transparent' : ''
+            }
+          />
+
+          <ResizablePanel
+            panelRef={rightHandleRef}
+            id="right-sidebar"
+            collapsedSize="0%"
+            defaultSize="0%"
+            minSize={
+              rightSidebar === RightSideBarType.NONE ? '0%' : DEFAULT_MIN_SIZE
+            }
+            maxSize={
+              rightSidebar === RightSideBarType.NONE
+                ? '0%'
+                : prefersSplitLayout
+                ? '95%'
+                : '60%'
+            }
+            className={cn('min-w-0 bg-background z-30', {
+              [animateResizeClassName]: !isDraggingHandle,
+            })}
+            style={{
+              transitionDuration: `${
+                isDraggingHandle
+                  ? 0
+                  : flowCanvasConsts.SIDEBAR_ANIMATION_DURATION
+              }ms`,
+            }}
+          >
+            <div ref={rightSidePanelRef} className="h-full w-full">
+              {rightSidebar === RightSideBarType.PIECE_SETTINGS &&
+                selectedStep && (
+                  <StepSettingsProvider
+                    pieceModel={pieceModel}
+                    selectedStep={selectedStep}
+                    key={constructContainerKey({
+                      flowVersionId: flowVersion.id,
+                      step: selectedStep,
+                      hasPieceModelLoaded: !!pieceModel,
+                    })}
+                  >
+                    <StepSettingsContainer />
+                  </StepSettingsProvider>
+                )}
+              {rightSidebar === RightSideBarType.RUNS && <RunsList />}
+              {rightSidebar === RightSideBarType.VERSIONS && (
+                <FlowVersionsList />
               )}
-
-            <ShowPoweredBy
-              position="absolute"
-              show={platform?.plan.showPoweredBy}
-            />
-            <DataSelector
-              parentHeight={middlePanelSize.height}
-              parentWidth={middlePanelSize.width}
-            ></DataSelector>
-          </div>
-        </ResizablePanel>
-
-        <ResizableHandle
-          disabled={rightSidebar === RightSideBarType.NONE}
-          withHandle={rightSidebar !== RightSideBarType.NONE}
-          onPointerDown={() => setIsDraggingHandle(true)}
-          onPointerUp={() => setIsDraggingHandle(false)}
-          onPointerCancel={() => setIsDraggingHandle(false)}
-          className={
-            rightSidebar === RightSideBarType.NONE ? 'bg-transparent' : ''
-          }
-        />
-
-        <ResizablePanel
-          panelRef={rightHandleRef}
-          id="right-sidebar"
-          collapsedSize="0%"
-          defaultSize="0%"
-          minSize={
-            rightSidebar === RightSideBarType.NONE ? '0%' : DEFAULT_MIN_SIZE
-          }
-          maxSize={
-            rightSidebar === RightSideBarType.NONE
-              ? '0%'
-              : prefersSplitLayout
-              ? '95%'
-              : '60%'
-          }
-          className={cn('min-w-0 bg-background z-30', {
-            [animateResizeClassName]: !isDraggingHandle,
-          })}
-          style={{
-            transitionDuration: `${
-              isDraggingHandle ? 0 : flowCanvasConsts.SIDEBAR_ANIMATION_DURATION
-            }ms`,
-          }}
-        >
-          <div ref={rightSidePanelRef} className="h-full w-full">
-            {rightSidebar === RightSideBarType.PIECE_SETTINGS &&
-              selectedStep && (
-                <StepSettingsProvider
-                  pieceModel={pieceModel}
-                  selectedStep={selectedStep}
-                  key={constructContainerKey({
-                    flowVersionId: flowVersion.id,
-                    step: selectedStep,
-                    hasPieceModelLoaded: !!pieceModel,
-                  })}
-                >
-                  <StepSettingsContainer />
-                </StepSettingsProvider>
-              )}
-            {rightSidebar === RightSideBarType.RUNS && <RunsList />}
-            {rightSidebar === RightSideBarType.VERSIONS && <FlowVersionsList />}
-          </div>
-        </ResizablePanel>
-      </ResizablePanelGroup>
+            </div>
+          </ResizablePanel>
+        </ResizablePanelGroup>
+        <PlugrChatPanel />
+      </div>
 
       <ChatDrawer />
     </div>

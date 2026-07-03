@@ -77,7 +77,7 @@ export const chatController: FastifyPluginAsyncZod = async (app) => {
     })
 
     app.post('/conversations/:id/messages', SendMessageRoute, async (request, reply) => {
-        const { content, runId: clientRunId, files } = request.body
+        const { content, runId: clientRunId, files, builderContext } = request.body
         const log = request.log
         const conversationId = request.params.id
         const userId = request.principal.id
@@ -121,6 +121,7 @@ export const chatController: FastifyPluginAsyncZod = async (app) => {
                 userMessage: content,
                 modelName: conversation.modelName ?? null,
                 files,
+                builderContext,
             },
         })
 

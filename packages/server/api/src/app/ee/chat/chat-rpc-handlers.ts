@@ -7,16 +7,21 @@ import {
     ExecuteChatToolRequest,
     ExecuteChatToolResponse,
     GetChatConfigRequest,
+    isNil,
     PersistedChatMessage,
     PersistedChatPartType,
     PersistedChatRole,
+    PopulatedFlow,
+    Project,
     sanitizeObjectForPostgresql,
     SaveChatMessagesRequest,
+    tryCatch,
     UpdateChatProgressRequest,
     UpdateProjectContextRequest,
 } from '@activepieces/shared'
 import { ModelMessage } from 'ai'
 import { FastifyBaseLogger } from 'fastify'
+import { flowService } from '../../flows/flow/flow.service'
 import { system } from '../../helper/system/system'
 import { AppSystemProp } from '../../helper/system/system-props'
 import { chatApprovalGate } from './chat-approval-gate'
@@ -33,7 +38,7 @@ const MAX_APPROVAL_BLOCK_MS = 50_000
 
 export const chatRpcHandlers = (log: FastifyBaseLogger) => ({
     async getChatConfig(input: GetChatConfigRequest): Promise<ChatConfigResponse> {
-        const { conversationId, platformId, userId, userMessage, modelName, files } = input
+        const { conversationId, platformId, userId, userMessage, files, builderContext } = input
 
         const [conversation, providerConfig, userProjects, userContent, mcpCredentials] = await Promise.all([
             chatHelpers.getConversationOrThrow({ id: conversationId, platformId, userId }),
@@ -56,7 +61,9 @@ export const chatRpcHandlers = (log: FastifyBaseLogger) => ({
             })
         }
 
-        const candidateProjectId = conversation.projectId ?? null
+        const builderFlow = await loadBuilderFlow({ builderContext, userProjects, log })
+
+        const candidateProjectId = conversation.projectId ?? builderFlow?.projectId ?? null
         const selectedProjectId = candidateProjectId && userProjects.some((p) => p.id === candidateProjectId)
             ? candidateProjectId
             : null
@@ -65,11 +72,14 @@ export const chatRpcHandlers = (log: FastifyBaseLogger) => ({
         const resolvedModelId = chatHelpers.resolveModelIdForProvider({ tier, provider: providerConfig.provider })
 
         const frontendUrl = system.getOrThrow(AppSystemProp.FRONTEND_URL)
-        const systemPromptText = chatPrompt.buildSystemPrompt({
+        const baseSystemPrompt = chatPrompt.buildSystemPrompt({
             projects: userProjects,
             currentProjectId: selectedProjectId,
             frontendUrl,
         })
+        const systemPromptText = isNil(builderFlow)
+            ? baseSystemPrompt
+            : `${baseSystemPrompt}\n\n${chatPrompt.buildBuilderFlowContext({ flow: builderFlow, frontendUrl })}`
 
         const previousMessages = conversation.messages as ModelMessage[]
         const newUserMessage: ModelMessage = { role: 'user' as const, content: userContent }
@@ -84,6 +94,7 @@ export const chatRpcHandlers = (log: FastifyBaseLogger) => ({
         await chatHelpers.conversationRepo().update(conversationId, {
             messages: allMessages,
             uiMessages: JSON.parse(JSON.stringify(uiMessagesWithUser)),
+            ...(isNil(conversation.projectId) && !isNil(builderFlow) ? { projectId: builderFlow.projectId } : {}),
         })
         await chatApprovalGate.clearCancel({ conversationId })
 
@@ -247,3 +258,31 @@ export const chatRpcHandlers = (log: FastifyBaseLogger) => ({
         return { result }
     },
 })
+
+// Loads the flow the user has open in the Builder so it can be injected into
+// the system prompt. Fails soft (returns null) so a missing or inaccessible
+// flow never blocks the chat message — the agent just gets no flow context.
+async function loadBuilderFlow({ builderContext, userProjects, log }: {
+    builderContext: GetChatConfigRequest['builderContext']
+    userProjects: Project[]
+    log: FastifyBaseLogger
+}): Promise<PopulatedFlow | null> {
+    if (isNil(builderContext)) {
+        return null
+    }
+    const projectAllowed = userProjects.some((project) => project.id === builderContext.projectId)
+    if (!projectAllowed) {
+        log.warn({ flowId: builderContext.flowId, projectId: builderContext.projectId }, 'Builder flow context rejected: project not accessible to this user')
+        return null
+    }
+    const { data: flow, error } = await tryCatch(() => flowService(log).getOnePopulated({
+        id: builderContext.flowId,
+        projectId: builderContext.projectId,
+        removeSampleData: true,
+    }))
+    if (error) {
+        log.warn({ err: error, flowId: builderContext.flowId }, 'Failed to load builder flow context')
+        return null
+    }
+    return flow
+}

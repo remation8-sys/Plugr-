@@ -11,6 +11,7 @@ import {
   createPieceSelectorState,
   PieceSelectorState,
 } from './state/piece-selector-state';
+import { createPlugrChatState, PlugrChatState } from './state/plugr-chat-state';
 import { createRunState, RunState } from './state/run-state';
 import { createStepFormState, StepFormState } from './state/step-form-state';
 
@@ -29,6 +30,7 @@ export type BuilderState = FlowState &
   PieceSelectorState &
   RunState &
   ChatState &
+  PlugrChatState &
   CanvasState &
   StepFormState &
   NotesState;
@@ -53,6 +55,7 @@ export const createBuilderStore = (initialState: BuilderInitialState) =>
     const pieceSelectorState = createPieceSelectorState(get, set);
     const runState = createRunState(initialState, get, set);
     const chatState = createChatState(set);
+    const plugrChatState = createPlugrChatState(set);
     const canvasState = createCanvasState(initialState, set);
     const stepFormState = createStepFormState(set);
     const notesState = createNotesState(get, set);
@@ -62,6 +65,7 @@ export const createBuilderStore = (initialState: BuilderInitialState) =>
       ...runState,
       ...pieceSelectorState,
       ...chatState,
+      ...plugrChatState,
       ...canvasState,
       ...stepFormState,
     };

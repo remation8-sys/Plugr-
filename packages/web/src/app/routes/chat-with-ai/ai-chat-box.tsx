@@ -1,9 +1,13 @@
-import { ChatConversation, SeekPage } from '@activepieces/shared';
+import {
+  ChatBuilderContext,
+  ChatConversation,
+  SeekPage,
+} from '@activepieces/shared';
 import { useQueryClient } from '@tanstack/react-query';
 import { t } from 'i18next';
 import { AlertTriangle, RefreshCw, Square } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { ReactNode, useCallback, useEffect, useMemo, useState } from 'react';
 
 import {
   ChatContainerContent,
@@ -39,6 +43,9 @@ export function AIChatBox({
   conversationId,
   onTitleUpdate,
   onConversationCreated,
+  builderContext,
+  onAssistantTurnFinished,
+  renderEmptyState,
 }: AIChatBoxProps) {
   const { data: providers, isLoading: isLoadingProviders } =
     aiProviderQueries.useAiProviders();
@@ -57,6 +64,9 @@ export function AIChatBox({
         conversationId={conversationId}
         onTitleUpdate={onTitleUpdate}
         onConversationCreated={onConversationCreated}
+        builderContext={builderContext}
+        onAssistantTurnFinished={onAssistantTurnFinished}
+        renderEmptyState={renderEmptyState}
       />
     </ChatStoreProvider>
   );
@@ -67,6 +77,9 @@ function ChatBoxContent({
   conversationId: initialConversationId,
   onTitleUpdate,
   onConversationCreated,
+  builderContext,
+  onAssistantTurnFinished,
+  renderEmptyState,
 }: AIChatBoxProps) {
   const queryClient = useQueryClient();
   const credits = useCreditsState();
@@ -84,6 +97,8 @@ function ChatBoxContent({
     onTitleUpdate,
     onConversationCreated,
     onCreditsExhausted: () => credits.setCreditsExhausted(true),
+    onAssistantTurnFinished,
+    builderContext,
   });
 
   const quickReplies = useChatStoreContext((s) => s.quickReplies);
@@ -165,12 +180,16 @@ function ChatBoxContent({
       <AnimatePresence mode="wait">
         {isEmpty ? (
           <div key="empty-state" className="flex-1 overflow-y-auto min-h-0">
-            <EmptyState
-              onSuggestionClick={(text) => void handleSend(text)}
-              incognito={incognito}
-              showFlowCards={!hasConversations}
-              hasInput={hasInput}
-            />
+            {renderEmptyState ? (
+              renderEmptyState((text) => void handleSend(text))
+            ) : (
+              <EmptyState
+                onSuggestionClick={(text) => void handleSend(text)}
+                incognito={incognito}
+                showFlowCards={!hasConversations}
+                hasInput={hasInput}
+              />
+            )}
           </div>
         ) : (
           <motion.div
@@ -298,4 +317,10 @@ type AIChatBoxProps = {
   conversationId?: string | null;
   onConversationCreated?: (conversationId: string) => void;
   onTitleUpdate?: (title: string) => void;
+  /** Sent with every message so the agent knows the flow open in the builder. */
+  builderContext?: ChatBuilderContext;
+  /** Fires when the agent finishes (or errors out of) a reply turn. */
+  onAssistantTurnFinished?: () => void;
+  /** Replaces the default empty state; receives a callback that sends a message. */
+  renderEmptyState?: (sendMessage: (text: string) => void) => ReactNode;
 };

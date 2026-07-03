@@ -253,6 +253,10 @@ export const ExecuteChatAgentJobData = z.object({
         mimeType: z.string(),
         data: z.string(),
     })).optional(),
+    builderContext: z.object({
+        flowId: z.string(),
+        projectId: z.string(),
+    }).optional(),
 })
 export type ExecuteChatAgentJobData = z.infer<typeof ExecuteChatAgentJobData>
 

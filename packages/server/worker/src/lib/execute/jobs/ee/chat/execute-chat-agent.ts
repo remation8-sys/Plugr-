@@ -55,11 +55,11 @@ type LoopDecision = 'finish' | 'continue_truncation' | 'continue_empty'
 export const executeChatAgentJob: JobHandler<ExecuteChatAgentJobData, FireAndForgetJobResult> = {
     jobType: WorkerJobType.EXECUTE_CHAT_AGENT,
     async execute(ctx: JobContext, data: ExecuteChatAgentJobData): Promise<FireAndForgetJobResult> {
-        const { conversationId, runId, platformId, userId, userMessage, modelName, files } = data
+        const { conversationId, runId, platformId, userId, userMessage, modelName, files, builderContext } = data
         const log = ctx.log.child({ conversationId })
 
         const config = await ctx.apiClient.getChatConfig({
-            conversationId, runId, platformId, userId, userMessage, modelName, files,
+            conversationId, runId, platformId, userId, userMessage, modelName, files, builderContext,
         })
 
         const provider = config.provider as AIProviderName
