@@ -27,7 +27,7 @@ const PlugrChatWidget = () => {
         size="icon"
         aria-label={t('Ask Plugr')}
         onClick={() => setPlugrChatOpen(true)}
-        className="absolute bottom-4 right-4 z-40 size-14 rounded-full shadow-lg animate-in fade-in zoom-in-95 duration-200"
+        className="absolute bottom-20 right-3 z-40 size-14 rounded-full shadow-lg animate-in fade-in zoom-in-95 duration-200"
       >
         <SendIcon className="size-6" />
       </Button>

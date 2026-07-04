@@ -23,6 +23,8 @@ import {
 import '@xyflow/react/dist/style.css';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 
+import { useIsMobile } from '@/hooks/use-mobile';
+
 import { useBuilderStateContext } from '../builder-hooks';
 import { useHandleKeyPressOnCanvas } from '../shortcuts';
 import { useCursorPosition } from '../state/cursor-position-context';
@@ -75,7 +77,10 @@ export const FlowCanvas = React.memo(
     flowCanvasHooks.useResizeCanvas(containerRef, setHasCanvasBeenInitialised);
     const reactFlowStore = useStoreApi();
     const isShiftKeyPressed = useKeyPress('Shift');
-    const inGrabPanningMode = !isShiftKeyPressed && panningMode === 'grab';
+    const isMobile = useIsMobile();
+    // Touch screens always pan on drag — box-selection needs a mouse.
+    const inGrabPanningMode =
+      isMobile || (!isShiftKeyPressed && panningMode === 'grab');
     const onSelectionChange = useCallback(
       (ev: OnSelectionChangeParams) => {
         const selectedNodes = ev.nodes.map((n) => n.id);
@@ -229,8 +234,9 @@ export const FlowCanvas = React.memo(
               edgesFocusable={false}
               elevateEdgesOnSelect={false}
               maxZoom={1.5}
-              minZoom={0.5}
+              minZoom={isMobile ? 0.3 : 0.5}
               panOnDrag={inGrabPanningMode ? [0, 1] : [1]}
+              zoomOnPinch={true}
               zoomOnDoubleClick={false}
               panOnScroll={true}
               panOnScrollMode={PanOnScrollMode.Free}
