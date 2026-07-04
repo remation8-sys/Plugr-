@@ -1,5 +1,6 @@
 import React, { Suspense } from 'react';
 import {
+  Navigate,
   RouterProvider,
   createBrowserRouter,
   createMemoryRouter,
@@ -15,6 +16,7 @@ import { RouteLoadingBar } from '@/components/custom/route-loading-bar';
 import { useEmbedding } from '@/components/providers/embed-provider';
 import { PlugrAiAccessGuard } from '@/features/plugr-billing';
 import { authenticationSession } from '@/lib/authentication-session';
+import { isNativeApp } from '@/lib/native-app';
 
 import { AllowOnlyLoggedInUserOnlyGuard } from '../components/allow-logged-in-user-only-guard';
 import { ProjectDashboardLayout } from '../components/project-layout';
@@ -89,6 +91,9 @@ const RootRoute = () => {
   const token = authenticationSession.getToken();
   if (token) {
     return <DefaultRoute />;
+  }
+  if (isNativeApp()) {
+    return <Navigate to="/sign-in" replace />;
   }
   return <LandingPage />;
 };

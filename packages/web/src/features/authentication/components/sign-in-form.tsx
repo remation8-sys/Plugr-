@@ -145,8 +145,12 @@ const SignInForm: React.FC = () => {
                   required
                   id="email"
                   type="text"
+                  inputMode="email"
+                  autoComplete="email"
+                  autoCapitalize="none"
+                  spellCheck={false}
                   placeholder={'email@example.com'}
-                  className="rounded-sm"
+                  className="rounded-sm h-11 md:h-9"
                   tabIndex={1}
                   data-testid="sign-in-email"
                   onChange={(e) => {
@@ -180,8 +184,9 @@ const SignInForm: React.FC = () => {
                     required
                     id="password"
                     type={showPassword ? 'text' : 'password'}
+                    autoComplete="current-password"
                     placeholder={'********'}
-                    className="rounded-sm pr-10"
+                    className="rounded-sm pr-10 h-11 md:h-9"
                     tabIndex={2}
                     data-testid="sign-in-password"
                   />
@@ -215,6 +220,7 @@ const SignInForm: React.FC = () => {
             onClick={(e) => form.handleSubmit(onSubmit)(e)}
             tabIndex={3}
             data-testid="sign-in-button"
+            className="h-11 md:h-9"
           >
             {t('Sign in')}
           </Button>

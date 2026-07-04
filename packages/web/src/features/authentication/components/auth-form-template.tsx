@@ -6,6 +6,7 @@ import {
 import { t } from 'i18next';
 import React, { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
+
 import { authenticationSession } from '@/lib/authentication-session';
 import { useRedirectAfterLogin } from '@/lib/navigation-utils';
 
@@ -131,14 +132,16 @@ const AuthLayout = ({
   isSignUp?: boolean;
 }) => {
   return (
-    <div className="h-screen w-full overflow-hidden flex bg-background relative">
+    <div className="h-dvh w-full overflow-hidden flex bg-background relative">
       {/* Form — left side */}
-      <div className="flex flex-col w-full lg:w-1/2 p-5 lg:px-[100px]">
+      <div className="flex flex-col w-full lg:w-1/2 p-5 lg:px-[100px] pt-[max(1.25rem,env(safe-area-inset-top))] pb-[max(1.25rem,env(safe-area-inset-bottom))]">
         <div className="pt-3 flex justify-center">
           <FullLogo />
         </div>
         <div className="flex-1 flex items-center justify-center">
-          <div className="w-full max-w-xs overflow-y-auto px-1">{children}</div>
+          <div className="w-full max-w-sm lg:max-w-xs overflow-y-auto px-1">
+            {children}
+          </div>
         </div>
         {isSignUp && (
           <div className="pb-4">

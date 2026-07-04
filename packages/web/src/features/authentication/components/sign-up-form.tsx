@@ -192,8 +192,9 @@ const SignUpForm = ({
                     required
                     id="firstName"
                     type="text"
+                    autoComplete="given-name"
                     placeholder={'John'}
-                    className="rounded-sm"
+                    className="rounded-sm h-11 md:h-9"
                     data-testid="sign-up-first-name"
                   />
                   <FormMessage />
@@ -214,8 +215,9 @@ const SignUpForm = ({
                     required
                     id="lastName"
                     type="text"
+                    autoComplete="family-name"
                     placeholder={'Doe'}
-                    className="rounded-sm"
+                    className="rounded-sm h-11 md:h-9"
                     data-testid="sign-up-last-name"
                   />
                   <FormMessage />
@@ -239,8 +241,12 @@ const SignUpForm = ({
                   required
                   id="email"
                   type="email"
+                  inputMode="email"
+                  autoComplete="email"
+                  autoCapitalize="none"
+                  spellCheck={false}
                   placeholder={'email@example.com'}
-                  className="rounded-sm"
+                  className="rounded-sm h-11 md:h-9"
                   data-testid="sign-up-email"
                 />
                 <FormMessage />
@@ -265,8 +271,9 @@ const SignUpForm = ({
                         required
                         id="password"
                         type={showPassword ? 'text' : 'password'}
+                        autoComplete="new-password"
                         placeholder={'********'}
-                        className="rounded-sm pr-16"
+                        className="rounded-sm pr-16 h-11 md:h-9"
                         data-testid="sign-up-password"
                         onFocus={() => setIsPasswordFocused(true)}
                         onBlur={() => setIsPasswordFocused(false)}
@@ -347,6 +354,7 @@ const SignUpForm = ({
             loading={isPending}
             onClick={(e) => form.handleSubmit(onSubmit)(e)}
             data-testid="sign-up-button"
+            className="h-11 md:h-9"
           >
             {t('Sign up')}
           </Button>
