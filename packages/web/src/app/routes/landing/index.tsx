@@ -149,6 +149,7 @@ function Nav() {
             { label: 'Observability', href: '#observability' },
             { label: 'Pricing', href: '#pricing' },
             { label: 'Reliability', href: '#reliability' },
+            { label: 'Blog', href: '/blog/' },
           ].map((item) => (
             <a
               key={item.href}
@@ -479,6 +480,11 @@ function Footer() {
                     className="text-white/65 hover:text-white"
                   >
                     Reliability
+                  </a>
+                </li>
+                <li>
+                  <a href="/blog/" className="text-white/65 hover:text-white">
+                    Blog
                   </a>
                 </li>
               </ul>

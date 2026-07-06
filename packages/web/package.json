@@ -125,7 +125,8 @@
     "workbox-window": "7.4.1"
   },
   "scripts": {
-    "build": "vite build",
+    "build": "node scripts/build-blog.mjs && vite build",
+    "build:blog": "node scripts/build-blog.mjs",
     "serve": "vite",
     "preview": "vite preview",
     "test": "vitest run --passWithNoTests",

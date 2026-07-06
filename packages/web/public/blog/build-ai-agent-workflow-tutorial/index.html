@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Build an AI Agent Workflow: Slack + OpenAI | Plugr Blog</title>
+<meta name="description" content="A step-by-step walkthrough for building an AI agent workflow that reads Slack messages, classifies them with OpenAI, and logs the result to Google Sheets." />
+<meta name="robots" content="index, follow" />
+<link rel="canonical" href="https://plugr.cloud/blog/build-ai-agent-workflow-tutorial/" />
+<meta property="og:site_name" content="Plugr" />
+<meta property="og:type" content="article" />
+<meta property="og:title" content="Build an AI Agent Workflow: Slack + OpenAI | Plugr Blog" />
+<meta property="og:description" content="A step-by-step walkthrough for building an AI agent workflow that reads Slack messages, classifies them with OpenAI, and logs the result to Google Sheets." />
+<meta property="og:url" content="https://plugr.cloud/blog/build-ai-agent-workflow-tutorial/" />
+<meta property="og:image" content="https://plugr.cloud/plugr-logo-v2.png" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Build an AI Agent Workflow: Slack + OpenAI | Plugr Blog" />
+<meta name="twitter:description" content="A step-by-step walkthrough for building an AI agent workflow that reads Slack messages, classifies them with OpenAI, and logs the result to Google Sheets." />
+<meta name="twitter:image" content="https://plugr.cloud/plugr-logo-v2.png" />
+<link rel="icon" type="image/png" href="/favicon-32.png" />
+<link rel="alternate" type="application/rss+xml" title="Plugr Blog" href="/feed.xml" />
+<link rel="stylesheet" href="/blog/assets/blog.css" />
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"BlogPosting","headline":"Build an AI Agent Workflow: Slack + OpenAI","description":"A step-by-step walkthrough for building an AI agent workflow that reads Slack messages, classifies them with OpenAI, and logs the result to Google Sheets.","image":["https://plugr.cloud/plugr-logo-v2.png"],"datePublished":"2026-07-03","dateModified":"2026-07-03","author":{"@type":"Organization","name":"Plugr","url":"https://plugr.cloud"},"publisher":{"@type":"Organization","name":"Plugr","url":"https://plugr.cloud","logo":{"@type":"ImageObject","url":"https://plugr.cloud/logo-192.png"}},"mainEntityOfPage":{"@type":"WebPage","@id":"https://plugr.cloud/blog/build-ai-agent-workflow-tutorial/"},"url":"https://plugr.cloud/blog/build-ai-agent-workflow-tutorial/","keywords":"tutorial, slack, openai, google-sheets, ai-agents"}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"FAQPage","mainEntity":[{"@type":"Question","name":"Do I need to know how to code to build this?","acceptedAnswer":{"@type":"Answer","text":"No — this workflow uses a trigger, an AI classification step, a conditional branch, and an app-connector step, all of which are configured through forms and a visual canvas rather than written code."}},{"@type":"Question","name":"What happens if the AI misclassifies a message?","acceptedAnswer":{"@type":"Answer","text":"That's exactly what the Google Sheets logging step is for — every classification is recorded, so a human can spot-check results and correct the prompt if a particular type of message keeps getting misclassified, rather than the error going unnoticed."}},{"@type":"Question","name":"Can I use a different AI model instead of OpenAI?","acceptedAnswer":{"@type":"Answer","text":"Yes, the same pattern works with any AI provider your automation platform supports — the classification step is the one component you'd swap, and the trigger, logging, and branching steps stay the same."}}]}</script>
+</head>
+<body>
+<header class="blog-header">
+  <div class="blog-header-inner">
+    <a href="/" class="blog-brand"><img src="/favicon-32.png" alt="" width="24" height="24" /> Plugr</a>
+    <nav class="blog-nav">
+      <a href="/#features">Features</a>
+      <a href="/#pricing">Pricing</a>
+      <a href="/blog/">Blog</a>
+      <a href="/sign-up" class="blog-cta">Start free trial</a>
+    </nav>
+  </div>
+</header>
+<main class="blog-main">
+<article class="post">
+  <p class="post-meta"><time datetime="2026-07-03">July 3, 2026</time></p>
+  <h1>Build an AI Agent Workflow: Slack + OpenAI</h1>
+  <div class="post-body">
+<p>This walkthrough builds one concrete, useful automation: a Slack message triggers the workflow, an OpenAI step classifies its intent, and the result is logged to a Google Sheet for the team to review — the kind of small agentic workflow that takes a genuine manual task (someone reading and triaging every message in a channel) and hands the judgment call to an AI step, while keeping a human-reviewable record of every decision.</p>
+<h2>What you&#39;re building</h2>
+<ol>
+<li>A <strong>trigger</strong> that fires when a new message is posted in a specific Slack channel.</li>
+<li>An <strong>AI classification step</strong> that reads the message and decides which category it falls into (for example: bug report, feature request, question, or spam).</li>
+<li>A <strong>Google Sheets step</strong> that appends a new row with the message text, the classification, and a timestamp.</li>
+<li>Optionally, a <strong>conditional branch</strong> that posts a reply in Slack if the classification is &quot;bug report,&quot; so urgent items don&#39;t just sit in a spreadsheet.</li>
+</ol>
+<p>This structure is deliberately simple because the goal isn&#39;t to show off every possible feature — it&#39;s to demonstrate the actual pattern: trigger, judgment, action, record. Almost every useful agentic workflow is a variation on this shape.</p>
+<h2>Step 1: Set up the trigger</h2>
+<p>Connect your Slack workspace and select &quot;New message posted&quot; as the trigger, scoped to the channel you want to monitor. Test the trigger once by posting a message in that channel — you want to confirm the workflow actually receives the message text, the sender, and the timestamp before building anything downstream, since debugging a broken trigger after building three more steps is much harder than catching it here.</p>
+<h2>Step 2: Add the AI classification step</h2>
+<p>Connect your OpenAI account and add a step that takes the incoming Slack message text as input. Write a short, specific prompt rather than a vague one — something like: &quot;Classify this message into exactly one of: bug_report, feature_request, question, spam. Respond with only the category name.&quot; Being explicit about the exact output format matters here, because the next steps in your workflow need a predictable value to branch on, not a full sentence of explanation.</p>
+<p>Test this step with a few different sample messages before moving on — including at least one message that&#39;s genuinely ambiguous. If the classification step handles ambiguous input reasonably, the rest of the workflow will be more reliable in production.</p>
+<h2>Step 3: Log the result to Google Sheets</h2>
+<p>Connect your Google account and add a step that appends a row to a sheet with columns for the message text, the sender, the classification from step 2, and the current timestamp. This is the part of the workflow that turns &quot;an AI agent made a decision&quot; into &quot;a decision a human can review, audit, and correct if needed&quot; — it&#39;s the single most important step for trust, not the AI step itself.</p>
+<h2>Step 4 (optional): Branch on the classification</h2>
+<p>Add a conditional branch after the classification step: if the value equals <code>bug_report</code>, post an automatic reply in the original Slack thread (for example, &quot;Logged as a bug report — the team&#39;s been notified&quot;) and route a notification to your engineering channel. Every other classification just gets logged without an additional action. This is what makes the workflow <em>agentic</em> rather than just a script — it&#39;s choosing a different action based on what it found, not running the same steps regardless of input.</p>
+<h2>Step 5: Turn on run history before you trust it</h2>
+<p>Before relying on this workflow for real triage, run it against a week&#39;s worth of real messages with the AI classification step active but the Slack-reply branch disabled, and review the run history afterward. Look specifically for misclassifications and decide whether they&#39;re rare enough to trust, or common enough that the prompt needs refinement first. This is the difference between a workflow you can trust with production communications and one that just happens to work in a demo.</p>
+<h2>Extending the pattern</h2>
+<p>Once this base pattern is working, common extensions include: routing different classifications to different Slack channels, adding a second AI step that drafts a suggested reply instead of just classifying, or feeding the classification data back into a dashboard that tracks message volume by category over time. All of these are the same trigger-judgment-action-record shape, just with more branches.</p>
+<h2>FAQ</h2>
+<h3>Do I need to know how to code to build this?</h3>
+<p>No — this workflow uses a trigger, an AI classification step, a conditional branch, and an app-connector step, all of which are configured through forms and a visual canvas rather than written code.</p>
+<h3>What happens if the AI misclassifies a message?</h3>
+<p>That&#39;s exactly what the Google Sheets logging step is for — every classification is recorded, so a human can spot-check results and correct the prompt if a particular type of message keeps getting misclassified, rather than the error going unnoticed.</p>
+<h3>Can I use a different AI model instead of OpenAI?</h3>
+<p>Yes, the same pattern works with any AI provider your automation platform supports — the classification step is the one component you&#39;d swap, and the trigger, logging, and branching steps stay the same.</p>
+
+  </div>
+  <p class="post-cta"><a href="/sign-up">Start a free Plugr trial &rarr;</a></p>
+  <p class="post-back"><a href="/blog/">&larr; Back to all posts</a></p>
+</article>
+</main>
+<footer class="blog-footer">
+  <div class="blog-footer-inner">
+    <p>&copy; 2026 Plugr</p>
+    <div class="blog-footer-links">
+      <a href="/">Home</a>
+      <a href="/blog/">Blog</a>
+      <a href="/sign-up">Create account</a>
+    </div>
+  </div>
+</footer>
+</body>
+</html>

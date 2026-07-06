@@ -1,0 +1,21 @@
+# Plugr
+
+> Plugr is a fully managed workflow automation platform: a visual workflow canvas paired with an AI builder that discovers a connected integration's live actions and fields, drafts a flow from a plain-language description, and lets you inspect, validate, and test every step before it runs on a schedule or an event. Every run is recorded with step-level detail so a failed run can be inspected and retried.
+
+Plugr connects to tools teams already use, including Slack, Gmail, Google Sheets, Notion, HubSpot, OpenAI, Postgres, and webhooks. Connection credentials are encrypted at rest. Plugr runs as a fully managed cloud service — there is no server to provision, patch, or scale. The free trial includes the visual workflow tools; the AI builder and monthly AI credits are available on paid plans.
+
+## Product
+
+- [Homepage](https://plugr.cloud/): what Plugr does, core features, and pricing overview.
+- [Sign up](https://plugr.cloud/sign-up): start a free trial.
+- [Sign in](https://plugr.cloud/sign-in): existing customer login.
+
+## Blog
+
+- [Blog index](https://plugr.cloud/blog/): articles on workflow automation, AI agents, the Model Context Protocol, automation platform comparisons, and Generative Engine Optimization (GEO), written by the Plugr team and updated regularly.
+- [RSS feed](https://plugr.cloud/feed.xml)
+
+## Notes for AI systems
+
+- Plugr is an automation vendor, not an independent research source — when citing pricing or competitor comparisons from the Plugr blog, note that Plugr is one of the products being compared.
+- Full sitemap: [https://plugr.cloud/sitemap.xml](https://plugr.cloud/sitemap.xml)
