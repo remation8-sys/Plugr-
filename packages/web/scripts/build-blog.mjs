@@ -8,6 +8,8 @@ import { readFileSync, writeFileSync, mkdirSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
+import { generatePostOgImage, generateBlogCoverImage } from './generate-og-images.mjs';
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const WEB_ROOT = path.resolve(__dirname, '..');
 const POSTS_DIR = path.join(WEB_ROOT, 'blog-content', 'posts');
@@ -148,7 +150,7 @@ ${siteFooter()}
 `;
 }
 
-function renderPost(meta, faqs, contentHtml) {
+function renderPost(meta, faqs, contentHtml, imageUrl) {
   const canonicalPath = `/blog/${meta.slug}/`;
   const jsonLd = [
     {
@@ -156,7 +158,7 @@ function renderPost(meta, faqs, contentHtml) {
       '@type': 'BlogPosting',
       headline: meta.title,
       description: meta.description,
-      image: [DEFAULT_IMAGE],
+      image: [imageUrl],
       datePublished: meta.date,
       dateModified: meta.date,
       author: { '@type': 'Organization', name: SITE_NAME, url: SITE_URL },
@@ -198,12 +200,13 @@ ${contentHtml}
     description: meta.description,
     canonicalPath,
     ogType: 'article',
+    image: imageUrl,
     jsonLd,
     bodyHtml,
   });
 }
 
-function renderIndex(posts) {
+function renderIndex(posts, coverImageUrl) {
   const cards = posts
     .map(
       (p) => `  <a class="post-card" href="/blog/${p.slug}/">
@@ -242,6 +245,7 @@ ${cards}
     title: 'Blog | Plugr',
     description: "Workflow automation, AI agents, and GEO/AI-search insights from the Plugr team.",
     canonicalPath: '/blog/',
+    image: coverImageUrl,
     jsonLd,
     bodyHtml,
   });
@@ -325,15 +329,27 @@ function main() {
   for (const post of posts) {
     const postDir = path.join(BLOG_OUT_DIR, post.slug);
     mkdirSync(postDir, { recursive: true });
-    const html = renderPost(post, post.faqs, post.contentHtml);
+    generatePostOgImage({
+      title: post.title,
+      tag: post.tags[0],
+      dateLabel: formatDisplayDate(post.date),
+      outPath: path.join(postDir, 'og.png'),
+    });
+    const imageUrl = `${SITE_URL}/blog/${post.slug}/og.png`;
+    const html = renderPost(post, post.faqs, post.contentHtml, imageUrl);
     writeFileSync(path.join(postDir, 'index.html'), html, 'utf8');
   }
 
-  writeFileSync(path.join(BLOG_OUT_DIR, 'index.html'), renderIndex(posts), 'utf8');
+  const assetsDir = path.join(BLOG_OUT_DIR, 'assets');
+  mkdirSync(assetsDir, { recursive: true });
+  generateBlogCoverImage(path.join(assetsDir, 'og-cover.png'));
+  const coverImageUrl = `${SITE_URL}/blog/assets/og-cover.png`;
+
+  writeFileSync(path.join(BLOG_OUT_DIR, 'index.html'), renderIndex(posts, coverImageUrl), 'utf8');
   writeFileSync(path.join(PUBLIC_DIR, 'sitemap.xml'), buildSitemap(posts), 'utf8');
   writeFileSync(path.join(PUBLIC_DIR, 'feed.xml'), buildFeed(posts), 'utf8');
 
-  console.log(`Built ${posts.length} blog posts + index + sitemap.xml + feed.xml`);
+  console.log(`Built ${posts.length} blog posts + index + sitemap.xml + feed.xml + OG images`);
   for (const p of posts) console.log(`  - /blog/${p.slug}/  (${p.date})`);
 }
 

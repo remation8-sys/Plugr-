@@ -57,6 +57,17 @@
 
 <body>
   <div id="root"></div>
+  <script>
+    // index.html is shared by the marketing homepage ("/") and every other
+    // app route (SPA fallback). A prerendered copy of the homepage is
+    // injected into #root above at build time so non-JS crawlers see real
+    // content at "/" — but every other route must not show that flash before
+    // the app hydrates. This runs synchronously before paint.
+    if (window.location.pathname !== '/') {
+      var rootEl = document.getElementById('root');
+      if (rootEl) rootEl.textContent = '';
+    }
+  </script>
   <script type="module" src="/src/main.tsx"></script>
 </body>
 

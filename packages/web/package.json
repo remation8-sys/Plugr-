@@ -110,6 +110,8 @@
     "zustand": "4.5.4"
   },
   "devDependencies": {
+    "@fontsource/inter": "5.2.8",
+    "@resvg/resvg-js": "2.6.2",
     "@tailwindcss/postcss": "4.1.17",
     "@tailwindcss/vite": "4.1.17",
     "@types/canvas-confetti": "^1.9.0",
@@ -125,8 +127,10 @@
     "workbox-window": "7.4.1"
   },
   "scripts": {
-    "build": "node scripts/build-blog.mjs && vite build",
+    "build": "node scripts/build-blog.mjs && vite build && vite build --config vite.ssr-landing.config.mts && node scripts/prerender-landing.mjs",
     "build:blog": "node scripts/build-blog.mjs",
+    "build:ssr-landing": "vite build --config vite.ssr-landing.config.mts",
+    "prerender:landing": "node scripts/prerender-landing.mjs",
     "serve": "vite",
     "preview": "vite preview",
     "test": "vitest run --passWithNoTests",
