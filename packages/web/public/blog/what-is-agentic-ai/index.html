@@ -39,24 +39,44 @@
 <article class="post">
   <p class="post-meta"><time datetime="2026-07-01">July 1, 2026</time></p>
   <h1>What Is Agentic AI? A Plain-English Guide</h1>
+  <div class="key-takeaways">
+  <p class="key-takeaways-title">Key takeaways</p>
+  <ul>
+<li>Agentic AI perceives context, chooses among several actions, and actually executes one — a chatbot or scheduled script does at most one of those three things.</li>
+<li>The dividing line is simple: if you can write the decision as a complete rule with no &quot;it depends,&quot; it&#39;s traditional automation, not an agent — see our <a href="/blog/ai-agents-vs-traditional-automation/">full decision framework</a>.</li>
+<li>Agents need standardized tool access to be useful in practice, which is exactly the problem <a href="/blog/model-context-protocol-explained/">MCP</a> solves.</li>
+<li>Visible run history and the ability to retry a step are what let a business actually trust an agent with production work.</li>
+<li>Agentic AI adds to workflow logic, it doesn&#39;t replace it — see <a href="/blog/build-ai-agent-workflow-tutorial/">a concrete Slack + OpenAI agent build</a> for the pattern in practice.</li>
+  </ul>
+</div>
+  <nav class="post-toc" aria-label="Table of contents">
+  <p class="post-toc-title">On this page</p>
+  <ol>
+    <li><a href="#the-three-things-that-make-something-agentic">The three things that make something &quot;agentic&quot;</a></li>
+    <li><a href="#why-agents-need-a-standard-way-to-reach-your-tools">Why agents need a standard way to reach your tools</a></li>
+    <li><a href="#what-this-looks-like-in-a-real-workflow">What this looks like in a real workflow</a></li>
+    <li><a href="#agentic-ai-isn-t-a-replacement-for-workflow-logic-it-s-an-addition-to-it">Agentic AI isn&#39;t a replacement for workflow logic — it&#39;s an addition to it</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ol>
+</nav>
   <div class="post-body">
 <p>Agentic AI is AI that can decide what to do next and take action, instead of just answering a question or following a fixed script. A chatbot responds to what you type. A traditional automation runs the same sequence every time. An AI agent looks at the current situation, chooses among several possible actions, executes one (like sending an email, updating a record, or calling an API), and then decides what to do based on the result — without a human writing out every branch in advance.</p>
-<p>That distinction is why agentic AI is showing up everywhere in business automation in 2026. Gartner projects the AI market will reach $2.52 trillion this year, with agentic AI at the center of that figure, and analysts expect roughly 40% of enterprise applications to ship with a task-specific agent built in.</p>
-<h2>The three things that make something &quot;agentic&quot;</h2>
+<p>That distinction is why agentic AI is showing up everywhere in business automation in 2026. <a href="https://www.gartner.com/en/newsroom/press-releases/2025-08-26-gartner-predicts-40-percent-of-enterprise-apps-will-feature-task-specific-ai-agents-by-2026-up-from-less-than-5-percent-in-2025" target="_blank" rel="noopener noreferrer">Gartner projects</a> the AI market will reach $2.52 trillion this year, with agentic AI at the center of that figure, and analysts expect roughly 40% of enterprise applications to ship with a task-specific agent built in.</p>
+<h2 id="the-three-things-that-make-something-agentic">The three things that make something &quot;agentic&quot;</h2>
 <ol>
 <li><strong>It can perceive context.</strong> An agent reads the incoming data — a support ticket, an email, a webhook payload — and understands what&#39;s actually being asked, not just matching a keyword.</li>
 <li><strong>It can choose an action from more than one option.</strong> Instead of a single hardcoded path, the agent picks from a set of available tools or steps based on what the situation calls for.</li>
 <li><strong>It can act, not just suggest.</strong> The agent calls a real action — create a ticket, send a message, update a database row — rather than just producing text for a human to copy and paste elsewhere.</li>
 </ol>
 <p>If a system is missing any of these three, it&#39;s still valuable automation — it&#39;s just not <em>agentic</em>. A scheduled report that runs the same query every Monday is automation. A system that reads an inbound email, classifies its intent, decides whether it needs a refund, a callback, or an escalation, and takes the matching action is agentic.</p>
-<h2>Why agents need a standard way to reach your tools</h2>
-<p>An agent is only as useful as the tools it can actually call. Early agent implementations required custom integration code for every tool a model needed to touch, which made agents expensive to build and brittle to maintain. The Model Context Protocol (MCP) solved this by giving models a standard interface for discovering and calling tools — it&#39;s now running on more than 10,000 enterprise servers with 97 million-plus SDK downloads, adopted across Anthropic, OpenAI, Google, Microsoft, and AWS. That standardization is a big part of why agentic automation went from research demo to production feature so quickly in 2026.</p>
-<h2>What this looks like in a real workflow</h2>
+<h2 id="why-agents-need-a-standard-way-to-reach-your-tools">Why agents need a standard way to reach your tools</h2>
+<p>An agent is only as useful as the tools it can actually call. Early agent implementations required custom integration code for every tool a model needed to touch, which made agents expensive to build and brittle to maintain. The <a href="/blog/model-context-protocol-explained/">Model Context Protocol (MCP)</a> solved this by giving models a standard interface for discovering and calling tools — it&#39;s now running on <a href="https://www.anthropic.com/news/model-context-protocol" target="_blank" rel="noopener noreferrer">more than 10,000 enterprise servers</a> with 97 million-plus SDK downloads, adopted across Anthropic, OpenAI, Google, Microsoft, and AWS. That standardization is a big part of why agentic automation went from research demo to production feature so quickly in 2026.</p>
+<h2 id="what-this-looks-like-in-a-real-workflow">What this looks like in a real workflow</h2>
 <p>Take a support inbox. A traditional automation might route every email tagged &quot;urgent&quot; to the same Slack channel. An agentic version reads the email, classifies whether it&#39;s a refund request, a bug report, or a sales question, checks account status if relevant, and then takes the matching action — creating a ticket with the right priority, drafting a reply for a human to approve, or escalating directly. The agent isn&#39;t following one path; it&#39;s choosing among several based on what actually came in.</p>
 <p>This is also where governance matters. The most useful agentic systems keep a visible run history — what the agent saw, what it decided, and what it did — so a human can review and, if needed, retry a step that went wrong. Multi-agent systems and deeper platform integrations are enabling agents to coordinate complex work across sales, support, supply chain, and finance, but auditability and explainability are what determine whether a business actually trusts an agent with production work, rather than keeping it sandboxed to low-stakes tasks.</p>
-<h2>Agentic AI isn&#39;t a replacement for workflow logic — it&#39;s an addition to it</h2>
+<h2 id="agentic-ai-isn-t-a-replacement-for-workflow-logic-it-s-an-addition-to-it">Agentic AI isn&#39;t a replacement for workflow logic — it&#39;s an addition to it</h2>
 <p>A common misconception is that agentic AI replaces the need for a defined workflow. In practice, the most reliable systems combine both: a workflow platform still defines the overall structure — the trigger, the steps, the guardrails — while the agent handles the parts that require judgment, like classifying intent or drafting a response, inside that structure. Removing the workflow entirely tends to make systems harder to debug, not more capable.</p>
-<h2>FAQ</h2>
+<h2 id="faq">FAQ</h2>
 <h3>Is an AI agent the same thing as a chatbot?</h3>
 <p>No. A chatbot&#39;s job is to hold a conversation and respond with text. An AI agent&#39;s job is to decide on and execute an action — sending a message, updating a record, calling an API — based on context, which is a different capability than generating a reply.</p>
 <h3>Does agentic AI require replacing my existing automation tools?</h3>

@@ -39,34 +39,56 @@
 <article class="post">
   <p class="post-meta"><time datetime="2026-06-30">June 30, 2026</time></p>
   <h1>n8n vs Zapier vs Make vs Plugr (2026)</h1>
+  <div class="key-takeaways">
+  <p class="key-takeaways-title">Key takeaways</p>
+  <ul>
+<li>Zapier has the largest integration catalog (~6,000 apps) but the steepest scaling curve — see <a href="/blog/cost-of-scaling-zapier/">the hidden cost of scaling Zapier</a> for the full numbers.</li>
+<li>At 50,000 tasks/month, Zapier runs roughly £940, Make roughly £250, and self-hosted n8n roughly £20 in server costs — a ~47x spread for comparable throughput.</li>
+<li>All three incumbents shipped native AI agent features in 2026: Zapier Agents, Make AI Agents (Maia), and n8n 2.0 with LangChain integration.</li>
+<li>Plugr pairs a visual canvas with an AI builder that discovers a connected integration&#39;s live actions, then lets you inspect and validate the drafted flow before it runs.</li>
+<li>The right choice depends more on your task volume at scale and how much AI autonomy you want than on any single feature checklist.</li>
+  </ul>
+</div>
+  <nav class="post-toc" aria-label="Table of contents">
+  <p class="post-toc-title">On this page</p>
+  <ol>
+    <li><a href="#the-headline-numbers">The headline numbers</a></li>
+    <li><a href="#zapier-the-easiest-on-ramp-the-steepest-scaling-curve">Zapier: the easiest on-ramp, the steepest scaling curve</a></li>
+    <li><a href="#make-the-middle-path">Make: the middle path</a></li>
+    <li><a href="#n8n-the-cost-and-control-option">n8n: the cost-and-control option</a></li>
+    <li><a href="#where-plugr-fits">Where Plugr fits</a></li>
+    <li><a href="#how-to-actually-decide">How to actually decide</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ol>
+</nav>
   <div class="post-body">
 <p>If you&#39;re choosing a workflow automation platform in 2026, the short answer is: Zapier wins on integration breadth and ease of use, Make wins on the balance of power and price for most small-to-mid teams, n8n wins on cost-at-scale and technical flexibility, and Plugr is built for teams who want a visual canvas plus an AI builder that can inspect and validate a flow before it runs. The right pick depends on how much you value simplicity versus control, and how many tasks you&#39;re actually running per month — because that&#39;s where the real cost differences show up.</p>
-<h2>The headline numbers</h2>
+<h2 id="the-headline-numbers">The headline numbers</h2>
 <ul>
 <li><strong>Integrations:</strong> Zapier connects to roughly 6,000 apps out of the box — the largest catalog of any platform. n8n ships with around 1,000 native integrations but can reach virtually any service with a public API through its HTTP node and custom code steps.</li>
-<li><strong>Pricing at scale:</strong> at 50,000 tasks a month, Zapier runs approximately £940/month, Make runs approximately £250/month, and a self-hosted n8n instance runs approximately £20/month in server costs — a roughly 47x spread between the cheapest and most expensive option for comparable throughput.</li>
-<li><strong>AI agents:</strong> all three added native agent features in 2026 — Zapier Agents for autonomous task execution across its app catalog, Make AI Agents (branded Maia), and n8n 2.0 with LangChain integration and 70-plus AI-specific nodes.</li>
+<li><strong>Pricing at scale:</strong> at 50,000 tasks a month, Zapier runs approximately £940/month, Make runs approximately £250/month, and a self-hosted n8n instance runs approximately £20/month in server costs — a roughly 47x spread between the cheapest and most expensive option for comparable throughput (see <a href="https://www.digitalapplied.com/blog/zapier-vs-make-vs-n8n-2026-automation-comparison" target="_blank" rel="noopener noreferrer">current published pricing comparisons</a> for more detail on how each platform meters usage).</li>
+<li><strong>AI agents:</strong> all three added native agent features in 2026 — <a href="https://zapier.com/agents" target="_blank" rel="noopener noreferrer">Zapier Agents</a> for autonomous task execution across its app catalog, <a href="https://www.make.com/en/blog/make-maia-no-code" target="_blank" rel="noopener noreferrer">Make AI Agents (branded Maia)</a>, and n8n 2.0 with LangChain integration and 70-plus AI-specific nodes.</li>
 </ul>
-<h2>Zapier: the easiest on-ramp, the steepest scaling curve</h2>
-<p>Zapier has been the default &quot;no-code automation&quot; answer since 2011, and for good reason — if you need to connect two SaaS tools in five minutes without touching a technical concept, it&#39;s still the fastest path. The tradeoff is the pricing model: it&#39;s built around task volume, and task volume grows faster than most teams plan for. A workflow that felt free in your first month can become a five-figure annual line item once it&#39;s running across a whole team.</p>
+<h2 id="zapier-the-easiest-on-ramp-the-steepest-scaling-curve">Zapier: the easiest on-ramp, the steepest scaling curve</h2>
+<p>Zapier has been the default &quot;no-code automation&quot; answer since 2011, and for good reason — if you need to connect two SaaS tools in five minutes without touching a technical concept, it&#39;s still the fastest path. The tradeoff is the pricing model: it&#39;s built around task volume, and task volume grows faster than most teams plan for. A workflow that felt free in your first month can become a five-figure annual line item once it&#39;s running across a whole team — we break down exactly why in <a href="/blog/cost-of-scaling-zapier/">The Hidden Cost of Scaling Zapier</a>.</p>
 <p><strong>Best fit:</strong> individual users and small teams doing simple, low-volume automations who value speed of setup over cost control.</p>
-<h2>Make: the middle path</h2>
+<h2 id="make-the-middle-path">Make: the middle path</h2>
 <p>Make (formerly Integromat) sits deliberately between Zapier&#39;s simplicity and n8n&#39;s technical depth. Its visual scenario builder is approachable but exposes enough branching, iteration, and data-mapping logic to build genuinely sophisticated automations without writing code. For most small-to-mid-size teams, it&#39;s the platform that requires the least compromise on either axis.</p>
 <p><strong>Best fit:</strong> teams that have outgrown simple triggers but don&#39;t have engineering time to spend on a self-hosted, node-based tool.</p>
-<h2>n8n: the cost-and-control option</h2>
+<h2 id="n8n-the-cost-and-control-option">n8n: the cost-and-control option</h2>
 <p>n8n&#39;s node-based architecture and open-source, self-hostable model make it the cheapest option at real scale, and the only one of the three that keeps all workflow data on infrastructure you control by default. The tradeoff is a steeper learning curve — building complex logic usually means writing at least some JavaScript, and someone on the team needs to own the hosting.</p>
 <p><strong>Best fit:</strong> technically confident teams running high task volumes who want to control both cost and data residency.</p>
-<h2>Where Plugr fits</h2>
+<h2 id="where-plugr-fits">Where Plugr fits</h2>
 <p>Plugr takes the visual-canvas approach of Make and pairs it with an AI builder that discovers a connected integration&#39;s live actions and fields, drafts a flow from a plain-language description, and lets you inspect, validate, and test every step before it runs on a schedule or an event. Every run is recorded with step-level detail, so when something fails you can see exactly where and retry it — rather than debugging a black box. Connection credentials are encrypted at rest, and the whole thing runs as a fully managed cloud service, so there&#39;s no server to patch or scale yourself.</p>
-<p>Plugr connects to the tools teams actually run day to day out of the box — Slack, Gmail, Google Sheets, Notion, HubSpot, OpenAI, Postgres, and webhooks — with more integrations added as the platform grows. It&#39;s not trying to out-catalog Zapier&#39;s 6,000 apps; it&#39;s trying to make the automations you actually build easier to trust, because you can see what ran and why.</p>
+<p>Plugr connects to the tools teams actually run day to day out of the box — Slack, Gmail, Google Sheets, Notion, HubSpot, OpenAI, Postgres, and webhooks — with more integrations added as the platform grows. It&#39;s not trying to out-catalog Zapier&#39;s 6,000 apps; it&#39;s trying to make the automations you actually build easier to trust, because you can see what ran and why. You can see the AI builder pattern in action in <a href="/blog/build-ai-agent-workflow-tutorial/">our Slack + OpenAI agent tutorial</a>, or <a href="/sign-up">start a free trial</a> directly.</p>
 <p><strong>Best fit:</strong> teams that want an AI-assisted builder without giving up visibility into what the AI actually built, and who&#39;d rather inspect a workflow than take it on faith.</p>
-<h2>How to actually decide</h2>
+<h2 id="how-to-actually-decide">How to actually decide</h2>
 <ol>
 <li><strong>Estimate your task volume at 10x your current usage</strong>, not your current usage. Pricing curves, not feature lists, are what force migrations later.</li>
 <li><strong>Decide how much you need a human to review AI-drafted automations before they run.</strong> Some teams want full autonomy; most want a visual, inspectable flow first.</li>
 <li><strong>Check whether your team has time to self-host.</strong> n8n&#39;s cost advantage assumes someone owns the server — if that&#39;s not true for your team, the &quot;cheap&quot; option gets expensive in engineering hours.</li>
 </ol>
-<h2>FAQ</h2>
+<h2 id="faq">FAQ</h2>
 <h3>Is n8n actually free?</h3>
 <p>n8n is open-source and free to self-host, but you pay for the server it runs on and the engineering time to maintain it. At meaningful task volumes, that&#39;s still far cheaper than per-task pricing — around £20/month in server costs at 50,000 tasks in typical estimates — but it&#39;s not zero-effort.</p>
 <h3>Why does Zapier get so much more expensive at scale?</h3>

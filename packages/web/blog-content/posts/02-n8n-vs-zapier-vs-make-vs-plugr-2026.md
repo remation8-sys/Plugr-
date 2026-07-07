@@ -8,15 +8,23 @@ tags: comparison, zapier, n8n, make, pricing
 
 If you're choosing a workflow automation platform in 2026, the short answer is: Zapier wins on integration breadth and ease of use, Make wins on the balance of power and price for most small-to-mid teams, n8n wins on cost-at-scale and technical flexibility, and Plugr is built for teams who want a visual canvas plus an AI builder that can inspect and validate a flow before it runs. The right pick depends on how much you value simplicity versus control, and how many tasks you're actually running per month — because that's where the real cost differences show up.
 
+## Key Takeaways
+
+- Zapier has the largest integration catalog (~6,000 apps) but the steepest scaling curve — see [the hidden cost of scaling Zapier](/blog/cost-of-scaling-zapier/) for the full numbers.
+- At 50,000 tasks/month, Zapier runs roughly £940, Make roughly £250, and self-hosted n8n roughly £20 in server costs — a ~47x spread for comparable throughput.
+- All three incumbents shipped native AI agent features in 2026: Zapier Agents, Make AI Agents (Maia), and n8n 2.0 with LangChain integration.
+- Plugr pairs a visual canvas with an AI builder that discovers a connected integration's live actions, then lets you inspect and validate the drafted flow before it runs.
+- The right choice depends more on your task volume at scale and how much AI autonomy you want than on any single feature checklist.
+
 ## The headline numbers
 
 - **Integrations:** Zapier connects to roughly 6,000 apps out of the box — the largest catalog of any platform. n8n ships with around 1,000 native integrations but can reach virtually any service with a public API through its HTTP node and custom code steps.
-- **Pricing at scale:** at 50,000 tasks a month, Zapier runs approximately £940/month, Make runs approximately £250/month, and a self-hosted n8n instance runs approximately £20/month in server costs — a roughly 47x spread between the cheapest and most expensive option for comparable throughput.
-- **AI agents:** all three added native agent features in 2026 — Zapier Agents for autonomous task execution across its app catalog, Make AI Agents (branded Maia), and n8n 2.0 with LangChain integration and 70-plus AI-specific nodes.
+- **Pricing at scale:** at 50,000 tasks a month, Zapier runs approximately £940/month, Make runs approximately £250/month, and a self-hosted n8n instance runs approximately £20/month in server costs — a roughly 47x spread between the cheapest and most expensive option for comparable throughput (see <a href="https://www.digitalapplied.com/blog/zapier-vs-make-vs-n8n-2026-automation-comparison" target="_blank" rel="noopener noreferrer">current published pricing comparisons</a> for more detail on how each platform meters usage).
+- **AI agents:** all three added native agent features in 2026 — <a href="https://zapier.com/agents" target="_blank" rel="noopener noreferrer">Zapier Agents</a> for autonomous task execution across its app catalog, <a href="https://www.make.com/en/blog/make-maia-no-code" target="_blank" rel="noopener noreferrer">Make AI Agents (branded Maia)</a>, and n8n 2.0 with LangChain integration and 70-plus AI-specific nodes.
 
 ## Zapier: the easiest on-ramp, the steepest scaling curve
 
-Zapier has been the default "no-code automation" answer since 2011, and for good reason — if you need to connect two SaaS tools in five minutes without touching a technical concept, it's still the fastest path. The tradeoff is the pricing model: it's built around task volume, and task volume grows faster than most teams plan for. A workflow that felt free in your first month can become a five-figure annual line item once it's running across a whole team.
+Zapier has been the default "no-code automation" answer since 2011, and for good reason — if you need to connect two SaaS tools in five minutes without touching a technical concept, it's still the fastest path. The tradeoff is the pricing model: it's built around task volume, and task volume grows faster than most teams plan for. A workflow that felt free in your first month can become a five-figure annual line item once it's running across a whole team — we break down exactly why in [The Hidden Cost of Scaling Zapier](/blog/cost-of-scaling-zapier/).
 
 **Best fit:** individual users and small teams doing simple, low-volume automations who value speed of setup over cost control.
 
@@ -36,7 +44,7 @@ n8n's node-based architecture and open-source, self-hostable model make it the c
 
 Plugr takes the visual-canvas approach of Make and pairs it with an AI builder that discovers a connected integration's live actions and fields, drafts a flow from a plain-language description, and lets you inspect, validate, and test every step before it runs on a schedule or an event. Every run is recorded with step-level detail, so when something fails you can see exactly where and retry it — rather than debugging a black box. Connection credentials are encrypted at rest, and the whole thing runs as a fully managed cloud service, so there's no server to patch or scale yourself.
 
-Plugr connects to the tools teams actually run day to day out of the box — Slack, Gmail, Google Sheets, Notion, HubSpot, OpenAI, Postgres, and webhooks — with more integrations added as the platform grows. It's not trying to out-catalog Zapier's 6,000 apps; it's trying to make the automations you actually build easier to trust, because you can see what ran and why.
+Plugr connects to the tools teams actually run day to day out of the box — Slack, Gmail, Google Sheets, Notion, HubSpot, OpenAI, Postgres, and webhooks — with more integrations added as the platform grows. It's not trying to out-catalog Zapier's 6,000 apps; it's trying to make the automations you actually build easier to trust, because you can see what ran and why. You can see the AI builder pattern in action in [our Slack + OpenAI agent tutorial](/blog/build-ai-agent-workflow-tutorial/), or [start a free trial](/sign-up) directly.
 
 **Best fit:** teams that want an AI-assisted builder without giving up visibility into what the AI actually built, and who'd rather inspect a workflow than take it on faith.
 

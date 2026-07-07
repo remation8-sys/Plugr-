@@ -39,13 +39,33 @@
 <article class="post">
   <p class="post-meta"><time datetime="2026-07-05">July 5, 2026</time></p>
   <h1>Automate Gmail, HubSpot, and Postgres (No Code)</h1>
+  <div class="key-takeaways">
+  <p class="key-takeaways-title">Key takeaways</p>
+  <ul>
+<li>Gmail and HubSpot are natural triggers; Postgres is almost always the destination, not the trigger, since it doesn&#39;t natively push events like a SaaS app does.</li>
+<li>HubSpot should stay the source of truth for anything a human edits directly (deal stage, ownership); Postgres should own anything you need to report on reliably over time.</li>
+<li>The most common silent failure is a field name mismatch — a renamed HubSpot property stops populating an automation without throwing an obvious error.</li>
+<li>Test with a sandbox deal and a handful of real historical emails before connecting the automation to production data.</li>
+<li>For the general trigger → judgment → action → record shape this pattern follows, see <a href="/blog/build-ai-agent-workflow-tutorial/">our Slack + OpenAI tutorial</a>.</li>
+  </ul>
+</div>
+  <nav class="post-toc" aria-label="Table of contents">
+  <p class="post-toc-title">On this page</p>
+  <ol>
+    <li><a href="#start-with-the-trigger-what-should-kick-this-off">Start with the trigger: what should kick this off?</a></li>
+    <li><a href="#a-concrete-example-new-hubspot-deal-postgres-record-gmail-follow-up">A concrete example: new HubSpot deal → Postgres record → Gmail follow-up</a></li>
+    <li><a href="#the-gotchas-that-actually-bite-people">The gotchas that actually bite people</a></li>
+    <li><a href="#deciding-what-should-live-where">Deciding what should live where</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ol>
+</nav>
   <div class="post-body">
-<p>Gmail, HubSpot, and Postgres are three of the most commonly automated tools in business operations, and they&#39;re commonly automated <em>together</em> because they represent three different layers of the same process: Gmail is where communication happens, HubSpot is where customer relationships are tracked, and Postgres is where the durable, queryable record of everything lives. Connecting them without writing code means picking the right trigger for each tool and being deliberate about which system is the &quot;source of truth&quot; for each piece of data.</p>
-<h2>Start with the trigger: what should kick this off?</h2>
-<p><strong>From Gmail:</strong> the most common trigger is &quot;new email matching a label or search query,&quot; which lets you scope the automation to a specific inbox pattern (like emails sent to a shared support address) rather than every email that arrives. Avoid triggering on <em>every</em> new email in a personal inbox — it&#39;s noisy and hard to reason about once the automation is running.</p>
-<p><strong>From HubSpot:</strong> the most useful triggers are &quot;contact created,&quot; &quot;deal stage changed,&quot; and &quot;form submitted.&quot; Deal-stage-changed is particularly powerful because it lets you automate the operational side of a sales process — provisioning access, sending a specific email sequence, or creating a record elsewhere — the moment a human moves a deal forward, without them having to remember a manual follow-up step.</p>
+<p>Gmail, HubSpot, and Postgres are three of the most commonly automated tools in business operations, and they&#39;re commonly automated <em>together</em> because they represent three different layers of the same process: Gmail is where communication happens, HubSpot is where customer relationships are tracked, and Postgres is where the durable, queryable record of everything lives. Connecting them without writing code means picking the right trigger for each tool and being deliberate about which system is the &quot;source of truth&quot; for each piece of data. This is a concrete example of the <a href="/blog/workflow-automation-patterns-ops-teams/">data sync pattern</a> — with a third system layered in for durable reporting.</p>
+<h2 id="start-with-the-trigger-what-should-kick-this-off">Start with the trigger: what should kick this off?</h2>
+<p><strong>From <a href="https://developers.google.com/gmail/api/guides" target="_blank" rel="noopener noreferrer">Gmail</a>:</strong> the most common trigger is &quot;new email matching a label or search query,&quot; which lets you scope the automation to a specific inbox pattern (like emails sent to a shared support address) rather than every email that arrives. Avoid triggering on <em>every</em> new email in a personal inbox — it&#39;s noisy and hard to reason about once the automation is running.</p>
+<p><strong>From <a href="https://developers.hubspot.com/docs/api/overview" target="_blank" rel="noopener noreferrer">HubSpot</a>:</strong> the most useful triggers are &quot;contact created,&quot; &quot;deal stage changed,&quot; and &quot;form submitted.&quot; Deal-stage-changed is particularly powerful because it lets you automate the operational side of a sales process — provisioning access, sending a specific email sequence, or creating a record elsewhere — the moment a human moves a deal forward, without them having to remember a manual follow-up step.</p>
 <p><strong>From Postgres:</strong> unlike Gmail and HubSpot, Postgres usually isn&#39;t the trigger — it&#39;s the destination, since it doesn&#39;t natively push events the way a SaaS app does. If you do need Postgres to kick off a workflow, that typically means a scheduled query (checking for new or changed rows on an interval) rather than a real-time event.</p>
-<h2>A concrete example: new HubSpot deal → Postgres record → Gmail follow-up</h2>
+<h2 id="a-concrete-example-new-hubspot-deal-postgres-record-gmail-follow-up">A concrete example: new HubSpot deal → Postgres record → Gmail follow-up</h2>
 <ol>
 <li><strong>Trigger:</strong> a HubSpot deal moves to &quot;Closed Won.&quot;</li>
 <li><strong>Action 1:</strong> insert a row into a Postgres table with the deal ID, contact email, deal value, and close date — this becomes your durable system-of-record for reporting, independent of whether the data stays accurate in HubSpot later.</li>
@@ -53,16 +73,16 @@
 <li><strong>Optional action 3:</strong> if the deal value is above a threshold, also post a notification to a Slack channel so leadership sees large wins in real time.</li>
 </ol>
 <p>This pattern — SaaS event, durable database write, communication step — covers a large share of what &quot;automate my sales handoff&quot; actually means in practice, and none of it requires custom code if your automation platform can read HubSpot&#39;s deal fields and write parameterized rows to Postgres directly.</p>
-<h2>The gotchas that actually bite people</h2>
+<h2 id="the-gotchas-that-actually-bite-people">The gotchas that actually bite people</h2>
 <ul>
 <li><strong>Gmail search-based triggers can miss emails if the label or query is too narrow</strong>, or fire on far more than intended if it&#39;s too broad. Test with a handful of real historical emails before relying on it.</li>
 <li><strong>HubSpot deal-stage automations can double-fire</strong> if a deal moves through a stage quickly and back (common during pipeline cleanup) — add a check for whether the automation has already run for that deal ID before taking action again.</li>
 <li><strong>Postgres writes need real schema discipline.</strong> Because Postgres won&#39;t stop you from inserting inconsistent data, decide on your column types and null-handling rules before your first automation writes to a production table, not after a bad row breaks a downstream report.</li>
 <li><strong>Field name mismatches are the most common silent failure.</strong> HubSpot custom properties and Gmail template variables both depend on exact naming — a renamed HubSpot field will silently stop populating an automation rather than throwing an obvious error, so it&#39;s worth checking connected fields after any HubSpot property changes.</li>
 </ul>
-<h2>Deciding what should live where</h2>
+<h2 id="deciding-what-should-live-where">Deciding what should live where</h2>
 <p>A useful rule of thumb: HubSpot stays the source of truth for anything sales and relationship-related that a human edits directly (deal stage, contact ownership, notes). Postgres becomes the source of truth for anything you need to report on reliably over time, since HubSpot properties can be renamed, removed, or restructured by an admin in ways that break historical continuity. Gmail is rarely a source of truth for structured data at all — it&#39;s the delivery mechanism, not the record.</p>
-<h2>FAQ</h2>
+<h2 id="faq">FAQ</h2>
 <h3>Do I need a developer to connect Postgres to a no-code automation?</h3>
 <p>No, as long as your automation platform has a Postgres (or generic SQL) action step — you typically just need the connection details and to know your target table&#39;s schema, not to write custom integration code.</p>
 <h3>What&#39;s the safest way to test a HubSpot-triggered automation before it runs for real?</h3>

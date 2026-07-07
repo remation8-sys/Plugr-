@@ -8,19 +8,29 @@ tags: geo, seo, chatgpt, ai-search
 
 Visitors referred from ChatGPT convert at roughly 7% versus about 5% for organic Google traffic, spend around 15 minutes on site versus 8 minutes, and view roughly 12 pages per visit versus 9 — and that gap is why Generative Engine Optimization (GEO) stopped being a niche experiment in 2026 and became a real budget line for marketing teams paying attention to where their traffic actually converts.
 
+## Key Takeaways
+
+- ChatGPT-referred visitors convert higher (~7% vs ~5%), stay longer (~15 min vs ~8 min), and view more pages (~12 vs ~9) than Google organic visitors.
+- <a href="https://ahrefs.com/blog/chatgpts-most-cited-pages/" target="_blank" rel="noopener noreferrer">28.3% of ChatGPT's most-cited pages</a> have zero Google organic visibility — ranking on Google no longer predicts AI citation.
+- A <a href="https://collaborate.princeton.edu/en/publications/geo-generative-engine-optimization/" target="_blank" rel="noopener noreferrer">Princeton/Georgia Tech/IIT Delhi study</a> found GEO-specific techniques (answer-first structure, cited statistics, FAQ markup) lift AI-answer visibility by up to 40%.
+- Only 16% of brands currently track their AI search performance at all, so most of this shift is invisible to standard marketing dashboards.
+- The single most common reason good content never gets cited: it's rendered client-side and invisible to AI crawlers that don't execute JavaScript.
+
 ## The traffic shift behind the numbers
 
-ChatGPT reached 900 million weekly active users by February 2026, more than double the 400 million it had a year earlier, and now drives the large majority of all AI-referral traffic to websites. That's a meaningful new audience, but the more important detail isn't the volume — it's the intent behind it. Someone who asked an AI assistant a detailed question and clicked through to your site arrived with more context and higher purchase intent than someone who scanned a page of ten blue links and picked one. That's the behavioral reason the session-length and conversion numbers look the way they do, and it's consistent across the data: AI-referred visitors behave like people who already got a partial answer and want to verify or go deeper, not people still comparison-shopping across ten open tabs.
+<a href="https://techcrunch.com/2026/02/27/chatgpt-reaches-900m-weekly-active-users/" target="_blank" rel="noopener noreferrer">ChatGPT reached 900 million weekly active users by February 2026</a>, more than double the 400 million it had a year earlier, and now drives the large majority of all AI-referral traffic to websites. That's a meaningful new audience, but the more important detail isn't the volume — it's the intent behind it. Someone who asked an AI assistant a detailed question and clicked through to your site arrived with more context and higher purchase intent than someone who scanned a page of ten blue links and picked one. That's the behavioral reason the session-length and conversion numbers look the way they do, and it's consistent across the data: AI-referred visitors behave like people who already got a partial answer and want to verify or go deeper, not people still comparison-shopping across ten open tabs.
 
 ## Ranking on Google no longer means visible on AI
 
-The uncomfortable finding for most SEO teams is that success in traditional search and success in AI search have become two different games. Ahrefs found that 28.3% of ChatGPT's most-cited pages have zero organic visibility on Google at all, and the overlap between top-ranking Google pages and AI-cited sources has fallen from roughly 70% to under 20%. In other words, a page can rank nowhere on Google and still get cited constantly by ChatGPT, Perplexity, or Google's own AI Overviews — and a page that ranks #1 on Google has no guarantee of ever being cited by an AI answer.
+The uncomfortable finding for most SEO teams is that success in traditional search and success in AI search have become two different games. <a href="https://ahrefs.com/blog/chatgpts-most-cited-pages/" target="_blank" rel="noopener noreferrer">Ahrefs found</a> that 28.3% of ChatGPT's most-cited pages have zero organic visibility on Google at all, and the overlap between top-ranking Google pages and AI-cited sources has fallen from roughly 70% to under 20%. In other words, a page can rank nowhere on Google and still get cited constantly by ChatGPT, Perplexity, or Google's own AI Overviews — and a page that ranks #1 on Google has no guarantee of ever being cited by an AI answer.
 
 This is why "we already do SEO" isn't the same as "we're visible in AI search." The two systems evaluate content differently: traditional search ranking leans heavily on link authority and historical signals; AI citation leans on whether a specific passage answers a specific question clearly enough to quote or paraphrase directly.
 
+This is exactly the audit we ran on Plugr's own [blog architecture](/blog/) before publishing it — static, pre-rendered pages specifically so the techniques below aren't just theoretical for us.
+
 ## What actually moves the needle for AI citation
 
-A study from Princeton, Georgia Tech, and IIT Delhi found that structuring content specifically for AI citability — clear, direct answers near the top of a section, cited statistics, and well-organized headings — can lift a page's visibility in AI answers by up to 40%. The practical techniques that show up across that kind of research consistently include:
+A <a href="https://collaborate.princeton.edu/en/publications/geo-generative-engine-optimization/" target="_blank" rel="noopener noreferrer">study from Princeton, Georgia Tech, and IIT Delhi</a> found that structuring content specifically for AI citability — clear, direct answers near the top of a section, cited statistics, and well-organized headings — can lift a page's visibility in AI answers by up to 40%. The practical techniques that show up across that kind of research consistently include:
 
 - **Answer-first structure.** State the direct answer or definition in the first sentence or two of a section, before the supporting explanation — AI systems tend to extract and quote the clearest, most self-contained statement, not the most elegantly built-up argument.
 - **Specific, sourced statistics** instead of vague claims. "Improves efficiency" is not citable. "94% of small businesses using AI agents saw operational costs drop by at least 30% within a quarter" is something an AI system can quote with confidence.
@@ -29,7 +39,7 @@ A study from Princeton, Georgia Tech, and IIT Delhi found that structuring conte
 
 ## Most brands aren't tracking this yet
 
-Only 16% of brands currently track their AI search performance in any systematic way, which means most of this shift is happening beneath the radar of standard marketing dashboards. The brands that are ahead on GEO right now are mostly ahead simply because they started measuring it at all — checking what ChatGPT, Perplexity, and Google AI Overviews actually say when asked about their category, rather than assuming that Google Search Console tells the whole story.
+<a href="https://www.airops.com/report/the-2026-state-of-ai-search" target="_blank" rel="noopener noreferrer">Only 16% of brands</a> currently track their AI search performance in any systematic way, which means most of this shift is happening beneath the radar of standard marketing dashboards. The brands that are ahead on GEO right now are mostly ahead simply because they started measuring it at all — checking what ChatGPT, Perplexity, and Google AI Overviews actually say when asked about their category, rather than assuming that Google Search Console tells the whole story. This is one piece of a bigger 2026 shift — see [the state of workflow automation in 2026](/blog/state-of-workflow-automation-2026/) for the wider context.
 
 ## What to do with this if you're deciding where to invest
 

@@ -39,27 +39,48 @@
 <article class="post">
   <p class="post-meta"><time datetime="2026-07-04">July 4, 2026</time></p>
   <h1>AI Agents vs Traditional Automation</h1>
+  <div class="key-takeaways">
+  <p class="key-takeaways-title">Key takeaways</p>
+  <ul>
+<li>The test is simple: if you can write the decision as a complete rule with no &quot;it depends,&quot; use traditional automation — otherwise it likely needs an agent.</li>
+<li>Traditional automation still wins outright on consistency, high-frequency low-ambiguity tasks, and anything where an unpredictable outcome is unacceptable.</li>
+<li>Agents earn their complexity on classifying unstructured input, drafting first-pass content, and handling genuine exceptions gracefully.</li>
+<li>The most reliable production workflows combine both — see <a href="/blog/workflow-automation-patterns-ops-teams/">5 automation patterns every ops team needs</a> for the &quot;agent handoff&quot; pattern in practice.</li>
+<li>Weigh the cost of a wrong decision against how easily it&#39;s reversed to decide whether an agent should act autonomously or need human approval first.</li>
+  </ul>
+</div>
+  <nav class="post-toc" aria-label="Table of contents">
+  <p class="post-toc-title">On this page</p>
+  <ol>
+    <li><a href="#the-test-can-you-write-the-rule-down">The test: can you write the rule down?</a></li>
+    <li><a href="#where-traditional-automation-still-wins-outright">Where traditional automation still wins outright</a></li>
+    <li><a href="#where-ai-agents-earn-their-complexity">Where AI agents earn their complexity</a></li>
+    <li><a href="#the-combined-pattern-that-actually-works-in-production">The combined pattern that actually works in production</a></li>
+    <li><a href="#a-quick-decision-checklist">A quick decision checklist</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ol>
+</nav>
   <div class="post-body">
-<p>Use traditional automation when the decision logic can be fully specified in advance — if X happens, do Y, every time. Use an AI agent when the &quot;right action&quot; depends on judgment that&#39;s hard to reduce to explicit rules — understanding intent, handling ambiguity, or synthesizing unstructured information before acting. Most real workflows need both: traditional automation for the parts that are genuinely mechanical, and an agent for the parts that require reading between the lines.</p>
-<h2>The test: can you write the rule down?</h2>
+<p>Use traditional automation when the decision logic can be fully specified in advance — if X happens, do Y, every time. Use an AI agent when the &quot;right action&quot; depends on judgment that&#39;s hard to reduce to explicit rules — understanding intent, handling ambiguity, or synthesizing unstructured information before acting. Most real workflows need both: traditional automation for the parts that are genuinely mechanical, and an agent for the parts that require reading between the lines. This decision is only getting more common — <a href="https://www.gartner.com/en/newsroom/press-releases/2025-08-26-gartner-predicts-40-percent-of-enterprise-apps-will-feature-task-specific-ai-agents-by-2026-up-from-less-than-5-percent-in-2025" target="_blank" rel="noopener noreferrer">Gartner projects</a> 40% of enterprise applications will ship with a task-specific AI agent by the end of 2026. If you need a primer on what &quot;agentic&quot; actually means first, see <a href="/blog/what-is-agentic-ai/">What Is Agentic AI?</a></p>
+<h2 id="the-test-can-you-write-the-rule-down">The test: can you write the rule down?</h2>
 <p>The simplest way to decide is to try writing the decision as an explicit rule. &quot;If the invoice amount is over $10,000, route to the finance director&quot; is a rule — no judgment required, traditional automation handles it perfectly and more reliably than an agent would, because it&#39;s deterministic and instantly explainable. &quot;Decide whether this customer email sounds frustrated enough to prioritize&quot; is not a rule you can fully specify with a simple threshold — it requires reading tone, context, and history, which is exactly the kind of task agentic AI is suited for.</p>
 <p>If you can write the complete rule in one sentence without an &quot;it depends,&quot; use traditional automation. If your rule needs three paragraphs of caveats or keeps needing new exceptions added, that&#39;s a signal the task actually requires judgment — an agent, not more rule-patching.</p>
-<h2>Where traditional automation still wins outright</h2>
+<h2 id="where-traditional-automation-still-wins-outright">Where traditional automation still wins outright</h2>
 <ul>
 <li><strong>Anything requiring perfect consistency.</strong> Calculating tax, applying a fixed discount rule, or converting units should never vary based on interpretation — a deterministic step every time is a feature, not a limitation.</li>
 <li><strong>High-frequency, low-ambiguity tasks.</strong> Syncing a new CRM contact to a spreadsheet doesn&#39;t need judgment; it needs to happen the same way, every time, reliably.</li>
 <li><strong>Anything where an unpredictable outcome is unacceptable.</strong> Compliance-sensitive steps, financial transactions, and anything with legal implications benefit from an auditable, fixed rule rather than a probabilistic decision — even a very good one.</li>
 </ul>
-<h2>Where AI agents earn their complexity</h2>
+<h2 id="where-ai-agents-earn-their-complexity">Where AI agents earn their complexity</h2>
 <ul>
-<li><strong>Classifying unstructured input.</strong> Support tickets, sales inquiries, and free-text form submissions rarely arrive in a format a simple rule can parse reliably — an agent reading for actual intent handles the long tail of phrasing that keyword rules miss.</li>
+<li><strong>Classifying unstructured input.</strong> Support tickets, sales inquiries, and free-text form submissions rarely arrive in a format a simple rule can parse reliably — an agent reading for actual intent handles the long tail of phrasing that keyword rules miss. <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer">Anthropic&#39;s own guidance on building effective agents</a> makes a similar point: start with the simplest structure that solves the problem, and only add agentic complexity where a fixed workflow genuinely can&#39;t handle the variability.</li>
 <li><strong>Drafting, not just deciding.</strong> Writing a first-pass reply, summarizing a long thread, or generating a report narrative are tasks where &quot;good enough for a human to review and edit&quot; is genuinely valuable, and traditional automation has no equivalent capability.</li>
 <li><strong>Handling genuine exceptions gracefully.</strong> When a situation doesn&#39;t match any of your predefined rules, an agent can reason about the closest reasonable action instead of the workflow simply failing or defaulting to a generic fallback.</li>
 </ul>
-<h2>The combined pattern that actually works in production</h2>
-<p>The most reliable production workflows use traditional automation for the skeleton — trigger, sequencing, error handling, final actions — and insert an AI agent step only where a genuine judgment call sits inside that structure. A support workflow might use a rule-based trigger (new email received), an agent step (classify intent and draft a suggested response), and a rule-based action (route to the matching team, log the classification, notify if urgent). The agent isn&#39;t running the whole workflow; it&#39;s handling the one part that a fixed rule couldn&#39;t handle well.</p>
+<h2 id="the-combined-pattern-that-actually-works-in-production">The combined pattern that actually works in production</h2>
+<p>The most reliable production workflows use traditional automation for the skeleton — trigger, sequencing, error handling, final actions — and insert an AI agent step only where a genuine judgment call sits inside that structure (see <a href="/blog/build-ai-agent-workflow-tutorial/">a concrete Slack + OpenAI build</a> for exactly this shape). A support workflow might use a rule-based trigger (new email received), an agent step (classify intent and draft a suggested response), and a rule-based action (route to the matching team, log the classification, notify if urgent). The agent isn&#39;t running the whole workflow; it&#39;s handling the one part that a fixed rule couldn&#39;t handle well.</p>
 <p>This combined approach also solves the trust problem that pure-agent systems run into: because most of the workflow is deterministic and auditable, when something goes wrong it&#39;s usually easy to isolate whether the failure was in the agent&#39;s judgment or in the surrounding logic — which matters enormously when you&#39;re debugging a live issue, not just building a demo.</p>
-<h2>A quick decision checklist</h2>
+<h2 id="a-quick-decision-checklist">A quick decision checklist</h2>
 <ol>
 <li><strong>Can I write the decision as a complete rule without &quot;it depends&quot;?</strong> → Traditional automation.</li>
 <li><strong>Does the input arrive as unstructured text or genuinely varied formats?</strong> → Likely needs an agent step.</li>
@@ -67,7 +88,7 @@
 <li><strong>Is the cost of an occasional wrong decision high, or hard to reverse?</strong> → Keep a human in the loop, or use a rule instead.</li>
 <li><strong>Do I need the exact same output every time, with zero variation?</strong> → Traditional automation, always.</li>
 </ol>
-<h2>FAQ</h2>
+<h2 id="faq">FAQ</h2>
 <h3>Can an AI agent replace a workflow platform entirely?</h3>
 <p>Not reliably, in practice. Agents are best at the judgment-requiring steps inside a workflow; the surrounding structure — triggers, sequencing, retries, logging — is still better handled by deterministic automation, which is also what makes the system debuggable when something goes wrong.</p>
 <h3>Is traditional automation becoming obsolete?</h3>

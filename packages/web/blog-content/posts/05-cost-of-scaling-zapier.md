@@ -6,11 +6,18 @@ description: Why Zapier's per-task pricing gets expensive fast at scale, with re
 tags: zapier, pricing, cost-optimization
 ---
 
-Zapier's pricing is built around task volume, and task volume is exactly the thing that grows fastest once an automation actually works. A workflow that costs a few pounds a month during a pilot can turn into a five-figure annual line item once it's running across a whole team — and the jump often catches teams off guard because the pricing page shows entry-level tiers, not the curve at real scale. At around 50,000 tasks a month, Zapier runs approximately £940/month, compared to roughly £250/month for a mid-tier visual alternative and as little as £20/month in server costs for a self-hosted, node-based option — a gap of roughly 47x for comparable throughput.
+Zapier's pricing is built around task volume, and task volume is exactly the thing that grows fastest once an automation actually works. A workflow that costs a few pounds a month during a pilot can turn into a five-figure annual line item once it's running across a whole team — and the jump often catches teams off guard because the pricing page shows entry-level tiers, not the curve at real scale. At around 50,000 tasks a month, Zapier runs approximately £940/month, compared to roughly £250/month for a mid-tier visual alternative and as little as £20/month in server costs for a self-hosted, node-based option — a gap of roughly 47x for comparable throughput (see <a href="https://www.digitalapplied.com/blog/zapier-vs-make-vs-n8n-2026-automation-comparison" target="_blank" rel="noopener noreferrer">current published pricing comparisons</a> for how each platform meters usage differently).
+
+## Key Takeaways
+
+- Zapier counts every individual action as a task, so a five-step Zap running 1,000 times a month is 5,000 tasks, not 1,000 — this is why bills climb faster than teams expect.
+- At ~50,000 tasks/month the gap between platforms is roughly 47x — see our [full n8n vs Zapier vs Make vs Plugr comparison](/blog/n8n-vs-zapier-vs-make-vs-plugr-2026/) for the complete breakdown.
+- The three practical fixes that cut cost without switching platforms: consolidate multi-step Zaps, migrate only your highest-volume workflows first, and make workflow cost visible before the invoice arrives.
+- Model your cost at 10x current volume, on both your current platform and the alternatives, before deciding whether a migration is worth it.
 
 ## Why the cost curve is steeper than it looks
 
-Zapier counts every individual action as a task — not every automation, every *step* inside it. A five-step Zap that runs 1,000 times a month isn't 1,000 tasks; it's 5,000. Multi-step workflows, loops, and filters can each add to that count, so the same logical automation can cost dramatically more depending on how many discrete actions it takes to express it. Teams that build their first automations during a low-volume pilot frequently don't see this until usage — and the bill — scales with the business.
+Zapier counts every individual action as a task — not every automation, every *step* inside it, a detail explained on <a href="https://zapier.com/blog/zapier-pricing/" target="_blank" rel="noopener noreferrer">Zapier's own pricing page</a>. A five-step Zap that runs 1,000 times a month isn't 1,000 tasks; it's 5,000. Multi-step workflows, loops, and filters can each add to that count, so the same logical automation can cost dramatically more depending on how many discrete actions it takes to express it. Teams that build their first automations during a low-volume pilot frequently don't see this until usage — and the bill — scales with the business.
 
 ## Where the money actually goes
 
@@ -32,7 +39,7 @@ A lot of automation cost sprawl comes from workflows built ad hoc by whoever nee
 
 ## When switching platforms is worth it — and when it isn't
 
-If your task volume is stable and low, the cost difference between platforms is unlikely to justify a migration project. If your volume is growing, or you're already seeing costs climb faster than the value the automation delivers, it's worth modeling your cost at 10x current volume on both your current platform and the alternatives — because that's usually where the real decision gets made, not at today's usage.
+If your task volume is stable and low, the cost difference between platforms is unlikely to justify a migration project. If your volume is growing, or you're already seeing costs climb faster than the value the automation delivers, it's worth modeling your cost at 10x current volume on both your current platform and the alternatives — because that's usually where the real decision gets made, not at today's usage. This pricing pressure is also part of a broader shift — see [the state of workflow automation in 2026](/blog/state-of-workflow-automation-2026/) for the wider picture.
 
 ## FAQ
 

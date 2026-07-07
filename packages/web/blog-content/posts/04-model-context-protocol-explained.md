@@ -6,13 +6,21 @@ description: What the Model Context Protocol (MCP) actually does, why it became 
 tags: mcp, ai-agents, integrations
 ---
 
-The Model Context Protocol (MCP) is a standard that lets an AI model discover and call external tools — databases, APIs, apps — without a developer writing custom integration code for each one. Instead of every AI product building its own one-off connector to every tool it needs, MCP defines a common interface: a tool describes what it can do and what input it needs, and any MCP-compatible model can call it. That's the whole idea, and it's a big part of why AI agents went from research demos to production features so fast in 2026.
+The Model Context Protocol (MCP) is a standard that lets an AI model discover and call external tools — databases, APIs, apps — without a developer writing custom integration code for each one. Instead of every AI product building its own one-off connector to every tool it needs, MCP defines a common interface: a tool describes what it can do and what input it needs, and any MCP-compatible model can call it. That's the whole idea, and it's a big part of why [AI agents](/blog/what-is-agentic-ai/) went from research demos to production features so fast in 2026.
+
+## Key Takeaways
+
+- MCP standardizes *how* a model connects to and calls a tool — it collapses "N tools × M models" worth of custom integration work down to N + M.
+- By April 2026, MCP had <a href="https://www.anthropic.com/news/model-context-protocol" target="_blank" rel="noopener noreferrer">more than 10,000 enterprise servers</a> and <a href="https://www.digitalapplied.com/blog/mcp-97-million-downloads-model-context-protocol-mainstream" target="_blank" rel="noopener noreferrer">97 million-plus SDK downloads</a>, adopted across Anthropic, OpenAI, Google, Microsoft, and AWS.
+- MCP does not decide what an agent should do or in what order — that's still the job of a workflow platform or orchestration layer, not MCP itself.
+- MCP is model-agnostic by design, so evaluating or switching AI vendors doesn't mean rebuilding your tool integrations.
+- See [what agentic AI actually is](/blog/what-is-agentic-ai/) for how MCP fits into the bigger picture, or [a concrete build](/blog/build-ai-agent-workflow-tutorial/) that uses this kind of tool access in practice.
 
 ## The problem MCP actually solves
 
 Before a shared protocol existed, connecting an AI model to a real business system meant writing bespoke code: authenticate, format the request the way this specific API expects, parse the response, handle errors, repeat for every tool and every model. That approach doesn't scale — it means N tools times M models worth of custom integration work, and every new tool or model multiplies the problem.
 
-MCP collapses that to N tools plus M models: build one MCP server for your tool, and any MCP-compatible model can use it; support MCP in your model or agent runtime, and it can reach any MCP server. By April 2026, that model had more than 10,000 enterprise MCP servers running and over 97 million SDK downloads, with adoption across Anthropic, OpenAI, Google, Microsoft, and AWS — evidence that the standardization argument won out over everyone building their own proprietary connector format.
+MCP collapses that to N tools plus M models: build one MCP server for your tool, and any MCP-compatible model can use it; support MCP in your model or agent runtime, and it can reach any MCP server. By April 2026, that model had more than 10,000 enterprise MCP servers running and over 97 million SDK downloads, with adoption across <a href="https://www.anthropic.com/news/model-context-protocol" target="_blank" rel="noopener noreferrer">Anthropic, OpenAI, Google, Microsoft, and AWS</a> — evidence that the standardization argument won out over everyone building their own proprietary connector format.
 
 ## What MCP does — and doesn't — do
 
@@ -24,7 +32,7 @@ A related but distinct protocol, Agent-to-Agent (A2A), handles coordination *bet
 
 ## Why this matters if you're building or buying automation
 
-If you're evaluating an automation platform in 2026, MCP support (or an equivalent standardized tool-access layer) is a meaningful signal, not a buzzword to skim past. It tells you:
+If you're evaluating an automation platform in 2026 (see [the state of workflow automation](/blog/state-of-workflow-automation-2026/) for the broader landscape), MCP support (or an equivalent standardized tool-access layer) is a meaningful signal, not a buzzword to skim past. It tells you:
 
 - **The platform can plug into new tools without a bespoke integration project every time.** New MCP servers become usable without platform-specific development work.
 - **Your AI agent's actions are auditable at the protocol level**, because MCP calls carry structured context about what was requested and what was returned — not just a raw API call buried in application code.

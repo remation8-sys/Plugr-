@@ -6,13 +6,21 @@ description: A practical guide to connecting Gmail, HubSpot, and Postgres in one
 tags: gmail, hubspot, postgres, integrations, no-code
 ---
 
-Gmail, HubSpot, and Postgres are three of the most commonly automated tools in business operations, and they're commonly automated *together* because they represent three different layers of the same process: Gmail is where communication happens, HubSpot is where customer relationships are tracked, and Postgres is where the durable, queryable record of everything lives. Connecting them without writing code means picking the right trigger for each tool and being deliberate about which system is the "source of truth" for each piece of data.
+Gmail, HubSpot, and Postgres are three of the most commonly automated tools in business operations, and they're commonly automated *together* because they represent three different layers of the same process: Gmail is where communication happens, HubSpot is where customer relationships are tracked, and Postgres is where the durable, queryable record of everything lives. Connecting them without writing code means picking the right trigger for each tool and being deliberate about which system is the "source of truth" for each piece of data. This is a concrete example of the [data sync pattern](/blog/workflow-automation-patterns-ops-teams/) — with a third system layered in for durable reporting.
+
+## Key Takeaways
+
+- Gmail and HubSpot are natural triggers; Postgres is almost always the destination, not the trigger, since it doesn't natively push events like a SaaS app does.
+- HubSpot should stay the source of truth for anything a human edits directly (deal stage, ownership); Postgres should own anything you need to report on reliably over time.
+- The most common silent failure is a field name mismatch — a renamed HubSpot property stops populating an automation without throwing an obvious error.
+- Test with a sandbox deal and a handful of real historical emails before connecting the automation to production data.
+- For the general trigger → judgment → action → record shape this pattern follows, see [our Slack + OpenAI tutorial](/blog/build-ai-agent-workflow-tutorial/).
 
 ## Start with the trigger: what should kick this off?
 
-**From Gmail:** the most common trigger is "new email matching a label or search query," which lets you scope the automation to a specific inbox pattern (like emails sent to a shared support address) rather than every email that arrives. Avoid triggering on *every* new email in a personal inbox — it's noisy and hard to reason about once the automation is running.
+**From <a href="https://developers.google.com/gmail/api/guides" target="_blank" rel="noopener noreferrer">Gmail</a>:** the most common trigger is "new email matching a label or search query," which lets you scope the automation to a specific inbox pattern (like emails sent to a shared support address) rather than every email that arrives. Avoid triggering on *every* new email in a personal inbox — it's noisy and hard to reason about once the automation is running.
 
-**From HubSpot:** the most useful triggers are "contact created," "deal stage changed," and "form submitted." Deal-stage-changed is particularly powerful because it lets you automate the operational side of a sales process — provisioning access, sending a specific email sequence, or creating a record elsewhere — the moment a human moves a deal forward, without them having to remember a manual follow-up step.
+**From <a href="https://developers.hubspot.com/docs/api/overview" target="_blank" rel="noopener noreferrer">HubSpot</a>:** the most useful triggers are "contact created," "deal stage changed," and "form submitted." Deal-stage-changed is particularly powerful because it lets you automate the operational side of a sales process — provisioning access, sending a specific email sequence, or creating a record elsewhere — the moment a human moves a deal forward, without them having to remember a manual follow-up step.
 
 **From Postgres:** unlike Gmail and HubSpot, Postgres usually isn't the trigger — it's the destination, since it doesn't natively push events the way a SaaS app does. If you do need Postgres to kick off a workflow, that typically means a scheduled query (checking for new or changed rows on an interval) rather than a real-time event.
 

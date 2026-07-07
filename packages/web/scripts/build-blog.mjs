@@ -58,6 +58,80 @@ function parseFrontmatter(raw) {
   return { meta, body: body.trim() };
 }
 
+function decodeBasicEntities(str) {
+  return str
+    .replace(/&#39;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>');
+}
+
+function slugify(text) {
+  return text
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+function extractTakeaways(markdownBody) {
+  const heading = /^##\s+Key Takeaways\s*$/im.exec(markdownBody);
+  if (!heading) return { takeaways: [], body: markdownBody };
+  const sectionStart = heading.index;
+  const afterHeading = markdownBody.slice(sectionStart + heading[0].length);
+  const nextHeadingMatch = /\n##\s+/.exec(afterHeading);
+  const sectionEnd = nextHeadingMatch
+    ? sectionStart + heading[0].length + nextHeadingMatch.index
+    : markdownBody.length;
+  const section = markdownBody.slice(sectionStart + heading[0].length, sectionEnd);
+  const takeaways = [...section.matchAll(/^-\s+(.+)$/gm)].map((m) => m[1].trim());
+  const body = markdownBody.slice(0, sectionStart) + markdownBody.slice(sectionEnd);
+  return { takeaways, body };
+}
+
+// Adds slugified id attributes to rendered <h2> headings (skipped for h3, which
+// aren't linked from the TOC) and returns the resulting TOC entries.
+function addHeadingIdsAndBuildToc(html) {
+  const usedSlugs = new Set();
+  const toc = [];
+  const withIds = html.replace(/<h2>(.*?)<\/h2>/g, (match, inner) => {
+    const text = decodeBasicEntities(inner.replace(/<[^>]+>/g, ''));
+    const base = slugify(text);
+    let slug = base;
+    let i = 2;
+    while (usedSlugs.has(slug)) slug = `${base}-${i++}`;
+    usedSlugs.add(slug);
+    toc.push({ text, slug });
+    return `<h2 id="${slug}">${inner}</h2>`;
+  });
+  return { html: withIds, toc };
+}
+
+function renderTakeaways(takeaways) {
+  if (!takeaways.length) return '';
+  const items = takeaways.map((t) => `<li>${marked.parseInline(t)}</li>`).join('\n');
+  return `<div class="key-takeaways">
+  <p class="key-takeaways-title">Key takeaways</p>
+  <ul>
+${items}
+  </ul>
+</div>`;
+}
+
+function renderToc(toc) {
+  if (toc.length < 3) return '';
+  const items = toc
+    .map((t) => `    <li><a href="#${t.slug}">${escapeHtml(t.text)}</a></li>`)
+    .join('\n');
+  return `<nav class="post-toc" aria-label="Table of contents">
+  <p class="post-toc-title">On this page</p>
+  <ol>
+${items}
+  </ol>
+</nav>`;
+}
+
 function extractFaq(markdownBody) {
   const heading = /^##\s+FAQ\s*$/im.exec(markdownBody);
   if (!heading) return [];
@@ -150,7 +224,7 @@ ${siteFooter()}
 `;
 }
 
-function renderPost(meta, faqs, contentHtml, imageUrl) {
+function renderPost(meta, faqs, contentHtml, imageUrl, takeaways, toc) {
   const canonicalPath = `/blog/${meta.slug}/`;
   const jsonLd = [
     {
@@ -188,6 +262,8 @@ function renderPost(meta, faqs, contentHtml, imageUrl) {
   const bodyHtml = `<article class="post">
   <p class="post-meta"><time datetime="${meta.date}">${formatDisplayDate(meta.date)}</time></p>
   <h1>${escapeHtml(meta.title)}</h1>
+  ${renderTakeaways(takeaways)}
+  ${renderToc(toc)}
   <div class="post-body">
 ${contentHtml}
   </div>
@@ -318,8 +394,10 @@ function main() {
       }
     }
     const faqs = extractFaq(body);
-    const contentHtml = marked.parse(body);
-    posts.push({ ...meta, faqs, contentHtml });
+    const { takeaways, body: bodyWithoutTakeaways } = extractTakeaways(body);
+    const parsedHtml = marked.parse(bodyWithoutTakeaways);
+    const { html: contentHtml, toc } = addHeadingIdsAndBuildToc(parsedHtml);
+    posts.push({ ...meta, faqs, contentHtml, takeaways, toc });
   }
 
   posts.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
@@ -336,7 +414,7 @@ function main() {
       outPath: path.join(postDir, 'og.png'),
     });
     const imageUrl = `${SITE_URL}/blog/${post.slug}/og.png`;
-    const html = renderPost(post, post.faqs, post.contentHtml, imageUrl);
+    const html = renderPost(post, post.faqs, post.contentHtml, imageUrl, post.takeaways, post.toc);
     writeFileSync(path.join(postDir, 'index.html'), html, 'utf8');
   }
 

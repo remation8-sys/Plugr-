@@ -6,7 +6,15 @@ description: A step-by-step walkthrough for building an AI agent workflow that r
 tags: tutorial, slack, openai, google-sheets, ai-agents
 ---
 
-This walkthrough builds one concrete, useful automation: a Slack message triggers the workflow, an OpenAI step classifies its intent, and the result is logged to a Google Sheet for the team to review — the kind of small agentic workflow that takes a genuine manual task (someone reading and triaging every message in a channel) and hands the judgment call to an AI step, while keeping a human-reviewable record of every decision.
+This walkthrough builds one concrete, useful automation: a Slack message triggers the workflow, an OpenAI step classifies its intent, and the result is logged to a Google Sheet for the team to review — the kind of small agentic workflow that takes a genuine manual task (someone reading and triaging every message in a channel) and hands the judgment call to an AI step, while keeping a human-reviewable record of every decision. If the trigger-judgment-action-record shape is new to you, [What Is Agentic AI?](/blog/what-is-agentic-ai/) covers the concept first.
+
+## Key Takeaways
+
+- The workflow shape is trigger → AI judgment → action → record — the same pattern behind most useful [agent handoffs](/blog/workflow-automation-patterns-ops-teams/).
+- Write a specific, constrained prompt for the classification step (an exact list of categories, one-word output) rather than an open-ended one — predictable output is what the downstream steps need to branch on.
+- Logging every classification to a sheet is the single most important step for trust, not the AI step itself — it's what makes the workflow debuggable and correctable.
+- Run the workflow against a week of real messages with side effects disabled before trusting it with production traffic, and review the run history for misclassifications.
+- The same pattern generalizes: see [AI Agents vs Traditional Automation](/blog/ai-agents-vs-traditional-automation/) for when this approach is (and isn't) the right call.
 
 ## What you're building
 
@@ -19,11 +27,11 @@ This structure is deliberately simple because the goal isn't to show off every p
 
 ## Step 1: Set up the trigger
 
-Connect your Slack workspace and select "New message posted" as the trigger, scoped to the channel you want to monitor. Test the trigger once by posting a message in that channel — you want to confirm the workflow actually receives the message text, the sender, and the timestamp before building anything downstream, since debugging a broken trigger after building three more steps is much harder than catching it here.
+Connect your <a href="https://api.slack.com/apis/events-api" target="_blank" rel="noopener noreferrer">Slack workspace</a> and select "New message posted" as the trigger, scoped to the channel you want to monitor. Test the trigger once by posting a message in that channel — you want to confirm the workflow actually receives the message text, the sender, and the timestamp before building anything downstream, since debugging a broken trigger after building three more steps is much harder than catching it here.
 
 ## Step 2: Add the AI classification step
 
-Connect your OpenAI account and add a step that takes the incoming Slack message text as input. Write a short, specific prompt rather than a vague one — something like: "Classify this message into exactly one of: bug_report, feature_request, question, spam. Respond with only the category name." Being explicit about the exact output format matters here, because the next steps in your workflow need a predictable value to branch on, not a full sentence of explanation.
+Connect your <a href="https://platform.openai.com/docs/overview" target="_blank" rel="noopener noreferrer">OpenAI account</a> and add a step that takes the incoming Slack message text as input. Write a short, specific prompt rather than a vague one — something like: "Classify this message into exactly one of: bug_report, feature_request, question, spam. Respond with only the category name." Being explicit about the exact output format matters here, because the next steps in your workflow need a predictable value to branch on, not a full sentence of explanation.
 
 Test this step with a few different sample messages before moving on — including at least one message that's genuinely ambiguous. If the classification step handles ambiguous input reasonably, the rest of the workflow will be more reliable in production.
 

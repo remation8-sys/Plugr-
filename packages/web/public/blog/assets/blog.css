@@ -205,6 +205,59 @@ a:hover {
   background: var(--blog-bg-soft);
 }
 
+.key-takeaways {
+  margin: 28px 0;
+  padding: 20px 24px;
+  border: 1px solid var(--blog-border);
+  border-left: 3px solid var(--blog-blue);
+  border-radius: 10px;
+  background: var(--blog-bg-soft);
+}
+
+.key-takeaways-title {
+  margin: 0 0 10px;
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--blog-blue);
+}
+
+.key-takeaways ul {
+  margin: 0;
+  padding-left: 1.2em;
+}
+
+.key-takeaways li {
+  margin: 0.35em 0;
+}
+
+.post-toc {
+  margin: 0 0 32px;
+  padding: 16px 20px;
+  border: 1px solid var(--blog-border);
+  border-radius: 10px;
+}
+
+.post-toc-title {
+  margin: 0 0 8px;
+  font-family: ui-monospace, 'SFMono-Regular', Menlo, monospace;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--blog-muted);
+}
+
+.post-toc ol {
+  margin: 0;
+  padding-left: 1.2em;
+  font-size: 0.92rem;
+}
+
+.post-toc li {
+  margin: 0.25em 0;
+}
+
 .post-cta {
   margin-top: 3em;
   padding: 20px;
