@@ -497,7 +497,7 @@
     --sidebar-progress: 195 45% 64%;
     /* Brighter canvas — light blueprint surface + subtle blue technical grid */
     --builder-background: #f3f2ff;
-    --builder-background-pattern: rgba(0, 85, 255, 0.07);
+    --builder-background-pattern: rgba(0, 85, 255, 0.16);
   }
 
   .dark {
