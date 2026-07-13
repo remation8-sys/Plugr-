@@ -1,12 +1,13 @@
 import { isNil } from '@activepieces/shared';
 import { useQueryClient } from '@tanstack/react-query';
 import { t } from 'i18next';
-import { ChevronsUpDown, LogOut, UserCogIcon } from 'lucide-react';
+import { ChevronsUpDown, LogOut, Moon, Sun, UserCogIcon } from 'lucide-react';
 import { useState } from 'react';
 
 import { UserAvatar } from '@/components/custom/user-avatar';
 import { useEmbedding } from '@/components/providers/embed-provider';
 import { useTelemetry } from '@/components/providers/telemetry-provider';
+import { useTheme } from '@/components/providers/theme-provider';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,6 +23,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar-shadcn';
+import { Switch } from '@/components/ui/switch';
 import { getPlugrTierLabel } from '@/features/plugr-billing';
 import { userHooks } from '@/hooks/user-hooks';
 import { authenticationSession } from '@/lib/authentication-session';
@@ -37,7 +39,9 @@ export function SidebarUser() {
   const queryClient = useQueryClient();
   const { reset } = useTelemetry();
   const { state } = useSidebar();
+  const { theme, setTheme } = useTheme();
   const isCollapsed = state === 'collapsed';
+  const isDarkMode = theme === 'dark';
   if (!user || embedState.isEmbedded) {
     return null;
   }
@@ -112,6 +116,26 @@ export function SidebarUser() {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
+              <DropdownMenuItem
+                onSelect={(e) => e.preventDefault()}
+                onClick={() => setTheme(isDarkMode ? 'light' : 'dark')}
+              >
+                {isDarkMode ? (
+                  <Moon className="w-4 h-4 mr-2" />
+                ) : (
+                  <Sun className="w-4 h-4 mr-2" />
+                )}
+                {t('Dark Mode')}
+                <Switch
+                  checked={isDarkMode}
+                  onCheckedChange={(checked) =>
+                    setTheme(checked ? 'dark' : 'light')
+                  }
+                  onClick={(e) => e.stopPropagation()}
+                  className="ml-auto"
+                />
+              </DropdownMenuItem>
+
               <DropdownMenuItem onClick={() => setAccountSettingsOpen(true)}>
                 <UserCogIcon className="w-4 h-4 mr-2" />
                 {t('Account Settings')}
