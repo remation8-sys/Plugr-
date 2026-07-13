@@ -65,6 +65,7 @@ function request<TResponse>(
     url: resolvedUrl,
     ...config,
     headers: {
+      ...getPlugrLocaleHeaders(isApWebsite),
       ...config.headers,
       Authorization: getToken(
         unAuthenticated,
@@ -87,6 +88,22 @@ function request<TResponse>(
       }
       throw error;
     });
+}
+
+function getPlugrLocaleHeaders(isApWebsite: boolean): Record<string, string> {
+  if (!isApWebsite) {
+    return {};
+  }
+  const timeZone = getBrowserTimeZone();
+  return timeZone ? { 'X-Plugr-Time-Zone': timeZone } : {};
+}
+
+function getBrowserTimeZone(): string | undefined {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 function getToken(

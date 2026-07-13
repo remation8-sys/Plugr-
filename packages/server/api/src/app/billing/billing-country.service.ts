@@ -16,6 +16,11 @@ export const billingCountryService = (log: FastifyBaseLogger) => ({
             return toBillingLocation(headerCountry)
         }
 
+        const localeCountry = detectFromLocaleHints(request)
+        if (!isNil(localeCountry)) {
+            return toBillingLocation(localeCountry)
+        }
+
         const ip = networkUtils.extractClientRealIp(request, system.get(AppSystemProp.CLIENT_REAL_IP_HEADER))
         const endpoint = billingEnv.get('PLUGR_IP_GEOLOCATION_ENDPOINT') ?? DEFAULT_IP_LOOKUP_ENDPOINT
         const country = await lookupCountry({ endpoint, ip, log })
@@ -62,6 +67,27 @@ function detectFromHeaders(request: FastifyRequest): string | undefined {
         }
     }
     return undefined
+}
+
+function detectFromLocaleHints(request: FastifyRequest): string | undefined {
+    const timeZone = getHeaderValue(request, 'x-plugr-time-zone')
+    if (timeZone?.trim().toLowerCase() === 'africa/lagos') {
+        return 'NG'
+    }
+
+    const acceptLanguage = getHeaderValue(request, 'accept-language')
+    if (/\b[a-z]{2}-NG\b/i.test(acceptLanguage ?? '')) {
+        return 'NG'
+    }
+    return undefined
+}
+
+function getHeaderValue(request: FastifyRequest, headerName: string): string | undefined {
+    const value = request.headers[headerName]
+    if (Array.isArray(value)) {
+        return value[0]
+    }
+    return typeof value === 'string' ? value : undefined
 }
 
 function toBillingLocation(countryCode: string | undefined): BillingLocation {

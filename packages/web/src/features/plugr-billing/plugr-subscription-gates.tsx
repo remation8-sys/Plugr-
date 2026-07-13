@@ -12,8 +12,8 @@ import { userHooks } from '@/hooks/user-hooks';
 import { cn } from '@/lib/utils';
 
 type PlugrBillingUser = {
-  subscriptionTier: PlugrSubscriptionTier;
-  subscriptionStatus: PlugrSubscriptionStatus;
+  subscriptionTier?: PlugrSubscriptionTier;
+  subscriptionStatus?: PlugrSubscriptionStatus;
   trialEndsAt?: string | Date | null;
   subscriptionEndsAt?: string | Date | null;
   aiCreditsIncluded?: number;
@@ -67,11 +67,12 @@ export function hasMinimumPlugrTier(
   user: PlugrBillingUser | null | undefined,
   minimumTier: PlugrPaidTier,
 ) {
-  return hasPlugrAppAccess(user) && tierRank[user!.subscriptionTier] >= tierRank[minimumTier];
+  const tier = user?.subscriptionTier;
+  return hasPlugrAppAccess(user) && !!tier && tierRank[tier] >= tierRank[minimumTier];
 }
 
-export function getPlugrTierLabel(tier: PlugrSubscriptionTier) {
-  return tierLabels[tier];
+export function getPlugrTierLabel(tier: PlugrSubscriptionTier | undefined) {
+  return tier ? tierLabels[tier] : tierLabels.trial;
 }
 
 export function getPlugrCreditsRemaining(user: PlugrBillingUser | null | undefined) {

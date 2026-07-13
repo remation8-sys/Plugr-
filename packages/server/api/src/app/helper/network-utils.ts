@@ -56,10 +56,23 @@ const getPublicIp = async (): Promise<IpMetadata> => {
 }
 
 const extractClientRealIp = (request: FastifyRequest, clientIpHeader: string | undefined): string => {
-    if (isNil(clientIpHeader)) {
-        return request.ip
+    const configuredHeaderIp = isNil(clientIpHeader) ? undefined : getHeaderIp(request, clientIpHeader)
+    return configuredHeaderIp
+        ?? getHeaderIp(request, 'x-real-ip')
+        ?? getHeaderIp(request, 'cf-connecting-ip')
+        ?? getHeaderIp(request, 'true-client-ip')
+        ?? getHeaderIp(request, 'x-forwarded-for')
+        ?? request.ip
+}
+
+function getHeaderIp(request: FastifyRequest, headerName: string): string | undefined {
+    const value = request.headers[headerName]
+    const raw = Array.isArray(value) ? value[0] : value
+    if (typeof raw !== 'string') {
+        return undefined
     }
-    return request.headers[clientIpHeader] as string
+    const ip = raw.split(',')[0]?.trim()
+    return ip && ip.length > 0 ? ip : undefined
 }
 
 const getRequestHost = (req: FastifyRequest): string => {

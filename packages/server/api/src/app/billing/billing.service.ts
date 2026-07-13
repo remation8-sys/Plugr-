@@ -32,7 +32,7 @@ import { repoFactory } from '../core/db/repo-factory'
 import { databaseConnection } from '../database/database-connection'
 import { FlowEntity, FlowSchema } from '../flows/flow/flow.entity'
 import { userRepo, userService } from '../user/user-service'
-import { billingCountryService } from './billing-country.service'
+import { billingCountryService, type BillingLocation } from './billing-country.service'
 import { billingEnv } from './billing-env'
 import { BillingTransactionEntity, BillingTransactionSchema } from './billing-transaction.entity'
 import { CreditPurchaseEntity, CreditPurchaseSchema } from './credit-purchase.entity'
@@ -73,7 +73,7 @@ export const plugrBillingService = (log: FastifyBaseLogger) => ({
         params.period = 'monthly'
         const user = await getNormalizedUser({ userId: params.userId, log })
         assertCanStartCheckout({ user, tier: params.tier })
-        const location = await billingCountryService(log).detect(params.request)
+        const location = await resolveBillingLocation({ request: params.request, user, log })
         const price = getPlugrPlanPrice({ tier: params.tier, period: params.period, currency: location.currency })
         const paymentPlanId = params.period === 'monthly'
             ? billingEnv.getMonthlyPlanId({ tier: params.tier, currency: location.currency })
@@ -138,7 +138,7 @@ export const plugrBillingService = (log: FastifyBaseLogger) => ({
     async createCreditCheckout(params: CreateCreditCheckoutParams): Promise<{ checkoutUrl: string, reference: string, inline?: PlugrInlineCheckoutParams }> {
         const user = await getNormalizedUser({ userId: params.userId, log })
         assertPlugrAccess(user)
-        const location = await billingCountryService(log).detect(params.request)
+        const location = await resolveBillingLocation({ request: params.request, user, log })
         const price = getPlugrCreditPackPrice({ pack: params.pack, currency: location.currency })
         const userMeta = await userService(log).getMetaInformation({ id: params.userId })
         const reference = `plg_crd_${apId()}`
@@ -402,6 +402,28 @@ async function isTransactionAlreadyApplied({ reference, entityManager }: IsTrans
         lock: { mode: 'pessimistic_write' },
     })
     return record?.status === 'successful'
+}
+
+async function resolveBillingLocation(params: ResolveBillingLocationParams): Promise<BillingLocation> {
+    const detected = await billingCountryService(params.log).detect(params.request)
+    if (detected.country === 'NG') {
+        await persistUserBillingLocationIfChanged({ user: params.user, location: detected })
+        return detected
+    }
+    if (params.user.billingCountry === 'NG' || params.user.billingCurrency === 'NGN') {
+        return { country: 'NG', currency: 'NGN' }
+    }
+    return detected
+}
+
+async function persistUserBillingLocationIfChanged({ user, location }: PersistBillingLocationParams): Promise<void> {
+    if (user.billingCountry === location.country && user.billingCurrency === location.currency) {
+        return
+    }
+    await userRepo().update({ id: user.id }, {
+        billingCountry: location.country,
+        billingCurrency: location.currency,
+    })
 }
 
 async function getNormalizedUser(params: NormalizeUserParams): Promise<User> {
@@ -812,6 +834,17 @@ type NormalizeUserParams = UserIdParams & {
     log: FastifyBaseLogger
     entityManager?: EntityManager
     lock?: boolean
+}
+
+type ResolveBillingLocationParams = {
+    request: FastifyRequest
+    user: User
+    log: FastifyBaseLogger
+}
+
+type PersistBillingLocationParams = {
+    user: User
+    location: BillingLocation
 }
 
 type SavePendingTransactionParams = UserIdParams & {

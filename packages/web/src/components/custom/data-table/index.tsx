@@ -72,7 +72,7 @@ interface DataTableProps<
   onRowClick?: (
     row: RowDataWithActions<TData>,
     newWindow: boolean,
-    e: React.MouseEvent<HTMLTableRowElement, MouseEvent>,
+    e: React.MouseEvent<HTMLElement, MouseEvent>,
   ) => void;
   isLoading: boolean;
   filters?: DataTableFilters<Keys>[];
