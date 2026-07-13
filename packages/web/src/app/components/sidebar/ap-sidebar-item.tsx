@@ -4,15 +4,15 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 import { Dot } from '@/components/custom/dot';
 import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
-import {
   SidebarMenuButton,
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar-shadcn';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 
 export type SidebarItemType = {
@@ -23,7 +23,8 @@ export type SidebarItemType = {
   notification?: boolean;
   locked?: boolean;
   newWindow?: boolean;
-  isActive?: (pathname: string) => boolean;
+  /** Overrides the default startsWith(to) matching. Receives pathname + search. */
+  isActive?: (pathnameWithSearch: string) => boolean;
   isSubItem?: boolean;
   show?: boolean;
   hasPermission?: boolean;
@@ -40,8 +41,9 @@ export const ApSidebarItem = (item: SidebarItemType) => {
   const { state } = useSidebar();
   const iconRef = useRef<AnimatedIconHandle | null>(null);
   const [isHovered, setIsHovered] = useState(false);
-  const isLinkActive =
-    location.pathname.startsWith(item.to) || item.isActive?.(location.pathname);
+  const isLinkActive = item.isActive
+    ? item.isActive(location.pathname + location.search)
+    : location.pathname.startsWith(item.to);
   const isCollapsed = state === 'collapsed';
 
   useEffect(() => {

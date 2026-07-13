@@ -41,6 +41,7 @@ const VariablesPage = React.lazy(() =>
 const ApTableEditorPage = React.lazy(() =>
   import('./tables/id').then((m) => ({ default: m.ApTableEditorPage })),
 );
+const McpPage = React.lazy(() => import('./mcp'));
 
 const SettingsRerouter = () => {
   const { hash } = useLocation();
@@ -196,6 +197,18 @@ export const projectRoutes = [
             </SuspenseWrapper>
           </PageTitle>
         </RoutePermissionGuard>
+      </ProjectDashboardLayout>
+    ),
+  }),
+  ...ProjectRouterWrapper({
+    path: routesThatRequireProjectId.mcp,
+    element: (
+      <ProjectDashboardLayout>
+        <PageTitle title="MCP Server">
+          <SuspenseWrapper>
+            <McpPage />
+          </SuspenseWrapper>
+        </PageTitle>
       </ProjectDashboardLayout>
     ),
   }),

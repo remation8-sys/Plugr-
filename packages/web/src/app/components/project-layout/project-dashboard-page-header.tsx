@@ -35,9 +35,11 @@ import { ProjectSettingsDialog } from '../project-settings';
 export const ProjectDashboardPageHeader = ({
   children,
   description,
+  titleOverride,
 }: {
   children?: React.ReactNode;
   description?: React.ReactNode;
+  titleOverride?: React.ReactNode;
 }) => {
   const { project } = projectCollectionUtils.useCurrentProject();
   const { platform } = platformHooks.useCurrentPlatform();
@@ -101,7 +103,7 @@ export const ProjectDashboardPageHeader = ({
     return 'pieces';
   };
 
-  const titleContent = (
+  const titleContent = titleOverride ?? (
     <div className="flex items-center gap-1">
       <ApProjectDisplay
         title={getProjectName(project)}
@@ -156,7 +158,9 @@ export const ProjectDashboardPageHeader = ({
           size="sm"
           onClick={() => setInviteOpen(true)}
         >
-          <span className="hidden md:inline text-sm font-medium">{t('Add Members')}</span>
+          <span className="hidden md:inline text-sm font-medium">
+            {t('Add Members')}
+          </span>
         </AnimatedIconButton>
       )}
       <AnimatedIconButton

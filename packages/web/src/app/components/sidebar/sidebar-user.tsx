@@ -5,7 +5,6 @@ import { ChevronsUpDown, LogOut, UserCogIcon } from 'lucide-react';
 import { useState } from 'react';
 
 import { UserAvatar } from '@/components/custom/user-avatar';
-import { getPlugrTierLabel } from '@/features/plugr-billing';
 import { useEmbedding } from '@/components/providers/embed-provider';
 import { useTelemetry } from '@/components/providers/telemetry-provider';
 import {
@@ -23,6 +22,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar-shadcn';
+import { getPlugrTierLabel } from '@/features/plugr-billing';
 import { userHooks } from '@/hooks/user-hooks';
 import { authenticationSession } from '@/lib/authentication-session';
 import { cn } from '@/lib/utils';
@@ -53,8 +53,8 @@ export function SidebarUser() {
       <SidebarMenuItem>
         <DropdownMenu modal>
           <DropdownMenuTrigger asChild className="w-full">
-            <SidebarMenuButton className="h-10! pl-2! group-data-[collapsible=icon]:h-10! group-data-[collapsible=icon]:pl-2!">
-              <div className="size-[18px] shrink-0 overflow-hidden flex items-center justify-center rounded-full">
+            <SidebarMenuButton className="h-12! pl-2! group-data-[collapsible=icon]:h-10! group-data-[collapsible=icon]:pl-2!">
+              <div className="size-[24px] shrink-0 overflow-hidden flex items-center justify-center rounded-full">
                 <UserAvatar
                   className={cn('size-full object-cover', {
                     'scale-150': isNil(user.imageUrl),
@@ -62,7 +62,7 @@ export function SidebarUser() {
                   name={user.firstName + ' ' + user.lastName}
                   email={user.email}
                   imageUrl={user.imageUrl}
-                  size={18}
+                  size={24}
                   disableTooltip={true}
                 />
               </div>
@@ -70,10 +70,12 @@ export function SidebarUser() {
               {!isCollapsed && (
                 <>
                   <div className="grid min-w-0 flex-1 leading-tight">
-                    <span className="truncate text-sm">
+                    <span className="truncate text-sm font-medium">
                       {user.firstName + ' ' + user.lastName}
                     </span>
-                    <TierBadge tier={user.subscriptionTier} compact />
+                    <span className="truncate text-xs text-muted-foreground">
+                      {user.email}
+                    </span>
                   </div>
                   <ChevronsUpDown className="ml-auto size-4 shrink-0" />
                 </>

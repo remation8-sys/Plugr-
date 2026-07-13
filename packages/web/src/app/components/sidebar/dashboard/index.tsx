@@ -1,137 +1,74 @@
 import {
   isNil,
-  PROJECT_COLOR_PALETTE,
-  PlatformRole,
-  ProjectType,
+  Permission,
   TemplateTelemetryEventType,
 } from '@activepieces/shared';
 import { t } from 'i18next';
-import { CreditCard, Search } from 'lucide-react';
-import { useState, useMemo, useEffect, useCallback } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { useDebounce } from 'use-debounce';
+import { Table2 } from 'lucide-react';
+import { forwardRef, useCallback, useEffect, useState } from 'react';
 
-import { SearchInput } from '@/components/custom/search-input';
+import { McpSvg } from '@/assets/img/custom/mcp';
+import { BoxIcon } from '@/components/icons/box';
 import { ChartLineIcon } from '@/components/icons/chart-line';
 import { CompassIcon } from '@/components/icons/compass';
+import { ConnectIcon } from '@/components/icons/connect';
+import { HistoryIcon } from '@/components/icons/history';
 import { SendIcon } from '@/components/icons/send';
 import { ShieldIcon } from '@/components/icons/shield';
 import { TrophyIcon } from '@/components/icons/trophy';
+import { VariableIcon } from '@/components/icons/variable';
+import { WorkflowIcon } from '@/components/icons/workflow';
 import { useEmbedding } from '@/components/providers/embed-provider';
-import { Button } from '@/components/ui/button';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
 import {
   Sidebar,
   SidebarContent,
   SidebarFooter,
   SidebarGroup,
-  SidebarMenu,
-  SidebarSeparator,
-  useSidebar,
   SidebarGroupLabel,
-  SidebarMenuItem,
+  SidebarMenu,
+  useSidebar,
 } from '@/components/ui/sidebar-shadcn';
-import { VirtualizedScrollArea } from '@/components/ui/virtualized-scroll-area';
-import {
-  CreateProjectButton,
-  projectCollectionUtils,
-  getProjectName,
-} from '@/features/projects';
 import { canUsePlugr, hasMinimumPlugrTier } from '@/features/plugr-billing';
+import { projectCollectionUtils } from '@/features/projects';
 import { templatesTelemetryApi } from '@/features/templates';
-import { useIsPlatformAdmin } from '@/hooks/authorization-hooks';
-import { platformHooks } from '@/hooks/platform-hooks';
+import {
+  useAuthorization,
+  useIsPlatformAdmin,
+} from '@/hooks/authorization-hooks';
 import { userHooks } from '@/hooks/user-hooks';
+import { authenticationSession } from '@/lib/authentication-session';
 import { cn } from '@/lib/utils';
 
 import { recordAccess } from '../../global-search/access-history';
 import { GlobalSearchCommand } from '../../global-search/global-search-command';
 import { STATIC_PAGES } from '../../global-search/static-pages';
-import { SidebarGeneralItemType } from '../ap-sidebar-group';
 import { ApSidebarItem, SidebarItemType } from '../ap-sidebar-item';
-import ProjectSideBarItem from '../project';
 import { AppSidebarHeader } from '../sidebar-header';
+import { SidebarHelpAndFeedback } from '../sidebar-help';
 import SidebarUsageLimits from '../sidebar-usage-limits';
 import { SidebarUser } from '../sidebar-user';
+
+import { ProjectSwitcher } from './project-switcher';
+
+// McpSvg is a plain function component; ApSidebarItem passes a ref to icons.
+const McpIcon = forwardRef<SVGSVGElement, { className?: string }>(
+  ({ className }, _ref) => <McpSvg className={className} />,
+);
+McpIcon.displayName = 'McpIcon';
 
 export function ProjectDashboardSidebar({
   className,
 }: { className?: string } = {}) {
-  const { data: projects } = projectCollectionUtils.useAll();
   const { embedState } = useEmbedding();
   const { state } = useSidebar();
-  const location = useLocation();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [debouncedSearchQuery] = useDebounce(searchQuery, 300);
-  const [searchOpen, setSearchOpen] = useState(false);
-  const navigate = useNavigate();
   const { data: currentUser } = userHooks.useCurrentUser();
-  const { platform } = platformHooks.useCurrentPlatform();
+  const { project } = projectCollectionUtils.useCurrentProject();
+  const { checkAccess } = useAuthorization();
   const plugrLocked = currentUser ? !canUsePlugr(currentUser) : false;
   const analyticsLocked = currentUser
     ? !hasMinimumPlugrTier(currentUser, 'pro')
     : false;
-  useEffect(() => {
-    if (!searchOpen) {
-      setSearchQuery('');
-    }
-  }, [searchOpen]);
 
-  const shouldShowNewProjectButton = useMemo(() => {
-    return currentUser?.platformRole === PlatformRole.ADMIN;
-  }, [currentUser?.platformRole]);
-
-  const shouldShowInlineAddButton =
-    currentUser?.platformRole === PlatformRole.ADMIN &&
-    projects.filter((project) => project.type === ProjectType.TEAM).length ===
-      0;
-
-  const isSearchMode = debouncedSearchQuery.length > 0;
-
-  const displayProjects = useMemo(() => {
-    if (isSearchMode) {
-      const query = debouncedSearchQuery.toLowerCase();
-      return projects.filter((project) =>
-        project.displayName.toLowerCase().includes(query),
-      );
-    }
-    return projects;
-  }, [isSearchMode, debouncedSearchQuery, projects]);
-  const handleProjectSelect = useCallback(
-    async (projectId: string) => {
-      const project = projects.find((p) => p.id === projectId);
-      if (project) {
-        const palette = project.icon
-          ? PROJECT_COLOR_PALETTE[project.icon.color]
-          : null;
-        const name = getProjectName(project);
-        recordAccess({
-          id: `project-${projectId}`,
-          type: 'project',
-          label: name,
-          href: `/projects/${projectId}/automations`,
-          iconBgColor: palette?.color,
-          iconTextColor: palette?.textColor,
-          iconLetter: name.charAt(0).toUpperCase(),
-        });
-      }
-      projectCollectionUtils.setCurrentProject(projectId);
-      navigate(`/projects/${projectId}/automations`);
-      setSearchOpen(false);
-    },
-    [navigate, projects],
-  );
-
-  const permissionFilter = (link: SidebarGeneralItemType) => {
-    if (link.type === 'link') {
-      return isNil(link.hasPermission) || link.hasPermission;
-    }
-    return true;
-  };
   const handleExploreClick = useCallback(() => {
     templatesTelemetryApi.sendEvent({
       eventType: TemplateTelemetryEventType.EXPLORE_VIEW,
@@ -139,105 +76,161 @@ export function ProjectDashboardSidebar({
     });
   }, [currentUser?.id]);
 
-  const chatLink: SidebarItemType = {
-    type: 'link',
-    to: '/chat',
-    label: t('Plugr'),
-    // Plugr AI is shown to all signed-in users (gated/locked by subscription via
-    // `locked: plugrLocked` + the route guard), not by Activepieces' chatEnabled flag.
-    show: !!currentUser,
-    icon: SendIcon,
-    hasPermission: true,
-    isSubItem: false,
-    badge: plugrLocked ? undefined : t('Beta'),
-    locked: plugrLocked,
-    lockedTooltip: t('Available on Starter plan'),
+  const recordStaticPageAccess = (href: string, id?: string) => {
+    const page = STATIC_PAGES.find(
+      (p) => p.href === href && (isNil(id) || p.id === id),
+    );
+    if (page)
+      recordAccess({
+        id: page.id,
+        type: 'page',
+        label: page.label,
+        href: page.href,
+      });
   };
 
-  const billingLink: SidebarItemType = {
-    type: 'link',
-    to: '/pricing',
-    label: t('Billing'),
-    show: true,
-    icon: CreditCard,
-    hasPermission: true,
-    isSubItem: false,
-  };
+  const automationsPath =
+    authenticationSession.appendProjectRoutePrefix('/automations');
 
-  const exploreLink: SidebarItemType = {
-    type: 'link',
-    to: '/templates',
-    label: t('Explore'),
-    show: true,
-    icon: CompassIcon,
-    hasPermission: true,
-    isSubItem: false,
-    onClick: () => {
-      handleExploreClick();
-      const page = STATIC_PAGES.find((p) => p.href === '/templates');
-      if (page)
-        recordAccess({
-          id: page.id,
-          type: 'page',
-          label: page.label,
-          href: page.href,
-        });
+  const productItems: SidebarItemType[] = [
+    {
+      type: 'link',
+      to: '/chat',
+      label: t('Plugr'),
+      // Plugr AI is shown to all signed-in users (gated/locked by subscription via
+      // `locked: plugrLocked` + the route guard), not by Activepieces' chatEnabled flag.
+      show: !!currentUser,
+      icon: SendIcon,
+      hasPermission: true,
+      isSubItem: false,
+      badge: plugrLocked ? undefined : t('Beta'),
+      locked: plugrLocked,
+      lockedTooltip: t('Available on Starter plan'),
     },
-  };
-
-  const impactLink: SidebarItemType = {
-    type: 'link',
-    to: '/impact',
-    label: t('Impact'),
-    icon: ChartLineIcon,
-    show: true,
-    hasPermission: true,
-    isSubItem: false,
-    locked: analyticsLocked,
-    lockedTooltip: t('Available on Pro plan'),
-    onClick: () => {
-      const page = STATIC_PAGES.find((p) => p.href === '/impact');
-      if (page)
-        recordAccess({
-          id: page.id,
-          type: 'page',
-          label: page.label,
-          href: page.href,
-        });
+    {
+      type: 'link',
+      to: automationsPath,
+      label: t('Flows'),
+      show: true,
+      icon: WorkflowIcon,
+      hasPermission: checkAccess(Permission.READ_FLOW),
+      isSubItem: false,
+      isActive: (loc) =>
+        loc.includes('/automations') && !loc.includes('type=table'),
     },
-  };
-
-  const leaderboardLink: SidebarItemType = {
-    type: 'link',
-    to: '/leaderboard',
-    label: t('Leaderboard'),
-    icon: TrophyIcon,
-    show: true,
-    hasPermission: true,
-    isSubItem: false,
-    locked: analyticsLocked,
-    lockedTooltip: t('Available on Pro plan'),
-    onClick: () => {
-      const page = STATIC_PAGES.find((p) => p.href === '/leaderboard');
-      if (page)
-        recordAccess({
-          id: page.id,
-          type: 'page',
-          label: page.label,
-          href: page.href,
-        });
+    {
+      type: 'link',
+      to: `${automationsPath}?type=table`,
+      label: t('Tables'),
+      show: !embedState.hideTables,
+      icon: Table2,
+      hasPermission: checkAccess(Permission.READ_TABLE),
+      isSubItem: false,
+      isActive: (loc) =>
+        loc.includes('/automations') && loc.includes('type=table'),
     },
-  };
+    {
+      type: 'link',
+      to: authenticationSession.appendProjectRoutePrefix('/mcps'),
+      label: t('MCP'),
+      show: true,
+      icon: McpIcon,
+      hasPermission: true,
+      isSubItem: false,
+    },
+  ];
 
-  const items = [
-    chatLink,
-    billingLink,
-    exploreLink,
-    impactLink,
-    leaderboardLink,
-  ]
-    .filter((item) => item.show !== false)
-    .filter(permissionFilter);
+  const miscItems: SidebarItemType[] = [
+    {
+      type: 'link',
+      to: authenticationSession.appendProjectRoutePrefix('/runs'),
+      label: t('Runs'),
+      show: true,
+      icon: HistoryIcon,
+      hasPermission: checkAccess(Permission.READ_RUN),
+      isSubItem: false,
+    },
+    {
+      type: 'link',
+      to: authenticationSession.appendProjectRoutePrefix('/connections'),
+      label: t('Connections'),
+      show: true,
+      icon: ConnectIcon,
+      hasPermission: checkAccess(Permission.READ_APP_CONNECTION),
+      isSubItem: false,
+    },
+    {
+      type: 'link',
+      to: authenticationSession.appendProjectRoutePrefix('/variables'),
+      label: t('Variables'),
+      show: true,
+      icon: VariableIcon,
+      hasPermission: checkAccess(Permission.READ_VARIABLE),
+      isSubItem: false,
+    },
+    {
+      type: 'link',
+      to: authenticationSession.appendProjectRoutePrefix('/releases'),
+      label: t('Releases'),
+      show: project?.releasesEnabled === true,
+      icon: BoxIcon,
+      hasPermission: checkAccess(Permission.READ_PROJECT_RELEASE),
+      isSubItem: false,
+    },
+  ];
+
+  const discoverItems: SidebarItemType[] = [
+    {
+      type: 'link',
+      to: '/templates',
+      label: t('Explore'),
+      show: true,
+      icon: CompassIcon,
+      hasPermission: true,
+      isSubItem: false,
+      onClick: () => {
+        handleExploreClick();
+        recordStaticPageAccess('/templates');
+      },
+    },
+    {
+      type: 'link',
+      to: '/impact',
+      label: t('Impact'),
+      icon: ChartLineIcon,
+      show: true,
+      hasPermission: true,
+      isSubItem: false,
+      locked: analyticsLocked,
+      lockedTooltip: t('Available on Pro plan'),
+      onClick: () => recordStaticPageAccess('/impact'),
+    },
+    {
+      type: 'link',
+      to: '/leaderboard',
+      label: t('Leaderboard'),
+      icon: TrophyIcon,
+      show: true,
+      hasPermission: true,
+      isSubItem: false,
+      locked: analyticsLocked,
+      lockedTooltip: t('Available on Pro plan'),
+      onClick: () => recordStaticPageAccess('/leaderboard'),
+    },
+  ];
+
+  const visible = (items: SidebarItemType[]) =>
+    items.filter(
+      (item) =>
+        item.show !== false &&
+        (isNil(item.hasPermission) || item.hasPermission),
+    );
+
+  const sections = [
+    { label: t('Products'), items: visible(productItems) },
+    { label: t('Misc'), items: visible(miscItems) },
+    { label: t('Discover'), items: visible(discoverItems) },
+  ].filter((section) => section.items.length > 0);
 
   return (
     !embedState.hideSideNav && (
@@ -249,114 +242,26 @@ export function ProjectDashboardSidebar({
         <AppSidebarHeader />
 
         <SidebarContent className="overflow-x-hidden">
-          <SidebarGroup>
-            <div className="mb-1 group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center">
+          <SidebarGroup className="pb-0">
+            <ProjectSwitcher />
+            <div className="mt-1 group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:justify-center">
               <GlobalSearchCommand />
             </div>
-            <SidebarMenu>
-              {items.map((item) => (
-                <ApSidebarItem key={item.label} {...item} />
-              ))}
-            </SidebarMenu>
           </SidebarGroup>
 
-          <SidebarSeparator />
-
-          <SidebarGroup className="flex-1 overflow-hidden">
-            <div className="flex items-center justify-between group-data-[collapsible=icon]:hidden">
-              <SidebarGroupLabel>{t('Projects')}</SidebarGroupLabel>
-              <div className="flex items-center justify-center gap-2">
-                {shouldShowNewProjectButton && (
-                  <CreateProjectButton
-                    variant="icon"
-                    onCreate={(project) => {
-                      navigate(`/projects/${project.id}/flows`);
-                    }}
-                  />
-                )}
-                <Popover open={searchOpen} onOpenChange={setSearchOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-6 w-6 hover:bg-accent"
-                    >
-                      <Search />
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent
-                    className="w-[280px] p-3"
-                    align="start"
-                    side="right"
-                    sideOffset={8}
-                  >
-                    <SearchInput
-                      placeholder={t('Search projects...')}
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e)}
-                      className="h-8"
-                      autoFocus
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-            </div>
-            <div
-              className="flex-1 grow min-h-0 flex flex-col overflow-hidden"
-              onClick={(e) => {
-                e.stopPropagation();
-              }}
-            >
-              <div className="flex max-h-[100%]">
-                {displayProjects.length > 0 ? (
-                  <VirtualizedScrollArea
-                    className={cn(
-                      'flex-1',
-                      state === 'collapsed'
-                        ? 'flex flex-col items-center scrollbar-none'
-                        : '',
-                    )}
-                    items={displayProjects}
-                    estimateSize={() => 35}
-                    getItemKey={(index) => displayProjects[index]?.id ?? index}
-                    overscan={10}
-                    renderItem={(project) => (
-                      <SidebarMenuItem className="w-full">
-                        <ProjectSideBarItem
-                          key={project.id}
-                          project={project}
-                          isCurrentProject={location.pathname.includes(
-                            `/projects/${project.id}`,
-                          )}
-                          handleProjectSelect={handleProjectSelect}
-                        />
-                      </SidebarMenuItem>
-                    )}
-                  />
-                ) : (
-                  isSearchMode && (
-                    <div className="px-2 py-2 text-sm text-muted-foreground">
-                      {state === 'expanded' && t('No projects found.')}
-                    </div>
-                  )
-                )}
-              </div>
-              {shouldShowInlineAddButton && state === 'expanded' && (
-                <SidebarMenu>
-                  <SidebarMenuItem>
-                    <CreateProjectButton
-                      variant="sidebar-menu"
-                      onCreate={(project) => {
-                        navigate(`/projects/${project.id}/flows`);
-                      }}
-                    />
-                  </SidebarMenuItem>
-                </SidebarMenu>
-              )}
-            </div>
-          </SidebarGroup>
+          {sections.map((section) => (
+            <SidebarGroup key={section.label} className="py-1">
+              <SidebarGroupLabel>{section.label}</SidebarGroupLabel>
+              <SidebarMenu>
+                {section.items.map((item) => (
+                  <ApSidebarItem key={item.label} {...item} />
+                ))}
+              </SidebarMenu>
+            </SidebarGroup>
+          ))}
         </SidebarContent>
         <SidebarFooter>
+          <SidebarHelpAndFeedback />
           {state === 'expanded' && <DelayedSidebarUsageLimits />}
           <SidebarPlatformAdminLink />
           <SidebarUser />

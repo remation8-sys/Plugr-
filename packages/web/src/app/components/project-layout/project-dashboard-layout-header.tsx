@@ -1,8 +1,10 @@
 import { Permission } from '@activepieces/shared';
 import { t } from 'i18next';
-import { useRef } from 'react';
+import { Table2 } from 'lucide-react';
+import { ComponentType, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
+import { McpSvg } from '@/assets/img/custom/mcp';
 import { BoxIcon } from '@/components/icons/box';
 import { ConnectIcon } from '@/components/icons/connect';
 import { HistoryIcon } from '@/components/icons/history';
@@ -13,6 +15,7 @@ import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { projectCollectionUtils } from '@/features/projects';
 import { useAuthorization } from '@/hooks/authorization-hooks';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { authenticationSession } from '@/lib/authentication-session';
 
 import { ProjectDashboardPageHeader } from './project-dashboard-page-header';
@@ -62,13 +65,73 @@ const AnimatedTab = ({
   );
 };
 
+type PageTitleInfo = {
+  label: string;
+  icon: ComponentType<{ className?: string; size?: number }>;
+};
+
+const getPageTitle = (
+  pathname: string,
+  search: string,
+): PageTitleInfo | null => {
+  if (pathname.includes('/automations')) {
+    return search.includes('type=table')
+      ? { label: t('Tables'), icon: Table2 }
+      : { label: t('Flows'), icon: WorkflowIcon };
+  }
+  if (pathname.includes('/runs')) {
+    return { label: t('Runs'), icon: HistoryIcon };
+  }
+  if (pathname.includes('/connections')) {
+    return { label: t('Connections'), icon: ConnectIcon };
+  }
+  if (pathname.includes('/variables')) {
+    return { label: t('Variables'), icon: VariableIcon };
+  }
+  if (pathname.includes('/releases')) {
+    return { label: t('Releases'), icon: BoxIcon };
+  }
+  if (pathname.includes('/mcp')) {
+    return { label: t('MCP Server'), icon: McpSvg };
+  }
+  return null;
+};
+
+const PageTitleContent = ({ title }: { title: PageTitleInfo }) => {
+  const Icon = title.icon;
+  return (
+    <div className="flex items-center gap-2">
+      <Icon className="size-4" />
+      <span className="text-sm font-medium">{title.label}</span>
+    </div>
+  );
+};
+
 export const ProjectDashboardLayoutHeader = () => {
   const { project } = projectCollectionUtils.useCurrentProject();
   const { checkAccess } = useAuthorization();
   const { embedState } = useEmbedding();
   const location = useLocation();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const isEmbedded = embedState.isEmbedded;
+
+  // Desktop: navigation lives in the sidebar, the header only shows the
+  // current page title. Mobile keeps the tab bar (its sidebar never renders).
+  if (!isMobile) {
+    const pageTitle = getPageTitle(location.pathname, location.search);
+    return (
+      <div className="flex flex-col">
+        {!isEmbedded && (
+          <ProjectDashboardPageHeader
+            titleOverride={
+              pageTitle ? <PageTitleContent title={pageTitle} /> : undefined
+            }
+          />
+        )}
+      </div>
+    );
+  }
 
   const primaryTabs: ProjectDashboardLayoutHeaderTab[] = [
     {

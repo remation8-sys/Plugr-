@@ -11,6 +11,9 @@ export const routesThatRequireProjectId = {
   connections: '/connections',
   singleConnection: '/connections/:connectionId',
   variables: '/variables',
+  // NOTE: the backend serves the MCP protocol under /mcp (see the vite proxy),
+  // so the frontend page lives at /mcps to avoid colliding on hard reloads.
+  mcp: '/mcps',
   tables: '/tables',
   singleTable: '/tables/:tableId',
   settings: '/settings',
