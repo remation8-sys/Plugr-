@@ -135,7 +135,7 @@ const ApStepCanvasNode = React.memo(
           'transition-all border-box rounded-md border border-solid border-border relative overflow-visible  group',
           {
             'border-primary': isSelected,
-            'bg-background': !isDragging,
+            'bg-background dark:bg-card': !isDragging,
             'border-none': isDragging,
             'shadow-none': isDragging,
             'bg-accent': isSkipped,

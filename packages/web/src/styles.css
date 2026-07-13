@@ -501,17 +501,18 @@
   }
 
   .dark {
-    --background: #050D1A;
+    /* Dark theme — neutral graphite surfaces; brand blue reserved for primary/accent/focus, not the base UI */
+    --background: #0a0a0b;
     --foreground: #F0FAFF;
-    --card: #0A1628;
-    --popover: #0A1628;
-    --muted: #0A1628;
-    --muted-foreground: #7AB8CC;
+    --card: #19191c;
+    --popover: #19191c;
+    --muted: #19191c;
+    --muted-foreground: #a1a1aa;
 
     --secondary: #0099CC;
     --secondary-foreground: #F0FAFF;
 
-    --accent: #0A1628;
+    --accent: #19191c;
     --accent-foreground: #F0FAFF;
 
     --primary-100: 220 100% 93%;
@@ -524,8 +525,8 @@
 
     --warning: var(--warning-400);
 
-    --border: rgb(122 184 204 / 0.24);
-    --input: rgb(122 184 204 / 0.24);
+    --border: rgb(255 255 255 / 0.14);
+    --input: rgb(255 255 255 / 0.14);
 
     --ring: #0055ff;
     --radius: 0.5rem;
@@ -538,17 +539,17 @@
     --chart-4: 349 100% 65%;
     --chart-5: 200 100% 97%;
 
-    --sidebar-background: #0A1628;
+    --sidebar-background: #19191c;
     --sidebar-foreground: #F0FAFF;
     --sidebar-primary: 220 100% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: rgb(0 85 255 / 0.18);
     --sidebar-accent-foreground: #F0FAFF;
-    --sidebar-border: rgb(122 184 204 / 0.24);
+    --sidebar-border: rgb(255 255 255 / 0.14);
     --sidebar-ring: #0055ff;
     --sidebar-progress: 195 45% 64%;
-    --builder-background: #050D1A;
-    --builder-background-pattern: rgb(122 184 204 / 0.32);
+    --builder-background: #0a0a0b;
+    --builder-background-pattern: rgb(255 255 255 / 0.16);
   }
 }
 
