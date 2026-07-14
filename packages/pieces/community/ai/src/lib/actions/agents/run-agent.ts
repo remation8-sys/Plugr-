@@ -147,7 +147,7 @@ export const runAgent = createAction({
   },
   async run(context) {
     const { prompt, maxSteps } = context.propsValue;
-    const agentProviderModel: AgentProviderModel = { ...PLUGR_SPECIALIST_AGENT_MODEL }
+    const agentProviderModel = context.propsValue.aiProviderModel as AgentProviderModel
     const provider = agentProviderModel.provider as AIProviderName;
     const webSearchEnabled = !!(context.propsValue.webSearch);
     const webSearchOptions = (context.propsValue.webSearchOptions ?? {}) as WebSearchOptions;

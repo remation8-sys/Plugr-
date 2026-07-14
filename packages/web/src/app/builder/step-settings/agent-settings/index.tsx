@@ -2,12 +2,10 @@ import {
   AgentPieceProps,
   AgentProviderModel,
   AIProviderName,
-  PLUGR_SPECIALIST_AGENT_MODEL,
   isNil,
   PieceAction,
   PieceActionSettings,
 } from '@activepieces/shared';
-import { useEffect } from 'react';
 import { useFormContext } from 'react-hook-form';
 
 import { AgentTools } from '@/app/builder/step-settings/agent-settings/agent-tools';
@@ -31,18 +29,6 @@ export const AgentSettings = (props: AgentSettingsProps) => {
   const { pieceModel, updateFormSchema, updatePropertySettingsSchema } =
     useStepSettingsContext();
   const form = useFormContext();
-
-  useEffect(() => {
-    form.setValue(
-      `settings.input.${AgentPieceProps.AI_PROVIDER_MODEL}`,
-      PLUGR_SPECIALIST_AGENT_MODEL,
-      { shouldValidate: true },
-    );
-    // Run once on mount; `form` from useFormContext() is a new ref each render
-    // (FormProvider spreads props as its context value), so listing it here
-    // causes an infinite setValue→revalidate→render loop (React #185).
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   if (isNil(pieceModel)) {
     return (
@@ -136,14 +122,15 @@ const selectAgentFormComponentForProperty = (
       );
     }
     case AgentPieceProps.AI_PROVIDER_MODEL: {
-      const provider = PLUGR_SPECIALIST_AGENT_MODEL.provider;
-      const model = PLUGR_SPECIALIST_AGENT_MODEL.model;
+      const providerModel = field.value as AgentProviderModel | undefined;
       return (
         <AIModelSelector
-          defaultModel={model}
-          defaultProvider={provider}
-          onChange={() => field.onChange(PLUGR_SPECIALIST_AGENT_MODEL)}
-          disabled={true}
+          defaultModel={providerModel?.model}
+          defaultProvider={providerModel?.provider}
+          onChange={({ provider, model }) =>
+            field.onChange({ provider, model })
+          }
+          disabled={disabled}
         />
       );
     }
