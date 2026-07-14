@@ -90,8 +90,17 @@ export async function openPlugrInlineCheckout(
       }
       window.location.href = `/billing/success?${params.toString()}`;
     },
-    onclose: () => {
-      // User dismissed the modal without completing — stay on the page.
+    onclose: (incomplete) => {
+      // Flutterwave calls `callback` on a completed attempt (success or
+      // decline) but only `onclose` fires when the modal is dismissed after
+      // a failed/abandoned charge — no transaction_id is available here, only
+      // the tx_ref we generated. Route through /billing/success anyway so it
+      // verifies by reference and reconciles the pending row we created at
+      // checkout-start (otherwise it never resolves out of 'pending').
+      if (!incomplete) {
+        return;
+      }
+      window.location.href = `/billing/success?tx_ref=${encodeURIComponent(inline.txRef)}`;
     },
   });
 }

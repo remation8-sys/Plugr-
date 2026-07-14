@@ -127,22 +127,25 @@ export const flutterwaveBillingService = (log: FastifyBaseLogger) => ({
             'verify transaction',
             async () => client().get<FlutterwaveVerifyResponse>(path, await authHeaders(log)),
         )
-        const data = response.data.data
-        assertNotNullOrUndefined(data, response.data.message ?? 'Flutterwave transaction was not found')
-        const currency = parseCurrency(data.currency)
-        return {
-            id: String(data.id),
-            reference: data.tx_ref ?? data.reference ?? '',
-            status: data.status,
-            amount: Number(data.amount),
-            currency,
-            flutterwaveReference: stringifyNullable(data.flw_ref),
-            customerId: stringifyNullable(data.customer?.id),
-            customerEmail: data.customer?.email ?? null,
-            paymentPlanId: stringifyNullable(data.payment_plan),
-            meta: data.meta ?? {},
-            processorResponse: stringifyProcessorResponse(data.processor_response),
+        return toVerifiedTransaction(response.data)
+    },
+
+    async verifyTransactionByReference(reference: string): Promise<VerifiedTransaction> {
+        if (!hasSecretKey()) {
+            throw new Error('Flutterwave verify-by-reference requires a secret key; OAuth credentials are not supported for this lookup')
         }
+        const response = await withFlutterwaveRequestLog(
+            log,
+            'verify transaction by reference',
+            async () => {
+                const headers = await authHeaders(log)
+                return client().get<FlutterwaveVerifyResponse>('/transactions/verify_by_reference', {
+                    ...headers,
+                    params: { tx_ref: reference },
+                })
+            },
+        )
+        return toVerifiedTransaction(response.data)
     },
 
     async cancelSubscription(subscriptionId: string): Promise<void> {
@@ -208,6 +211,24 @@ async function getAccessToken(log: FastifyBaseLogger): Promise<string> {
 function client() {
     const baseURL = (billingEnv.get('FLUTTERWAVE_API_BASE_URL') ?? DEFAULT_FLUTTERWAVE_BASE_URL).replace(/\/$/, '')
     return safeHttp.createAxios({ baseURL, timeout: REQUEST_TIMEOUT_MS })
+}
+
+function toVerifiedTransaction(body: FlutterwaveVerifyResponse): VerifiedTransaction {
+    const data = body.data
+    assertNotNullOrUndefined(data, body.message ?? 'Flutterwave transaction was not found')
+    return {
+        id: String(data.id),
+        reference: data.tx_ref ?? data.reference ?? '',
+        status: data.status,
+        amount: Number(data.amount),
+        currency: parseCurrency(data.currency),
+        flutterwaveReference: stringifyNullable(data.flw_ref),
+        customerId: stringifyNullable(data.customer?.id),
+        customerEmail: data.customer?.email ?? null,
+        paymentPlanId: stringifyNullable(data.payment_plan),
+        meta: data.meta ?? {},
+        processorResponse: stringifyProcessorResponse(data.processor_response),
+    }
 }
 
 function parseCurrency(currency: string | undefined): PlugrBillingCurrency {

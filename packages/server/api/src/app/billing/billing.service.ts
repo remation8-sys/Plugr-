@@ -253,6 +253,19 @@ export const plugrBillingService = (log: FastifyBaseLogger) => ({
             else if (record?.status === 'failed') {
                 status = 'failed'
             }
+            else if (!isNil(record)) {
+                // Inline-checkout closes (e.g. after a decline) only give us the tx_ref,
+                // never a transaction_id — ask Flutterwave directly so the pending row
+                // gets reconciled instead of sitting as 'pending' forever.
+                try {
+                    const transaction = await flutterwaveBillingService(log).verifyTransactionByReference(reference)
+                    await this.applyVerifiedTransaction(transaction)
+                    status = isSuccessfulTransaction(transaction.status) ? 'successful' : 'failed'
+                }
+                catch (error) {
+                    log.warn({ err: error, reference }, 'Flutterwave reference verification failed; leaving transaction pending')
+                }
+            }
         }
         const billing = await this.getInfo({ userId: params.userId })
         return { status, billing }
