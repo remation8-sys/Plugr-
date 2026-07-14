@@ -27,7 +27,7 @@ export const aiProps = <T extends AIModelType>({
       const { body: supportedProviders } =
         await httpClient.sendRequest<AIProviderWithoutSensitiveData[]>({
           method: HttpMethod.GET,
-          url: `${ctx.server.apiUrl}v1/ai-providers`,
+          url: `${ctx.server.apiUrl}v1/ai-providers?excludeManagedChat=true`,
           headers: {
             Authorization: `Bearer ${ctx.server.token}`,
           },

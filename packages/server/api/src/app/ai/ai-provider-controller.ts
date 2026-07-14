@@ -8,7 +8,9 @@ import { aiProviderService } from './ai-provider-service'
 export const aiProviderController: FastifyPluginAsyncZod = async (app) => {
     app.get('/', ListAIProviders, async (request) => {
         const platformId = request.principal.platform.id
-        return aiProviderService(app.log).listProviders(platformId)
+        return aiProviderService(app.log).listProviders(platformId, {
+            excludeManagedChat: request.query.excludeManagedChat === 'true',
+        })
     })
     app.get('/:provider/config', GetAIProviderConfig, async (request) => {
         const platformId = request.principal.platform.id
@@ -36,6 +38,11 @@ export const aiProviderController: FastifyPluginAsyncZod = async (app) => {
 const ListAIProviders = {
     config: {
         security: securityAccess.publicPlatform([PrincipalType.USER, PrincipalType.ENGINE]),
+    },
+    schema: {
+        querystring: z.object({
+            excludeManagedChat: z.enum(['true', 'false']).optional(),
+        }),
     },
 }
 

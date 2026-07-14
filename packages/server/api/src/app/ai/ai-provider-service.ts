@@ -40,7 +40,7 @@ export const aiProviderService = (log: FastifyBaseLogger) => ({
         })
     },
 
-    async listProviders(platformId: PlatformId): Promise<AIProviderWithoutSensitiveData[]> {
+    async listProviders(platformId: PlatformId, options?: { excludeManagedChat?: boolean }): Promise<AIProviderWithoutSensitiveData[]> {
         const activepiecesExists = await aiProviderRepo().existsBy({
             platformId,
             provider: AIProviderName.ACTIVEPIECES,
@@ -71,10 +71,13 @@ export const aiProviderService = (log: FastifyBaseLogger) => ({
         // configure their own provider. Surface it as a managed chat provider so the
         // chat UI's "has provider" check passes on every workspace; the real LLM call
         // resolves the global key server-side (chat-helpers.resolveChatProvider).
+        // Callers building workflows (Ask AI / Run Agent provider pickers) pass
+        // excludeManagedChat so this chat-only stand-in never shows up as something
+        // a flow can actually execute against — customers bring their own key for that.
         const globalOpenRouterKey = billingEnv.get('OPENROUTER_API_KEY')
         const globalAnthropicKey = billingEnv.get('ANTHROPIC_API_KEY')
         const globalChatKey = globalOpenRouterKey ?? globalAnthropicKey
-        if (!isNil(globalChatKey) && !providers.some((p) => p.enabledForChat)) {
+        if (!options?.excludeManagedChat && !isNil(globalChatKey) && !providers.some((p) => p.enabledForChat)) {
             providers.push({
                 id: 'plugr-managed-chat',
                 name: 'Plugr',

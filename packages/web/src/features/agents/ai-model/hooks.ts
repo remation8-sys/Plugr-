@@ -39,8 +39,8 @@ function getAllowedModelsForProvider(
 export const aiModelHooks = {
   useListProviders: () => {
     return useQuery({
-      queryKey: ['ai-providers'],
-      queryFn: () => aiProviderApi.list(),
+      queryKey: ['ai-providers', 'execution'],
+      queryFn: () => aiProviderApi.list({ excludeManagedChat: true }),
     });
   },
 
