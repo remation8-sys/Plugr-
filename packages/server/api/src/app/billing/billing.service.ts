@@ -231,8 +231,10 @@ export const plugrBillingService = (log: FastifyBaseLogger) => ({
 
     async verifyAndApplyTransaction(params: VerifyTransactionParams): Promise<PlugrVerifyTransactionResponse> {
         let status: PlugrVerifyTransactionResponse['status'] = 'pending'
-        if (!isNil(params.transactionId) && params.transactionId.length > 0) {
-            const transaction = await flutterwaveBillingService(log).verifyTransaction(params.transactionId)
+        const transactionId = normalizeGatewayValue(params.transactionId)
+        const reference = normalizeGatewayValue(params.reference)
+        if (!isNil(transactionId)) {
+            const transaction = await flutterwaveBillingService(log).verifyTransaction(transactionId)
             const ownerId = getStringMeta(transaction.meta, 'userId')
             if (!isNil(ownerId) && ownerId !== params.userId) {
                 throw new ActivepiecesError({
@@ -243,8 +245,8 @@ export const plugrBillingService = (log: FastifyBaseLogger) => ({
             await this.applyVerifiedTransaction(transaction)
             status = isSuccessfulTransaction(transaction.status) ? 'successful' : 'failed'
         }
-        else if (!isNil(params.reference) && params.reference.length > 0) {
-            const record = await billingTransactionRepo().findOneBy({ userId: params.userId, flutterwaveReference: params.reference })
+        else if (!isNil(reference)) {
+            const record = await billingTransactionRepo().findOneBy({ userId: params.userId, flutterwaveReference: reference })
             if (record?.status === 'successful') {
                 status = 'successful'
             }
@@ -681,6 +683,14 @@ function getStringMeta(meta: Record<string, unknown>, key: string): string | und
         return String(value)
     }
     return undefined
+}
+
+function normalizeGatewayValue(value: string | undefined): string | undefined {
+    const normalized = value?.trim()
+    if (isNil(normalized) || normalized.length === 0 || ['null', 'undefined'].includes(normalized.toLowerCase())) {
+        return undefined
+    }
+    return normalized
 }
 
 function assertAmountMatches({ actual, expected, currency }: AssertAmountMatchesParams): void {

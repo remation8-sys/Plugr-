@@ -94,23 +94,27 @@ export const flutterwaveBillingService = (log: FastifyBaseLogger) => ({
     },
 
     async createCheckout(params: CreateCheckoutParams): Promise<string> {
-        const response = await client().post<FlutterwaveStandardPaymentResponse>('/payments', {
-            tx_ref: params.reference,
-            amount: params.amount,
-            currency: params.currency,
-            redirect_url: params.redirectUrl,
-            customer: {
-                email: params.customerEmail,
-                name: params.customerName,
-            },
-            customizations: {
-                title: params.title,
-                description: params.description,
-            },
-            meta: sanitizeObjectForPostgresql(params.metadata),
-            payment_options: 'card,banktransfer,ussd',
-            ...spreadPaymentPlan(params.paymentPlanId),
-        }, await authHeaders(log))
+        const response = await withFlutterwaveRequestLog(
+            log,
+            'create checkout',
+            async () => client().post<FlutterwaveStandardPaymentResponse>('/payments', {
+                tx_ref: params.reference,
+                amount: params.amount,
+                currency: params.currency,
+                redirect_url: params.redirectUrl,
+                customer: {
+                    email: params.customerEmail,
+                    name: params.customerName,
+                },
+                customizations: {
+                    title: params.title,
+                    description: params.description,
+                },
+                meta: sanitizeObjectForPostgresql(params.metadata),
+                payment_options: 'card,banktransfer,ussd',
+                ...spreadPaymentPlan(params.paymentPlanId),
+            }, await authHeaders(log)),
+        )
         const checkoutUrl = response.data.data?.link
         assertNotNullOrUndefined(checkoutUrl, response.data.message ?? 'Flutterwave did not return a checkout link')
         return checkoutUrl
@@ -118,7 +122,11 @@ export const flutterwaveBillingService = (log: FastifyBaseLogger) => ({
 
     async verifyTransaction(transactionId: string): Promise<VerifiedTransaction> {
         const path = hasSecretKey() ? `/transactions/${transactionId}/verify` : `/charges/${transactionId}`
-        const response = await client().get<FlutterwaveVerifyResponse>(path, await authHeaders(log))
+        const response = await withFlutterwaveRequestLog(
+            log,
+            'verify transaction',
+            async () => client().get<FlutterwaveVerifyResponse>(path, await authHeaders(log)),
+        )
         const data = response.data.data
         assertNotNullOrUndefined(data, response.data.message ?? 'Flutterwave transaction was not found')
         const currency = parseCurrency(data.currency)
@@ -219,6 +227,38 @@ function stringifyProcessorResponse(value: string | Record<string, unknown> | un
         return null
     }
     return typeof value === 'string' ? value : JSON.stringify(value)
+}
+
+async function withFlutterwaveRequestLog<T>(
+    log: FastifyBaseLogger,
+    operation: string,
+    request: () => Promise<T>,
+): Promise<T> {
+    try {
+        return await request()
+    }
+    catch (error) {
+        log.warn({ err: toSafeFlutterwaveError(error), operation }, 'Flutterwave request failed')
+        throw new Error(`Flutterwave ${operation} failed`)
+    }
+}
+
+function toSafeFlutterwaveError(error: unknown): Record<string, unknown> {
+    if (!isObject(error)) {
+        return { message: String(error) }
+    }
+    const response = isObject(error.response) ? error.response : undefined
+    return {
+        name: typeof error.name === 'string' ? error.name : undefined,
+        message: typeof error.message === 'string' ? error.message : undefined,
+        code: typeof error.code === 'string' ? error.code : undefined,
+        status: typeof response?.status === 'number' ? response.status : undefined,
+        statusText: typeof response?.statusText === 'string' ? response.statusText : undefined,
+    }
+}
+
+function isObject(value: unknown): value is Record<string, unknown> {
+    return typeof value === 'object' && value !== null
 }
 
 function hasSecretKey(): boolean {

@@ -14,10 +14,13 @@ export function BillingSuccessPage() {
 
   // Flutterwave appends these to the redirect URL after the checkout flow ends,
   // whether the payment succeeded, failed, or was cancelled.
-  const gatewayStatus = searchParams.get('status');
-  const transactionId =
-    searchParams.get('transaction_id') ?? searchParams.get('transactionId');
-  const reference = searchParams.get('tx_ref') ?? searchParams.get('reference');
+  const gatewayStatus = normalizeGatewayParam(searchParams.get('status'));
+  const transactionId = normalizeGatewayParam(
+    searchParams.get('transaction_id') ?? searchParams.get('transactionId'),
+  );
+  const reference = normalizeGatewayParam(
+    searchParams.get('tx_ref') ?? searchParams.get('reference'),
+  );
 
   // We never trust the gateway's status query param on its own — it is granted
   // server-side only after Flutterwave verification. But a cancel with no
@@ -128,6 +131,18 @@ function Centered({ icon, tone, title, description, actions }: CenteredProps) {
       )}
     </div>
   );
+}
+
+function normalizeGatewayParam(value: string | null): string | undefined {
+  const normalized = value?.trim();
+  if (
+    !normalized ||
+    normalized.toLowerCase() === 'null' ||
+    normalized.toLowerCase() === 'undefined'
+  ) {
+    return undefined;
+  }
+  return normalized;
 }
 
 export default BillingSuccessPage;

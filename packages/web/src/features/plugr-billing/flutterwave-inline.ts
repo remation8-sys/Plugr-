@@ -81,14 +81,29 @@ export async function openPlugrInlineCheckout(
     customizations: inline.customizations,
     callback: (payment) => {
       const params = new URLSearchParams({
-        status: String(payment?.status ?? ''),
-        tx_ref: String(payment?.tx_ref ?? inline.txRef),
-        transaction_id: String(payment?.transaction_id ?? ''),
+        status: normalizeFlutterwaveValue(payment?.status) ?? '',
+        tx_ref: normalizeFlutterwaveValue(payment?.tx_ref) ?? inline.txRef,
       });
+      const transactionId = normalizeFlutterwaveValue(payment?.transaction_id);
+      if (transactionId) {
+        params.set('transaction_id', transactionId);
+      }
       window.location.href = `/billing/success?${params.toString()}`;
     },
     onclose: () => {
       // User dismissed the modal without completing — stay on the page.
     },
   });
+}
+
+function normalizeFlutterwaveValue(value: number | string | undefined): string | undefined {
+  const normalized = value === undefined ? undefined : String(value).trim();
+  if (
+    !normalized ||
+    normalized.toLowerCase() === 'null' ||
+    normalized.toLowerCase() === 'undefined'
+  ) {
+    return undefined;
+  }
+  return normalized;
 }
