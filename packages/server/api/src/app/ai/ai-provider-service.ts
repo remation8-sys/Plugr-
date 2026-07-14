@@ -224,7 +224,21 @@ export const aiProviderService = (log: FastifyBaseLogger) => ({
             })
         }
 
-        let auth = await encryptUtils.decryptObject<AIProviderAuthConfig>(aiProvider.auth)
+        let auth: AIProviderAuthConfig
+        try {
+            auth = await encryptUtils.decryptObject<AIProviderAuthConfig>(aiProvider.auth)
+        }
+        catch (error) {
+            log.error({ err: error, provider }, '[aiProviderService#getConfigOrThrow] Failed to decrypt stored provider credentials')
+            throw new ActivepiecesError({
+                code: ErrorCode.INVALID_AI_PROVIDER_CREDENTIALS,
+                params: {
+                    provider,
+                    message: `Stored credentials for ${provider} are corrupted or invalid. Please reconfigure this provider.`,
+                    httpErrorResponse: error instanceof Error ? error.message : 'Unknown error',
+                },
+            })
+        }
 
         if (aiProvider.provider === AIProviderName.ACTIVEPIECES) {
             const doesHaveKeys = !isNil(auth) && 'apiKey' in auth && !isNil(auth.apiKey) && auth.apiKey !== ''
