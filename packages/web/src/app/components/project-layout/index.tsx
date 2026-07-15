@@ -17,6 +17,7 @@ import {
 } from '@/features/plugr-billing';
 import { projectHooks } from '@/features/projects';
 import { flagsHooks } from '@/hooks/flags-hooks';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { userHooks } from '@/hooks/user-hooks';
 import { cn } from '@/lib/utils';
 
@@ -26,7 +27,6 @@ import {
   useGlobalSearch,
 } from '../global-search/global-search-context';
 import { ProjectDashboardSidebar } from '../sidebar/dashboard';
-import { useIsMobile } from '@/hooks/use-mobile';
 
 import { MobileBottomNav } from './mobile-bottom-nav';
 import { ProjectDashboardLayoutHeader } from './project-dashboard-layout-header';
