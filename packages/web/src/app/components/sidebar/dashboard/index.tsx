@@ -251,7 +251,9 @@ export function ProjectDashboardSidebar({
 
           {sections.map((section) => (
             <SidebarGroup key={section.label} className="py-1">
-              <SidebarGroupLabel>{section.label}</SidebarGroupLabel>
+              <SidebarGroupLabel className="text-xs uppercase tracking-wide text-muted-foreground">
+                {section.label}
+              </SidebarGroupLabel>
               <SidebarMenu>
                 {section.items.map((item) => (
                   <ApSidebarItem key={item.label} {...item} />

@@ -101,7 +101,7 @@ const PageTitleContent = ({ title }: { title: PageTitleInfo }) => {
   const Icon = title.icon;
   return (
     <div className="flex items-center gap-2">
-      <Icon className="size-4" />
+      <Icon className="size-4 text-muted-foreground" />
       <span className="text-sm font-medium">{title.label}</span>
     </div>
   );

@@ -177,9 +177,7 @@ function ProjectDashboardLayoutInner({
               className={cn(
                 'relative flex flex-col h-full bg-background overflow-clip',
                 isMobile && 'pt-[env(safe-area-inset-top)]',
-                !isEmbedded &&
-                  !isMobile &&
-                  'rounded-xl shadow-[2px_0px_4px_-2px_rgba(0,0,0,0.05),0px_2px_4px_-2px_rgba(0,0,0,0.05)] border',
+                !isEmbedded && !isMobile && 'rounded-xl border',
               )}
             >
               {!hideHeader && (

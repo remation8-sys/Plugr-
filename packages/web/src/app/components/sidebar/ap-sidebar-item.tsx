@@ -57,6 +57,7 @@ export const ApSidebarItem = (item: SidebarItemType) => {
   const button = (
     <SidebarMenuButton
       className={cn(
+        'gap-x-3 px-3 group-data-[collapsible=icon]:px-0',
         { 'bg-sidebar-accent hover:bg-sidebar-accent!': isLinkActive },
         item.highlight && !isLinkActive && 'hover:bg-sidebar-accent/60',
       )}
@@ -69,7 +70,7 @@ export const ApSidebarItem = (item: SidebarItemType) => {
     >
       {item.icon && renderIcon(item.icon, iconRef, item.iconClassName)}
       {!isCollapsed && (
-        <span className={cn('text-sm', { 'font-semibold': isLinkActive })}>
+        <span className={cn('text-sm', { 'font-medium': isLinkActive })}>
           {item.label}
         </span>
       )}
