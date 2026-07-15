@@ -24,6 +24,7 @@ import '@xyflow/react/dist/style.css';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 
 import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 
 import { useBuilderStateContext } from '../builder-hooks';
 import { useHandleKeyPressOnCanvas } from '../shortcuts';
@@ -220,7 +221,9 @@ export const FlowCanvas = React.memo(
           <CanvasContextMenu contextMenuType={contextMenuType}>
             <ReactFlow
               key={`canvas-${canvasOrientation}`}
-              className="bg-builder-background"
+              className={cn('bg-builder-background', {
+                'canvas-grab-mode': inGrabPanningMode,
+              })}
               onContextMenu={onContextMenu}
               onPaneClick={() => {
                 reactFlowStore.getState().unselectNodesAndEdges();

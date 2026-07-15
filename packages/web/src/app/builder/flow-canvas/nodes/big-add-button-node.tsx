@@ -1,6 +1,7 @@
 import { isNil } from '@activepieces/shared';
 import { DragMoveEvent, useDndMonitor, useDroppable } from '@dnd-kit/core';
 import { Handle, Position } from '@xyflow/react';
+import { t } from 'i18next';
 import { Plus } from 'lucide-react';
 import React, { useId, useState } from 'react';
 
@@ -44,6 +45,9 @@ const ApBigAddButtonCanvasNode = React.memo(
       onDragEnd() {
         setIsStepInsideDropzone(false);
       },
+      onDragCancel() {
+        setIsStepInsideDropzone(false);
+      },
     });
     const stepNodeSize = flowCanvasConsts.STEP_NODE_SIZE[canvasOrientation];
     return (
@@ -54,17 +58,16 @@ const ApBigAddButtonCanvasNode = React.memo(
               height: `${stepNodeSize.height}px`,
               width: `${stepNodeSize.width}px`,
             }}
-            className="flex justify-center items-center "
+            className="flex items-center justify-center"
           >
             {!readonly && (
-              //we use transparent colors when opening the piece selector, so to not show the pattern of the background inside the button, we wrap the big add button in a div with the background color
               <div className="bg-builder-background">
                 <div
                   style={{
                     height: `${flowCanvasConsts.AP_NODE_SIZE.BIG_ADD_BUTTON.height}px`,
                     width: `${flowCanvasConsts.AP_NODE_SIZE.BIG_ADD_BUTTON.width}px`,
                   }}
-                  className=" cursor-auto border-none flex items-center justify-center relative "
+                  className="relative flex cursor-auto items-center justify-center border-none"
                 >
                   <div
                     style={{
@@ -72,16 +75,15 @@ const ApBigAddButtonCanvasNode = React.memo(
                       width: `${flowCanvasConsts.AP_NODE_SIZE.BIG_ADD_BUTTON.width}px`,
                     }}
                     id={id}
-                    className={cn('rounded-lg bg-card relative', {
-                      'bg-primary/80':
-                        isShowingDropIndicator || isPieceSelectorOpened,
-                      'shadow-add-button':
-                        isIsStepInsideDropzone || isPieceSelectorOpened,
-                      'transition-all':
-                        isIsStepInsideDropzone ||
-                        isPieceSelectorOpened ||
-                        isShowingDropIndicator,
-                    })}
+                    className={cn(
+                      'relative rounded-lg border border-border bg-card transition-all duration-150 motion-reduce:transition-none',
+                      {
+                        'border-primary/45 bg-primary/15 text-primary ring-4 ring-primary/10':
+                          isShowingDropIndicator || isPieceSelectorOpened,
+                        'scale-105 shadow-add-button':
+                          isIsStepInsideDropzone || isPieceSelectorOpened,
+                      },
+                    )}
                   >
                     {!isShowingDropIndicator && (
                       <PieceSelector
@@ -93,10 +95,11 @@ const ApBigAddButtonCanvasNode = React.memo(
                         <span>
                           <Button
                             variant="transparent"
-                            className="w-full h-full flex items-center hover:bg-accent rounded-lg border-border border-solid border"
+                            aria-label={t('Add step')}
+                            className="flex h-full w-full items-center rounded-lg border border-border bg-card text-foreground transition-all duration-150 hover:scale-105 hover:border-primary/40 hover:bg-accent focus-visible:ring-2 focus-visible:ring-primary/25 motion-reduce:transition-none"
                           >
                             <Plus
-                              className={cn('w-6 h-6 text-foreground ', {
+                              className={cn('size-6 text-foreground', {
                                 'opacity-0':
                                   isShowingDropIndicator ||
                                   isPieceSelectorOpened,
@@ -106,9 +109,13 @@ const ApBigAddButtonCanvasNode = React.memo(
                         </span>
                       </PieceSelector>
                     )}
+                    {isShowingDropIndicator && (
+                      <div className="flex h-full w-full items-center justify-center">
+                        <Plus className="size-5 stroke-[3px] text-primary" />
+                      </div>
+                    )}
                   </div>
                   {isShowingDropIndicator && (
-                    //this is an invisible div that is used to show the drop indicator when the step is being dragged over the big add button, it is a rectangle so there is more leanancy to drop the step on the big add button
                     <div
                       style={{
                         height: `${stepNodeSize.height}px`,
@@ -118,7 +125,7 @@ const ApBigAddButtonCanvasNode = React.memo(
                           flowCanvasConsts.AP_NODE_SIZE.BIG_ADD_BUTTON.width / 2
                         }px`,
                       }}
-                      className=" absolute "
+                      className="absolute rounded-xl"
                       ref={setNodeRef}
                     >
                       {' '}
@@ -133,12 +140,12 @@ const ApBigAddButtonCanvasNode = React.memo(
                   height: `${stepNodeSize.height}px`,
                   width: `${stepNodeSize.width}px`,
                 }}
-                className=" cursor-auto  flex items-center justify-center relative "
+                className="relative flex cursor-auto items-center justify-center"
               >
                 <svg
                   height={stepNodeSize.height}
                   width={stepNodeSize.width}
-                  className="overflow-visible border-transparent "
+                  className="overflow-visible border-transparent"
                   style={{
                     stroke: 'var(--xy-edge-stroke, var(--xy-edge-stroke))',
                   }}

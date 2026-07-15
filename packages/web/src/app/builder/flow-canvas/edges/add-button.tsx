@@ -1,5 +1,6 @@
 import { isNil } from '@activepieces/shared';
-import { useDndMonitor, useDroppable, DragMoveEvent } from '@dnd-kit/core';
+import { DragMoveEvent, useDndMonitor, useDroppable } from '@dnd-kit/core';
+import { t } from 'i18next';
 import { Plus } from 'lucide-react';
 import React, { useState } from 'react';
 
@@ -39,6 +40,9 @@ const ApAddButton = React.memo((props: ApButtonData) => {
     onDragEnd() {
       setIsStepInsideDropzone(false);
     },
+    onDragCancel() {
+      setIsStepInsideDropzone(false);
+    },
   });
 
   return (
@@ -49,10 +53,15 @@ const ApAddButton = React.memo((props: ApButtonData) => {
             width: flowCanvasConsts.AP_NODE_SIZE.ADD_BUTTON.width + 'px',
             height: flowCanvasConsts.AP_NODE_SIZE.ADD_BUTTON.height + 'px',
           }}
-          className={cn('transition-all bg-primary/90  rounded-md', {
-            'shadow-add-button': isStepInsideDropZone,
-          })}
+          className={cn(
+            'relative flex items-center justify-center rounded-lg border border-primary/45 bg-primary/15 text-primary shadow-sm transition-all duration-150 motion-reduce:transition-none',
+            {
+              'scale-125 bg-primary/25 ring-4 ring-primary/15 shadow-add-button':
+                isStepInsideDropZone,
+            },
+          )}
         >
+          <Plus className="size-3 stroke-[3px]" />
           <div
             style={{
               width:
@@ -76,7 +85,7 @@ const ApAddButton = React.memo((props: ApButtonData) => {
                   }px`
                 : `${-flowCanvasConsts.VERTICAL_SPACE_BETWEEN_STEPS / 2}px`,
             }}
-            className={cn(' absolute    rounded-md box-content ')}
+            className="absolute rounded-xl border border-primary/0 bg-primary/0"
             ref={setNodeRef}
           ></div>
         </div>
@@ -97,7 +106,7 @@ const ApAddButton = React.memo((props: ApButtonData) => {
                 width: flowCanvasConsts.AP_NODE_SIZE.ADD_BUTTON.width + 'px',
                 height: flowCanvasConsts.AP_NODE_SIZE.ADD_BUTTON.height + 'px',
               }}
-              className={cn('rounded-md cursor-pointer transition-all z-50', {
+              className={cn('rounded-lg transition-all duration-150', {
                 'shadow-add-button': isPieceSelectorOpen,
               })}
             >
@@ -108,15 +117,19 @@ const ApAddButton = React.memo((props: ApButtonData) => {
                     flowCanvasConsts.AP_NODE_SIZE.ADD_BUTTON.height + 'px',
                 }}
                 className={cn(
-                  'bg-card  border border-border border-solid relative group overflow-visible rounded-md cursor-pointer  flex items-center justify-center  transition-all duration-300 ease-in-out hover:bg-accent',
+                  'group relative z-50 flex cursor-pointer items-center justify-center overflow-visible rounded-lg border border-border bg-card transition-all duration-150 hover:scale-110 hover:border-primary/40 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25 motion-reduce:transition-none',
                   {
-                    'bg-primary border-primary': isPieceSelectorOpen,
+                    'border-primary bg-primary text-primary-foreground':
+                      isPieceSelectorOpen,
                   },
                 )}
+                role="button"
+                tabIndex={0}
+                aria-label={t('Add step')}
                 data-testid="add-action-button"
               >
                 {!isPieceSelectorOpen && (
-                  <Plus className="w-3 h-3 stroke-[3px] text-muted-foreground" />
+                  <Plus className="size-3 stroke-[3px] text-muted-foreground transition-colors group-hover:text-foreground" />
                 )}
               </div>
             </div>

@@ -10,13 +10,13 @@ import { useBuilderStateContext } from '../../builder-hooks';
 const Minimap = () => {
   const [showMinimap] = useBuilderStateContext((state) => [state.showMinimap]);
   const { theme } = useTheme();
-  const maskTransparency = theme === 'dark' ? 0.8 : 0.055;
+  const maskTransparency = theme === 'dark' ? 0.72 : 0.12;
   return (
     <>
       {showMinimap && (
         <MiniMap
           position="bottom-left"
-          className="!rounded-md border border-border !left-0 !ml-2 overflow-hidden !bottom-[45px] animate-in fade-in duration-300"
+          className="!bottom-16 !left-3 !rounded-lg !border !border-border/80 !bg-background/95 !shadow-lg backdrop-blur overflow-hidden animate-in fade-in zoom-in-95 duration-200 motion-reduce:animate-none"
           zoomable
           pannable
           zoomStep={0.3}
@@ -38,7 +38,7 @@ const MinimapNodeContent = ({
 }) => {
   const nodeColor = colorsUtils.useAverageColorInImage({
     imgUrl: stepMetadata.logoUrl ?? '',
-    transparency: 50,
+    transparency: 45,
   });
   const defaultColor = 'oklch(92.8% 0.006 264.531)';
 
@@ -49,7 +49,11 @@ const MinimapNodeContent = ({
       height={node.height}
       x={node.x}
       y={node.y}
+      rx={6}
+      ry={6}
       fill={nodeColor ?? defaultColor}
+      stroke="var(--background)"
+      strokeWidth={2}
     ></rect>
   );
 };

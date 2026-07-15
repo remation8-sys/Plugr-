@@ -1,3 +1,4 @@
+import { t } from 'i18next';
 import { ChevronDown } from 'lucide-react';
 import { useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
@@ -14,7 +15,8 @@ const showChevronNextToSelection = (targetDiv: HTMLElement) => {
     <Button
       variant="outline"
       size="icon"
-      className="absolute top-[10px] -left-10 z-50"
+      aria-label={t('Selection actions')}
+      className="absolute -left-10 top-2.5 z-50 size-9 rounded-md bg-background/95 shadow-lg backdrop-blur transition-all duration-150 hover:bg-accent focus-visible:ring-2 focus-visible:ring-primary/25 motion-reduce:transition-none"
       {...{
         [`data-${flowCanvasConsts.SELECTION_RECT_CHEVRON_ATTRIBUTE}`]: true,
       }}
@@ -30,7 +32,7 @@ const showChevronNextToSelection = (targetDiv: HTMLElement) => {
         e.target.dispatchEvent(rightClickEvent);
       }}
     >
-      <ChevronDown className="w-4 h-4" />
+      <ChevronDown className="size-4" />
     </Button>,
   );
   return root;
@@ -52,7 +54,6 @@ export const useShowChevronNextToSelection = () => {
             root = showChevronNextToSelection(node.children[0] as HTMLElement);
           }
         });
-        // Handle removed nodes
         mutation.removedNodes.forEach((node) => {
           if (
             node instanceof HTMLElement &&
@@ -75,10 +76,8 @@ export const useShowChevronNextToSelection = () => {
       subtree: true,
     });
 
-    // Cleanup
     return () => {
       observer.disconnect();
-      // Unmount all roots on cleanup
       if (root) {
         root.unmount();
       }

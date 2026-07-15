@@ -684,6 +684,14 @@
     cursor: default !important;
   }
 
+  .canvas-grab-mode .react-flow__pane {
+    cursor: grab !important;
+  }
+
+  .canvas-grab-mode .react-flow__pane:active {
+    cursor: grabbing !important;
+  }
+
   .react-flow__edge.selectable > path {
     /* If necessary, add !important to the rule */
     pointer-events: none !important;

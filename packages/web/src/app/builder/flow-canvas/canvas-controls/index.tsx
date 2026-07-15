@@ -131,11 +131,11 @@ const CanvasControls = ({
   return (
     <div
       id="canvas-controls"
-      className="z-50 absolute bottom-2 left-0 flex items-center  w-full pointer-events-none "
+      className="pointer-events-none absolute bottom-3 left-0 z-50 flex w-full items-center"
     >
-      <div className=" absolute flex ml-2 items-center justify-center p-1.5 pointer-events-auto rounded-lg bg-background border border-sidebar-border">
+      <div className="pointer-events-auto absolute ml-3 flex items-center justify-center rounded-lg border border-sidebar-border bg-background/95 p-1.5 shadow-lg backdrop-blur">
         <CanvasControlButton
-          tooltip={t('Minimap' + (isMac() ? ' (⌘ + M)' : ' (Ctrl + M)'))}
+          tooltip={t('Minimap' + (isMac() ? ' (Cmd + M)' : ' (Ctrl + M)'))}
           icon={Map}
           active={showMinimap}
           onClick={() => setShowMinimap(!showMinimap)}
@@ -143,16 +143,16 @@ const CanvasControls = ({
       </div>
       <div className="grow"></div>
 
-      <div className="bg-background gap-2 flex items-center shadow-2xl justify-center border border-sidebar-border p-1.5 rounded-lg pointer-events-auto">
+      <div className="pointer-events-auto flex items-center justify-center gap-1.5 rounded-lg border border-sidebar-border bg-background/95 p-1.5 shadow-lg backdrop-blur">
         <CanvasControlButton
           tooltip={t('Zoom in')}
           icon={Plus}
-          onClick={() => zoomIn({ duration: 0 })}
+          onClick={() => zoomIn({ duration: 180 })}
         />
         <CanvasControlButton
           tooltip={t('Zoom out')}
           icon={Minus}
-          onClick={() => zoomOut({ duration: 0 })}
+          onClick={() => zoomOut({ duration: 180 })}
         />
         <CanvasControlButton
           tooltip={t('Fit to view')}
