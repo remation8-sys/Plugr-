@@ -1,13 +1,17 @@
-import { ChevronDown } from 'lucide-react';
+import { EllipsisVertical } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
-const StepNodeChevron = () => {
+const StepNodeChevron = ({ isSelected }: { isSelected?: boolean }) => {
   return (
     <Button
       variant="ghost"
       size="sm"
-      className="p-1 size-7 "
+      className={cn(
+        'p-1 size-7 opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100',
+        { 'opacity-100': isSelected },
+      )}
       onClick={(e) => {
         e.stopPropagation();
         e.preventDefault();
@@ -24,7 +28,7 @@ const StepNodeChevron = () => {
         }
       }}
     >
-      <ChevronDown className="w-4 h-4 stroke-muted-foreground" />
+      <EllipsisVertical className="w-4 h-4 stroke-muted-foreground" />
     </Button>
   );
 };

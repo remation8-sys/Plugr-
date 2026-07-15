@@ -145,6 +145,7 @@ const ApStepCanvasNode = React.memo(
           },
         )}
         onClick={(e) => handleStepClick(e)}
+        onDoubleClick={(e) => handleStepClick(e)}
         key={step.name}
         ref={isPieceSelectorOpened ? null : setNodeRef}
         {...stepNodeDivAttributes}
@@ -212,7 +213,7 @@ const ApStepCanvasNode = React.memo(
                     pieceDisplayName={stepMetadata?.displayName ?? ''}
                     stepName={step.name}
                   />
-                  {!readonly && <StepNodeChevron />}
+                  {!readonly && <StepNodeChevron isSelected={isSelected} />}
                 </div>
               )}
             </PieceSelector>
@@ -232,7 +233,7 @@ const ApStepCanvasNode = React.memo(
           )}
           {isHorizontal && !readonly && !isDragging && (
             <div className="absolute top-0 right-0  translate-x-[30px] z-10">
-              <StepNodeChevron />
+              <StepNodeChevron isSelected={isSelected} />
             </div>
           )}
 
