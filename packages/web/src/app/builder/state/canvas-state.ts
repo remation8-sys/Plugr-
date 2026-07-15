@@ -226,11 +226,13 @@ export const createCanvasState = (
 };
 
 const CANVAS_ORIENTATION_KEY_IN_LOCAL_STORAGE = 'ap.builder.canvasOrientation';
+// Horizontal (compact icon nodes with captions below) is the default look;
+// an explicit vertical choice saved from the toggle is still honored.
 function getCanvasOrientationFromLocalStorage(): CanvasOrientation {
   return localStorage.getItem(CANVAS_ORIENTATION_KEY_IN_LOCAL_STORAGE) ===
-    'horizontal'
-    ? 'horizontal'
-    : 'vertical';
+    'vertical'
+    ? 'vertical'
+    : 'horizontal';
 }
 
 const DEFAULT_PANNING_MODE_KEY_IN_LOCAL_STORAGE = 'defaultPanningMode';
