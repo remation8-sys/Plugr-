@@ -25,6 +25,7 @@ import { StepNodeLogo } from './step-node-logo';
 import { ApStepNodeSkippedStatus } from './step-node-skipped-status';
 import { ApStepNodeStatusInDraft } from './step-node-status-in-draft';
 import { ApStepNodeStatusInRun } from './step-node-status-in-run';
+import { ApStepNodeStatusRing } from './step-node-status-ring';
 import { TriggerWidget } from './trigger-widget';
 
 const ApStepCanvasNode = React.memo(
@@ -150,6 +151,12 @@ const ApStepCanvasNode = React.memo(
         {...stepNodeDivListeners}
       >
         {isTrigger && <TriggerWidget isSelected={isSelected} />}
+        <ApStepNodeStatusRing
+          stepName={step.name}
+          className={cn({
+            'rounded-tl-none': isTrigger && !isHorizontal,
+          })}
+        />
         <LoopIterationInput stepName={step.name} />
         <ApStepNodeStatusInRun stepName={step.name} />
         <ApStepNodeSkippedStatus stepName={step.name} />

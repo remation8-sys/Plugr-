@@ -256,11 +256,8 @@
   }
 
   @keyframes node-comet {
-    from {
-      transform: translate(-50%, -50%) rotate(0deg);
-    }
     to {
-      transform: translate(-50%, -50%) rotate(360deg);
+      --node-comet-angle: 360deg;
     }
   }
 
@@ -639,6 +636,29 @@
     display: none;
   }
 
+  /*
+   * Rotating "comet" border band for running canvas nodes. The conic gradient
+   * is clipped to the 3px border band (mask exclude keeps the rounded corners)
+   * and spins by animating the registered --node-comet-angle property.
+   * Browsers without @property support show a static comet arc instead.
+   */
+  .node-comet-ring {
+    --node-comet-angle: 0deg;
+    border: 3px solid transparent;
+    background: conic-gradient(
+        from var(--node-comet-angle),
+        hsl(var(--primary) / 0.8),
+        hsl(var(--primary) / 0.15) 240deg,
+        transparent 320deg
+      )
+      border-box;
+    -webkit-mask: linear-gradient(#fff 0 0) padding-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+    mask-composite: exclude;
+  }
+
   .react-flow {
     --xy-edge-stroke: color-mix(
       in srgb,
@@ -689,6 +709,13 @@
   [data-slot='sheet-content'][data-state='closed'] {
     --tw-exit-translate-x: 100% !important;
   }
+}
+
+/* Registered so the node-comet keyframes can interpolate the gradient angle */
+@property --node-comet-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
 }
 
 /*
