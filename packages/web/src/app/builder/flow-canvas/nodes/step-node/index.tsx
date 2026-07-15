@@ -5,7 +5,7 @@ import {
   flowStructureUtil,
 } from '@activepieces/shared';
 import { useDraggable } from '@dnd-kit/core';
-import { Handle, NodeProps, Position } from '@xyflow/react';
+import { Handle, NodeProps, Position, useKeyPress } from '@xyflow/react';
 import React, { useMemo } from 'react';
 
 import { useBuilderStateContext } from '@/app/builder/builder-hooks';
@@ -41,6 +41,7 @@ const ApStepCanvasNode = React.memo(
       setOpenedPieceSelectorStepNameOrAddButtonId,
       isRightSidebarOpen,
       canvasOrientation,
+      panningMode,
     ] = useBuilderStateContext((state) => [
       state.selectStepByName,
       state.selectedStep === step.name,
@@ -52,8 +53,13 @@ const ApStepCanvasNode = React.memo(
       state.setOpenedPieceSelectorStepNameOrAddButtonId,
       state.rightSidebar !== RightSideBarType.NONE,
       state.canvasOrientation,
+      state.panningMode,
     ]);
     const isHorizontal = canvasOrientation === 'horizontal';
+    const spacePressed = useKeyPress('Space');
+    const shiftPressed = useKeyPress('Shift');
+    const isGrabPanningMode =
+      (spacePressed || panningMode === 'grab') && !shiftPressed;
     const { stepMetadata } = stepsHooks.useStepMetadata({
       step,
     });
@@ -66,7 +72,7 @@ const ApStepCanvasNode = React.memo(
 
     const { attributes, listeners, setNodeRef } = useDraggable({
       id: step.name,
-      disabled: isTrigger || readonly,
+      disabled: isTrigger || readonly || isGrabPanningMode,
       data: {
         type: flowCanvasConsts.DRAGGED_STEP_TAG,
       },

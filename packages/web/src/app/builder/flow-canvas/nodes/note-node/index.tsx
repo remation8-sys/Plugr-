@@ -1,7 +1,7 @@
 import { Note, NoteColorVariant } from '@activepieces/shared';
 import { useDraggable } from '@dnd-kit/core';
 import { Editor } from '@tiptap/core';
-import { NodeProps, NodeResizeControl } from '@xyflow/react';
+import { NodeProps, NodeResizeControl, useKeyPress } from '@xyflow/react';
 import { t } from 'i18next';
 import { useRef, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
@@ -22,16 +22,21 @@ import { NoteFooter } from './note-footer';
 import { NoteTools } from './note-tools';
 
 const ApNoteCanvasNode = (props: NodeProps & Omit<ApNoteNode, 'position'>) => {
-  const [draggedNote, resizeNote, note, readonly] = useBuilderStateContext(
-    (state) => [
+  const [draggedNote, resizeNote, note, readonly, panningMode] =
+    useBuilderStateContext((state) => [
       state.draggedNote,
       state.resizeNote,
       state.getNoteById(props.id),
       state.readonly,
-    ],
-  );
+      state.panningMode,
+    ]);
+  const spacePressed = useKeyPress('Space');
+  const shiftPressed = useKeyPress('Shift');
+  const isGrabPanningMode =
+    (spacePressed || panningMode === 'grab') && !shiftPressed;
   const { attributes, listeners, setNodeRef } = useDraggable({
     id: props.id,
+    disabled: readonly || isGrabPanningMode,
     data: {
       type: flowCanvasConsts.DRAGGED_NOTE_TAG,
     },
