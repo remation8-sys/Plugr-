@@ -174,6 +174,12 @@
   --animate-collapsible-down: collapsible-down 0.2s ease-out;
   --animate-collapsible-up: collapsible-up 0.2s ease-out
     alternate;
+  /*
+   * Motion convention: decorative animations (comet, pulses, transitions added
+   * by the redesign) must be applied via the `motion-safe:` variant so
+   * prefers-reduced-motion users get the static fallback underneath.
+   */
+  --animate-node-comet: node-comet 2s linear infinite;
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif,
     'Apple Color Emoji', 'Segoe UI Emoji', Segoe UI Symbol, 'Noto Color Emoji';
   --font-sentient: 'Sentient', serif;
@@ -246,6 +252,15 @@
     }
     100% {
       transform: translateX(400%);
+    }
+  }
+
+  @keyframes node-comet {
+    from {
+      transform: translate(-50%, -50%) rotate(0deg);
+    }
+    to {
+      transform: translate(-50%, -50%) rotate(360deg);
     }
   }
 
@@ -405,25 +420,25 @@
   }
 
   :root {
-    /* Light theme — DESIGN.md "Technical Precision" light surfaces; accents stay on the Plugr brand (cyan) which is injected at runtime from platform branding */
-    --background: #faf8ff;
-    --foreground: #191b25;
+    /* Light theme — neutral border-driven surfaces; the brand accent (--primary) is injected at runtime from platform branding and must stay an HSL triple */
+    --background: #ffffff;
+    --foreground: #18181b;
     --card: #ffffff;
     --popover: #ffffff;
 
-    --secondary: #dedef6;
-    --secondary-foreground: #434656;
+    --secondary: #f4f4f5;
+    --secondary-foreground: #3f3f46;
 
-    --muted: #ededfb;
-    --muted-foreground: #434656;
+    --muted: #f4f4f5;
+    --muted-foreground: #71717a;
 
-    --accent: #ededfb;
-    --accent-foreground: #191b25;
+    --accent: #f4f4f5;
+    --accent-foreground: #18181b;
 
-    --border: #c3c5d9;
-    --input: #c3c5d9;
+    --border: #e4e4e7;
+    --input: #e4e4e7;
 
-    --ring: #0055ff;
+    --ring: hsl(var(--primary));
     --radius: 0.5rem;
 
     --primary-100: 220 100% 93%;
@@ -431,32 +446,32 @@
     --primary-300: 220 100% 45%;
     --primary-foreground: 0 0% 100%;
 
-    /* Success — Plugr neon green */
-    --success-50: 151 100% 96%;
-    --success-100: 151 100% 90%;
-    --success-200: 151 100% 80%;
-    --success-300: 151 100% 70%;
-    --success-400: 151 100% 60%;
-    --success-500: 151 100% 50%;
-    --success-600: 151 100% 40%;
-    --success-700: 151 100% 31%;
-    --success-800: 151 100% 24%;
-    --success-900: 151 100% 18%;
-    --success-950: 151 100% 10%;
+    /* Success — semantic green */
+    --success-50: 145 65% 96%;
+    --success-100: 145 65% 90%;
+    --success-200: 145 60% 80%;
+    --success-300: 145 58% 70%;
+    --success-400: 145 58% 60%;
+    --success-500: 145 63% 50%;
+    --success-600: 145 68% 40%;
+    --success-700: 145 70% 31%;
+    --success-800: 145 65% 24%;
+    --success-900: 145 60% 18%;
+    --success-950: 145 70% 10%;
     --success: var(--success-600);
 
-    /* Destructive — Plugr coral red */
-    --destructive-50: 349 100% 97%;
-    --destructive-100: 349 100% 93%;
-    --destructive-200: 349 100% 87%;
-    --destructive-300: 349 100% 78%;
-    --destructive-400: 349 100% 70%;
-    --destructive-500: 349 100% 65%;
-    --destructive-600: 349 88% 56%;
-    --destructive-700: 349 76% 45%;
-    --destructive-800: 349 75% 35%;
-    --destructive-900: 349 75% 27%;
-    --destructive-950: 349 75% 17%;
+    /* Destructive — semantic red */
+    --destructive-50: 0 86% 97%;
+    --destructive-100: 0 90% 93%;
+    --destructive-200: 0 90% 87%;
+    --destructive-300: 0 88% 78%;
+    --destructive-400: 0 85% 70%;
+    --destructive-500: 0 80% 65%;
+    --destructive-600: 0 72% 56%;
+    --destructive-700: 0 72% 45%;
+    --destructive-800: 0 70% 35%;
+    --destructive-900: 0 65% 27%;
+    --destructive-950: 0 70% 17%;
     --destructive: var(--destructive-600);
 
     /* Warning — Amber */
@@ -483,21 +498,21 @@
     --chart-5: 217 33% 45%;
 
     --sidebar-background: #ffffff;
-    --sidebar-foreground: #191b25;
+    --sidebar-foreground: #18181b;
     --sidebar-primary: 220 100% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: color-mix(
       in srgb,
-      #0055ff 12%,
+      hsl(var(--primary)) 10%,
       transparent
     );
-    --sidebar-accent-foreground: #191b25;
-    --sidebar-border: #c3c5d9;
-    --sidebar-ring: #0055ff;
+    --sidebar-accent-foreground: #18181b;
+    --sidebar-border: #e4e4e7;
+    --sidebar-ring: hsl(var(--primary));
     --sidebar-progress: 195 45% 64%;
-    /* Brighter canvas — light blueprint surface + subtle blue technical grid */
-    --builder-background: #f3f2ff;
-    --builder-background-pattern: rgba(0, 85, 255, 0.16);
+    /* Neutral canvas — hairline-distinct surface + subtle neutral dot grid */
+    --builder-background: #fafafa;
+    --builder-background-pattern: rgba(0, 0, 0, 0.1);
   }
 
   .dark {
@@ -625,7 +640,11 @@
   }
 
   .react-flow {
-    --xy-edge-stroke: hsl(var(--primary) / 0.55) !important;
+    --xy-edge-stroke: color-mix(
+      in srgb,
+      var(--muted-foreground) 45%,
+      transparent
+    ) !important;
     --node-boxshadow-selected-default: 0 0 0 0 #b1b1b7 !important;
     --selection-border-default: 0px solid #b1b1b7 !important;
     --node-border-default: 0px solid #b1b1b7 !important;
@@ -669,6 +688,19 @@
   }
   [data-slot='sheet-content'][data-state='closed'] {
     --tw-exit-translate-x: 100% !important;
+  }
+}
+
+/*
+ * Reduced motion: slow down (not kill) looping indicators — spinners/pulses
+ * communicate progress, so they stay visible but calm. Decorative animations
+ * are gated at the call site with `motion-safe:` instead.
+ */
+@media (prefers-reduced-motion: reduce) {
+  .animate-spin,
+  .animate-pulse,
+  .animate-ping {
+    animation-duration: 1.5s;
   }
 }
 
