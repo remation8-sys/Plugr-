@@ -277,9 +277,9 @@ const AutomationsPageContent = ({ projectId }: { projectId: string }) => {
   }
 
   return (
-    <div className="flex flex-col w-full">
+    <div className="mx-auto flex w-full max-w-screen-xl flex-col">
       <EntityPageHeader
-        className={cn('pt-5', DASHBOARD_CONTENT_PADDING_X)}
+        className={cn('pt-6 pb-2', DASHBOARD_CONTENT_PADDING_X)}
         title={t('Automations')}
         description={
           embedState.hideTables

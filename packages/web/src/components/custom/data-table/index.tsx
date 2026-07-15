@@ -365,7 +365,8 @@ export function DataTable<
       <div
         ref={scrollContainerRef}
         className={cn('mt-0', {
-          'overflow-x-auto': !virtualizeRows && !useMobileCards,
+          'mx-4 mb-4 overflow-x-auto rounded-lg border':
+            !virtualizeRows && !useMobileCards,
           'flex-1 min-h-0 overflow-auto': virtualizeRows,
         })}
       >

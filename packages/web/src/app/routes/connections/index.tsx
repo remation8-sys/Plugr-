@@ -422,9 +422,9 @@ function AppConnectionsPage() {
     [userHasPermissionToWriteAppConnection, refresh],
   );
   return (
-    <div className="flex-col w-full">
+    <div className="mx-auto w-full max-w-screen-xl flex-col">
       <EntityPageHeader
-        className={cn('pt-5', DASHBOARD_CONTENT_PADDING_X)}
+        className={cn('pt-6 pb-2', DASHBOARD_CONTENT_PADDING_X)}
         title={t('Connections')}
         description={t('Create and manage the accounts your flows connect to')}
       />

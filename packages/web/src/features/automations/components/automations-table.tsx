@@ -159,7 +159,7 @@ export const AutomationsTable = ({
   const groups = groupTreeItemsByFolder(items);
 
   return (
-    <div className="overflow-x-auto">
+    <div className="mx-4 mb-4 overflow-x-auto rounded-lg border">
       <div className="min-w-[1000px]">
         <div className="flex items-center h-8 text-xs border-b font-medium text-muted-foreground">
           <div className="w-10 shrink-0 pl-4 pr-1">

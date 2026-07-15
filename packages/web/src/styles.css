@@ -494,22 +494,23 @@
     --chart-4: 349 88% 56%;
     --chart-5: 217 33% 45%;
 
-    --sidebar-background: #ffffff;
+    /* Gray "desk" the white content card and canvas panels float on */
+    --sidebar-background: #f4f4f5;
     --sidebar-foreground: #18181b;
     --sidebar-primary: 220 100% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: color-mix(
       in srgb,
-      hsl(var(--primary)) 10%,
+      hsl(var(--primary)) 12%,
       transparent
     );
     --sidebar-accent-foreground: #18181b;
     --sidebar-border: #e4e4e7;
     --sidebar-ring: hsl(var(--primary));
     --sidebar-progress: 195 45% 64%;
-    /* Neutral canvas — hairline-distinct surface + subtle neutral dot grid */
-    --builder-background: #fafafa;
-    --builder-background-pattern: rgba(0, 0, 0, 0.1);
+    /* Neutral canvas — matches the desk tone + clear neutral dot grid */
+    --builder-background: #f4f4f5;
+    --builder-background-pattern: rgba(0, 0, 0, 0.14);
   }
 
   .dark {
@@ -662,7 +663,7 @@
   .react-flow {
     --xy-edge-stroke: color-mix(
       in srgb,
-      var(--muted-foreground) 45%,
+      var(--muted-foreground) 60%,
       transparent
     ) !important;
     --node-boxshadow-selected-default: 0 0 0 0 #b1b1b7 !important;

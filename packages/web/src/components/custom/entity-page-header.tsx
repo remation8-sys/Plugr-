@@ -24,8 +24,8 @@ const EntityPageHeader = ({
         className,
       )}
     >
-      <div className="flex min-w-0 flex-col gap-0.5">
-        <h1 className="truncate text-lg font-semibold tracking-tight md:text-xl">
+      <div className="flex min-w-0 flex-col gap-1">
+        <h1 className="truncate text-xl font-semibold tracking-tight md:text-2xl">
           {title}
         </h1>
         {description && (
