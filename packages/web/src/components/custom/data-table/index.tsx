@@ -390,8 +390,16 @@ export function DataTable<
               ))
             ) : (
               <div className="flex flex-col items-center justify-center gap-2 py-24 text-center">
-                {emptyStateIcon ? emptyStateIcon : <></>}
-                <p className="text-lg font-semibold">{emptyStateTextTitle}</p>
+                {emptyStateIcon ? (
+                  <div className="mb-2 text-muted-foreground">
+                    {emptyStateIcon}
+                  </div>
+                ) : (
+                  <></>
+                )}
+                <p className="text-lg font-medium tracking-tight">
+                  {emptyStateTextTitle}
+                </p>
                 {emptyStateTextDescription && (
                   <p className="text-sm text-muted-foreground">
                     {emptyStateTextDescription}
@@ -637,8 +645,14 @@ export function DataTable<
                   className="h-[350px] text-center"
                 >
                   <div className="flex flex-col items-center justify-center gap-2">
-                    {emptyStateIcon ? emptyStateIcon : <></>}
-                    <p className="text-lg font-semibold">
+                    {emptyStateIcon ? (
+                      <div className="mb-2 text-muted-foreground">
+                        {emptyStateIcon}
+                      </div>
+                    ) : (
+                      <></>
+                    )}
+                    <p className="text-lg font-medium tracking-tight">
                       {emptyStateTextTitle}
                     </p>
                     {emptyStateTextDescription && (
