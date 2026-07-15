@@ -4,6 +4,7 @@ import { useCallback } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import { recordAccess } from '@/app/components/global-search/access-history';
+import { EntityPageHeader } from '@/components/custom/entity-page-header';
 import { useEmbedding } from '@/components/providers/embed-provider';
 import { AutomationsEmptyState } from '@/features/automations/components/automations-empty-state';
 import { AutomationsFilters as AutomationsFiltersComponent } from '@/features/automations/components/automations-filters';
@@ -33,6 +34,7 @@ import { projectCollectionUtils, getProjectName } from '@/features/projects';
 import { ImportTableDialog } from '@/features/tables/components/import-table-dialog';
 import { useAuthorization } from '@/hooks/authorization-hooks';
 import { authenticationSession } from '@/lib/authentication-session';
+import { cn, DASHBOARD_CONTENT_PADDING_X } from '@/lib/utils';
 
 export const AutomationsPage = () => {
   const { projectId: projectIdFromUrl } = useParams<{ projectId: string }>();
@@ -276,6 +278,15 @@ const AutomationsPageContent = ({ projectId }: { projectId: string }) => {
 
   return (
     <div className="flex flex-col w-full">
+      <EntityPageHeader
+        className={cn('pt-5', DASHBOARD_CONTENT_PADDING_X)}
+        title={t('Automations')}
+        description={
+          embedState.hideTables
+            ? t('Create and manage your flows')
+            : t('Create and manage your flows and tables')
+        }
+      />
       <AutomationsFiltersComponent
         searchTerm={searchInput}
         onSearchChange={handleSearchChange}

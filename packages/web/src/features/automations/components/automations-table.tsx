@@ -161,7 +161,7 @@ export const AutomationsTable = ({
   return (
     <div className="overflow-x-auto">
       <div className="min-w-[1000px]">
-        <div className="flex items-center h-8 text-xs border-b font-medium text-foreground bg-muted/50">
+        <div className="flex items-center h-8 text-xs border-b font-medium text-muted-foreground">
           <div className="w-10 shrink-0 pl-4 pr-1">
             <Checkbox
               checked={
