@@ -1,9 +1,13 @@
 import {
   Activity,
   ArrowRight,
+  Ban,
   BarChart3,
   Check,
+  CreditCard,
   Eye,
+  ReceiptText,
+  RotateCcw,
   Server,
   ShieldCheck,
 } from 'lucide-react';
@@ -77,6 +81,29 @@ const DEPLOY_COLS = [
     icon: ShieldCheck,
     title: 'Encrypted connections',
     body: 'Connection values are encrypted before storage so workflows can use connected accounts without exposing raw credentials.',
+  },
+];
+
+const REFUND_POLICY_POINTS = [
+  {
+    icon: ReceiptText,
+    title: 'No free trial',
+    body: 'Paid plans begin when payment is successfully completed.',
+  },
+  {
+    icon: RotateCcw,
+    title: '3-day first-payment window',
+    body: 'If Plugr is not the right fit, request a refund within 3 days of your first paid subscription.',
+  },
+  {
+    icon: CreditCard,
+    title: 'Billing mistakes are corrected',
+    body: 'Duplicate charges, incorrect charges, or accidental overbilling are refunded to the original payment method.',
+  },
+  {
+    icon: Ban,
+    title: 'Abuse and heavy usage excluded',
+    body: 'Refunds may be denied for excessive paid-resource use, fraud, chargeback misuse, or Terms violations.',
   },
 ];
 
@@ -167,7 +194,7 @@ function Nav() {
           >
             Sign in
           </Link>
-          <PrimaryCta to="/sign-up">Start free trial</PrimaryCta>
+          <PrimaryCta to="/sign-up">Create account</PrimaryCta>
         </div>
       </nav>
     </header>
@@ -207,7 +234,7 @@ function Hero() {
           </p>
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
             <PrimaryCta to="/sign-up">
-              Start free trial
+              Create account
               <ArrowRight className="size-4" strokeWidth={1.5} />
             </PrimaryCta>
             <a
@@ -219,8 +246,8 @@ function Hero() {
             </a>
           </div>
           <p className="mt-3 text-xs text-white/45">
-            The trial includes visual workflow tools. Plugr AI is available on
-            paid plans.
+            No free trial. Your first paid subscription has a 3-day refund
+            window.
           </p>
         </div>
         <WorkflowCanvas />
@@ -390,6 +417,113 @@ function DeploySection() {
   );
 }
 
+function RefundPolicySection() {
+  return (
+    <section id="refund-policy" style={{ backgroundColor: '#faf8ff' }}>
+      <div className="mx-auto max-w-6xl px-5 py-20 sm:py-28">
+        <div className="grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-start">
+          <div>
+            <Overline>Refund policy</Overline>
+            <h2
+              className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl"
+              style={{ color: INK }}
+            >
+              Clear billing, no surprise trial.
+            </h2>
+            <p
+              className="mt-4 text-lg leading-relaxed"
+              style={{ color: '#434656' }}
+            >
+              Plugr does not offer a free trial. If your first paid subscription
+              is not a fit, you can request a refund within 3 days of your
+              initial payment.
+            </p>
+            <p className="mt-4 text-sm" style={{ color: '#6b6e7c' }}>
+              Last updated: July 15, 2026
+            </p>
+          </div>
+
+          <div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              {REFUND_POLICY_POINTS.map((item) => (
+                <div
+                  key={item.title}
+                  className="rounded-xl border bg-white p-5"
+                  style={{ borderColor: '#e1e1ef' }}
+                >
+                  <div
+                    className="flex size-10 items-center justify-center rounded-lg"
+                    style={{
+                      backgroundColor: 'rgba(0,85,255,0.08)',
+                      color: BLUE,
+                    }}
+                  >
+                    <item.icon className="size-5" strokeWidth={1.5} />
+                  </div>
+                  <h3
+                    className="mt-4 text-base font-semibold"
+                    style={{ color: INK }}
+                  >
+                    {item.title}
+                  </h3>
+                  <p
+                    className="mt-2 text-sm leading-relaxed"
+                    style={{ color: '#434656' }}
+                  >
+                    {item.body}
+                  </p>
+                </div>
+              ))}
+            </div>
+
+            <div
+              className="mt-5 rounded-xl border bg-white p-6"
+              style={{ borderColor: '#e1e1ef' }}
+            >
+              <h3 className="text-base font-semibold" style={{ color: INK }}>
+                Additional terms
+              </h3>
+              <ul
+                className="mt-4 space-y-3 text-sm leading-relaxed"
+                style={{ color: '#434656' }}
+              >
+                <li>
+                  After the 3-day refund window, subscription payments are
+                  generally non-refundable.
+                </li>
+                <li>
+                  You may cancel your subscription at any time. Paid access
+                  continues until the end of the current billing period.
+                </li>
+                <li>
+                  Refunds may not be available after significant use of paid
+                  resources, including workflow executions, AI usage, automation
+                  credits, browser automation runs, or other usage-based
+                  features.
+                </li>
+                <li>
+                  Plugr is not responsible for failures caused by third-party
+                  services, integrations, banks, payment providers, APIs, or
+                  external platforms connected to your workflows.
+                </li>
+                <li>
+                  Refunds are returned to the original payment method and may
+                  take 5-10 business days, depending on your bank or payment
+                  provider.
+                </li>
+                <li>
+                  Nothing in this policy limits any rights you may have under
+                  applicable consumer protection laws.
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function ClosingCta() {
   return (
     <section
@@ -414,12 +548,12 @@ function ClosingCta() {
           Turn the next manual process into a workflow.
         </h2>
         <p className="mx-auto mt-5 max-w-xl text-lg text-white/65">
-          Build visually during the free trial. Upgrade to any paid plan to use
-          the Plugr AI builder and monthly Plugr credits.
+          Create an account, choose a paid plan, and start building with the
+          Plugr AI builder and monthly Plugr credits.
         </p>
         <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <PrimaryCta to="/sign-up">
-            Start free trial
+            Create account
             <ArrowRight className="size-4" strokeWidth={1.5} />
           </PrimaryCta>
           <Link
@@ -472,6 +606,14 @@ function Footer() {
                 <li>
                   <a href="#pricing" className="text-white/65 hover:text-white">
                     Pricing
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="#refund-policy"
+                    className="text-white/65 hover:text-white"
+                  >
+                    Refund policy
                   </a>
                 </li>
                 <li>
@@ -541,6 +683,7 @@ export function LandingPage() {
         <ObservabilitySection />
         <DeploySection />
         <Pricing />
+        <RefundPolicySection />
         <ClosingCta />
       </main>
       <Footer />

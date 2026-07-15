@@ -151,6 +151,16 @@ export function Pricing() {
             Prices in USD, billed monthly. Local currency is shown at checkout.
           </p>
           <p>
+            No free trial. First paid subscriptions have a{' '}
+            <a
+              href="#refund-policy"
+              className="text-white/65 underline underline-offset-4 hover:text-white"
+            >
+              3-day refund window
+            </a>
+            .
+          </p>
+          <p>
             Plugr credits cover AI-assisted building, audits, fixes,
             modifications, and reports.
           </p>

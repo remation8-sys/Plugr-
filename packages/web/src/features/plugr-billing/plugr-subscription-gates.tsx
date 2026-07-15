@@ -14,7 +14,6 @@ import { cn } from '@/lib/utils';
 type PlugrBillingUser = {
   subscriptionTier?: PlugrSubscriptionTier;
   subscriptionStatus?: PlugrSubscriptionStatus;
-  trialEndsAt?: string | Date | null;
   subscriptionEndsAt?: string | Date | null;
   aiCreditsIncluded?: number;
   aiCreditsUsed?: number;
@@ -30,7 +29,7 @@ const tierRank: Record<PlugrSubscriptionTier, number> = {
 };
 
 const tierLabels: Record<PlugrSubscriptionTier, string> = {
-  trial: 'Trial',
+  trial: 'Unpaid',
   starter: 'Starter',
   builder: 'Builder',
   pro: 'Pro',
@@ -39,8 +38,8 @@ const tierLabels: Record<PlugrSubscriptionTier, string> = {
 
 export function hasPlugrAppAccess(user: PlugrBillingUser | null | undefined) {
   if (!user) return false;
+  if (!isPaidPlugrTier(user.subscriptionTier)) return false;
   if (user.subscriptionStatus === 'expired') return false;
-  if (user.subscriptionStatus === 'trial') return isFuture(user.trialEndsAt);
   if (user.subscriptionStatus === 'active') return true;
   if (user.subscriptionStatus === 'cancelled') {
     return isFuture(user.subscriptionEndsAt);
@@ -49,7 +48,7 @@ export function hasPlugrAppAccess(user: PlugrBillingUser | null | undefined) {
 }
 
 export function canUsePlugr(user: PlugrBillingUser | null | undefined) {
-  return hasPlugrAppAccess(user) && user?.subscriptionTier !== 'trial';
+  return hasPlugrAppAccess(user);
 }
 
 /**
@@ -85,13 +84,6 @@ export function getPlugrCreditsRemaining(user: PlugrBillingUser | null | undefin
   );
 }
 
-export function getTrialDaysRemaining(user: PlugrBillingUser | null | undefined) {
-  if (!user || user.subscriptionStatus !== 'trial' || !user.trialEndsAt) {
-    return null;
-  }
-  const msRemaining = new Date(user.trialEndsAt).getTime() - Date.now();
-  return Math.max(0, Math.ceil(msRemaining / 86_400_000));
-}
 
 export function PlugrAppAccessGuard({ children }: { children: React.ReactNode }) {
   const { data: user } = userHooks.useCurrentUser();
@@ -116,8 +108,8 @@ export function PlugrAccessGuard({ children }: { children: React.ReactNode }) {
 
   return (
     <PlugrLockedFeature
-      title="Unlock Plugr"
-      description="Plugr is available on paid plans. Start a plan to unlock Plugr."
+      title="Choose a plan to automate"
+      description="Choose a paid plan and add a payment method before building or running automations."
       ctaLabel="View plans"
     />
   );
@@ -178,4 +170,13 @@ export function PlugrLockedFeature({
 function isFuture(value: string | Date | null | undefined) {
   if (!value) return false;
   return new Date(value).getTime() > Date.now();
+}
+
+function isPaidPlugrTier(tier: PlugrSubscriptionTier | undefined) {
+  return (
+    tier === 'starter' ||
+    tier === 'builder' ||
+    tier === 'pro' ||
+    tier === 'business'
+  );
 }

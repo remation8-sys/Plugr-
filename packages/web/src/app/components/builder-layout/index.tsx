@@ -3,6 +3,7 @@ import { ApEdition, ApFlagId } from '@activepieces/shared';
 import { useEmbedding } from '@/components/providers/embed-provider';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar-shadcn';
 import { PurchaseExtraFlowsDialog } from '@/features/billing';
+import { PlugrAppAccessGuard } from '@/features/plugr-billing';
 import { flagsHooks } from '@/hooks/flags-hooks';
 import { cn } from '@/lib/utils';
 
@@ -14,9 +15,11 @@ import { ProjectDashboardSidebar } from '../sidebar/dashboard';
 
 export function BuilderLayout({ children }: { children: React.ReactNode }) {
   return (
-    <GlobalSearchProvider>
-      <BuilderLayoutInner>{children}</BuilderLayoutInner>
-    </GlobalSearchProvider>
+    <PlugrAppAccessGuard>
+      <GlobalSearchProvider>
+        <BuilderLayoutInner>{children}</BuilderLayoutInner>
+      </GlobalSearchProvider>
+    </PlugrAppAccessGuard>
   );
 }
 

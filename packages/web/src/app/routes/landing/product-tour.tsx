@@ -270,12 +270,12 @@ export function ProductTour() {
                 className="mt-7 inline-flex h-11 items-center justify-center gap-2 rounded-lg px-6 text-sm font-semibold text-white transition-colors hover:opacity-90"
                 style={{ backgroundColor: BLUE }}
               >
-                Start free trial
+                Create account
                 <ArrowRight className="size-4" strokeWidth={1.5} />
               </Link>
               <p className="mt-3 text-xs" style={{ color: '#6b6e7c' }}>
-                Visual workflow tools are included in the trial. Plugr AI is
-                available on paid plans.
+                Plugr has no free trial. Your first paid subscription has a
+                3-day refund window.
               </p>
             </div>
             <div>

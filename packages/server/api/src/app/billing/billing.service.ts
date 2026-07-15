@@ -69,7 +69,7 @@ export const plugrBillingService = (log: FastifyBaseLogger) => ({
     },
 
     async createSubscriptionCheckout(params: CreateSubscriptionCheckoutParams): Promise<{ checkoutUrl: string, reference: string, inline?: PlugrInlineCheckoutParams }> {
-        // Plugr bills monthly only — ignore any other period the client sends.
+        // Plugr bills monthly only - ignore any other period the client sends.
         params.period = 'monthly'
         const user = await getNormalizedUser({ userId: params.userId, log })
         assertCanStartCheckout({ user, tier: params.tier })
@@ -255,7 +255,7 @@ export const plugrBillingService = (log: FastifyBaseLogger) => ({
             }
             else if (!isNil(record)) {
                 // Inline-checkout closes (e.g. after a decline) only give us the tx_ref,
-                // never a transaction_id — ask Flutterwave directly so the pending row
+                // never a transaction_id - ask Flutterwave directly so the pending row
                 // gets reconciled instead of sitting as 'pending' forever.
                 try {
                     const transaction = await flutterwaveBillingService(log).verifyTransactionByReference(reference)
@@ -522,12 +522,14 @@ function assertCanStartCheckout({ user, tier }: AssertCheckoutParams): void {
     }
 }
 
+const PAID_PLAN_REQUIRED_MESSAGE = 'Choose a paid plan and add a payment method before automating tasks.'
+
 function assertAppAccess(user: User): void {
     if (hasAppAccess(user)) {
         return
     }
-    const message = user.subscriptionTier === 'trial'
-        ? 'Your 7-day free trial has ended. Choose a plan to keep automating.'
+    const message = user.subscriptionStatus === 'trial' || user.subscriptionTier === 'trial'
+        ? PAID_PLAN_REQUIRED_MESSAGE
         : 'Your subscription has ended. Reactivate to continue using Plugr.'
     throw new ActivepiecesError({
         code: ErrorCode.FEATURE_DISABLED,
@@ -537,12 +539,6 @@ function assertAppAccess(user: User): void {
 
 function assertPlugrAccess(user: User): void {
     assertAppAccess(user)
-    if (user.subscriptionTier === 'trial') {
-        throw new ActivepiecesError({
-            code: ErrorCode.FEATURE_DISABLED,
-            params: { message: 'Plugr is available on paid plans. Start a plan to unlock Plugr.' },
-        })
-    }
 }
 
 function assertMinimumTier({ user, minimumTier, message }: AssertMinimumTierParams): void {
@@ -558,11 +554,11 @@ function assertMinimumTier({ user, minimumTier, message }: AssertMinimumTierPara
 }
 
 function hasAppAccess(user: User): boolean {
-    if (user.subscriptionStatus === 'expired') {
+    if (!isPlugrPaidTier(user.subscriptionTier)) {
         return false
     }
-    if (user.subscriptionStatus === 'trial') {
-        return !isNil(user.trialEndsAt) && dayjs(user.trialEndsAt).isAfter(dayjs())
+    if (user.subscriptionStatus === 'expired') {
+        return false
     }
     if (user.subscriptionStatus === 'active') {
         return true
