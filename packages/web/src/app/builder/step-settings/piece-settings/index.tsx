@@ -83,12 +83,15 @@ const PieceSettings = React.memo((props: PieceSettingsProps) => {
       {!pieceModel && (
         <div className="space-y-3">
           {Array.from({ length: 5 }).map((_, index) => (
-            <div className="space-y-2" key={index}>
+            <div
+              className="space-y-2 rounded-lg border bg-card p-3"
+              key={index}
+            >
               <div className="flex justify-between items-center">
                 <Skeleton className="w-40 h-4" />
                 <Skeleton className="size-8" />
               </div>
-              <Skeleton className="w-full h-12" />
+              <Skeleton className="h-12 w-full rounded-md" />
             </div>
           ))}
         </div>

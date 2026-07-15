@@ -27,7 +27,7 @@ const StepDataPanelHeader = ({
   return (
     <div
       className={cn(
-        'flex items-center justify-between px-3 py-2 shrink-0 gap-2',
+        'flex shrink-0 items-center justify-between gap-2 border-b px-3 py-2',
         status === 'success' && 'bg-success-100',
         status === 'failed' && 'bg-destructive/10',
         status === 'testing' && 'bg-primary/10',

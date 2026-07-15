@@ -52,9 +52,12 @@ const PieceCardListItem = ({
   return (
     <>
       <CardListItem
-        className={cn('flex-col p-3 gap-1 items-start truncate', {
-          'hover:bg-transparent!': isTemporaryDisabledUntilNextCursorMove,
-        })}
+        className={cn(
+          'mx-1.5 flex-col items-start gap-1 truncate rounded-md border border-transparent px-3 py-2 text-sm transition-colors hover:border-border/70',
+          {
+            'hover:bg-transparent!': isTemporaryDisabledUntilNextCursorMove,
+          },
+        )}
         style={{ height: `${itemHeight}px`, maxHeight: `${itemHeight}px` }}
         selected={
           selectedPieceMetadataInPieceSelector?.displayName ===
@@ -74,14 +77,14 @@ const PieceCardListItem = ({
         id={pieceMetadata.displayName}
         data-testid={pieceMetadata.displayName}
       >
-        <div className="flex gap-2 items-center h-full">
+        <div className="flex h-full min-w-0 items-center gap-2">
           <PieceIcon
             logoUrl={pieceMetadata.logoUrl}
             displayName={pieceMetadata.displayName}
             showTooltip={false}
             size={'sm'}
           />
-          <div className="grow h-full flex items-center justify-left text-sm">
+          <div className="flex h-full min-w-0 grow items-center truncate text-sm font-medium">
             {pieceMetadata.displayName}
           </div>
         </div>

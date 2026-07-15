@@ -132,8 +132,9 @@ const ApStepCanvasNode = React.memo(
           maxWidth: `${flowCanvasConsts.STEP_NODE_SIZE[canvasOrientation].width}px`,
         }}
         onContextMenu={(e) => handleContextMenu(e)}
+        aria-label={step.displayName}
         className={cn(
-          'transition-all border-box rounded-md border border-solid border-muted-foreground/30 dark:border-border shadow-sm relative overflow-visible  group',
+          'transition-all border-box rounded-md border border-solid border-muted-foreground/30 dark:border-border shadow-sm relative overflow-visible group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25',
           {
             'border-primary dark:border-primary ring-2 ring-primary/15 shadow-md':
               isSelected,

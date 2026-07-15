@@ -29,11 +29,12 @@ const PiecesSearchInput = ({
   const showBackButton =
     selectedPieceInExplore && selectedTab === PieceSelectorTabType.EXPLORE;
   return (
-    <div className="p-2 flex gap-2 items-center">
+    <div className="flex items-center gap-2 bg-muted/20 p-2.5">
       {showBackButton && (
         <Button
           variant="ghost"
           size="icon"
+          aria-label={t('Back')}
           onClick={() => {
             setSelectedPieceInExplore(null);
           }}
@@ -42,7 +43,7 @@ const PiecesSearchInput = ({
         </Button>
       )}
       <SearchInput
-        placeholder={t('Search')}
+        placeholder={t('Search apps and actions')}
         value={searchQuery}
         data-testid="pieces-search-input"
         ref={searchInputRef}

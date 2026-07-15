@@ -176,7 +176,7 @@ const StepSettingsContainer = () => {
     <ScrollArea className="h-full">
       <div
         className={cn(
-          'flex flex-col px-4 pb-6 pt-3',
+          'flex flex-col px-4 pb-6 pt-4',
           GAP_SIZE_FOR_STEP_SETTINGS,
         )}
       >
@@ -381,10 +381,12 @@ const StepSettingsLayout = ({
 }: StepSettingsLayoutProps) => {
   if (isSplit) {
     return (
-      <div className="relative flex-1 min-h-0 flex flex-row">
-        <div className="w-1/2 min-w-0 min-h-0 h-full">{settingsForm}</div>
+      <div className="relative flex min-h-0 flex-1 flex-row bg-background">
+        <div className="h-full min-h-0 min-w-0 w-1/2 bg-background">
+          {settingsForm}
+        </div>
         {testPanelHost && (
-          <div className="w-1/2 min-w-0 min-h-0 h-full pt-2 pl-1">
+          <div className="h-full min-h-0 min-w-0 w-1/2 border-l bg-muted/20 p-2">
             {testPanelHost}
           </div>
         )}
@@ -403,7 +405,7 @@ const StepSettingsLayout = ({
       {testPanelHost && (
         <div
           className={cn(
-            'absolute bottom-0 left-0 right-0 h-0 transition-all z-50',
+            'absolute bottom-0 left-0 right-0 z-50 h-0 overflow-hidden transition-all',
             {
               'h-[60%]': isStepDataPanelOpen,
             },

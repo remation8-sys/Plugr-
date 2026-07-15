@@ -130,7 +130,7 @@ const PieceSelectorContent = ({
   const isMobile = useIsMobile();
   const { listHeightRef, popoverTriggerRef } =
     pieceSelectorUtils.useAdjustPieceListHeightToAvailableSpace();
-  const listHeight = Math.min(listHeightRef.current, 300);
+  const listHeight = Math.min(listHeightRef.current, 360);
   const searchInputRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
     if (isOpen) {
@@ -192,7 +192,7 @@ const PieceSelectorContent = ({
           onContextMenu={(e) => {
             e.stopPropagation();
           }}
-          className="w-[340px] md:w-[600px] p-0 shadow-lg"
+          className="w-[360px] overflow-hidden rounded-lg border bg-popover p-0 shadow-xl md:w-[640px]"
           onClick={(e) => {
             e.stopPropagation();
             e.preventDefault();
@@ -210,10 +210,10 @@ const PieceSelectorContent = ({
                 }}
               />
               {!isMobile && <PieceSelectorTabs tabs={tabsList} />}
-              <Separator orientation="horizontal" className="mt-1" />
+              <Separator orientation="horizontal" />
             </div>
             <div
-              className=" flex flex-row max-h-[300px]"
+              className="flex flex-row max-h-[360px] bg-background"
               style={{
                 height: listHeight + 'px',
               }}

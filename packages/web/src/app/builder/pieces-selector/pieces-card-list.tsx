@@ -85,12 +85,15 @@ export const PiecesCardList: React.FC<PiecesCardListProps> = ({
         onMouseMove={() => {
           setMouseMoved(!isLoadingPieces);
         }}
-        className={cn('w-full md:w-[250px] md:min-w-[250px] transition-all ', {
-          'w-full md:w-full': searchQuery.length > 0 || noResultsFound,
-        })}
+        className={cn(
+          'w-full bg-background/60 transition-all md:w-[260px] md:min-w-[260px]',
+          {
+            'w-full md:w-full': searchQuery.length > 0 || noResultsFound,
+          },
+        )}
       >
         {isLoading && (
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-2 p-2">
             <CardListItemSkeleton numberOfCards={2} withCircle={false} />
           </div>
         )}
@@ -109,7 +112,9 @@ export const PiecesCardList: React.FC<PiecesCardListProps> = ({
               if (item.isCategory) {
                 return (
                   <div
-                    className={cn('p-2 pb-0 text-sm text-muted-foreground')}
+                    className={cn(
+                      'px-3 pb-1 pt-3 text-[11px] font-medium uppercase tracking-wide text-muted-foreground/80',
+                    )}
                     id={item.displayName}
                   >
                     {item.displayName}
@@ -133,7 +138,7 @@ export const PiecesCardList: React.FC<PiecesCardListProps> = ({
 
       {showActionsOrTriggersList && (
         <>
-          <Separator orientation="vertical" className="h-full" />
+          <Separator orientation="vertical" className="h-full bg-border/80" />
           <PieceActionsOrTriggersList
             stepMetadataWithSuggestions={selectedPieceMetadataInPieceSelector}
             hidePieceIconAndDescription={false}

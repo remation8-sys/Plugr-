@@ -134,7 +134,7 @@ export const FlowStepInputOutput = () => {
   const message = handleRunFailureOrEmptyLog(run, rententionDays);
   if (message) {
     return (
-      <div className="flex flex-col justify-center items-center gap-4 w-full pt-8  px-5">
+      <div className="flex h-full w-full flex-col items-center justify-center gap-4 bg-muted/20 px-5 py-10">
         <Info size={36} className="text-muted-foreground" />
         <h4 className="px-6 text-sm text-center text-muted-foreground ">
           {message}
@@ -145,12 +145,12 @@ export const FlowStepInputOutput = () => {
 
   if (!selectedStepOutput || !selectedStep) {
     return (
-      <div className="flex flex-col h-full w-full">
+      <div className="flex h-full w-full flex-col bg-background">
         <div className="flex justify-end px-3 py-2 shrink-0">
           <StepDataPanelViewToggle />
         </div>
         <div className="grow flex flex-col items-center justify-center w-full px-6 py-10 gap-4 text-center">
-          <div className="flex items-center justify-center size-12 rounded-full bg-muted text-muted-foreground">
+          <div className="flex size-12 items-center justify-center rounded-full border bg-card text-muted-foreground">
             <Info className="size-6" />
           </div>
           <div className="flex flex-col gap-1.5 max-w-[280px]">
@@ -213,20 +213,20 @@ export const FlowStepInputOutput = () => {
   };
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="flex h-full flex-col bg-background">
       <StepDataPanelHeader
         status={status}
         lastTestDate={run.created}
         viewMode="run"
       />
-      <ScrollArea className="flex-1 p-3">
+      <ScrollArea className="flex-1 bg-muted/20 p-3">
         <Tabs
           value={activeTab}
           onValueChange={(value) => setActiveTab(value as RunActiveTab)}
           className="w-full"
         >
-          <div className="flex items-center justify-between gap-2 shrink-0 mb-2">
-            <TabsList className="h-9">
+          <div className="sticky top-0 z-10 mb-3 flex shrink-0 items-center justify-between gap-2 rounded-lg border bg-background/95 p-1.5 shadow-sm backdrop-blur">
+            <TabsList className="h-8">
               {!isTrigger && (
                 <TabsTrigger value="input">{t('Input')}</TabsTrigger>
               )}
@@ -293,8 +293,8 @@ const InternalErrorPanel = ({
 }: {
   internalError: RunInternalError;
 }) => (
-  <ScrollArea className="h-full">
-    <div className="flex flex-col gap-3 p-4">
+  <ScrollArea className="h-full bg-muted/20">
+    <div className="m-3 flex flex-col gap-3 rounded-lg border bg-card p-4 shadow-sm">
       <div className="flex items-center gap-2 flex-wrap">
         <ShieldAlert className="w-4 h-4 text-destructive shrink-0" />
         <span className="text-sm font-medium">{t('Internal error')}</span>
@@ -317,7 +317,7 @@ const InternalErrorPanel = ({
           {formatUtils.formatDate(new Date(internalError.occurredAt))}
         </span>
       </div>
-      <pre className="text-xs bg-muted rounded-md p-3 whitespace-pre-wrap break-words font-mono">
+      <pre className="rounded-md bg-muted/70 p-3 font-mono text-xs whitespace-pre-wrap break-words">
         {internalError.message}
       </pre>
     </div>
@@ -329,7 +329,7 @@ const SlicedOutputDownload = ({
 }: {
   slicedOutputRef: LogSliceRef;
 }) => (
-  <div className="flex flex-col gap-3 p-4 bg-muted rounded-md">
+  <div className="flex flex-col gap-3 rounded-lg border bg-card p-4 shadow-sm">
     <div className="flex items-start gap-2 text-sm">
       <Info className="w-4 h-4 mt-0.5 text-muted-foreground shrink-0" />
       <span>
