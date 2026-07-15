@@ -111,10 +111,10 @@ export const flowCanvasConsts = {
   HORIZONTAL_SPACE_BETWEEN_NODES,
   HANDLE_STYLING: {
     cursor: 'default',
-    width: 8,
-    height: 8,
+    width: 10,
+    height: 10,
     borderRadius: '50%',
-    backgroundColor: 'var(--muted-foreground)',
+    backgroundColor: 'var(--border)',
     border: '2px solid var(--builder-background)',
   },
   LABEL_VERTICAL_PADDING,

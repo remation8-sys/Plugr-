@@ -13,10 +13,9 @@ const TriggerWidget = ({ isSelected }: { isSelected: boolean }) => {
     return (
       <div
         className={cn(
-          'absolute right-full top-1/2 -translate-y-1/2 mr-2 flex size-7 items-center justify-center rounded-full border border-border bg-background dark:bg-card text-muted-foreground z-10 transition-all',
+          'absolute right-full top-1/2 -translate-y-1/2 mr-2 flex size-7 items-center justify-center rounded-full border border-border bg-card text-muted-foreground z-10 transition-all',
           {
             'border-primary text-primary': isSelected,
-            'group-hover:border-ring': !isSelected,
           },
         )}
       >
@@ -28,10 +27,9 @@ const TriggerWidget = ({ isSelected }: { isSelected: boolean }) => {
   return (
     <div
       className={cn(
-        'flex items-center absolute transition-all  -translate-y-[26px] -translate-x-[1px]  border-border border border-1   justify-center gap-1 rounded-t-md bg-background dark:bg-card text-muted-foreground text-xs py-1 px-2 z-10 ',
+        'flex items-center absolute transition-all  -translate-y-[26px] -translate-x-[1px]  border-border border border-1   justify-center gap-1 rounded-t-md bg-card text-muted-foreground text-xs py-1 px-2 z-10 ',
         {
           'border-primary text-primary ': isSelected,
-          'group-hover:border-ring ': !isSelected,
         },
       )}
     >

@@ -135,12 +135,12 @@ const ApStepCanvasNode = React.memo(
           'transition-all border-box rounded-md border border-solid border-border relative overflow-visible  group',
           {
             'border-primary': isSelected,
-            'bg-background dark:bg-card': !isDragging,
+            'bg-card': !isDragging,
             'border-none': isDragging,
             'shadow-none': isDragging,
             'bg-accent': isSkipped,
             'rounded-tl-none': isTrigger && !isHorizontal,
-            'hover:border-ring': !isSelected,
+            'hover:bg-accent/50': !isSelected && !isSkipped,
           },
         )}
         onClick={(e) => handleStepClick(e)}
