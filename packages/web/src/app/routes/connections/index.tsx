@@ -23,6 +23,7 @@ import { NewConnectionDialog } from '@/app/connections/new-connection-dialog';
 import { ReconnectButtonDialog } from '@/app/connections/reconnect-button-dialog';
 import { ReplaceConnectionsDialog } from '@/app/connections/replace-connections-dialog';
 import { AnimatedIconButton } from '@/components/custom/animated-icon-button';
+import { EntityPageHeader } from '@/components/custom/entity-page-header';
 import { CopyTextTooltip } from '@/components/custom/clipboard/copy-text-tooltip';
 import {
   BulkAction,
@@ -59,6 +60,7 @@ import { ownerColumnHooks } from '@/hooks/owner-column-hooks';
 import { userHooks } from '@/hooks/user-hooks';
 import { authenticationSession } from '@/lib/authentication-session';
 import { formatUtils } from '@/lib/format-utils';
+import { cn, DASHBOARD_CONTENT_PADDING_X } from '@/lib/utils';
 
 function AppConnectionsPage() {
   const navigate = useNavigate();
@@ -421,6 +423,11 @@ function AppConnectionsPage() {
   );
   return (
     <div className="flex-col w-full">
+      <EntityPageHeader
+        className={cn('pt-5', DASHBOARD_CONTENT_PADDING_X)}
+        title={t('Connections')}
+        description={t('Create and manage the accounts your flows connect to')}
+      />
       <DataTable
         emptyStateTextTitle={t('No connections found')}
         emptyStateTextDescription={t(

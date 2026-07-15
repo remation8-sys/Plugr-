@@ -1,6 +1,7 @@
 import { PieceMetadataModelSummary } from '@activepieces/pieces-framework';
 import { AppConnectionWithoutSensitiveData, isNil } from '@activepieces/shared';
 import { t } from 'i18next';
+import { Search } from 'lucide-react';
 import React, { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
@@ -77,19 +78,21 @@ const NewConnectionDialog = React.memo(
           }}
         >
           <DialogTrigger asChild>{children}</DialogTrigger>
-          <DialogContent className="min-w-[700px] max-w-[700px] h-[680px] max-h-[680px] flex flex-col">
+          <DialogContent className="flex h-[680px] max-h-[85dvh] w-[95vw] max-w-[700px] flex-col sm:min-w-[700px]">
             <DialogHeader>
               <DialogTitle>{t('New Connection')}</DialogTitle>
             </DialogHeader>
-            <div className="mb-4">
+            <div className="relative mb-4">
+              <Search className="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 placeholder={t('Search')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-8"
               />
             </div>
             <ScrollArea className="grow overflow-y-auto ">
-              <div className="grid grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
                 {(isLoading ||
                   (filteredPieces && filteredPieces.length === 0)) && (
                   <div className="text-center">{t('No plugs found')}</div>
@@ -100,13 +103,13 @@ const NewConnectionDialog = React.memo(
                     <div
                       key={index}
                       onClick={() => clickPiece(piece.name)}
-                      className="border p-2 h-[150px] w-[150px] flex flex-col items-center justify-center hover:bg-accent hover:text-accent-foreground cursor-pointer rounded-lg"
+                      className="flex h-[140px] w-full cursor-pointer flex-col items-center justify-center rounded-lg border bg-card p-2 shadow-none transition-shadow hover:shadow hover:bg-accent/50"
                     >
                       <img
                         className="w-[40px] h-[40px]"
                         src={piece.logoUrl}
                       ></img>
-                      <div className="mt-2 text-center text-md">
+                      <div className="mt-2 truncate max-w-full text-center text-sm font-medium">
                         {piece.displayName}
                       </div>
                     </div>
