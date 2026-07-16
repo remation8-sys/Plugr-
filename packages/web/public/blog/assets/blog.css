@@ -284,13 +284,20 @@ a:hover {
   margin: 0 auto;
   padding: 28px 20px;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
   font-size: 0.85rem;
   color: var(--blog-muted);
 }
 
+.blog-footer-inner p {
+  margin: 0;
+}
+
 .blog-footer-links {
   display: flex;
+  flex-wrap: wrap;
   gap: 18px;
 }

@@ -7,6 +7,7 @@ import { ProjectDashboardLayout } from '../components/project-layout';
 import { TemplateDetailsWrapper } from '../guards/template-details-wrapper';
 
 import NotFoundPage from './404-page';
+import { AboutPage } from './about';
 import AuthenticatePage from './authenticate';
 import { EmbedPage } from './embed';
 import { EmbeddedConnectionDialog } from './embed/embedded-connection-dialog';
@@ -102,6 +103,14 @@ export const publicRoutes = [
     element: (
       <PageTitle title="Privacy Policy">
         <PrivacyPage />
+      </PageTitle>
+    ),
+  },
+  {
+    path: '/about',
+    element: (
+      <PageTitle title="About">
+        <AboutPage />
       </PageTitle>
     ),
   },

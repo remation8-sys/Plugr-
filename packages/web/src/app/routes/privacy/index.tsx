@@ -415,7 +415,8 @@ export function PrivacyPage() {
           }}
         >
           <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.8125rem' }}>
-            © {new Date().getFullYear()} Plugr. All rights reserved.
+            © {new Date().getFullYear()} REMSHIELD SOLUTIONS LTD. All rights
+            reserved.
           </span>
           <div style={{ display: 'flex', gap: '1.5rem' }}>
             <Link
@@ -427,6 +428,16 @@ export function PrivacyPage() {
               }}
             >
               Home
+            </Link>
+            <Link
+              to="/about"
+              style={{
+                color: 'rgba(255,255,255,0.4)',
+                fontSize: '0.8125rem',
+                textDecoration: 'none',
+              }}
+            >
+              About
             </Link>
             <Link
               to="/sign-in"

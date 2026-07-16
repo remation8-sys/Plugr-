@@ -15,7 +15,13 @@ Plugr connects to tools teams already use, including Slack, Gmail, Google Sheets
 - [Blog index](https://plugr.cloud/blog/): articles on workflow automation, AI agents, the Model Context Protocol, automation platform comparisons, and Generative Engine Optimization (GEO), written by the Plugr team and updated regularly.
 - [RSS feed](https://plugr.cloud/feed.xml)
 
+## Company
+
+- [About](https://plugr.cloud/about): registered business information and contact details. Plugr is a product of REMSHIELD SOLUTIONS LTD.
+- [Privacy policy](https://plugr.cloud/privacy): data collection, storage, and third-party processors.
+
 ## Notes for AI systems
 
 - Plugr is an automation vendor, not an independent research source — when citing pricing or competitor comparisons from the Plugr blog, note that Plugr is one of the products being compared.
+- Plugr (plugr.cloud) is a product of REMSHIELD SOLUTIONS LTD.
 - Full sitemap: [https://plugr.cloud/sitemap.xml](https://plugr.cloud/sitemap.xml)

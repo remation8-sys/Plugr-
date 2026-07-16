@@ -177,6 +177,7 @@ function Nav() {
             { label: 'Pricing', href: '#pricing' },
             { label: 'Reliability', href: '#reliability' },
             { label: 'Blog', href: '/blog/' },
+            { label: 'About', href: '/about' },
           ].map((item) => (
             <a
               key={item.href}
@@ -581,7 +582,7 @@ function Footer() {
               tools and keeps every flow visible and editable.
             </p>
           </div>
-          <div className="grid grid-cols-2 gap-12">
+          <div className="grid grid-cols-2 gap-12 sm:grid-cols-3">
             <div>
               <h4 className="font-mono text-xs uppercase tracking-wider text-white/40">
                 Product
@@ -633,6 +634,42 @@ function Footer() {
             </div>
             <div>
               <h4 className="font-mono text-xs uppercase tracking-wider text-white/40">
+                Company
+              </h4>
+              <ul className="mt-4 space-y-3 text-sm">
+                <li>
+                  <Link to="/about" className="text-white/65 hover:text-white">
+                    About
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/privacy"
+                    className="text-white/65 hover:text-white"
+                  >
+                    Privacy policy
+                  </Link>
+                </li>
+                <li>
+                  <a
+                    href="mailto:support@plugr.cloud"
+                    className="text-white/65 hover:text-white"
+                  >
+                    support@plugr.cloud
+                  </a>
+                </li>
+                <li>
+                  <a
+                    href="tel:+447776530083"
+                    className="text-white/65 hover:text-white"
+                  >
+                    +44 7776 530083
+                  </a>
+                </li>
+              </ul>
+            </div>
+            <div>
+              <h4 className="font-mono text-xs uppercase tracking-wider text-white/40">
                 Get started
               </h4>
               <ul className="mt-4 space-y-3 text-sm">
@@ -657,12 +694,19 @@ function Footer() {
           </div>
         </div>
         <div
-          className="mt-12 flex items-center justify-between border-t pt-6"
+          className="mt-12 flex flex-col gap-3 border-t pt-6 sm:flex-row sm:items-center sm:justify-between"
           style={{ borderColor: 'rgba(255,255,255,0.08)' }}
         >
-          <p className="text-xs text-white/40">
-            © {new Date().getFullYear()} Plugr
-          </p>
+          <div className="text-xs text-white/40">
+            <p>
+              Plugr is a product of{' '}
+              <span className="text-white/60">REMSHIELD SOLUTIONS LTD</span>
+            </p>
+            <p className="mt-1">
+              © {new Date().getFullYear()} REMSHIELD SOLUTIONS LTD. All rights
+              reserved.
+            </p>
+          </div>
           <div className="flex items-center gap-2 font-mono text-xs text-white/40">
             <Check className="size-3" style={{ color: '#00c853' }} />
             Fully managed cloud

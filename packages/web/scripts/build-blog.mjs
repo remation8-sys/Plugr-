@@ -165,6 +165,7 @@ function siteHeader() {
       <a href="/#features">Features</a>
       <a href="/#pricing">Pricing</a>
       <a href="/blog/">Blog</a>
+      <a href="/about">About</a>
       <a href="/sign-up" class="blog-cta">Start free trial</a>
     </nav>
   </div>
@@ -174,10 +175,16 @@ function siteHeader() {
 function siteFooter() {
   return `<footer class="blog-footer">
   <div class="blog-footer-inner">
-    <p>&copy; ${new Date().getFullYear()} Plugr</p>
+    <div>
+      <p>Plugr is a product of REMSHIELD SOLUTIONS LTD</p>
+      <p>&copy; ${new Date().getFullYear()} REMSHIELD SOLUTIONS LTD. All rights reserved.</p>
+    </div>
     <div class="blog-footer-links">
       <a href="/">Home</a>
       <a href="/blog/">Blog</a>
+      <a href="/about">About</a>
+      <a href="/privacy">Privacy</a>
+      <a href="mailto:support@plugr.cloud">support@plugr.cloud</a>
       <a href="/sign-up">Create account</a>
     </div>
   </div>
@@ -331,6 +338,8 @@ function buildSitemap(posts) {
   const urls = [
     { loc: `${SITE_URL}/`, changefreq: 'weekly', priority: '1.0' },
     { loc: `${SITE_URL}/blog/`, changefreq: 'daily', priority: '0.8' },
+    { loc: `${SITE_URL}/about`, changefreq: 'monthly', priority: '0.4' },
+    { loc: `${SITE_URL}/privacy`, changefreq: 'monthly', priority: '0.3' },
     ...posts.map((p) => ({
       loc: `${SITE_URL}/blog/${p.slug}/`,
       lastmod: p.date,
