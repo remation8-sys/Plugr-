@@ -13,7 +13,8 @@ export default defineConfig({
     hookTimeout: 60000,
     pool: 'forks',
     setupFiles: [path.resolve(__dirname, 'vitest.setup.ts')],
-    include: [path.resolve(__dirname, 'test/**/*.test.ts')],
+    // globs must use forward slashes, path.resolve breaks them on Windows
+    include: [`${path.resolve(__dirname, 'test').split(path.sep).join('/')}/**/*.test.ts`],
   },
   resolve: {
     alias: {

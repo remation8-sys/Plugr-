@@ -1,12 +1,15 @@
 import {
   Property,
+  StoreScope,
   TriggerStrategy,
   createTrigger,
 } from '@activepieces/pieces-framework';
 import {
   MarkdownVariant,
-  USE_DRAFT_QUERY_PARAM_NAME,
   ChatFormResponse,
+  ChatFlowHistoryMessage,
+  CHAT_HISTORY_STORE_PREFIX,
+  CHAT_HISTORY_MAX_SESSION_ID_LENGTH,
 } from '@activepieces/shared';
 
 const responseMarkdown = `
@@ -18,6 +21,14 @@ const markdown = `
 {{chatUrl}}
 \`\`\`
 Use this for production, views the published version of the chat flow.
+
+**Embed on your website:**
+\`\`\`html
+{{chatEmbedCode}}
+\`\`\`
+Paste the snippet before the closing \`</body>\` tag of your site to get a floating chat bubble.
+
+**Conversation memory:** previous messages of the session are available in the trigger output as \`history\` — map it into your AI step's prompt to give the bot memory.
 <br>
 <br>
 `;
@@ -42,7 +53,23 @@ export const onChatSubmission = createTrigger({
       defaultValue: 'AI Bot',
     }),
   },
-  sampleData: undefined,
+  sampleData: {
+    sessionId: 'kZqmnKNzhNvXnkPgaTBk3',
+    message: 'What is the status of my order?',
+    files: [],
+    history: [
+      {
+        role: 'user',
+        content: 'Hi there',
+        timestamp: '2026-01-01T10:00:00.000Z',
+      },
+      {
+        role: 'bot',
+        content: 'Hello! How can I help you today?',
+        timestamp: '2026-01-01T10:00:02.000Z',
+      },
+    ],
+  },
   type: TriggerStrategy.WEBHOOK,
   async onEnable() {
     return;
@@ -67,10 +94,23 @@ export const onChatSubmission = createTrigger({
       .sort(([indexA], [indexB]) => indexA - indexB)
       .map(([_, value]) => value);
 
+    // Conversation memory: the server appends each exchange to the store
+    // after the flow responds; overly long session ids are skipped to stay
+    // within the 128-char store key limit.
+    let history: ChatFlowHistoryMessage[] = [];
+    if (item.chatId.length <= CHAT_HISTORY_MAX_SESSION_ID_LENGTH) {
+      history =
+        (await ctx.store.get<ChatFlowHistoryMessage[]>(
+          `${CHAT_HISTORY_STORE_PREFIX}${item.chatId}`,
+          StoreScope.FLOW
+        )) ?? [];
+    }
+
     const response: ChatFormResponse = {
       sessionId: item.chatId,
       message: item.message,
       files,
+      history,
     }
     return [response];
   },

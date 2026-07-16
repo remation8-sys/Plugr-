@@ -3,6 +3,7 @@ import { context, propagation, trace } from '@opentelemetry/api'
 import { FastifyBaseLogger } from 'fastify'
 import { StatusCodes } from 'http-status-codes'
 import { flowExecutionCache } from '../flows/flow/flow-execution-cache'
+import { chatHistoryService } from '../flows/flow/human-input/chat-history.service'
 import { flowRunService } from '../flows/flow-run/flow-run-service'
 import { flowVersionRepo } from '../flows/flow-version/flow-version.service'
 import { pinoLogging } from '../helper/logger'
@@ -178,6 +179,12 @@ export const webhookService = {
                     failParentOnFailure,
                     timeoutMs,
                 })
+                rejectedPromiseHandler(chatHistoryService(pinoLogger).recordExchange({
+                    flow,
+                    flowVersionId: flowVersionIdToRun,
+                    payload: resolvedPayload,
+                    response: flowHttpResponse,
+                }), pinoLogger)
                 return {
                     status: flowHttpResponse.status,
                     body: flowHttpResponse.body,

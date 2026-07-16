@@ -49,10 +49,39 @@ export const HumanInputFormResult = z.union([
 export type HumanInputFormResult = z.infer<typeof HumanInputFormResult>
 
 
+export enum ChatFlowHistoryRole {
+    USER = 'user',
+    BOT = 'bot',
+}
+
+export const ChatFlowHistoryMessage = z.object({
+    role: z.nativeEnum(ChatFlowHistoryRole),
+    content: z.string(),
+    timestamp: z.string(),
+})
+
+export type ChatFlowHistoryMessage = z.infer<typeof ChatFlowHistoryMessage>
+
+/**
+ * Conversation memory for chat flows lives in the key-value store, scoped to
+ * the flow. The engine prefixes FLOW-scoped piece keys with `flow_{flowId}/`,
+ * so the server-side writer must build the same key to stay readable from the
+ * chat trigger. Keys are capped at 128 chars, hence the session id guard.
+ */
+export const CHAT_HISTORY_STORE_PREFIX = 'chat_history_'
+export const CHAT_HISTORY_MAX_MESSAGES = 40
+export const CHAT_HISTORY_MAX_MESSAGE_LENGTH = 4000
+export const CHAT_HISTORY_MAX_SESSION_ID_LENGTH = 64
+
+export function buildChatHistoryStoreKey(flowId: string, chatId: string): string {
+    return `flow_${flowId}/${CHAT_HISTORY_STORE_PREFIX}${chatId}`
+}
+
 export const ChatFormResponse = z.object({
     sessionId: z.string(),
     message: z.string(),
     files: z.array(z.string()).optional(),
+    history: z.array(ChatFlowHistoryMessage).optional(),
 })
 
 export type ChatFormResponse = z.infer<typeof ChatFormResponse>

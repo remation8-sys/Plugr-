@@ -70,6 +70,7 @@ const PieceSettings = React.memo((props: PieceSettingsProps) => {
     webhookUrl: `${webhookPrefixUrl}/${props.flowId}`,
     formUrl: `${frontendUrl}forms/${props.flowId}`,
     chatUrl: `${frontendUrl}chats/${props.flowId}`,
+    chatEmbedCode: `<script src="${frontendUrl}plugr-chat.js" data-flow-id="${props.flowId}" defer></script>`,
     pausedFlowTimeoutDays: pausedFlowTimeoutDays?.toString() ?? '',
     webhookTimeoutSeconds: webhookTimeoutSeconds?.toString() ?? '',
   };
