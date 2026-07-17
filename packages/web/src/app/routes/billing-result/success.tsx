@@ -14,7 +14,6 @@ export function BillingSuccessPage() {
 
   // Flutterwave appends these to the redirect URL after the checkout flow ends,
   // whether the payment succeeded, failed, or was cancelled.
-  const gatewayStatus = normalizeGatewayParam(searchParams.get('status'));
   const transactionId = normalizeGatewayParam(
     searchParams.get('transaction_id') ?? searchParams.get('transactionId'),
   );
@@ -23,11 +22,11 @@ export function BillingSuccessPage() {
   );
 
   // We never trust the gateway's status query param on its own — it is granted
-  // server-side only after Flutterwave verification. But a cancel with no
-  // transaction id can never be a payment, so short-circuit to the failed page.
-  const cancelledWithoutTransaction =
-    (gatewayStatus === 'cancelled' || gatewayStatus === 'failed') &&
-    !transactionId;
+  // server-side only after Flutterwave verification. Declined charges often
+  // arrive with status=cancelled/failed and no transaction_id (Flutterwave
+  // never assigned one), but the tx_ref alone is still enough for the server
+  // to verify by reference — only skip verification when we have neither.
+  const cancelledWithoutTransaction = !transactionId && !reference;
 
   const verify = useMutation({
     mutationFn: () =>
