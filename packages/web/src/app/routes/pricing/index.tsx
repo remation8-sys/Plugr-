@@ -1,5 +1,6 @@
-﻿import { PlugrPaidTier } from '@activepieces/shared';
+﻿import { PlugrBillingCurrency, PlugrPaidTier } from '@activepieces/shared';
 import { Check, CreditCard, Sparkles } from 'lucide-react';
+import { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,9 +13,13 @@ import {
 import { cn } from '@/lib/utils';
 
 const planOrder: PlugrPaidTier[] = ['starter', 'builder', 'pro', 'business'];
+const currencyOptions: PlugrBillingCurrency[] = ['USD', 'NGN'];
 
 export function PricingPage() {
-  const pricingQuery = plugrBillingQueries.usePricing();
+  const [currencyOverride, setCurrencyOverride] = useState<
+    PlugrBillingCurrency | undefined
+  >(undefined);
+  const pricingQuery = plugrBillingQueries.usePricing(currencyOverride);
   const checkoutMutation = plugrBillingMutations.useCreateCheckout();
 
   if (pricingQuery.isLoading || !pricingQuery.data) {
@@ -35,12 +40,37 @@ export function PricingPage() {
 
   return (
     <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 p-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-normal">Pricing</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Simple monthly billing. Plugr credits reset every month, and extra
-          credit packs stay available until used.
-        </p>
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-normal">Pricing</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Simple monthly billing. Plugr credits reset every month, and
+            extra credit packs stay available until used.
+          </p>
+        </div>
+        <div className="flex flex-col items-end gap-1">
+          <div className="inline-flex rounded-lg border p-1">
+            {currencyOptions.map((currency) => (
+              <button
+                key={currency}
+                type="button"
+                onClick={() => setCurrencyOverride(currency)}
+                className={cn(
+                  'rounded-md px-3 py-1 text-sm font-medium transition-colors',
+                  data.currency === currency
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-muted-foreground hover:text-foreground',
+                )}
+              >
+                {currency}
+              </button>
+            ))}
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Paying with a Nigerian card? Choose NGN so it isn't charged in a
+            foreign currency.
+          </p>
+        </div>
       </div>
 
       <div className="grid gap-4 lg:grid-cols-4">
@@ -94,7 +124,11 @@ export function PricingPage() {
                 <Button
                   className="w-full"
                   onClick={() =>
-                    checkoutMutation.mutate({ tier, period: 'monthly' })
+                    checkoutMutation.mutate({
+                      tier,
+                      period: 'monthly',
+                      currency: currencyOverride,
+                    })
                   }
                   disabled={checkoutMutation.isPending}
                 >

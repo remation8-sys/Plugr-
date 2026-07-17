@@ -5,6 +5,7 @@ import {
     PlugrCreateCheckoutRequest,
     PlugrCreateCreditCheckoutRequest,
     PlugrPricingInfo,
+    PlugrPricingQuery,
     PlugrVerifyTransactionRequest,
     PlugrVerifyTransactionResponse,
     PrincipalType,
@@ -25,7 +26,7 @@ const PROCESSED_EVENT_PREFIX = 'plugr:flutterwave:event:'
 
 export const plugrBillingController: FastifyPluginAsyncZod = async (app) => {
     app.get('/pricing', PricingRoute, async (request) => {
-        return plugrBillingService(request.log).getPricing({ request })
+        return plugrBillingService(request.log).getPricing({ request, currency: request.query.currency })
     })
 
     app.get('/me', BillingInfoRoute, async (request) => {
@@ -38,6 +39,7 @@ export const plugrBillingController: FastifyPluginAsyncZod = async (app) => {
             userId: request.principal.id,
             tier: request.body.tier,
             period: request.body.period,
+            currency: request.body.currency,
         })
     })
 
@@ -46,6 +48,7 @@ export const plugrBillingController: FastifyPluginAsyncZod = async (app) => {
             request,
             userId: request.principal.id,
             pack: request.body.pack,
+            currency: request.body.currency,
         })
     })
 
@@ -145,6 +148,7 @@ const PricingRoute = {
     },
     schema: {
         tags: ['plugr-billing'],
+        querystring: PlugrPricingQuery,
         response: {
             [StatusCodes.OK]: PlugrPricingInfo,
         },

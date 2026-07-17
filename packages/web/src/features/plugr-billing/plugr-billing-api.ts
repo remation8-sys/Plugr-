@@ -1,4 +1,5 @@
 ﻿import {
+  PlugrBillingCurrency,
   PlugrBillingInfo,
   PlugrCheckoutResponse,
   PlugrCreateCheckoutRequest,
@@ -11,8 +12,10 @@
 import { api } from '@/lib/api';
 
 export const plugrBillingApi = {
-  getPricing() {
-    return api.get<PlugrPricingInfo>('/v1/user-billing/pricing');
+  getPricing(currency?: PlugrBillingCurrency) {
+    return api.get<PlugrPricingInfo>('/v1/user-billing/pricing', {
+      currency,
+    });
   },
   getInfo() {
     return api.get<PlugrBillingInfo>('/v1/user-billing/me');

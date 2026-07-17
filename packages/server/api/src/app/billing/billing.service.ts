@@ -45,7 +45,10 @@ export const creditTransactionRepo = repoFactory<CreditTransactionSchema>(Credit
 const flowRepo = repoFactory<FlowSchema>(FlowEntity)
 
 export const plugrBillingService = (log: FastifyBaseLogger) => ({
-    async getPricing({ request }: GetPricingParams): Promise<PlugrPricingInfo> {
+    async getPricing({ request, currency }: GetPricingParams): Promise<PlugrPricingInfo> {
+        if (!isNil(currency)) {
+            return buildPricingInfo({ currency, country: currencyToCountry(currency) })
+        }
         const location = await billingCountryService(log).detect(request)
         return buildPricingInfo({ currency: location.currency, country: location.country })
     },
@@ -73,7 +76,7 @@ export const plugrBillingService = (log: FastifyBaseLogger) => ({
         params.period = 'monthly'
         const user = await getNormalizedUser({ userId: params.userId, log })
         assertCanStartCheckout({ user, tier: params.tier })
-        const location = await resolveBillingLocation({ request: params.request, user, log })
+        const location = await resolveBillingLocation({ request: params.request, user, log, currencyOverride: params.currency })
         const price = getPlugrPlanPrice({ tier: params.tier, period: params.period, currency: location.currency })
         const paymentPlanId = params.period === 'monthly'
             ? billingEnv.getMonthlyPlanId({ tier: params.tier, currency: location.currency })
@@ -138,7 +141,7 @@ export const plugrBillingService = (log: FastifyBaseLogger) => ({
     async createCreditCheckout(params: CreateCreditCheckoutParams): Promise<{ checkoutUrl: string, reference: string, inline?: PlugrInlineCheckoutParams }> {
         const user = await getNormalizedUser({ userId: params.userId, log })
         assertPlugrAccess(user)
-        const location = await resolveBillingLocation({ request: params.request, user, log })
+        const location = await resolveBillingLocation({ request: params.request, user, log, currencyOverride: params.currency })
         const price = getPlugrCreditPackPrice({ pack: params.pack, currency: location.currency })
         const userMeta = await userService(log).getMetaInformation({ id: params.userId })
         const reference = `plg_crd_${apId()}`
@@ -420,6 +423,11 @@ async function isTransactionAlreadyApplied({ reference, entityManager }: IsTrans
 }
 
 async function resolveBillingLocation(params: ResolveBillingLocationParams): Promise<BillingLocation> {
+    if (!isNil(params.currencyOverride)) {
+        const location: BillingLocation = { country: currencyToCountry(params.currencyOverride), currency: params.currencyOverride }
+        await persistUserBillingLocationIfChanged({ user: params.user, location })
+        return location
+    }
     const detected = await billingCountryService(params.log).detect(params.request)
     if (detected.country === 'NG') {
         await persistUserBillingLocationIfChanged({ user: params.user, location: detected })
@@ -429,6 +437,10 @@ async function resolveBillingLocation(params: ResolveBillingLocationParams): Pro
         return { country: 'NG', currency: 'NGN' }
     }
     return detected
+}
+
+function currencyToCountry(currency: PlugrBillingCurrency): BillingLocation['country'] {
+    return currency === 'NGN' ? 'NG' : 'OTHER'
 }
 
 async function persistUserBillingLocationIfChanged({ user, location }: PersistBillingLocationParams): Promise<void> {
@@ -801,12 +813,14 @@ type BuildInlineParams = {
 type CreateCreditCheckoutParams = UserIdParams & {
     request: FastifyRequest
     pack: PlugrCreditPackSize
+    currency?: PlugrBillingCurrency
 }
 
 type CreateSubscriptionCheckoutParams = UserIdParams & {
     request: FastifyRequest
     tier: PlugrPaidTier
     period: PlugrSubscriptionPeriod
+    currency?: PlugrBillingCurrency
 }
 
 type DeductCreditsParams = UserIdParams & {
@@ -820,6 +834,7 @@ type FlowIdParams = {
 
 type GetPricingParams = {
     request: FastifyRequest
+    currency?: PlugrBillingCurrency
 }
 
 type MarkSubscriptionEndedParams = {
@@ -859,6 +874,7 @@ type ResolveBillingLocationParams = {
     request: FastifyRequest
     user: User
     log: FastifyBaseLogger
+    currencyOverride?: PlugrBillingCurrency
 }
 
 type PersistBillingLocationParams = {

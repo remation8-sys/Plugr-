@@ -277,10 +277,16 @@ const PlugrPricingInfo = z.object({
 const PlugrCreateCheckoutRequest = z.object({
     tier: PlugrPaidTierSchema,
     period: PlugrSubscriptionPeriodSchema,
+    currency: PlugrBillingCurrencySchema.optional(),
 })
 
 const PlugrCreateCreditCheckoutRequest = z.object({
     pack: PlugrCreditPackSizeSchema,
+    currency: PlugrBillingCurrencySchema.optional(),
+})
+
+const PlugrPricingQuery = z.object({
+    currency: PlugrBillingCurrencySchema.optional(),
 })
 
 const PlugrCancelSubscriptionRequest = z.object({
@@ -346,6 +352,7 @@ export {
     PlugrCreateCheckoutRequest,
     PlugrCreateCreditCheckoutRequest,
     PlugrInlineCheckoutParams,
+    PlugrPricingQuery,
     plugrCreditActionCosts,
     plugrCreditActionTypeValues,
     PlugrCreditActionTypeSchema,
@@ -397,6 +404,7 @@ export type PlugrCheckoutResponse = z.infer<typeof PlugrCheckoutResponse>
 export type PlugrInlineCheckoutParams = z.infer<typeof PlugrInlineCheckoutParams>
 export type PlugrCreateCheckoutRequest = z.infer<typeof PlugrCreateCheckoutRequest>
 export type PlugrCreateCreditCheckoutRequest = z.infer<typeof PlugrCreateCreditCheckoutRequest>
+export type PlugrPricingQuery = z.infer<typeof PlugrPricingQuery>
 export type PlugrVerifyTransactionRequest = z.infer<typeof PlugrVerifyTransactionRequest>
 export type PlugrVerifyTransactionResponse = z.infer<typeof PlugrVerifyTransactionResponse>
 export type PlugrCreditActionType = z.infer<typeof PlugrCreditActionTypeSchema>

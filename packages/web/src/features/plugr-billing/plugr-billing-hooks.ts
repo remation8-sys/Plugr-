@@ -1,4 +1,5 @@
 ﻿import {
+  PlugrBillingCurrency,
   PlugrCreateCheckoutRequest,
   PlugrCreateCreditCheckoutRequest,
 } from '@activepieces/shared';
@@ -27,15 +28,16 @@ async function startCheckout(response: {
 }
 
 export const plugrBillingKeys = {
-  pricing: ['plugr-billing-pricing'] as const,
+  pricing: (currency?: PlugrBillingCurrency) =>
+    ['plugr-billing-pricing', currency ?? 'auto'] as const,
   info: ['plugr-billing-info'] as const,
 };
 
 export const plugrBillingQueries = {
-  usePricing() {
+  usePricing(currency?: PlugrBillingCurrency) {
     return useQuery({
-      queryKey: plugrBillingKeys.pricing,
-      queryFn: plugrBillingApi.getPricing,
+      queryKey: plugrBillingKeys.pricing(currency),
+      queryFn: () => plugrBillingApi.getPricing(currency),
     });
   },
   useInfo() {
