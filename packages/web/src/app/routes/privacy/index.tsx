@@ -221,7 +221,9 @@ export function PrivacyPage() {
             </a>
             , including the Limited Use requirements.
           </P>
-          <P>When you connect your Gmail account, Plugr may request access to:</P>
+          <P>
+            When you connect your Gmail account, Plugr may request access to:
+          </P>
           <Ul>
             <Li>View your email messages and settings (read access)</Li>
             <Li>Send email on your behalf</Li>
@@ -256,7 +258,9 @@ export function PrivacyPage() {
               To execute your automation workflows on your behalf using
               credentials you provide
             </Li>
-            <Li>To send transactional emails (password resets, billing receipts)</Li>
+            <Li>
+              To send transactional emails (password resets, billing receipts)
+            </Li>
             <Li>To respond to support requests</Li>
             <Li>To comply with legal obligations</Li>
           </Ul>
@@ -322,8 +326,8 @@ export function PrivacyPage() {
           <P>You have the right to:</P>
           <Ul>
             <Li>
-              <strong style={{ color: '#fff' }}>Access</strong> — request a
-              copy of the personal data we hold about you
+              <strong style={{ color: '#fff' }}>Access</strong> — request a copy
+              of the personal data we hold about you
             </Li>
             <Li>
               <strong style={{ color: '#fff' }}>Correction</strong> — update
@@ -338,17 +342,16 @@ export function PrivacyPage() {
               your flows and data in a machine-readable format
             </Li>
             <Li>
-              <strong style={{ color: '#fff' }}>Revoke third-party access</strong>{' '}
+              <strong style={{ color: '#fff' }}>
+                Revoke third-party access
+              </strong>{' '}
               — disconnect any app connection from your Plugr settings; this
               immediately deletes the stored credential
             </Li>
           </Ul>
           <P>
             To exercise any right, email us at{' '}
-            <a
-              href="mailto:privacy@plugr.cloud"
-              style={{ color: BLUE }}
-            >
+            <a href="mailto:privacy@plugr.cloud" style={{ color: BLUE }}>
               privacy@plugr.cloud
             </a>
             . We will respond within 30 days.
@@ -380,9 +383,7 @@ export function PrivacyPage() {
         </Section>
 
         <Section title="12. Contact Us">
-          <P>
-            For any privacy-related questions or requests:
-          </P>
+          <P>For any privacy-related questions or requests:</P>
           <P>
             <strong style={{ color: '#fff' }}>Plugr</strong>
             <br />
@@ -392,10 +393,7 @@ export function PrivacyPage() {
             </a>
             <br />
             Website:{' '}
-            <a
-              href="https://plugr.cloud"
-              style={{ color: BLUE }}
-            >
+            <a href="https://plugr.cloud" style={{ color: BLUE }}>
               plugr.cloud
             </a>
           </P>
@@ -414,7 +412,9 @@ export function PrivacyPage() {
             gap: '0.75rem',
           }}
         >
-          <span style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.8125rem' }}>
+          <span
+            style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.8125rem' }}
+          >
             © {new Date().getFullYear()} REMSHIELD SOLUTIONS LTD. All rights
             reserved.
           </span>
@@ -438,6 +438,16 @@ export function PrivacyPage() {
               }}
             >
               About
+            </Link>
+            <Link
+              to="/terms"
+              style={{
+                color: 'rgba(255,255,255,0.4)',
+                fontSize: '0.8125rem',
+                textDecoration: 'none',
+              }}
+            >
+              Terms
             </Link>
             <Link
               to="/sign-in"

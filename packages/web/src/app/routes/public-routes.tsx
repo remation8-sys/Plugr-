@@ -14,15 +14,16 @@ import { EmbeddedConnectionDialog } from './embed/embedded-connection-dialog';
 import { McpAuthorizePage } from './mcp-authorize';
 import { PrivacyPage } from './privacy';
 import { RedirectPage } from './redirect';
+import { TermsPage } from './terms';
 
 const ChatPage = React.lazy(() =>
-  import('./chat').then((m) => ({ default: m.ChatPage })),
+  import('./chat').then((m) => ({ default: m.ChatPage }))
 );
 const FormPage = React.lazy(() =>
-  import('./forms').then((m) => ({ default: m.FormPage })),
+  import('./forms').then((m) => ({ default: m.FormPage }))
 );
 const TemplatesPage = React.lazy(() =>
-  import('./templates').then((m) => ({ default: m.TemplatesPage })),
+  import('./templates').then((m) => ({ default: m.TemplatesPage }))
 );
 
 function SuspenseWrapper({ children }: { children: React.ReactNode }) {
@@ -103,6 +104,14 @@ export const publicRoutes = [
     element: (
       <PageTitle title="Privacy Policy">
         <PrivacyPage />
+      </PageTitle>
+    ),
+  },
+  {
+    path: '/terms',
+    element: (
+      <PageTitle title="Terms and Conditions">
+        <TermsPage />
       </PageTitle>
     ),
   },

@@ -651,6 +651,11 @@ function Footer() {
                   </Link>
                 </li>
                 <li>
+                  <Link to="/terms" className="text-white/65 hover:text-white">
+                    Terms and conditions
+                  </Link>
+                </li>
+                <li>
                   <a
                     href="mailto:support@plugr.cloud"
                     className="text-white/65 hover:text-white"
