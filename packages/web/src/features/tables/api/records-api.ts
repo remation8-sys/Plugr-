@@ -16,6 +16,23 @@ export const recordsApi = {
     return api.get<SeekPage<PopulatedRecord>>('/v1/records', request);
   },
 
+  // The server caps a single page at 1000 records, so fetching a whole table
+  // has to walk the cursor chain.
+  async listAll(tableId: string): Promise<SeekPage<PopulatedRecord>> {
+    const data: PopulatedRecord[] = [];
+    let cursor: string | undefined = undefined;
+    do {
+      const page: SeekPage<PopulatedRecord> = await recordsApi.list({
+        tableId,
+        limit: 1000,
+        cursor,
+      });
+      data.push(...page.data);
+      cursor = page.next ?? undefined;
+    } while (cursor);
+    return { data, next: null, previous: null };
+  },
+
   create(request: CreateRecordsRequest): Promise<PopulatedRecord[]> {
     return api.post<PopulatedRecord[]>('/v1/records', request);
   },

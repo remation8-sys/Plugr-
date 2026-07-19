@@ -85,12 +85,7 @@ export function ApTableStateProvider({
     error: recordsError,
   } = useQuery({
     queryKey: ['records', tableId],
-    queryFn: () =>
-      recordsApi.list({
-        tableId: tableId!,
-        limit: 99999999,
-        cursor: undefined,
-      }),
+    queryFn: () => recordsApi.listAll(tableId!),
     refetchOnWindowFocus: true,
     refetchOnMount: true,
     staleTime: 0,
