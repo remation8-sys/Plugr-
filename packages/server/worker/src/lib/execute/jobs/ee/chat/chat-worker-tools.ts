@@ -156,7 +156,7 @@ function createEventEmitter({ sendEvent, userId, conversationId, log }: {
 }
 
 function createDisplayTools({ waitForApproval, displayToolTimeoutMs, onConnectionSelected, onGateOpened, log }: {
-    waitForApproval: (params: { gateId: string, timeoutMs?: number }) => Promise<{ approved: boolean, payload?: Record<string, unknown> }>
+    waitForApproval: (params: { gateId: string, timeoutMs?: number }) => Promise<{ approved: boolean, payload?: Record<string, unknown>, timedOut?: boolean }>
     displayToolTimeoutMs: number
     onConnectionSelected?: (params: { pieceName: string, connectionExternalId: string, label: string, projectId: string }) => Promise<void>
     onGateOpened?: (params: { gateId: string, toolName: string, displayName: string, toolInput: Record<string, unknown> }) => Promise<void>
@@ -181,6 +181,13 @@ function createDisplayTools({ waitForApproval, displayToolTimeoutMs, onConnectio
             }
             const decision = await waitForApproval({ gateId: options.toolCallId, timeoutMs: displayToolTimeoutMs })
             if (!decision.approved) {
+                if (decision.timedOut) {
+                    return {
+                        dismissed: false,
+                        timedOut: true,
+                        message: 'The user has not responded to this card yet — the wait timed out; they did NOT dismiss it. Do not assume they declined, do not show the card again, and do not proceed as if they answered. End your reply now with a short note that you are waiting for them (e.g. to connect the service or answer), and that they can send a message whenever they are ready to continue.',
+                    }
+                }
                 return { dismissed: true, message: typeof dismissMessage === 'function' ? dismissMessage(input) : dismissMessage }
             }
             if (onApproved) {
@@ -325,7 +332,7 @@ function createLocalTools({ onSetProjectContext, projects }: {
 function createCrossProjectTools({ executeTool, eventEmitter, waitForApproval, onGateOpened, guides }: {
     executeTool: (toolName: string, toolInput: Record<string, unknown>) => Promise<unknown>
     eventEmitter: ChatEventEmitter
-    waitForApproval: (params: { gateId: string, timeoutMs?: number }) => Promise<{ approved: boolean }>
+    waitForApproval: (params: { gateId: string, timeoutMs?: number }) => Promise<{ approved: boolean, timedOut?: boolean }>
     onGateOpened?: (params: { gateId: string, toolName: string, displayName: string, toolInput: Record<string, unknown> }) => Promise<void>
     guides: Record<string, string>
 }): ToolSet {
@@ -394,6 +401,9 @@ function createCrossProjectTools({ executeTool, eventEmitter, waitForApproval, o
                     }
                     const decision = await waitForApproval({ gateId: options.toolCallId })
                     if (!decision.approved) {
+                        if (decision.timedOut) {
+                            return { content: [{ type: 'text', text: 'The confirmation timed out without a response — the user did NOT decline. Do not execute the action and do not re-send the confirmation. End your reply with a short note that you are waiting for their go-ahead and will continue when they reply.' }] }
+                        }
                         return { content: [{ type: 'text', text: 'Action cancelled by user.' }] }
                     }
                 }

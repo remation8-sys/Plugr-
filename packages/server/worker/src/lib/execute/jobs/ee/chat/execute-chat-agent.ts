@@ -409,7 +409,8 @@ function buildToolSet({ ctx, eventEmitter, log, phaseState, mcpToolSet, projects
                 sendHeartbeat()
             }
         }
-        return { approved: false }
+        // deadline passed without a decision — this is NOT a user dismissal
+        return { approved: false, timedOut: true }
     }
 
     const localTools = chatWorkerTools.createLocalTools({
@@ -569,4 +570,5 @@ async function retryWithBackoff({ fn, maxAttempts = RETRY_MAX_ATTEMPTS, log }: {
 type GateDecision = {
     approved: boolean
     payload?: Record<string, unknown>
+    timedOut?: boolean
 }

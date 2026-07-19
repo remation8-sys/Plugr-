@@ -55,7 +55,7 @@ export const createBuilderStore = (initialState: BuilderInitialState) =>
     const pieceSelectorState = createPieceSelectorState(get, set);
     const runState = createRunState(initialState, get, set);
     const chatState = createChatState(set);
-    const plugrChatState = createPlugrChatState(set);
+    const plugrChatState = createPlugrChatState(initialState, set);
     const canvasState = createCanvasState(initialState, set);
     const stepFormState = createStepFormState(set);
     const notesState = createNotesState(get, set);

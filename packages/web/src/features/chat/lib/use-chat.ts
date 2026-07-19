@@ -339,6 +339,10 @@ export function useAgentChat({
         }
       });
     },
+    checkStillStreaming: async (convId) => {
+      const conv = await chatApi.getConversation(convId);
+      return conv.status === ChatConversationStatus.STREAMING;
+    },
   });
 
   reconcileAndClearRef.current = (convId: string) => {

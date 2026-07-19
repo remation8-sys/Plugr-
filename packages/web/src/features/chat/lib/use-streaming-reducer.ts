@@ -14,7 +14,14 @@ import { ChatUIMessage } from './chat-types';
 import { chunkReducer, StreamingState } from './chunk-reducer';
 
 const THROTTLE_MS = 100;
-const STREAM_TIMEOUT_MS = 2 * 60 * 1000;
+// How long the socket can stay silent before we ask the server whether the
+// agent is still working. The agent legitimately goes quiet for minutes at a
+// time (long tool executions send no chunks; approval gates only heartbeat
+// every 15s), so silence alone must NOT fail the stream.
+const STREAM_SILENCE_CHECK_MS = 2 * 60 * 1000;
+// Only after this much continuous silence do we give up outright — covers a
+// worker that died without updating the conversation status.
+const STREAM_HARD_TIMEOUT_MS = 10 * 60 * 1000;
 const STALE_CHECK_INTERVAL_MS = 15_000;
 
 export function useStreamingReducer({
@@ -25,6 +32,7 @@ export function useStreamingReducer({
   onStreamFinished,
   onStreamError,
   onStaleCheck,
+  checkStillStreaming,
 }: {
   onTitleUpdate: (title: string) => void;
   onToolProgress: (event: ToolProgressEvent) => void;
@@ -37,6 +45,8 @@ export function useStreamingReducer({
     errorCode?: string;
   }) => void;
   onStaleCheck: (conversationId: string) => void;
+  /** Resolves true while the server reports the conversation as streaming; reject = unknown. */
+  checkStillStreaming: (conversationId: string) => Promise<boolean>;
 }) {
   const socket = useSocket();
 
@@ -67,6 +77,8 @@ export function useStreamingReducer({
   onStreamErrorRef.current = onStreamError;
   const onStaleCheckRef = useRef(onStaleCheck);
   onStaleCheckRef.current = onStaleCheck;
+  const checkStillStreamingRef = useRef(checkStillStreaming);
+  checkStillStreamingRef.current = checkStillStreaming;
   const staleCheckTimerRef = useRef<ReturnType<typeof setInterval> | null>(
     null,
   );
@@ -176,6 +188,50 @@ export function useStreamingReducer({
 
       const expectedGeneration = streamGenerationRef.current;
 
+      // Silence is only a failure when the server confirms nothing is running
+      // (or after the hard cap): the agent goes quiet during long tool runs
+      // and while waiting for the user at approval gates.
+      const armSilenceTimer = () => {
+        if (streamTimeoutRef.current !== null) {
+          clearTimeout(streamTimeoutRef.current);
+        }
+        streamTimeoutRef.current = setTimeout(
+          handleSilence,
+          STREAM_SILENCE_CHECK_MS,
+        );
+      };
+
+      const handleSilence = () => {
+        streamTimeoutRef.current = null;
+        if (streamGenerationRef.current !== expectedGeneration) return;
+        const silenceMs = Date.now() - lastChunkTimeRef.current;
+        if (silenceMs < STREAM_SILENCE_CHECK_MS) {
+          armSilenceTimer();
+          return;
+        }
+        if (silenceMs >= STREAM_HARD_TIMEOUT_MS) {
+          handleError({ errorMessage: 'Stream timed out' });
+          return;
+        }
+        void checkStillStreamingRef
+          .current(conversationId)
+          .then((stillStreaming) => {
+            if (streamGenerationRef.current !== expectedGeneration) return;
+            const phase = streamPhaseRef.current;
+            if (phase !== 'awaiting-stream' && phase !== 'streaming') return;
+            if (stillStreaming) {
+              armSilenceTimer();
+            } else {
+              // the turn ended but we missed the FINISHED event — reconcile
+              handleFinish();
+            }
+          })
+          .catch(() => {
+            if (streamGenerationRef.current !== expectedGeneration) return;
+            armSilenceTimer();
+          });
+      };
+
       const handler = (event: SocketEvent) => {
         if (event.conversationId !== conversationId) return;
         if (streamGenerationRef.current !== expectedGeneration) return;
@@ -190,13 +246,7 @@ export function useStreamingReducer({
             chunkBufferRef.current.push(chunk as UIMessageChunk);
           }
           scheduleFlush();
-
-          if (streamTimeoutRef.current !== null) {
-            clearTimeout(streamTimeoutRef.current);
-          }
-          streamTimeoutRef.current = setTimeout(() => {
-            handleError({ errorMessage: 'Stream timed out' });
-          }, STREAM_TIMEOUT_MS);
+          armSilenceTimer();
         } else if (event.type === ChatAgentEventType.ERROR) {
           const errorData = event.data as { message?: string; code?: string };
           handleError({
@@ -231,9 +281,7 @@ export function useStreamingReducer({
       };
       socket.on('connect', reconnectHandler);
 
-      streamTimeoutRef.current = setTimeout(() => {
-        handleError({ errorMessage: 'Stream timed out' });
-      }, STREAM_TIMEOUT_MS);
+      armSilenceTimer();
 
       staleCheckTimerRef.current = setInterval(() => {
         const timeSinceLastChunk = Date.now() - lastChunkTimeRef.current;
@@ -264,11 +312,15 @@ export function useStreamingReducer({
       ) {
         return;
       }
+      // also stop timers/listeners: the stale-check path reaches here without
+      // a FINISHED event, and a leftover silence timer would later fire a
+      // spurious "Stream timed out" on an already-completed turn
+      teardown();
       setStreamingMessage(null);
       setStreamError(null);
       updatePhase('idle');
     },
-    [updatePhase],
+    [teardown, updatePhase],
   );
 
   return {
