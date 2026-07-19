@@ -171,10 +171,10 @@ export function PrivacyPage() {
 
         <Section title="1. Introduction">
           <P>
-            Plugr ("we", "us", or "our") operates plugr.cloud, a no-code
-            automation platform that lets you connect apps and automate
-            workflows. This Privacy Policy explains what data we collect, how we
-            use it, and your rights.
+            Plugr (&quot;we&quot;, &quot;us&quot;, or &quot;our&quot;) operates
+            plugr.cloud, a no-code automation platform that lets you connect
+            apps and automate workflows. This Privacy Policy explains what data
+            we collect, how we use it, and your rights.
           </P>
           <P>
             By using Plugr, you agree to the practices described in this policy.
@@ -209,8 +209,8 @@ export function PrivacyPage() {
 
         <Section title="3. Google API Services — Gmail">
           <P>
-            Plugr's use and transfer to any other app of information received
-            from Google APIs will adhere to the{' '}
+            Plugr&apos;s use and transfer to any other app of information
+            received from Google APIs will adhere to the{' '}
             <a
               href="https://developers.google.com/terms/api-services-user-data-policy"
               target="_blank"
@@ -275,8 +275,8 @@ export function PrivacyPage() {
             the database.
           </P>
           <P>
-            We enforce multi-tenant data isolation — each user account's data is
-            strictly separated and inaccessible to other users.
+            We enforce multi-tenant data isolation — each user account&apos;s
+            data is strictly separated and inaccessible to other users.
           </P>
         </Section>
 

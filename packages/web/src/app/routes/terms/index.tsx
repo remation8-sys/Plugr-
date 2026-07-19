@@ -163,11 +163,11 @@ export function TermsPage() {
 
         <Section title="1. Acceptance of Terms">
           <P>
-            Plugr is operated by REMSHIELD SOLUTIONS LTD ("Plugr", "we", "us",
-            or "our"). These Terms and Conditions govern your access to and use
-            of plugr.cloud, the Plugr web application, workflow automation
-            tools, AI-assisted builder, integrations, billing features, and
-            related services.
+            Plugr is operated by REMSHIELD SOLUTIONS LTD (&quot;Plugr&quot;,
+            &quot;we&quot;, &quot;us&quot;, or &quot;our&quot;). These Terms and
+            Conditions govern your access to and use of plugr.cloud, the Plugr
+            web application, workflow automation tools, AI-assisted builder,
+            integrations, billing features, and related services.
           </P>
           <P>
             By creating an account, connecting an integration, starting a paid
@@ -287,10 +287,10 @@ export function TermsPage() {
         <Section title="7. Your Workflows, Content, and Data">
           <P>
             You retain ownership of workflows, prompts, inputs, files, execution
-            data, and other content you submit to Plugr ("Customer Content").
-            You grant Plugr a limited licence to host, process, transmit, copy,
-            and display Customer Content only as needed to provide, secure,
-            support, and improve the service.
+            data, and other content you submit to Plugr (&quot;Customer
+            Content&quot;). You grant Plugr a limited licence to host, process,
+            transmit, copy, and display Customer Content only as needed to
+            provide, secure, support, and improve the service.
           </P>
           <P>
             You are responsible for the accuracy, legality, quality, and rights
@@ -408,10 +408,11 @@ export function TermsPage() {
 
         <Section title="14. Disclaimers and Limitation of Liability">
           <P>
-            Plugr is provided on an "as is" and "as available" basis. To the
-            maximum extent permitted by law, we disclaim warranties of
-            merchantability, fitness for a particular purpose, non-infringement,
-            availability, accuracy, and uninterrupted operation.
+            Plugr is provided on an &quot;as is&quot; and &quot;as
+            available&quot; basis. To the maximum extent permitted by law, we
+            disclaim warranties of merchantability, fitness for a particular
+            purpose, non-infringement, availability, accuracy, and uninterrupted
+            operation.
           </P>
           <P>
             To the maximum extent permitted by law, Plugr will not be liable for
