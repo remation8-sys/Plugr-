@@ -52,6 +52,11 @@ export type AgentResult = {
     steps: AgentStepBlock[]
     status: AgentTaskStatus
     structuredOutput?: unknown
+    /**
+     * The agent's plain-text final answer, ready to use directly (e.g. `{{step.output.finalText}}`)
+     * without picking through `steps`. Only present when no `structuredOutput` fields were configured.
+     */
+    finalText?: string
 }
 
 export enum AgentPieceProps {

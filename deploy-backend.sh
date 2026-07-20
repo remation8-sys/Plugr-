@@ -24,23 +24,32 @@ git reset --hard origin/phase-1-rebrand 2>&1 | tail -1
 echo "commit: $(git rev-parse --short HEAD)"
 
 echo "=== dev pieces (fork-modified core pieces) ==="
-# The forms piece (Chat UI trigger + Respond on UI) is modified in this fork,
-# so it must NOT be installed from the npm registry (that would fetch upstream
-# code). AP_DEV_PIECES makes the API serve its metadata from the local dist and
-# the engine load its code from packages/pieces/core/forms/dist.
-grep -q '^AP_DEV_PIECES=' .env || { echo 'AP_DEV_PIECES=forms' >> .env; echo "added AP_DEV_PIECES=forms to .env"; }
+# The forms piece (Chat UI trigger + Respond on UI) and the ai piece (Run Agent,
+# etc.) are both modified in this fork, so neither must be installed from the
+# npm registry / worker package cache (that would fetch/keep upstream code).
+# AP_DEV_PIECES makes the API serve their metadata from the local dist and the
+# engine/worker load their code from packages/pieces/{core/forms,community/ai}/dist.
+if ! grep -q '^AP_DEV_PIECES=' .env; then
+  echo 'AP_DEV_PIECES=forms,ai' >> .env
+  echo "added AP_DEV_PIECES=forms,ai to .env"
+elif ! grep -q '^AP_DEV_PIECES=.*ai' .env; then
+  sed -i.bak 's/^AP_DEV_PIECES=.*/AP_DEV_PIECES=forms,ai/' .env
+  echo "updated AP_DEV_PIECES to include both forms,ai in .env"
+fi
 
 echo "=== load env ==="
 set -a; . ./.env; set +a
 
 echo "=== build engine + api + worker + dev pieces ==="
-npx turbo run build --filter=@activepieces/engine --filter=api --filter=worker --filter=@activepieces/piece-forms 2>&1 | tail -8
+npx turbo run build --filter=@activepieces/engine --filter=api --filter=worker --filter=@activepieces/piece-forms --filter=@activepieces/piece-ai 2>&1 | tail -8
 
 test -f dist/packages/engine/main.js                  || { echo "FATAL: engine build missing"; exit 1; }
 test -f packages/server/api/dist/src/bootstrap.js     || { echo "FATAL: api build missing"; exit 1; }
 test -f packages/server/worker/dist/src/bootstrap.js  || { echo "FATAL: worker build missing"; exit 1; }
 test -f packages/pieces/core/forms/dist/src/index.js  || { echo "FATAL: forms piece build missing"; exit 1; }
 test -f packages/pieces/core/forms/dist/package.json  || { echo "FATAL: forms piece dist package.json missing"; exit 1; }
+test -f packages/pieces/community/ai/dist/src/index.js || { echo "FATAL: ai piece build missing"; exit 1; }
+test -f packages/pieces/community/ai/dist/package.json || { echo "FATAL: ai piece dist package.json missing"; exit 1; }
 
 echo "=== esbuild on PATH (Code steps) ==="
 # The worker compiles Code steps by spawning a bare `esbuild`, which must be on

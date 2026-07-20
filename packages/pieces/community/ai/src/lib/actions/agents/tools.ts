@@ -358,8 +358,11 @@ export async function constructAgentTools(
             );
             if (!isNil(structuredOutput) && !isNil(output) && !isString(output)) {
               outputBuilder.setStructuredOutput(output);
-            } else if (isNil(structuredOutput) && !isNil(output) && !outputBuilder.hasTextContent()) {
-              outputBuilder.addMarkdown(output as string);
+            } else if (isNil(structuredOutput) && !isNil(output) && isString(output)) {
+              outputBuilder.setFinalText(output);
+              if (!outputBuilder.hasTextContent()) {
+                outputBuilder.addMarkdown(output);
+              }
             }
             return {};
           },

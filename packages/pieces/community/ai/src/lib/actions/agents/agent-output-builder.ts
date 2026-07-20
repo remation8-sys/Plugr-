@@ -19,6 +19,7 @@ export const agentOutputBuilder = (prompt: string) => {
   let status: AgentTaskStatus = AgentTaskStatus.IN_PROGRESS;
   const steps: AgentStepBlock[] = [];
   let structuredOutput: Record<string, unknown> | undefined = undefined;
+  let finalText: string | undefined = undefined;
   let toolKeyToAgentTool: ToolKeyToAgentTool = {};
 
   return {
@@ -30,6 +31,9 @@ export const agentOutputBuilder = (prompt: string) => {
     },
     setStructuredOutput(output: Record<string, unknown>) {
       structuredOutput = output;
+    },
+    setFinalText(text: string) {
+      finalText = text;
     },
     appendErrorToStructuredOutput(errorDetails: unknown) {
       if (structuredOutput) {
@@ -116,10 +120,29 @@ export const agentOutputBuilder = (prompt: string) => {
         steps,
         structuredOutput,
         prompt,
+        finalText: finalText ?? deriveFallbackFinalText(steps),
       };
     },
   };
 };
+
+/**
+ * Best-effort final answer for agents that never called the completion tool with a
+ * plain-text output (e.g. stopped early, or the model just chatted without finishing).
+ * Joins the narration text and strips the model talking about the completion mechanics
+ * out loud (a known model habit), so callers always get something reply-shaped.
+ */
+function deriveFallbackFinalText(steps: AgentStepBlock[]): string | undefined {
+  const text = steps
+    .filter((step): step is MarkdownContentBlock => step.type === ContentBlockType.MARKDOWN)
+    .map((step) => step.markdown)
+    .join('')
+    .replace(/(now,?\s*)?i\s*(will|'ll|am going to)\s*(now\s*)?complete the task[^]*$/i, '')
+    .replace(/once you.?re ready[^]*$/i, '')
+    .replace(/[\s-]*$/g, '')
+    .trim();
+  return text.length > 0 ? text : undefined;
+}
 
 type FinishToolCallParams = {
   toolCallId: string;
