@@ -671,6 +671,11 @@ function Footer() {
                     +44 7776 530083
                   </a>
                 </li>
+                <li className="max-w-[15rem] text-white/65">
+                  <span className="block text-white/40">Commercial office</span>
+                  1, Bazyjacobs Estate, Irhirhi Road, Benin City 300102, Edo
+                  State, Nigeria
+                </li>
               </ul>
             </div>
             <div>
