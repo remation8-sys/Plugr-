@@ -166,7 +166,7 @@ function siteHeader() {
       <a href="/#pricing">Pricing</a>
       <a href="/blog/">Blog</a>
       <a href="/about">About</a>
-      <a href="/sign-up" class="blog-cta">Start free trial</a>
+      <a href="/sign-up" class="blog-cta">Create account</a>
     </nav>
   </div>
 </header>`;
@@ -184,6 +184,7 @@ function siteFooter() {
       <a href="/blog/">Blog</a>
       <a href="/about">About</a>
       <a href="/privacy">Privacy</a>
+      <a href="/terms">Terms</a>
       <a href="mailto:support@plugr.cloud">support@plugr.cloud</a>
       <a href="/sign-up">Create account</a>
     </div>
@@ -274,7 +275,7 @@ function renderPost(meta, faqs, contentHtml, imageUrl, takeaways, toc) {
   <div class="post-body">
 ${contentHtml}
   </div>
-  <p class="post-cta"><a href="/sign-up">Start a free Plugr trial &rarr;</a></p>
+  <p class="post-cta"><a href="/sign-up">Create your Plugr account &rarr;</a></p>
   <p class="post-back"><a href="/blog/">&larr; Back to all posts</a></p>
 </article>`;
 
@@ -340,6 +341,7 @@ function buildSitemap(posts) {
     { loc: `${SITE_URL}/blog/`, changefreq: 'daily', priority: '0.8' },
     { loc: `${SITE_URL}/about`, changefreq: 'monthly', priority: '0.4' },
     { loc: `${SITE_URL}/privacy`, changefreq: 'monthly', priority: '0.3' },
+    { loc: `${SITE_URL}/terms`, changefreq: 'monthly', priority: '0.3' },
     ...posts.map((p) => ({
       loc: `${SITE_URL}/blog/${p.slug}/`,
       lastmod: p.date,

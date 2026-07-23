@@ -2,12 +2,12 @@
 
 > Plugr is a fully managed workflow automation platform: a visual workflow canvas paired with an AI builder that discovers a connected integration's live actions and fields, drafts a flow from a plain-language description, and lets you inspect, validate, and test every step before it runs on a schedule or an event. Every run is recorded with step-level detail so a failed run can be inspected and retried.
 
-Plugr connects to tools teams already use, including Slack, Gmail, Google Sheets, Notion, HubSpot, OpenAI, Postgres, and webhooks. Connection credentials are encrypted at rest. Plugr runs as a fully managed cloud service — there is no server to provision, patch, or scale. The free trial includes the visual workflow tools; the AI builder and monthly AI credits are available on paid plans.
+Plugr connects to tools teams already use, including Slack, Gmail, Google Sheets, Notion, HubSpot, OpenAI, Postgres, and webhooks. Connection credentials are encrypted at rest. Plugr runs as a fully managed cloud service — there is no server to provision, patch, or scale. Plugr does not offer a free trial; paid plans begin after payment, with a 3-day refund window for the first paid subscription.
 
 ## Product
 
 - [Homepage](https://plugr.cloud/): what Plugr does, core features, and pricing overview.
-- [Sign up](https://plugr.cloud/sign-up): start a free trial.
+- [Sign up](https://plugr.cloud/sign-up): create an account and choose a paid plan.
 - [Sign in](https://plugr.cloud/sign-in): existing customer login.
 
 ## Blog
@@ -19,6 +19,7 @@ Plugr connects to tools teams already use, including Slack, Gmail, Google Sheets
 
 - [About](https://plugr.cloud/about): registered business information and contact details. Plugr is a product of REMSHIELD SOLUTIONS LTD.
 - [Privacy policy](https://plugr.cloud/privacy): data collection, storage, and third-party processors.
+- [Terms and conditions](https://plugr.cloud/terms): subscription, billing, refund, acceptable-use, and service terms.
 
 ## Notes for AI systems
 
