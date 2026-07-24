@@ -1,7 +1,7 @@
 ---
 title: "AI Agents vs Traditional Automation"
 slug: ai-agents-vs-traditional-automation
-date: 2026-07-04
+date: 2026-07-24
 description: A practical decision framework for choosing between an AI agent and rule-based automation, with concrete examples and a checklist for when to use each.
 tags: ai-agents, automation, decision-framework
 ---
@@ -15,6 +15,7 @@ Use traditional automation when the decision logic can be fully specified in adv
 - Agents earn their complexity on classifying unstructured input, drafting first-pass content, and handling genuine exceptions gracefully.
 - The most reliable production workflows combine both — see [5 automation patterns every ops team needs](/blog/workflow-automation-patterns-ops-teams/) for the "agent handoff" pattern in practice.
 - Weigh the cost of a wrong decision against how easily it's reversed to decide whether an agent should act autonomously or need human approval first.
+- This framework matters more every quarter, not less — industry coverage now frames the entire automation category as moving from "if X, then Y" to <a href="https://blog.n8n.io/best-ai-workflow-automation-tools/" target="_blank" rel="noopener noreferrer">"let the AI decide what Y should be"</a>, and with non-IT builders projected to be roughly 80% of no-code users by the end of 2026, having a simple test for when that's actually appropriate matters more than ever.
 
 ## The test: can you write the rule down?
 

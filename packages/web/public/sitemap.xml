@@ -26,6 +26,24 @@
     <priority>0.3</priority>
   </url>
   <url>
+    <loc>https://plugr.cloud/blog/state-of-workflow-automation-2026/</loc>
+    <lastmod>2026-07-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://plugr.cloud/blog/n8n-vs-zapier-vs-make-vs-plugr-2026/</loc>
+    <lastmod>2026-07-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
+    <loc>https://plugr.cloud/blog/ai-agents-vs-traditional-automation/</loc>
+    <lastmod>2026-07-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  <url>
     <loc>https://plugr.cloud/blog/why-chatgpt-traffic-converts-better-than-google/</loc>
     <lastmod>2026-07-06</lastmod>
     <changefreq>monthly</changefreq>
@@ -34,12 +52,6 @@
   <url>
     <loc>https://plugr.cloud/blog/automate-gmail-hubspot-postgres-no-code/</loc>
     <lastmod>2026-07-05</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://plugr.cloud/blog/ai-agents-vs-traditional-automation/</loc>
-    <lastmod>2026-07-04</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -70,18 +82,6 @@
   <url>
     <loc>https://plugr.cloud/blog/model-context-protocol-explained/</loc>
     <lastmod>2026-07-01</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://plugr.cloud/blog/n8n-vs-zapier-vs-make-vs-plugr-2026/</loc>
-    <lastmod>2026-06-30</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  <url>
-    <loc>https://plugr.cloud/blog/state-of-workflow-automation-2026/</loc>
-    <lastmod>2026-06-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>

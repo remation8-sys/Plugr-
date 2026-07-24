@@ -1,7 +1,7 @@
 ---
 title: The State of Workflow Automation in 2026
 slug: state-of-workflow-automation-2026
-date: 2026-06-29
+date: 2026-07-24
 description: A data-backed look at where workflow automation stands in 2026 — agentic AI adoption, MCP growth, and the shift from Google search to AI answer engines.
 tags: automation, ai-agents, trends, geo
 ---
@@ -15,6 +15,7 @@ Workflow automation in 2026 is no longer about connecting apps with simple if-th
 - Automation pricing got a lot more expensive at scale in 2026 — see our [n8n vs Zapier vs Make vs Plugr comparison](/blog/n8n-vs-zapier-vs-make-vs-plugr-2026/) for the full breakdown.
 - ChatGPT-referred traffic now converts higher and stays longer than Google organic traffic, but ranking on Google no longer guarantees AI visibility — [more on that here](/blog/why-chatgpt-traffic-converts-better-than-google/).
 - Only 16% of brands currently track their AI search performance, leaving most of this shift invisible to standard marketing dashboards.
+- The workflow automation market itself is projected to reach <a href="https://coworker.ai/blog/best-ai-workflow-automation-platforms" target="_blank" rel="noopener noreferrer">$78.26 billion by 2035</a> (21% CAGR), and no-code/low-code spend specifically is projected to grow from roughly $4.77 billion in 2025 to nearly $38 billion by 2033 as adoption spreads well beyond IT teams.
 
 ## Agentic AI is now the default, not the add-on
 
@@ -33,6 +34,10 @@ MCP standardizes *how* an agent reaches a tool. It doesn't replace the orchestra
 ## The pricing math changed too
 
 Automation platforms didn't just get smarter in 2026 — they got a lot more expensive at scale, which is pushing teams to reconsider architecture, not just vendor. Task-based pricing that felt reasonable at 1,000 tasks a month becomes a real budget line at 50,000: one popular no-code platform runs roughly £940/month at that volume, while a visual mid-tier alternative runs closer to £250/month, and a self-hosted, node-based option can run as low as £20/month in server costs. That's a 47x spread for functionally similar output, and it's the single biggest reason "automation platform migration" has become its own category of project in 2026 — see our full [n8n vs Zapier vs Make vs Plugr pricing comparison](/blog/n8n-vs-zapier-vs-make-vs-plugr-2026/) for the breakdown by platform.
+
+## The people building automations are changing too
+
+The other quiet shift in 2026 is *who* is actually building these workflows. Industry roundups now project that <a href="https://kissflow.com/no-code/no-code-company/" target="_blank" rel="noopener noreferrer">70-75% of new business applications</a> will be built on no-code or low-code tooling by 2026, and that developers outside of core IT teams will make up roughly 80% of no-code users by the end of the year. That's a meaningfully different buyer than the technical, self-hosting-comfortable team that automation platforms were originally built for — and it's part of why "can I inspect and trust what the AI built" is becoming as important a purchase criterion as raw integration count or price per task (see our [n8n vs Zapier vs Make vs Plugr comparison](/blog/n8n-vs-zapier-vs-make-vs-plugr-2026/) for how that plays out platform by platform).
 
 ## Search traffic is splitting into two economies
 

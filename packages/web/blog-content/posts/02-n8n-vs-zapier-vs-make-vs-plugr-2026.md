@@ -1,7 +1,7 @@
 ---
 title: "n8n vs Zapier vs Make vs Plugr (2026)"
 slug: n8n-vs-zapier-vs-make-vs-plugr-2026
-date: 2026-06-30
+date: 2026-07-24
 description: An honest 2026 comparison of n8n, Zapier, Make, and Plugr — pricing at scale, integration counts, AI agent features, and who each one actually fits.
 tags: comparison, zapier, n8n, make, pricing
 ---
@@ -15,10 +15,12 @@ If you're choosing a workflow automation platform in 2026, the short answer is: 
 - All three incumbents shipped native AI agent features in 2026: Zapier Agents, Make AI Agents (Maia), and n8n 2.0 with LangChain integration.
 - Plugr pairs a visual canvas with an AI builder that discovers a connected integration's live actions, then lets you inspect and validate the drafted flow before it runs.
 - The right choice depends more on your task volume at scale and how much AI autonomy you want than on any single feature checklist.
+- This decision is getting more common, not less — the workflow automation market is projected to reach <a href="https://coworker.ai/blog/best-ai-workflow-automation-platforms" target="_blank" rel="noopener noreferrer">$78.26 billion by 2035</a> at a 21% CAGR, and no-code/low-code spend specifically is projected to grow from roughly $4.77 billion in 2025 to nearly $38 billion by 2033.
 
 ## The headline numbers
 
-- **Integrations:** Zapier connects to roughly 6,000 apps out of the box — the largest catalog of any platform. n8n ships with around 1,000 native integrations but can reach virtually any service with a public API through its HTTP node and custom code steps.
+- **Integrations:** Zapier's catalog has grown to roughly <a href="https://www.airtable.com/articles/ai-workflow-automation-tools" target="_blank" rel="noopener noreferrer">7,000+ apps</a> as of mid-2026 (up from ~6,000 a year prior) — still the largest catalog of any platform. n8n ships with around 1,000 native integrations but can reach virtually any service with a public API through its HTTP node and custom code steps.
+- **Who's actually choosing:** developers outside of IT are projected to make up roughly 80% of no-code users by the end of 2026, which is shifting platform decisions away from pure engineering criteria and toward ease of setup and how much a non-specialist can safely inspect before trusting an automation with production work.
 - **Pricing at scale:** at 50,000 tasks a month, Zapier runs approximately £940/month, Make runs approximately £250/month, and a self-hosted n8n instance runs approximately £20/month in server costs — a roughly 47x spread between the cheapest and most expensive option for comparable throughput (see <a href="https://www.digitalapplied.com/blog/zapier-vs-make-vs-n8n-2026-automation-comparison" target="_blank" rel="noopener noreferrer">current published pricing comparisons</a> for more detail on how each platform meters usage).
 - **AI agents:** all three added native agent features in 2026 — <a href="https://zapier.com/agents" target="_blank" rel="noopener noreferrer">Zapier Agents</a> for autonomous task execution across its app catalog, <a href="https://www.make.com/en/blog/make-maia-no-code" target="_blank" rel="noopener noreferrer">Make AI Agents (branded Maia)</a>, and n8n 2.0 with LangChain integration and 70-plus AI-specific nodes.
 
