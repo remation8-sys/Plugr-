@@ -39,6 +39,8 @@ async function enrichGmailMessage({
 
   return {
     message: {
+      id: messageId,
+      threadId: rawMailResponse.data.threadId,
       ...parsedMailResponse,
       attachments: await convertAttachment(
         parsedMailResponse.attachments,

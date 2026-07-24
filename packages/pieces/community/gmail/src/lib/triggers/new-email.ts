@@ -144,6 +144,8 @@ async function pollRecentMessages({
         epochMilliSeconds: Number(rawMailResponse.data.internalDate),
         data: {
           message: {
+            id: message.id,
+            threadId: message.threadId,
             ...parsedMailResponse,
             attachments: await convertAttachment(
               parsedMailResponse.attachments,
