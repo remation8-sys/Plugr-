@@ -5,6 +5,8 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
+import { authMutations } from '../hooks/auth-hooks';
+
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -23,8 +25,6 @@ import {
 } from '@/components/ui/popover';
 import { PasswordRequirementsList } from '@/features/authentication/components/password-validator';
 import { passwordValidation } from '@/features/authentication/utils/password-validation-utils';
-
-import { authMutations } from '../hooks/auth-hooks';
 
 const ChangePasswordForm = () => {
   const navigate = useNavigate();
@@ -64,7 +64,7 @@ const ChangePasswordForm = () => {
   };
 
   return (
-    <Card className="w-md rounded-sm drop-shadow-xl">
+    <Card className="w-full max-w-md rounded-sm drop-shadow-xl">
       <CardHeader>
         <CardTitle className="text-2xl">{t('Reset Password')}</CardTitle>
         <CardDescription>{t('Enter your new password')}</CardDescription>
@@ -93,6 +93,7 @@ const ChangePasswordForm = () => {
                         required
                         id="newPassword"
                         type="password"
+                        autoComplete="new-password"
                         placeholder={'********'}
                         className="rounded-sm"
                         ref={inputRef}

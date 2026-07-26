@@ -1,16 +1,16 @@
 import { t } from 'i18next';
 import { Pencil } from 'lucide-react';
 
+import { UserRowData } from '../index';
+
+import { UpdateUserDialog } from './update-user-dialog';
+
 import { Button } from '@/components/ui/button';
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-
-import { UserRowData } from '../index';
-
-import { UpdateUserDialog } from './update-user-dialog';
 
 type EditUserActionProps = {
   row: UserRowData;

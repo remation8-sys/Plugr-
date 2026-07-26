@@ -4,12 +4,12 @@ import { AlertCircle, Check, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useState } from 'react';
 
+import { normalizePieceName } from '../lib/message-parsers';
+
 import { SimpleJsonViewer } from '@/components/custom/simple-json-viewer';
 import { Collapsible, CollapsibleContent } from '@/components/ui/collapsible';
 import { PieceIconWithPieceName } from '@/features/pieces/components/piece-icon-from-name';
 import { cn } from '@/lib/utils';
-
-import { normalizePieceName } from '../lib/message-parsers';
 
 export function ActionReceiptCard({
   receipt,
@@ -91,7 +91,7 @@ export function ActionReceiptCard({
                   data={tryParseJson(receipt.output)}
                   hideCopyButton={true}
                   maxHeight={150}
-                  fontSize="11px"
+                  fontSize="12px"
                 />
               </div>
             </CollapsibleContent>

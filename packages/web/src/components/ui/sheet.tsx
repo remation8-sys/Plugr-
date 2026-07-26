@@ -62,9 +62,9 @@ function SheetContent({
         className={cn(
           'fixed z-50 flex flex-col gap-4 bg-background shadow-lg transition ease-in-out data-[state=closed]:animate-out data-[state=closed]:duration-300 data-[state=open]:animate-in data-[state=open]:duration-500',
           side === 'right' &&
-            'inset-y-0 right-0 h-full w-3/4 border-l data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right sm:max-w-sm',
+            'inset-x-0 bottom-0 max-h-[92dvh] w-full rounded-t-lg border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom md:inset-y-0 md:right-0 md:left-auto md:h-full md:max-h-none md:w-3/4 md:rounded-none md:border-t-0 md:border-l md:data-[state=closed]:slide-out-to-right md:data-[state=open]:slide-in-from-right md:max-w-sm',
           side === 'left' &&
-            'inset-y-0 left-0 h-full w-3/4 border-r data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left sm:max-w-sm',
+            'inset-x-0 bottom-0 max-h-[92dvh] w-full rounded-t-lg border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom md:inset-y-0 md:left-0 md:right-auto md:h-full md:max-h-none md:w-3/4 md:rounded-none md:border-t-0 md:border-r md:data-[state=closed]:slide-out-to-left md:data-[state=open]:slide-in-from-left md:max-w-sm',
           side === 'top' &&
             'inset-x-0 top-0 h-auto border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top',
           side === 'bottom' &&
@@ -75,8 +75,8 @@ function SheetContent({
       >
         {children}
         {!hideCloseButton && (
-          <SheetPrimitive.Close className="absolute top-4 right-4 rounded-xs opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none data-[state=open]:bg-secondary">
-            <XIcon className="size-4" />
+          <SheetPrimitive.Close className="absolute top-2 right-2 flex size-11 items-center justify-center rounded-xs opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:ring-2 focus:ring-ring focus:ring-offset-2 focus:outline-hidden disabled:pointer-events-none data-[state=open]:bg-secondary md:top-3 md:right-3 md:size-9">
+            <XIcon className="size-5 md:size-4" />
             <span className="sr-only">Close</span>
           </SheetPrimitive.Close>
         )}

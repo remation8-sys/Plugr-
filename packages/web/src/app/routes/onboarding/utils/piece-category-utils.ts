@@ -1,5 +1,5 @@
-import { PieceCategory } from '@activepieces/shared';
 import { PieceMetadataModelSummary } from '@activepieces/pieces-framework';
+import { PieceCategory } from '@activepieces/shared';
 
 export type OnboardingCategory =
   | 'All'

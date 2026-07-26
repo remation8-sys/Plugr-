@@ -82,7 +82,10 @@ export function ProjectSelect({
           <ChevronDown className="h-4 w-4 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[250px] p-0" align="end">
+      <PopoverContent
+        className="w-[calc(100vw-2rem)] max-w-[250px] p-0"
+        align="end"
+      >
         <div style={{ height: dropdownHeight }}>
           <VirtualizedScrollArea
             items={items}

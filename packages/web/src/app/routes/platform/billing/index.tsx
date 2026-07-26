@@ -9,16 +9,16 @@ import { t } from 'i18next';
 
 import { CenteredPage } from '@/app/components/centered-page';
 import LockedFeatureGuard from '@/app/components/locked-feature-guard';
-import { LoadingSpinner } from '@/components/custom/spinner';
+import { PageLoadingSkeleton } from '@/components/custom/page-loading-skeleton';
 import { Button } from '@/components/ui/button';
+import { ActiveFlowAddon } from '@/features/billing/components/active-flows-addon';
+import { AICreditUsage } from '@/features/billing/components/ai-credits/ai-credit-usage';
+import { LicenseKey } from '@/features/billing/components/license-key';
+import { SubscriptionInfo } from '@/features/billing/components/subscription-info';
 import {
-  ActiveFlowAddon,
-  AICreditUsage,
-  LicenseKey,
-  SubscriptionInfo,
   billingMutations,
   billingQueries,
-} from '@/features/billing';
+} from '@/features/billing/hooks/billing-hooks';
 import { flagsHooks } from '@/hooks/flags-hooks';
 import { platformHooks } from '@/hooks/platform-hooks';
 
@@ -58,9 +58,10 @@ function BillingPageDetails() {
 
   if (isPlatformSubscriptionLoading || isNil(platformPlanInfo)) {
     return (
-      <article className="h-full flex items-center justify-center w-full">
-        <LoadingSpinner />
-      </article>
+      <PageLoadingSkeleton
+        className="h-full"
+        label={t('Loading billing information')}
+      />
     );
   }
 

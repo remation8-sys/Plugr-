@@ -2,10 +2,10 @@ import { isNil } from '@activepieces/shared';
 import { t } from 'i18next';
 import { X } from 'lucide-react';
 
+import { SelectUtilButton } from './select-util-button';
+
 import { Input, InputProps } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
-
-import { SelectUtilButton } from './select-util-button';
 
 function ClearableInput({
   onClear,

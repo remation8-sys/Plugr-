@@ -179,6 +179,10 @@ const SecretInput = React.forwardRef<HTMLInputElement, SecretInputProps>(
                         src={selectedProvider.logo}
                         alt={selectedProvider.name}
                         className="size-4 shrink-0 object-contain"
+                        width="16"
+                        height="16"
+                        loading="lazy"
+                        decoding="async"
                       />
                     )}
                     <span className="truncate">{selectedConnection.name}</span>
@@ -200,6 +204,10 @@ const SecretInput = React.forwardRef<HTMLInputElement, SecretInputProps>(
                             src={provider.logo}
                             alt={provider.name}
                             className="size-4 shrink-0 object-contain"
+                            width="16"
+                            height="16"
+                            loading="lazy"
+                            decoding="async"
                           />
                         )}
                         <span>{connection.name}</span>
@@ -236,7 +244,7 @@ const SecretInput = React.forwardRef<HTMLInputElement, SecretInputProps>(
 
     return (
       <div className={cn('flex items-center gap-2', className)}>
-        {platform.plan.secretManagersEnabled &&
+        {platform.plan?.secretManagersEnabled === true &&
           connections &&
           connections.length > 0 && (
             <SecretManagerToggleButton

@@ -5,6 +5,11 @@ import { LayoutGrid, Search } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { useDebounce } from 'use-debounce';
 
+import { templatesApi } from '../api/templates-api';
+
+import { ExploreTemplateCard } from './explore-template-card';
+import { UseTemplateDialog } from './use-template-dialog';
+
 import {
   Empty,
   EmptyDescription,
@@ -30,11 +35,6 @@ import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { platformHooks } from '@/hooks/platform-hooks';
 import { cn } from '@/lib/utils';
-
-import { templatesApi } from '../api/templates-api';
-
-import { ExploreTemplateCard } from './explore-template-card';
-import { UseTemplateDialog } from './use-template-dialog';
 
 type TemplatesBrowseDialogProps = {
   open: boolean;
@@ -125,11 +125,11 @@ export const TemplatesBrowseDialog = ({
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-5xl w-full h-[85vh] flex flex-col gap-0 p-0">
-          <DialogHeader className="px-6 pt-6 pb-4 mb-0 flex-shrink-0">
+          <DialogHeader className="px-4 md:px-6 pt-6 pb-4 mb-0 flex-shrink-0">
             <DialogTitle>{t('Browse Templates')}</DialogTitle>
           </DialogHeader>
 
-          <div className="px-6 pb-3 flex-shrink-0">
+          <div className="px-4 md:px-6 pb-3 flex-shrink-0">
             <div className="relative">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -175,7 +175,7 @@ export const TemplatesBrowseDialog = ({
             </div>
           )}
 
-          <div className="flex-1 overflow-y-auto px-6 py-4">
+          <div className="flex-1 overflow-y-auto px-4 md:px-6 py-4">
             {isLoading ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {[...Array(6)].map((_, i) => (

@@ -14,6 +14,10 @@ import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
+import { FormError } from '../../../components/ui/form';
+import { flowHooks } from '../hooks/flow-hooks';
+import { templateUtils } from '../utils/template-parser';
+
 import { LoadingSpinner } from '@/components/custom/spinner';
 import { useEmbedding } from '@/components/providers/embed-provider';
 import { useTelemetry } from '@/components/providers/telemetry-provider';
@@ -42,10 +46,6 @@ import { foldersApi } from '@/features/folders/api/folders-api';
 import { foldersHooks } from '@/features/folders/hooks/folders-hooks';
 import { api } from '@/lib/api';
 import { authenticationSession } from '@/lib/authentication-session';
-
-import { FormError } from '../../../components/ui/form';
-import { flowHooks } from '../hooks/flow-hooks';
-import { templateUtils } from '../utils/template-parser';
 
 export type ImportFlowDialogProps =
   | {

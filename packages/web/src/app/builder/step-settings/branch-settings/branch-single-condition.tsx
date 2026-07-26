@@ -8,12 +8,6 @@ import { t } from 'i18next';
 import { Trash } from 'lucide-react';
 import { useFormContext } from 'react-hook-form';
 
-import { SearchableSelect } from '@/components/custom/searchable-select';
-import { Button } from '@/components/ui/button';
-import { FormField, FormItem, FormMessage } from '@/components/ui/form';
-import { Label } from '@/components/ui/label';
-import { Switch } from '@/components/ui/switch';
-
 import { InvalidStepIcon } from '../../../../components/custom/alert-icon';
 import {
   Tooltip,
@@ -21,6 +15,12 @@ import {
   TooltipTrigger,
 } from '../../../../components/ui/tooltip';
 import { TextInputWithMentions } from '../../piece-properties/text-input-with-mentions';
+
+import { SearchableSelect } from '@/components/custom/searchable-select';
+import { Button } from '@/components/ui/button';
+import { FormField, FormItem, FormMessage } from '@/components/ui/form';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 
 const textToBranchOperation: Record<BranchOperator, string> = {
   [BranchOperator.TEXT_CONTAINS]: t('Contains (Text)'),

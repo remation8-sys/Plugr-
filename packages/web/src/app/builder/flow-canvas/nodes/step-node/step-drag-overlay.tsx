@@ -48,6 +48,10 @@ const StepDragOverlay = ({ step }: { step: FlowAction | FlowTrigger }) => {
         className="static left-0 right-0 max-h-full max-w-full object-contain !cursor-grabbing"
         src={step?.settings?.customLogoUrl ?? stepMetadata?.logoUrl}
         alt={t('Step Icon')}
+        width="48"
+        height="48"
+        loading="eager"
+        decoding="async"
       />
     </div>
   );

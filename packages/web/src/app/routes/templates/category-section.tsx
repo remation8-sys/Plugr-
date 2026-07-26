@@ -20,7 +20,7 @@ type CategorySectionProps = {
   onTemplateSelect: (template: Template) => void;
 };
 
-export const CategorySection = React.memo(
+const CategorySection = React.memo(
   ({
     category,
     templates,
@@ -30,39 +30,58 @@ export const CategorySection = React.memo(
     if (!templates || templates.length === 0) return null;
 
     return (
-      <div className="space-y-4">
+      <section className="space-y-4">
+        <div className="space-y-4 md:hidden">
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="min-w-0 text-xl font-medium">{category}</h2>
+            <Button
+              variant="ghost"
+              onClick={() => onCategorySelect(category)}
+              className="shrink-0"
+            >
+              {t('View all')}
+            </Button>
+          </div>
+          <div className="grid grid-cols-1 gap-4">
+            {templates.map((template) => (
+              <ExploreTemplateCard
+                key={template.id}
+                template={template}
+                onTemplateSelect={onTemplateSelect}
+              />
+            ))}
+          </div>
+        </div>
+
         <Carousel
           opts={{
             align: 'start',
             loop: false,
             slidesToScroll: 'auto',
           }}
-          className="w-full"
+          className="hidden w-full md:block"
         >
-          <div className="flex items-center justify-between mb-4">
+          <div className="mb-4 flex items-center justify-between gap-2">
             <h2 className="text-xl font-medium">{category}</h2>
             <div className="flex items-center">
               <Button
                 variant="ghost"
                 onClick={() => onCategorySelect(category)}
-                className="flex items-center"
               >
                 {t('View all')}
               </Button>
-              <div className="flex items-center">
-                <CarouselPrevious
-                  variant="ghost"
-                  className="static translate-y-0 h-8 w-8"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </CarouselPrevious>
-                <CarouselNext
-                  variant="ghost"
-                  className="static translate-y-0 h-8 w-8"
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </CarouselNext>
-              </div>
+              <CarouselPrevious
+                variant="ghost"
+                className="static h-8 w-8 translate-y-0"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </CarouselPrevious>
+              <CarouselNext
+                variant="ghost"
+                className="static h-8 w-8 translate-y-0"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </CarouselNext>
             </div>
           </div>
 
@@ -70,7 +89,7 @@ export const CategorySection = React.memo(
             {templates.map((template) => (
               <CarouselItem
                 key={template.id}
-                className="basis-full sm:basis-1/3 lg:basis-1/4 xl:basis-1/5 min-w-[320px]"
+                className="min-w-0 md:basis-1/2 lg:basis-1/4 xl:basis-1/5"
               >
                 <ExploreTemplateCard
                   template={template}
@@ -80,9 +99,11 @@ export const CategorySection = React.memo(
             ))}
           </CarouselContent>
         </Carousel>
-      </div>
+      </section>
     );
   },
 );
 
 CategorySection.displayName = 'CategorySection';
+
+export { CategorySection };

@@ -5,6 +5,8 @@ import { useState, forwardRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { appConnectionsMutations } from '../hooks/app-connections-hooks';
+
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -24,8 +26,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-
-import { appConnectionsMutations } from '../hooks/app-connections-hooks';
 
 const RenameConnectionSchema = z.object({
   displayName: z.string(),

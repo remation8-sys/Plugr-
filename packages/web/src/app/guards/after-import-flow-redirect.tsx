@@ -2,9 +2,10 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
+import { LoadingScreen } from '@/components/custom/loading-screen';
 import { flowHooks } from '@/features/flows';
 
-export const AfterImportFlowRedirect = () => {
+const AfterImportFlowRedirect = () => {
   const { flowId } = useParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -18,6 +19,8 @@ export const AfterImportFlowRedirect = () => {
       });
     }
     navigate(`/flows/${flowId}`, { replace: true });
-  }, []);
-  return <></>;
+  }, [flowId, navigate, queryClient]);
+  return <LoadingScreen message="Opening your imported flow" />;
 };
+
+export { AfterImportFlowRedirect };

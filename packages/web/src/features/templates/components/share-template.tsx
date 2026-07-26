@@ -10,6 +10,8 @@ import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
+import { PieceIconList } from '../../pieces/components/piece-icon-list';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
@@ -18,8 +20,6 @@ import { flowHooks } from '@/features/flows/hooks/flow-hooks';
 import { api } from '@/lib/api';
 import { authenticationSession } from '@/lib/authentication-session';
 import { FROM_QUERY_PARAM } from '@/lib/navigation-utils';
-
-import { PieceIconList } from '../../pieces/components/piece-icon-list';
 
 const TemplateViewer = ({ template }: { template: Template }) => {
   const navigate = useNavigate();
@@ -63,7 +63,7 @@ const TemplateViewer = ({ template }: { template: Template }) => {
   };
 
   return (
-    <Card className="min-w-[500px] shadow-lg border-2">
+    <Card className="w-full border-2 shadow-lg">
       <>
         <CardHeader className="space-y-3 pb-4">
           <h2 className="text-2xl font-bold tracking-tight">{template.name}</h2>
@@ -71,7 +71,7 @@ const TemplateViewer = ({ template }: { template: Template }) => {
         </CardHeader>
         <CardContent className="space-y-6">
           <div className="space-y-4">
-            <div className="flex flex-row w-full justify-between items-center py-2">
+            <div className="flex w-full flex-col gap-3 py-2 sm:flex-row sm:items-center sm:justify-between">
               <span className="text-sm font-medium text-muted-foreground">
                 {t('Steps in this flow')}
               </span>
@@ -95,7 +95,12 @@ const TemplateViewer = ({ template }: { template: Template }) => {
             )}
           </div>
           <div className="flex items-center justify-end pt-2">
-            <Button loading={isPending} onClick={handleUseTemplate} size="lg">
+            <Button
+              className="w-full sm:w-auto"
+              loading={isPending}
+              onClick={handleUseTemplate}
+              size="lg"
+            >
               {t('Use Template')}
             </Button>
           </div>
@@ -107,7 +112,7 @@ const TemplateViewer = ({ template }: { template: Template }) => {
 
 const ShareTemplate: React.FC<{ template: Template }> = ({ template }) => {
   return (
-    <div className="flex items-center justify-center min-h-screen w-full bg-gradient-to-br from-background to-muted/20 p-6">
+    <div className="flex min-h-screen w-full items-center justify-center bg-gradient-to-br from-background to-muted/20 p-4 md:p-6">
       <div className="w-full max-w-2xl">
         <TemplateViewer template={template} />
       </div>

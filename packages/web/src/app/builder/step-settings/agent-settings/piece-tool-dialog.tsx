@@ -5,6 +5,8 @@ import { useMemo, useEffect } from 'react';
 import { toast } from 'sonner';
 import { useDebounce } from 'use-debounce';
 
+import { PredefinedInputsForm } from './predefined-inputs-form';
+
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -28,8 +30,6 @@ import {
   stepsHooks,
   PieceStepMetadataWithSuggestions,
 } from '@/features/pieces';
-
-import { PredefinedInputsForm } from './predefined-inputs-form';
 
 type AgentToolsDialogProps = {
   tools: AgentTool[];

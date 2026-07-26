@@ -242,7 +242,7 @@ function ToolStepRow({
         )}
         {hasDetails && (
           <CollapsibleContent className="data-[state=closed]:animate-collapsible-up data-[state=open]:animate-collapsible-down overflow-hidden">
-            <div className="mt-1 rounded-lg bg-muted/30 px-3 py-2 space-y-2 text-[11px]">
+            <div className="mt-1 rounded-lg bg-muted/30 px-3 py-2 space-y-2 text-xs">
               {hasInput && input && (
                 <div>
                   <p className="text-muted-foreground font-medium mb-0.5">
@@ -252,7 +252,7 @@ function ToolStepRow({
                     data={input}
                     hideCopyButton={true}
                     maxHeight={100}
-                    fontSize="11px"
+                    fontSize="12px"
                   />
                 </div>
               )}
@@ -265,7 +265,7 @@ function ToolStepRow({
                     data={parsedOutput}
                     hideCopyButton={true}
                     maxHeight={120}
-                    fontSize="11px"
+                    fontSize="12px"
                   />
                 </div>
               )}

@@ -1,22 +1,21 @@
 import { createPortal } from 'react-dom';
 
+import { PageLoadingSkeleton } from '@/components/custom/page-loading-skeleton';
+
 export function RouteLoadingBar() {
-  const bar = (
-    <div className="absolute top-0 left-0 right-0 h-0.5 overflow-hidden bg-primary/20 z-50">
-      <div className="h-full w-1/4 bg-primary rounded-full animate-indeterminate-progress" />
+  const content = (
+    <div className="relative h-full min-h-0 w-full">
+      <div className="absolute left-0 right-0 top-0 z-50 h-0.5 overflow-hidden bg-primary/20">
+        <div className="h-full w-1/4 animate-indeterminate-progress rounded-full bg-primary" />
+      </div>
+      <PageLoadingSkeleton className="h-full min-h-[22rem] pt-6" />
     </div>
   );
 
   const container = document.getElementById('dashboard-content-container');
   if (container) {
-    return createPortal(bar, container);
+    return createPortal(content, container);
   }
 
-  return (
-    <div className="h-full w-full">
-      <div className="h-0.5 w-full overflow-hidden bg-primary/20">
-        <div className="h-full w-1/4 bg-primary rounded-full animate-indeterminate-progress" />
-      </div>
-    </div>
-  );
+  return <div className="min-h-dvh w-full">{content}</div>;
 }

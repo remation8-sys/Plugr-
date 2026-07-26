@@ -1,11 +1,11 @@
 import { StepOutputStatus, isNil } from '@activepieces/shared';
 import { useMemo } from 'react';
 
-import { cn } from '@/lib/utils';
-
 import { useBuilderStateContext } from '../../../builder-hooks';
 import { flowCanvasUtils } from '../../utils/flow-canvas-utils';
 import { flowScreenshotUtils } from '../../utils/flow-screenshot-utils';
+
+import { cn } from '@/lib/utils';
 
 const RING_COLOR_CLASS: Record<StepOutputStatus, string> = {
   [StepOutputStatus.RUNNING]: 'border-primary/40',

@@ -25,7 +25,15 @@ const ShowPoweredBy = ({ show, position = 'sticky' }: ShowPoweredByProps) => {
       >
         <div className=" text-sm transition">Built with</div>
         <div className="justify-center flex items-center gap-1">
-          <img src="/plugr-icon.png" alt="" className="size-4 object-contain" />
+          <img
+            src="/plugr-icon.png"
+            alt=""
+            className="size-4 object-contain"
+            width="16"
+            height="16"
+            loading="lazy"
+            decoding="async"
+          />
           <div className="font-semibold">Plugr</div>
         </div>
       </div>

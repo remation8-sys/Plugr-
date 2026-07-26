@@ -16,6 +16,8 @@ import { SubmitHandler, useForm } from 'react-hook-form';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { z } from 'zod';
 
+import { CheckEmailNote } from './check-email-note';
+
 import { authenticationApi } from '@/api/authentication-api';
 import { Button } from '@/components/ui/button';
 import { Form, FormField, FormItem, FormMessage } from '@/components/ui/form';
@@ -26,8 +28,6 @@ import { HttpError, api } from '@/lib/api';
 import { authenticationSession } from '@/lib/authentication-session';
 import { formatUtils } from '@/lib/format-utils';
 import { useRedirectAfterLogin } from '@/lib/navigation-utils';
-
-import { CheckEmailNote } from './check-email-note';
 
 const SignInSchema = z.object({
   email: z.string().regex(formatUtils.emailRegex, t('Email is invalid')),
@@ -144,7 +144,7 @@ const SignInForm: React.FC = () => {
                   {...field}
                   required
                   id="email"
-                  type="text"
+                  type="email"
                   inputMode="email"
                   autoComplete="email"
                   autoCapitalize="none"

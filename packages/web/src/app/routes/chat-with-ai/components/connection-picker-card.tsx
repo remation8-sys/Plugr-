@@ -8,6 +8,13 @@ import { Check, Plus, RefreshCw } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
+import {
+  ConnectionPickerData,
+  isConnectionHealthy,
+  normalizePieceName,
+} from '../lib/message-parsers';
+import { useConversationId } from '../lib/use-conversation-id';
+
 import { CreateOrEditConnectionDialog } from '@/app/connections/create-edit-connection-dialog';
 import { Button } from '@/components/ui/button';
 import { chatApi } from '@/features/chat/lib/chat-api';
@@ -15,13 +22,6 @@ import { appConnectionsApi } from '@/features/connections/api/app-connections';
 import { piecesHooks } from '@/features/pieces';
 import { PieceIconWithPieceName } from '@/features/pieces/components/piece-icon-from-name';
 import { authenticationSession } from '@/lib/authentication-session';
-
-import {
-  ConnectionPickerData,
-  isConnectionHealthy,
-  normalizePieceName,
-} from '../lib/message-parsers';
-import { useConversationId } from '../lib/use-conversation-id';
 
 function connectionStatusLabel(status: AppConnectionStatus): string | null {
   if (status === AppConnectionStatus.ERROR) return t('Expired');

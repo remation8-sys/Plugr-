@@ -75,7 +75,7 @@ export const ApSidebarItem = (item: SidebarItemType) => {
         </span>
       )}
       {!isCollapsed && item.badge && (
-        <span className="ml-auto text-[10px] font-medium text-primary">
+        <span className="ml-auto text-xs font-medium text-primary">
           {item.badge}
         </span>
       )}

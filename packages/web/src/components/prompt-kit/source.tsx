@@ -44,6 +44,10 @@ function FaviconOrGlobe({ url, size }: { url: string; size: 'sm' | 'md' }) {
       alt=""
       className={cn(imgSize, 'shrink-0 rounded-sm')}
       onError={() => setFailed(true)}
+      width="40"
+      height="40"
+      loading="lazy"
+      decoding="async"
     />
   );
 }

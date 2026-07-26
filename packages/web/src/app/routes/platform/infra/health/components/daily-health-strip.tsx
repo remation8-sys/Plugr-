@@ -3,6 +3,8 @@ import dayjs from 'dayjs';
 import { t } from 'i18next';
 import { ArrowUpRight } from 'lucide-react';
 
+import { healthMetricsQueries } from '../lib/health-metrics-hooks';
+
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -18,8 +20,6 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
-
-import { healthMetricsQueries } from '../lib/health-metrics-hooks';
 
 function isHealthy(day: PlatformMetricsHealthDay): boolean {
   return day.internalErrors === 0 && day.stuckJobs === 0;

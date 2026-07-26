@@ -4,6 +4,11 @@ import { Check, Plus } from 'lucide-react';
 import * as React from 'react';
 import { useState } from 'react';
 
+import { ScrollArea } from '../../../components/ui/scroll-area';
+import { platformHooks } from '../../../hooks/platform-hooks';
+
+import { CreatePlatformDialog } from './create-platform-dialog';
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,11 +20,6 @@ import { projectHooks } from '@/features/projects/stores/project-collection';
 import { flagsHooks } from '@/hooks/flags-hooks';
 import { authenticationSession } from '@/lib/authentication-session';
 import { cn } from '@/lib/utils';
-
-import { ScrollArea } from '../../../components/ui/scroll-area';
-import { platformHooks } from '../../../hooks/platform-hooks';
-
-import { CreatePlatformDialog } from './create-platform-dialog';
 
 export function PlatformSwitcher({ children }: { children: React.ReactNode }) {
   const { data: allProjects } = projectHooks.useProjectsForPlatforms();

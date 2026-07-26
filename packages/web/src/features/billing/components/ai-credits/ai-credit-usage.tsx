@@ -9,6 +9,11 @@ import { t } from 'i18next';
 import { Sparkles, Settings } from 'lucide-react';
 import { useState } from 'react';
 
+import { billingMutations } from '../../hooks/billing-hooks';
+
+import { AutoTopUpConfigDialog } from './auto-topup-config-dialog';
+import { PurchaseAICreditsDialog } from './purchase-ai-credits-dialog';
+
 import {
   Item,
   ItemMedia,
@@ -21,11 +26,6 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { flagsHooks } from '@/hooks/flags-hooks';
 import { isRunningCloudInDevMode } from '@/lib/api';
-
-import { billingMutations } from '../../hooks/billing-hooks';
-
-import { AutoTopUpConfigDialog } from './auto-topup-config-dialog';
-import { PurchaseAICreditsDialog } from './purchase-ai-credits-dialog';
 
 interface AiCreditUsageProps {
   platformSubscription: PlatformBillingInformation;

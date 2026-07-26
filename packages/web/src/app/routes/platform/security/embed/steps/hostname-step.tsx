@@ -10,6 +10,8 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
+import { StepShell } from '../stepper';
+
 import { ConfirmationDeleteDialog } from '@/components/custom/delete-dialog';
 import { Button } from '@/components/ui/button';
 import {
@@ -22,8 +24,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { embedSubdomainMutations } from '@/features/platform-admin';
 import { api } from '@/lib/api';
-
-import { StepShell } from '../stepper';
 
 export const HostnameStep = ({
   subdomain,

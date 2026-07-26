@@ -3,12 +3,12 @@ import { ArrowUpIcon, Paperclip } from 'lucide-react';
 import * as React from 'react';
 import { useRef, useState } from 'react';
 
+import { FileInputPreview } from './file-input-preview';
+
 import { Button } from '@/components/ui/button';
 import { ResizableTextareaProps, Textarea } from '@/components/ui/textarea';
 import { useElementSize } from '@/hooks/use-element-size';
 import { cn } from '@/lib/utils';
-
-import { FileInputPreview } from './file-input-preview';
 
 export interface ChatMessage {
   textContent: string;

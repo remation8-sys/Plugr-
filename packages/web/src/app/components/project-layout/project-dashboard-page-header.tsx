@@ -11,6 +11,8 @@ import { UsersRound, Lock } from 'lucide-react';
 import { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
+import { ProjectSettingsDialog } from '../project-settings';
+
 import { AnimatedIconButton } from '@/components/custom/animated-icon-button';
 import { PageHeader } from '@/components/custom/page-header';
 import { SettingsIcon } from '@/components/icons/settings';
@@ -29,8 +31,6 @@ import { useAuthorization } from '@/hooks/authorization-hooks';
 import { flagsHooks } from '@/hooks/flags-hooks';
 import { platformHooks } from '@/hooks/platform-hooks';
 import { userHooks } from '@/hooks/user-hooks';
-
-import { ProjectSettingsDialog } from '../project-settings';
 
 export const ProjectDashboardPageHeader = ({
   children,

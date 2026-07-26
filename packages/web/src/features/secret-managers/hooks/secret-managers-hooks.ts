@@ -36,7 +36,7 @@ export const secretManagersHooks = {
         }
         return result.data;
       },
-      enabled: platform.plan.secretManagersEnabled,
+      enabled: platform.plan?.secretManagersEnabled === true,
       meta: showErrorDialog
         ? { showErrorDialog: true, loadSubsetOptions: {} }
         : undefined,

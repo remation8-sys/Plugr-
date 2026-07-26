@@ -7,10 +7,10 @@ import {
 import { t } from 'i18next';
 import { CheckCircle, Loader2, XCircle } from 'lucide-react';
 
+import { StepShell } from '../stepper';
+
 import { CopyToClipboardInput } from '@/components/custom/clipboard/copy-to-clipboard';
 import { Label } from '@/components/ui/label';
-
-import { StepShell } from '../stepper';
 
 export const DnsStep = ({
   subdomain,
@@ -90,7 +90,7 @@ const VerificationRow = ({ record }: { record: EmbedVerificationRecord }) => {
           {t(PURPOSE_LABELS[record.purpose])}
         </span>
       </div>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <div className="flex flex-col gap-1.5 min-w-0">
           <Label className="text-xs text-muted-foreground">{t('Name')}</Label>
           <CopyToClipboardInput textToCopy={record.name} useInput={true} />

@@ -2,14 +2,14 @@ import { Permission, UserInvitation } from '@activepieces/shared';
 import { t } from 'i18next';
 import { Trash } from 'lucide-react';
 
+import { userInvitationApi } from '../api/user-invitation';
+import { userInvitationsHooks } from '../hooks/user-invitations-hooks';
+
 import { ConfirmationDeleteDialog } from '@/components/custom/delete-dialog';
 import { PermissionNeededTooltip } from '@/components/custom/permission-needed-tooltip';
 import { UserAvatar } from '@/components/custom/user-avatar';
 import { Button } from '@/components/ui/button';
 import { useAuthorization } from '@/hooks/authorization-hooks';
-
-import { userInvitationApi } from '../api/user-invitation';
-import { userInvitationsHooks } from '../hooks/user-invitations-hooks';
 
 export function InvitationCard({ invitation }: { invitation: UserInvitation }) {
   const { refetch } = userInvitationsHooks.useInvitations();

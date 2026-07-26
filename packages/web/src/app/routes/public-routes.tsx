@@ -1,63 +1,104 @@
 import React, { Suspense } from 'react';
 
 import { PageTitle } from '@/app/components/page-title';
+import { OfflinePage } from '@/components/custom/pwa/offline-page';
 import { RouteLoadingBar } from '@/components/custom/route-loading-bar';
 
-import { ProjectDashboardLayout } from '../components/project-layout';
-import { TemplateDetailsWrapper } from '../guards/template-details-wrapper';
-
-import NotFoundPage from './404-page';
-import { AboutPage } from './about';
-import AuthenticatePage from './authenticate';
-import { EmbedPage } from './embed';
-import { EmbeddedConnectionDialog } from './embed/embedded-connection-dialog';
-import { McpAuthorizePage } from './mcp-authorize';
-import { PrivacyPage } from './privacy';
-import { RedirectPage } from './redirect';
-import { TermsPage } from './terms';
-
+const ProjectDashboardLayout = React.lazy(() =>
+  import('../components/project-layout').then((module) => ({
+    default: module.ProjectDashboardLayout,
+  })),
+);
+const TemplateDetailsWrapper = React.lazy(() =>
+  import('../guards/template-details-wrapper').then((module) => ({
+    default: module.TemplateDetailsWrapper,
+  })),
+);
+const NotFoundPage = React.lazy(() => import('./404-page'));
+const AboutPage = React.lazy(() =>
+  import('./about').then((module) => ({ default: module.AboutPage })),
+);
+const AuthenticatePage = React.lazy(() => import('./authenticate'));
+const EmbedPage = React.lazy(() =>
+  import('./embed').then((module) => ({ default: module.EmbedPage })),
+);
+const EmbeddedConnectionDialog = React.lazy(() =>
+  import('./embed/embedded-connection-dialog').then((module) => ({
+    default: module.EmbeddedConnectionDialog,
+  })),
+);
+const McpAuthorizePage = React.lazy(() =>
+  import('./mcp-authorize').then((module) => ({
+    default: module.McpAuthorizePage,
+  })),
+);
+const PrivacyPage = React.lazy(() =>
+  import('./privacy').then((module) => ({ default: module.PrivacyPage })),
+);
+const RedirectPage = React.lazy(() =>
+  import('./redirect').then((module) => ({ default: module.RedirectPage })),
+);
+const TermsPage = React.lazy(() =>
+  import('./terms').then((module) => ({ default: module.TermsPage })),
+);
 const ChatPage = React.lazy(() =>
-  import('./chat').then((m) => ({ default: m.ChatPage })),
+  import('./chat').then((module) => ({ default: module.ChatPage })),
 );
 const FormPage = React.lazy(() =>
-  import('./forms').then((m) => ({ default: m.FormPage })),
+  import('./forms').then((module) => ({ default: module.FormPage })),
 );
 const TemplatesPage = React.lazy(() =>
-  import('./templates').then((m) => ({ default: m.TemplatesPage })),
+  import('./templates').then((module) => ({ default: module.TemplatesPage })),
 );
 
 function SuspenseWrapper({ children }: { children: React.ReactNode }) {
   return <Suspense fallback={<RouteLoadingBar />}>{children}</Suspense>;
 }
 
-export const publicRoutes = [
+const publicRoutes = [
   {
     path: '/embed',
-    element: <EmbedPage></EmbedPage>,
+    element: (
+      <SuspenseWrapper>
+        <EmbedPage />
+      </SuspenseWrapper>
+    ),
   },
   {
     path: '/embed/connections',
-    element: <EmbeddedConnectionDialog></EmbeddedConnectionDialog>,
+    element: (
+      <SuspenseWrapper>
+        <EmbeddedConnectionDialog />
+      </SuspenseWrapper>
+    ),
   },
   {
     path: '/authenticate',
-    element: <AuthenticatePage />,
+    element: (
+      <SuspenseWrapper>
+        <AuthenticatePage />
+      </SuspenseWrapper>
+    ),
   },
   {
     path: '/templates',
     element: (
-      <ProjectDashboardLayout>
-        <PageTitle title="Templates">
-          <SuspenseWrapper>
+      <SuspenseWrapper>
+        <ProjectDashboardLayout>
+          <PageTitle title="Templates">
             <TemplatesPage />
-          </SuspenseWrapper>
-        </PageTitle>
-      </ProjectDashboardLayout>
+          </PageTitle>
+        </ProjectDashboardLayout>
+      </SuspenseWrapper>
     ),
   },
   {
     path: '/templates/:templateId',
-    element: <TemplateDetailsWrapper />,
+    element: (
+      <SuspenseWrapper>
+        <TemplateDetailsWrapper />
+      </SuspenseWrapper>
+    ),
   },
   {
     path: '/forms/:flowId',
@@ -83,19 +124,35 @@ export const publicRoutes = [
     path: '/mcp-authorize',
     element: (
       <PageTitle title="Authorize">
-        <McpAuthorizePage />
+        <SuspenseWrapper>
+          <McpAuthorizePage />
+        </SuspenseWrapper>
       </PageTitle>
     ),
   },
   {
     path: '/redirect',
-    element: <RedirectPage></RedirectPage>,
+    element: (
+      <SuspenseWrapper>
+        <RedirectPage />
+      </SuspenseWrapper>
+    ),
   },
   {
     path: '/404',
     element: (
       <PageTitle title="Not Found">
-        <NotFoundPage />
+        <SuspenseWrapper>
+          <NotFoundPage />
+        </SuspenseWrapper>
+      </PageTitle>
+    ),
+  },
+  {
+    path: '/offline',
+    element: (
+      <PageTitle title="Offline">
+        <OfflinePage />
       </PageTitle>
     ),
   },
@@ -103,7 +160,9 @@ export const publicRoutes = [
     path: '/privacy',
     element: (
       <PageTitle title="Privacy Policy">
-        <PrivacyPage />
+        <SuspenseWrapper>
+          <PrivacyPage />
+        </SuspenseWrapper>
       </PageTitle>
     ),
   },
@@ -111,7 +170,9 @@ export const publicRoutes = [
     path: '/terms',
     element: (
       <PageTitle title="Terms and Conditions">
-        <TermsPage />
+        <SuspenseWrapper>
+          <TermsPage />
+        </SuspenseWrapper>
       </PageTitle>
     ),
   },
@@ -119,8 +180,12 @@ export const publicRoutes = [
     path: '/about',
     element: (
       <PageTitle title="About">
-        <AboutPage />
+        <SuspenseWrapper>
+          <AboutPage />
+        </SuspenseWrapper>
       </PageTitle>
     ),
   },
 ];
+
+export { publicRoutes };

@@ -5,6 +5,10 @@ import { Pencil } from 'lucide-react';
 import { useState } from 'react';
 import { toast } from 'sonner';
 
+import { projectMembersApi } from '../api/project-members-api';
+
+import { RoleSelector } from './role-selector';
+
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -16,10 +20,6 @@ import {
 } from '@/components/ui/dialog';
 import { internalErrorToast } from '@/components/ui/sonner';
 import { projectRoleApi } from '@/features/platform-admin/api/project-role-api';
-
-import { projectMembersApi } from '../api/project-members-api';
-
-import { RoleSelector } from './role-selector';
 
 interface EditRoleDialogProps {
   member: ProjectMemberWithUser;

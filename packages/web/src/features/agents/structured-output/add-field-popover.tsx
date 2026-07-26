@@ -3,6 +3,8 @@ import { t } from 'i18next';
 import { Plus } from 'lucide-react';
 import { useState } from 'react';
 
+import { FieldTypeIcon } from './field-type-icon';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -17,8 +19,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-
-import { FieldTypeIcon } from './field-type-icon';
 
 interface AddFieldPopoverProps {
   onAddField: (

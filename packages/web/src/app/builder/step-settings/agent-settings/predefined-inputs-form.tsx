@@ -20,10 +20,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  ConnectionDropdown,
-  usePieceToolsDialogStore,
-} from '@/features/agents';
+import { usePieceToolsDialogStore } from '@/features/agents';
+import { ConnectionDropdown } from '@/features/agents/agent-tools/piece-tool-dialog/connection-select';
 import { piecesHooks } from '@/features/pieces';
 
 import { selectGenericFormComponentForProperty } from '../../piece-properties/properties-utils';
@@ -162,6 +160,10 @@ export const PredefinedInputsForm = () => {
               className="size-8 object-contain"
               src={selectedPiece?.logoUrl}
               alt={selectedPiece?.displayName}
+              width="32"
+              height="32"
+              loading="lazy"
+              decoding="async"
             />
           </div>
           <div className="min-w-0 flex-1">

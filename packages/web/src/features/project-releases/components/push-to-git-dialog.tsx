@@ -14,6 +14,9 @@ import React from 'react';
 import { Resolver, useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
+import { gitSyncApi } from '../api/git-sync-api';
+import { gitSyncHooks } from '../hooks/git-sync-hooks';
+
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -33,9 +36,6 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { platformHooks } from '@/hooks/platform-hooks';
 import { authenticationSession } from '@/lib/authentication-session';
-
-import { gitSyncApi } from '../api/git-sync-api';
-import { gitSyncHooks } from '../hooks/git-sync-hooks';
 
 type PushToGitDialogProps =
   | {

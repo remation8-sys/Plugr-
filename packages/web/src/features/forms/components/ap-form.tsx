@@ -17,6 +17,9 @@ import { useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 import { z, ZodType } from 'zod';
 
+import { Checkbox } from '../../../components/ui/checkbox';
+import { humanInputApi } from '../api/human-input-api';
+
 import { ApMarkdown } from '@/components/custom/markdown';
 import { ReadMoreDescription } from '@/components/custom/read-more-description';
 import { ShowPoweredBy } from '@/components/custom/show-powered-by';
@@ -34,9 +37,6 @@ import { Separator } from '@/components/ui/separator';
 import { Textarea } from '@/components/ui/textarea';
 import { flagsHooks } from '@/hooks/flags-hooks';
 import { api } from '@/lib/api';
-
-import { Checkbox } from '../../../components/ui/checkbox';
-import { humanInputApi } from '../api/human-input-api';
 
 type ApFormProps = {
   form: FormResponse;
@@ -197,7 +197,7 @@ const ApForm = ({ form, useDraft }: ApFormProps) => {
       <div className="container py-20">
         <Form {...reactForm}>
           <form onSubmit={(e) => reactForm.handleSubmit(() => mutate())(e)}>
-            <Card className="w-[500px] mx-auto">
+            <Card className="mx-auto w-full max-w-[500px]">
               <CardHeader>
                 <CardTitle className="text-center">{form?.title}</CardTitle>
               </CardHeader>

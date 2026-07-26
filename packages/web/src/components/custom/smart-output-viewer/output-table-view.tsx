@@ -72,9 +72,7 @@ function getCellValue(row: Record<string, unknown>, path: string[]): unknown {
 
 function CellValue({ value }: { value: unknown }) {
   if (value === null || value === undefined || value === '') {
-    return (
-      <span className="text-muted-foreground/40 italic">{t('empty')}</span>
-    );
+    return <span className="text-muted-foreground italic">{t('empty')}</span>;
   }
 
   return (
@@ -113,7 +111,24 @@ function OutputTableView({ items }: OutputTableViewProps) {
           : t('rowCount', { count: totalRows })}{' '}
         × {t('columnCount', { count: columns.length })}
       </div>
-      <div className="overflow-x-auto rounded-md border border-dividers">
+      <div className="space-y-3 md:hidden">
+        {rows.map((row, rowIdx) => (
+          <div key={rowIdx} className="rounded-md border border-dividers p-4">
+            {columns.map((col) => (
+              <div
+                key={col.key}
+                className="flex min-h-14 flex-col justify-center gap-1 border-b border-dividers py-2 last:border-b-0"
+              >
+                <span className="text-xs font-medium text-muted-foreground">
+                  {col.label}
+                </span>
+                <CellValue value={getCellValue(row, col.path)} />
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
+      <div className="hidden overflow-x-auto rounded-md border border-dividers md:block">
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-muted/50 border-b border-dividers">

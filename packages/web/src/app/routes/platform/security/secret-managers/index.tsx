@@ -15,6 +15,8 @@ import {
   XIcon,
 } from 'lucide-react';
 
+import AddEditSecretManagerConnectionDialog from './connect-secret-manager-dialog';
+
 import { DashboardPageHeader } from '@/app/components/dashboard-page-header';
 import LockedFeatureGuard from '@/app/components/locked-feature-guard';
 import { AnimatedIconButton } from '@/components/custom/animated-icon-button';
@@ -33,8 +35,6 @@ import {
 import { PieceIcon } from '@/features/pieces';
 import { secretManagersHooks } from '@/features/secret-managers';
 import { platformHooks } from '@/hooks/platform-hooks';
-
-import AddEditSecretManagerConnectionDialog from './connect-secret-manager-dialog';
 
 const SecretManagersPage = () => {
   const { platform } = platformHooks.useCurrentPlatform();

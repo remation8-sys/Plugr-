@@ -1,8 +1,5 @@
 import { PieceMetadataModelSummary } from '@activepieces/pieces-framework';
-import {
-  AppConnectionWithoutSensitiveData,
-  isNil,
-} from '@activepieces/shared';
+import { AppConnectionWithoutSensitiveData, isNil } from '@activepieces/shared';
 import { useQuery } from '@tanstack/react-query';
 import { t } from 'i18next';
 import { ArrowRight } from 'lucide-react';
@@ -10,11 +7,11 @@ import { useDeferredValue, useEffect, useState } from 'react';
 import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 
 import { CreateOrEditConnectionDialog } from '@/app/connections/create-edit-connection-dialog';
+import { FullLogo } from '@/components/custom/full-logo';
+import { SearchInput } from '@/components/custom/search-input';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { SearchInput } from '@/components/custom/search-input';
 import { Skeleton } from '@/components/ui/skeleton';
-import { FullLogo } from '@/components/custom/full-logo';
 import { appConnectionsApi } from '@/features/connections/api/app-connections';
 import { piecesApi } from '@/features/pieces/api/pieces-api';
 import { authenticationSession } from '@/lib/authentication-session';
@@ -87,9 +84,7 @@ function ConnectToolsContent() {
 
   useEffect(() => {
     if (existingConnections) {
-      const names = new Set(
-        existingConnections.data.map((c) => c.pieceName),
-      );
+      const names = new Set(existingConnections.data.map((c) => c.pieceName));
       setConnectedNames(names);
     }
   }, [existingConnections]);
@@ -158,12 +153,12 @@ function ConnectToolsContent() {
   const connectedCount = connectedNames.size;
 
   return (
-    <div className="flex min-h-screen flex-col bg-background pt-[env(safe-area-inset-top)]">
+    <div className="flex min-h-screen flex-col bg-background pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)] pt-[env(safe-area-inset-top)]">
       <div className="flex justify-center pt-6">
         <FullLogo />
       </div>
 
-      <div className="mx-auto w-full max-w-4xl flex-1 px-4 pb-28 pt-8">
+      <div className="mx-auto w-full max-w-4xl flex-1 px-4 pb-44 pt-8 sm:pb-28">
         <div className="mb-8 flex flex-col items-center gap-3 text-center">
           <div className="flex flex-col items-center gap-1.5">
             <span className="text-xs font-medium text-muted-foreground uppercase tracking-widest">
@@ -205,7 +200,9 @@ function ConnectToolsContent() {
           // Full catalog view — only rendered when the user is actively searching/filtering
           displayPieces.length === 0 ? (
             <div className="flex flex-col items-center gap-2 py-16 text-muted-foreground">
-              <p className="text-sm">{t('No tools found for "{query}"', { query: deferredSearch })}</p>
+              <p className="text-sm">
+                {t('No tools found for "{query}"', { query: deferredSearch })}
+              </p>
             </div>
           ) : (
             <PiecesGrid
@@ -242,15 +239,15 @@ function ConnectToolsContent() {
         )}
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 border-t bg-background/95 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-4">
+      <div className="fixed bottom-0 left-[env(safe-area-inset-left)] right-[env(safe-area-inset-right)] border-t bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur-sm">
+        <div className="mx-auto flex max-w-4xl flex-col items-stretch gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
           <button
             onClick={handleSkip}
             className="text-sm text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline"
           >
             {t('Skip for now')}
           </button>
-          <div className="flex flex-col items-end gap-1">
+          <div className="flex w-full flex-col items-stretch gap-1 sm:w-auto sm:items-end">
             {connectedCount === 0 && (
               <p className="text-xs text-muted-foreground">
                 {t('Connect at least one tool to continue')}
@@ -265,7 +262,7 @@ function ConnectToolsContent() {
               size="lg"
               disabled={connectedCount === 0}
               onClick={handleContinue}
-              className="gap-2"
+              className="w-full gap-2 sm:w-auto"
             >
               {t('Continue')}
               <ArrowRight className="size-4" />
@@ -306,7 +303,7 @@ function PiecesGrid({
   onConnectionSaved,
 }: PiecesGridProps) {
   return (
-    <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
       {pieces.map((piece) => (
         <ToolCard
           key={piece.name}
@@ -324,7 +321,7 @@ function PiecesGrid({
 
 function PiecesGridSkeleton() {
   return (
-    <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
       {Array.from({ length: 12 }).map((_, i) => (
         <Skeleton key={i} className="h-28 rounded-lg" />
       ))}

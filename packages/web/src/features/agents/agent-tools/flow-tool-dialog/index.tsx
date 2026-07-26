@@ -9,6 +9,12 @@ import { Search } from 'lucide-react';
 import { useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
+import { agentQueries } from '../../hooks/agent-hooks';
+import { useFlowToolDialogStore } from '../stores/flows-tools';
+
+import { CreateMcpFlowButton } from './create-mcp-flow-button';
+import { FlowDialogContent } from './flow-dialog-content';
+
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -20,12 +26,6 @@ import {
 } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-
-import { agentQueries } from '../../hooks/agent-hooks';
-import { useFlowToolDialogStore } from '../stores/flows-tools';
-
-import { CreateMcpFlowButton } from './create-mcp-flow-button';
-import { FlowDialogContent } from './flow-dialog-content';
 
 type AgentFlowToolDialogProps = {
   onToolsUpdate: (tools: AgentTool[]) => void;

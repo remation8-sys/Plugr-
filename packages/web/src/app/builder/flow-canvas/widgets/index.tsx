@@ -1,12 +1,12 @@
 import { ViewportPortal } from '@xyflow/react';
 import React from 'react';
 
+import { useBuilderStateContext } from '../../builder-hooks';
+import { flowCanvasConsts } from '../utils/consts';
+
 import FlowEndWidget from '@/app/builder/flow-canvas/widgets/flow-end-widget';
 import IncompleteSettingsButton from '@/app/builder/flow-canvas/widgets/incomplete-settings-widget';
 import { TestFlowWidget } from '@/app/builder/flow-canvas/widgets/test-flow-widget';
-
-import { useBuilderStateContext } from '../../builder-hooks';
-import { flowCanvasConsts } from '../utils/consts';
 
 const AboveFlowWidgets = React.memo(() => {
   const [flowVersion, selectStepByName, readonly] = useBuilderStateContext(

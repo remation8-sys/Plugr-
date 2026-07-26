@@ -4,14 +4,14 @@ import { t } from 'i18next';
 import { Rocket } from 'lucide-react';
 import { useMemo } from 'react';
 
+import { FirstIcon } from './icons/1st-icon';
+import { SecondIcon } from './icons/2nd-icon';
+import { ThirdIcon } from './icons/3rd-icon';
+
 import { DataTable, RowDataWithActions } from '@/components/custom/data-table';
 import { DataTableColumnHeader } from '@/components/custom/data-table/data-table-column-header';
 import { Avatar } from '@/components/ui/avatar';
 import { formatUtils } from '@/lib/format-utils';
-
-import { FirstIcon } from './icons/1st-icon';
-import { SecondIcon } from './icons/2nd-icon';
-import { ThirdIcon } from './icons/3rd-icon';
 
 export type ProjectStats = {
   id: string;

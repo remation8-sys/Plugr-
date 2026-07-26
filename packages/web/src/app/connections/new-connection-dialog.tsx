@@ -78,7 +78,7 @@ const NewConnectionDialog = React.memo(
           }}
         >
           <DialogTrigger asChild>{children}</DialogTrigger>
-          <DialogContent className="flex h-[680px] max-h-[85dvh] w-[95vw] max-w-[700px] flex-col sm:min-w-[700px]">
+          <DialogContent className="flex h-[680px] max-h-[85dvh] w-[calc(100vw-2rem)] max-w-[700px] flex-col">
             <DialogHeader>
               <DialogTitle>{t('New Connection')}</DialogTitle>
             </DialogHeader>
@@ -92,7 +92,7 @@ const NewConnectionDialog = React.memo(
               />
             </div>
             <ScrollArea className="grow overflow-y-auto ">
-              <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 md:grid-cols-4">
                 {(isLoading ||
                   (filteredPieces && filteredPieces.length === 0)) && (
                   <div className="text-center">{t('No plugs found')}</div>
@@ -108,6 +108,10 @@ const NewConnectionDialog = React.memo(
                       <img
                         className="w-[40px] h-[40px]"
                         src={piece.logoUrl}
+                        width="40"
+                        height="40"
+                        loading="lazy"
+                        decoding="async"
                       ></img>
                       <div className="mt-2 truncate max-w-full text-center text-sm font-medium">
                         {piece.displayName}

@@ -33,6 +33,10 @@ function SidebarLogoCollapsed({ linkTo }: { linkTo?: string }) {
         alt={t('home')}
         className="h-5! w-5! shrink-0"
         draggable={false}
+        width="20"
+        height="20"
+        loading="eager"
+        decoding="async"
       />
     </Button>
   );

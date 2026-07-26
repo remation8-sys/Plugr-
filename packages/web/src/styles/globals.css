@@ -1,99 +1,114 @@
 .welcome-gradient {
-    background: linear-gradient(
-        to bottom right,
-        hsl(var(--card)) 0%,
-        hsl(var(--background)) 100%
-    );
+  background: linear-gradient(
+    to bottom right,
+    hsl(var(--card)) 0%,
+    hsl(var(--background)) 100%
+  );
 }
 
 @media (prefers-color-scheme: dark) {
-    .welcome-gradient {
-        background: linear-gradient(
-            to bottom right,
-            hsl(var(--card)) 0%,
-            hsl(var(--background)) 100%
-        );
-    }
+  .welcome-gradient {
+    background: linear-gradient(
+      to bottom right,
+      hsl(var(--card)) 0%,
+      hsl(var(--background)) 100%
+    );
+  }
 }
 
 /* ── Formula function bracket highlighting ─────────────────────────────── */
 
 /* Cursor is inside this function — subtle outline on the pair */
 span.ap-fn-badge.ap-fn-cursor-active {
-    background-color: #bdd3ff !important;
+  background-color: #bdd3ff !important;
 }
 
 /* Mouse is hovering on a badge — stronger highlight on the pair */
 span.ap-fn-badge.ap-fn-active {
-    background-color: #0055ff !important;
-    color: #ffffff !important;
+  background-color: #0055ff !important;
+  color: #ffffff !important;
 }
 
 /* Type error on the function */
 span.ap-fn-badge.ap-fn-error {
-    background-color: hsl(var(--destructive) / 0.18) !important;
-    border-color: hsl(var(--destructive)) !important;
-    color: hsl(var(--destructive-700)) !important;
+  background-color: hsl(var(--destructive) / 0.18) !important;
+  border-color: hsl(var(--destructive)) !important;
+  color: hsl(var(--destructive-700)) !important;
 }
 
 /* Unclosed function — no matching ) badge */
 span.ap-fn-badge.ap-fn-unclosed {
-    background-color: hsl(var(--destructive) / 0.15) !important;
-    border-color: hsl(var(--destructive)) !important;
-    color: hsl(var(--destructive-700)) !important;
-    text-decoration: underline wavy hsl(var(--destructive));
-    text-underline-offset: 2px;
+  background-color: hsl(var(--destructive) / 0.15) !important;
+  border-color: hsl(var(--destructive)) !important;
+  color: hsl(var(--destructive-700)) !important;
+  text-decoration: underline wavy hsl(var(--destructive));
+  text-underline-offset: 2px;
 }
 
 /* Unknown function name — referenced in a saved formula but not in the registry */
 span.ap-fn-badge.ap-fn-broken {
-    background-color: hsl(var(--destructive) / 0.15) !important;
-    border-color: hsl(var(--destructive)) !important;
-    color: hsl(var(--destructive-700)) !important;
-    text-decoration: line-through;
+  background-color: hsl(var(--destructive) / 0.15) !important;
+  border-color: hsl(var(--destructive)) !important;
+  color: hsl(var(--destructive-700)) !important;
+  text-decoration: line-through;
 }
 
 /* Deprecated function — still resolves at runtime, but should be replaced */
 span.ap-fn-badge.ap-fn-deprecated {
-    background-color: hsl(var(--warning) / 0.15) !important;
-    border-color: hsl(var(--warning)) !important;
-    color: hsl(var(--warning-700)) !important;
-    text-decoration: line-through solid hsl(var(--warning-700));
+  background-color: hsl(var(--warning) / 0.15) !important;
+  border-color: hsl(var(--warning)) !important;
+  color: hsl(var(--warning-700)) !important;
+  text-decoration: line-through solid hsl(var(--warning-700));
 }
 
 /* Formula Editor */
 .ap-variable-pill {
-    display: inline-flex;
-    align-items: center;
-    background: hsl(var(--primary) / 0.12);
-    border: 1px solid hsl(var(--primary) / 0.4);
-    color: hsl(var(--primary));
-    border-radius: 4px;
-    padding: 0 6px;
-    font-size: 11px;
-    font-weight: 500;
-    white-space: nowrap;
-    cursor: default;
-    user-select: none;
-    vertical-align: middle;
-    margin: 0 1px;
+  display: inline-flex;
+  align-items: center;
+  background: hsl(var(--primary) / 0.12);
+  border: 1px solid hsl(var(--primary) / 0.4);
+  color: hsl(var(--primary));
+  border-radius: 4px;
+  padding: 0 6px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: default;
+  user-select: none;
+  vertical-align: middle;
+  margin: 0 1px;
 }
 
-.ap-fn-name-token { color: #0055ff; font-weight: 600; }
-.ap-fn-paren-open-token { color: #0055ff; }
-.ap-fn-paren-close-token { color: #0055ff; }
+.ap-fn-name-token {
+  color: #0055ff;
+  font-weight: 600;
+}
+.ap-fn-paren-open-token {
+  color: #0055ff;
+}
+.ap-fn-paren-close-token {
+  color: #0055ff;
+}
 
 /* CodeMirror formula editor reset */
-.formula-editor .cm-editor { outline: none; }
-.formula-editor .cm-focused { outline: none !important; }
-.formula-editor .cm-scroller { overflow: hidden; }
-.formula-editor .cm-content {
-    padding: 4px 8px;
-    white-space: pre-wrap;
-    word-break: break-all;
-    font-family: inherit;
-    font-size: 0.875rem;
-    line-height: 1.5rem;
-    caret-color: currentColor;
+.formula-editor .cm-editor {
+  outline: none;
 }
-.formula-editor .cm-line { padding: 0; }
+.formula-editor .cm-focused {
+  outline: none !important;
+}
+.formula-editor .cm-scroller {
+  overflow: hidden;
+}
+.formula-editor .cm-content {
+  padding: 4px 8px;
+  white-space: pre-wrap;
+  word-break: break-all;
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1.5rem;
+  caret-color: currentColor;
+}
+.formula-editor .cm-line {
+  padding: 0;
+}

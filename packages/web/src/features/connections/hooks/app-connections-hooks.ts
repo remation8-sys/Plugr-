@@ -21,6 +21,14 @@ import { UseFormReturn } from 'react-hook-form';
 import { useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 
+import { appConnectionsApi } from '../api/app-connections';
+import { globalConnectionsApi } from '../api/global-connections';
+import {
+  ConnectionNameAlreadyExists,
+  NoProjectSelected,
+  isConnectionNameUnique,
+} from '../utils/utils';
+
 import {
   CURSOR_QUERY_PARAM,
   LIMIT_QUERY_PARAM,
@@ -30,14 +38,6 @@ import { internalErrorToast } from '@/components/ui/sonner';
 import { projectMembersApi } from '@/features/members/api/project-members-api';
 import { api } from '@/lib/api';
 import { authenticationSession } from '@/lib/authentication-session';
-
-import { appConnectionsApi } from '../api/app-connections';
-import { globalConnectionsApi } from '../api/global-connections';
-import {
-  ConnectionNameAlreadyExists,
-  NoProjectSelected,
-  isConnectionNameUnique,
-} from '../utils/utils';
 
 type UseReplaceConnectionsProps = {
   setDialogOpen: (isOpen: boolean) => void;

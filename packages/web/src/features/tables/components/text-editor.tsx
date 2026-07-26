@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 
+import { useCellContext } from './cell-context';
+
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
-
-import { useCellContext } from './cell-context';
 
 const TextEditor = () => {
   const { value, handleCellChange, setIsEditing, isEditing } = useCellContext();
@@ -21,7 +21,7 @@ const TextEditor = () => {
     <div className="h-full relative w-full relative">
       <div
         className={cn({
-          'h-min-[300px] w-min-[calc(100%+50px)] w-full absolute top-0  z-50 border-2 border-primary  drop-shadow-md':
+          'absolute top-0 z-50 min-h-[180px] w-full border-2 border-primary drop-shadow-md':
             isEditing,
         })}
       >

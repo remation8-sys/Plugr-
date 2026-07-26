@@ -5,7 +5,7 @@ import { CenteredPage } from '@/app/components/centered-page';
 import { McpTools } from '@/app/components/project-settings/mcp-server/mcp-tools';
 import { CopyToClipboardInput } from '@/components/custom/clipboard/copy-to-clipboard';
 import { CollapsibleJson } from '@/components/custom/collapsible-json';
-import { LoadingSpinner } from '@/components/custom/spinner';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { flagsHooks } from '@/hooks/flags-hooks';
 
@@ -26,8 +26,11 @@ export default function PlatformMcpPage() {
           'Configure the platform-wide MCP server used by the AI Chat assistant and external MCP clients.',
         )}
       >
-        <div className="flex items-center justify-center py-20">
-          <LoadingSpinner />
+        <div aria-busy="true" className="space-y-5 py-6" role="status">
+          <Skeleton className="h-9 w-48" />
+          <Skeleton className="h-4 w-72 max-w-full" />
+          <Skeleton className="h-11 w-full" />
+          <Skeleton className="h-28 w-full" />
         </div>
       </CenteredPage>
     );

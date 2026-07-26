@@ -80,7 +80,7 @@ function CommandInput({
     <div
       data-slot="command-input-wrapper"
       className={cn(
-        'flex h-9 items-center gap-2 border-b px-3',
+        'flex h-12 items-center gap-2 border-b px-3 md:h-9',
         containerClassName,
       )}
     >
@@ -88,7 +88,7 @@ function CommandInput({
       <CommandPrimitive.Input
         data-slot="command-input"
         className={cn(
-          'flex h-10 w-full rounded-md bg-transparent py-3 text-sm outline-hidden placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50',
+          'flex h-12 w-full rounded-md bg-transparent py-3 text-base md:h-10 md:text-sm outline-hidden placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50',
           { 'cursor-not-allowed opacity-50': props.disabled },
           className,
         )}
@@ -165,7 +165,7 @@ function CommandItem({
       data-slot="command-item"
       disabled={disabled}
       className={cn(
-        "relative flex cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground",
+        "relative flex cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden max-md:min-h-11 select-none touch-manipulation active:bg-accent data-[selected=true]:bg-accent data-[selected=true]:text-accent-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4 [&_svg:not([class*='text-'])]:text-muted-foreground",
         { 'pointer-events-none opacity-50': disabled },
         className,
       )}

@@ -10,6 +10,14 @@ import { Upload } from 'lucide-react';
 import { useRef, useState } from 'react';
 import { toast } from 'sonner';
 
+import { useKnowledgeBaseToolDialogStore } from '../stores/knowledge-base-tools';
+
+import {
+  useDeleteKnowledgeBaseFile,
+  useKnowledgeBaseFiles,
+  useUploadKnowledgeBaseFile,
+} from './knowledge-base-hooks';
+
 import { SearchableSelect } from '@/components/custom/searchable-select';
 import { Button } from '@/components/ui/button';
 import {
@@ -23,14 +31,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { tablesApi } from '@/features/tables/api/tables-api';
 import { authenticationSession } from '@/lib/authentication-session';
-
-import { useKnowledgeBaseToolDialogStore } from '../stores/knowledge-base-tools';
-
-import {
-  useDeleteKnowledgeBaseFile,
-  useKnowledgeBaseFiles,
-  useUploadKnowledgeBaseFile,
-} from './knowledge-base-hooks';
 
 function AgentKnowledgeBaseDialog({
   tools,

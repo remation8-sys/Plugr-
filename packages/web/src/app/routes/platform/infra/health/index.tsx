@@ -4,6 +4,11 @@ import { Activity, Calendar, HeartPulse, LineChart } from 'lucide-react';
 import React from 'react';
 import { useSearchParams } from 'react-router-dom';
 
+import { QueueTab } from './components/queue-tab';
+import { RunsTab } from './components/runs-tab';
+import { SystemHealthTab } from './components/system-health-tab';
+import { healthMetricsQueries } from './lib/health-metrics-hooks';
+
 import { DashboardPageHeader } from '@/app/components/dashboard-page-header';
 import {
   Select,
@@ -13,11 +18,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-
-import { QueueTab } from './components/queue-tab';
-import { RunsTab } from './components/runs-tab';
-import { SystemHealthTab } from './components/system-health-tab';
-import { healthMetricsQueries } from './lib/health-metrics-hooks';
 
 type TabValue = 'system' | 'runs' | 'queue';
 

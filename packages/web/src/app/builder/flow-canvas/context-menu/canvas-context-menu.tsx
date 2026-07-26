@@ -1,7 +1,7 @@
+import { CanvasContextMenuContent } from './canvas-context-menu-content';
+
 import { ShortcutProps } from '@/components/custom/shortcut';
 import { ContextMenu, ContextMenuTrigger } from '@/components/ui/context-menu';
-
-import { CanvasContextMenuContent } from './canvas-context-menu-content';
 
 export type CanvasShortcutsProps = Record<
   'Minimap' | 'Paste' | 'Delete' | 'Copy' | 'Skip' | 'ExitDrag',

@@ -3,9 +3,10 @@ import { Link } from 'react-router-dom';
 import { PlugrChatWidget } from '@/app/components/plugr-chat-widget';
 
 const BLUE = '#0055ff';
+const BLUE_TEXT = '#6b8cff';
 const INK = '#0d0e1a';
 
-const LAST_UPDATED = 'June 30, 2025';
+const LAST_UPDATED = 'July 26, 2026';
 
 function Section({
   title,
@@ -143,7 +144,7 @@ export function PrivacyPage() {
               fontSize: '0.75rem',
               letterSpacing: '0.12em',
               textTransform: 'uppercase',
-              color: BLUE,
+              color: BLUE_TEXT,
               fontWeight: 600,
             }}
           >
@@ -155,7 +156,7 @@ export function PrivacyPage() {
               fontWeight: 700,
               color: '#ffffff',
               letterSpacing: '-0.03em',
-              lineHeight: 1.15,
+              lineHeight: 1.2,
               margin: '0.5rem 0 0.75rem',
             }}
           >
@@ -163,7 +164,7 @@ export function PrivacyPage() {
           </h1>
           <p
             style={{
-              color: 'rgba(255,255,255,0.4)',
+              color: 'rgba(255,255,255,0.65)',
               fontSize: '0.875rem',
             }}
           >
@@ -207,6 +208,12 @@ export function PrivacyPage() {
             telemetry such as page views, feature usage, and error logs used to
             improve the product.
           </P>
+          <P>
+            <strong style={{ color: '#fff' }}>Browser notification data</strong>{' '}
+            — if you opt in, we store the push endpoint and browser-generated
+            encryption keys needed to deliver flow-failure notifications to that
+            device. We do not use this data for advertising.
+          </P>
         </Section>
 
         <Section title="3. Google API Services — Gmail">
@@ -217,7 +224,7 @@ export function PrivacyPage() {
               href="https://developers.google.com/terms/api-services-user-data-policy"
               target="_blank"
               rel="noreferrer"
-              style={{ color: BLUE }}
+              style={{ color: BLUE_TEXT }}
             >
               Google API Services User Data Policy
             </a>
@@ -263,6 +270,10 @@ export function PrivacyPage() {
             <Li>
               To send transactional emails (password resets, billing receipts)
             </Li>
+            <Li>
+              To send browser notifications you explicitly enable for production
+              flow failures
+            </Li>
             <Li>To respond to support requests</Li>
             <Li>To comply with legal obligations</Li>
           </Ul>
@@ -304,6 +315,11 @@ export function PrivacyPage() {
               <strong style={{ color: '#fff' }}>Google</strong> — OAuth
               authentication for Gmail and Google integrations
             </Li>
+            <Li>
+              <strong style={{ color: '#fff' }}>Browser push providers</strong>{' '}
+              — Apple, Google, Microsoft, or Mozilla may relay an encrypted
+              notification to your browser when you opt in
+            </Li>
           </Ul>
           <P>
             Each provider has its own privacy policy. We share only the minimum
@@ -321,6 +337,12 @@ export function PrivacyPage() {
             When you disconnect a third-party app (e.g. revoke Gmail access),
             the corresponding credentials are deleted from our database
             immediately.
+          </P>
+          <P>
+            Browser notification subscriptions are removed when you disable
+            notifications or log out on that device. Expired subscriptions are
+            deleted automatically when the browser provider reports them as
+            invalid.
           </P>
         </Section>
 
@@ -353,7 +375,7 @@ export function PrivacyPage() {
           </Ul>
           <P>
             To exercise any right, email us at{' '}
-            <a href="mailto:privacy@plugr.cloud" style={{ color: BLUE }}>
+            <a href="mailto:privacy@plugr.cloud" style={{ color: BLUE_TEXT }}>
               privacy@plugr.cloud
             </a>
             . We will respond within 30 days.
@@ -390,12 +412,12 @@ export function PrivacyPage() {
             <strong style={{ color: '#fff' }}>Plugr</strong>
             <br />
             Email:{' '}
-            <a href="mailto:privacy@plugr.cloud" style={{ color: BLUE }}>
+            <a href="mailto:privacy@plugr.cloud" style={{ color: BLUE_TEXT }}>
               privacy@plugr.cloud
             </a>
             <br />
             Website:{' '}
-            <a href="https://plugr.cloud" style={{ color: BLUE }}>
+            <a href="https://plugr.cloud" style={{ color: BLUE_TEXT }}>
               plugr.cloud
             </a>
           </P>
@@ -415,7 +437,7 @@ export function PrivacyPage() {
           }}
         >
           <span
-            style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.8125rem' }}
+            style={{ color: 'rgba(255,255,255,0.65)', fontSize: '0.8125rem' }}
           >
             © {new Date().getFullYear()} REMSHIELD SOLUTIONS LTD. All rights
             reserved.
@@ -424,7 +446,7 @@ export function PrivacyPage() {
             <Link
               to="/"
               style={{
-                color: 'rgba(255,255,255,0.4)',
+                color: 'rgba(255,255,255,0.65)',
                 fontSize: '0.8125rem',
                 textDecoration: 'none',
               }}
@@ -434,7 +456,7 @@ export function PrivacyPage() {
             <Link
               to="/about"
               style={{
-                color: 'rgba(255,255,255,0.4)',
+                color: 'rgba(255,255,255,0.65)',
                 fontSize: '0.8125rem',
                 textDecoration: 'none',
               }}
@@ -444,7 +466,7 @@ export function PrivacyPage() {
             <Link
               to="/terms"
               style={{
-                color: 'rgba(255,255,255,0.4)',
+                color: 'rgba(255,255,255,0.65)',
                 fontSize: '0.8125rem',
                 textDecoration: 'none',
               }}
@@ -454,7 +476,7 @@ export function PrivacyPage() {
             <Link
               to="/sign-in"
               style={{
-                color: 'rgba(255,255,255,0.4)',
+                color: 'rgba(255,255,255,0.65)',
                 fontSize: '0.8125rem',
                 textDecoration: 'none',
               }}

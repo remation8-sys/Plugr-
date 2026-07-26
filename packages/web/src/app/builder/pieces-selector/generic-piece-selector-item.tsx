@@ -44,7 +44,7 @@ const GenericActionOrTriggerItem = ({
         maxHeight: `${PIECE_SELECTOR_ELEMENTS_HEIGHTS.ACTION_OR_TRIGGER_ITEM_HEIGHT}px`,
       }
     : {
-        minHeight: '54px',
+        minHeight: '56px',
       };
   const pieceSelectorItemInfo = getPieceSelectorItemInfo(item);
   return (

@@ -9,6 +9,17 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { PanelImperativeHandle } from 'react-resizable-panels';
 import { usePrevious } from 'react-use';
 
+import { BuilderHeader } from './builder-header/builder-header';
+import { FlowCanvas } from './flow-canvas';
+import { flowCanvasHooks } from './flow-canvas/hooks';
+import { flowCanvasConsts } from './flow-canvas/utils/consts';
+import { BuilderBanner } from './flow-canvas/widgets/builder-banner';
+import { FlowVersionsList } from './flow-versions';
+import { PlugrChatPanel } from './plugr-chat/plugr-chat-panel';
+import { PlugrChatWidget } from './plugr-chat/plugr-chat-widget';
+import { RunsList } from './run-list';
+
+import { CursorPositionProvider } from './state/cursor-position-context';
 import { useBuilderStateContext } from '@/app/builder/builder-hooks';
 import { DataSelector } from '@/app/builder/data-selector';
 import { CanvasControls } from '@/app/builder/flow-canvas/canvas-controls';
@@ -28,16 +39,6 @@ import { useElementSize } from '@/hooks/use-element-size';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 
-import { BuilderHeader } from './builder-header/builder-header';
-import { FlowCanvas } from './flow-canvas';
-import { flowCanvasHooks } from './flow-canvas/hooks';
-import { flowCanvasConsts } from './flow-canvas/utils/consts';
-import { BuilderBanner } from './flow-canvas/widgets/builder-banner';
-import { FlowVersionsList } from './flow-versions';
-import { PlugrChatPanel } from './plugr-chat/plugr-chat-panel';
-import { PlugrChatWidget } from './plugr-chat/plugr-chat-widget';
-import { RunsList } from './run-list';
-import { CursorPositionProvider } from './state/cursor-position-context';
 import { StepSettingsContainer } from './step-settings';
 const animateResizeClassName = `transition-all `;
 
@@ -156,10 +157,7 @@ const BuilderPage = () => {
 
   if (isMobile) {
     return (
-      <div
-        className="flex w-full flex-col relative"
-        style={{ height: '100dvh' }}
-      >
+      <div className="relative flex h-full min-h-0 w-full flex-col">
         <div className="z-40">
           <BuilderHeader />
         </div>
@@ -201,7 +199,7 @@ const BuilderPage = () => {
           modal={false}
         >
           <DrawerContent
-            className="flex flex-col overflow-hidden"
+            className="flex flex-col overflow-hidden pb-[env(safe-area-inset-bottom)]"
             style={{ height: '85dvh' }}
           >
             {rightSidebar === RightSideBarType.PIECE_SETTINGS &&

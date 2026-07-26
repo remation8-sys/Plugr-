@@ -5,6 +5,8 @@ import { t } from 'i18next';
 import { Package, Trash, Puzzle, Tag, Hash, GitBranch } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
+import { ManagePiecesDialog } from './manage-pieces-dialog';
+
 import { RequestTrial } from '@/app/components/request-trial';
 import { DataTable, RowDataWithActions } from '@/components/custom/data-table';
 import { DataTableColumnHeader } from '@/components/custom/data-table/data-table-column-header';
@@ -14,8 +16,6 @@ import { LockedAlert } from '@/components/custom/locked-alert';
 import { Button } from '@/components/ui/button';
 import { piecesApi, PieceIcon, piecesHooks } from '@/features/pieces';
 import { platformHooks } from '@/hooks/platform-hooks';
-
-import { ManagePiecesDialog } from './manage-pieces-dialog';
 
 const columns: ColumnDef<RowDataWithActions<PieceMetadataModelSummary>>[] = [
   {

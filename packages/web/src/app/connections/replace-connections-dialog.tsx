@@ -263,6 +263,10 @@ const ReplaceConnectionsDialog = ({
                               src={piece!.logoUrl}
                               alt={piece!.displayName}
                               className="w-4 h-4 object-contain"
+                              width="16"
+                              height="16"
+                              loading="lazy"
+                              decoding="async"
                             />
                             <span>{piece!.displayName}</span>
                           </div>

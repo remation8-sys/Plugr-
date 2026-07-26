@@ -38,6 +38,10 @@ export const IntegrationLogosOverlay = () => {
           onError={(e) => {
             (e.currentTarget as HTMLImageElement).style.display = 'none';
           }}
+          width="112"
+          height="28"
+          loading="lazy"
+          decoding="async"
         />
       ))}
     </div>

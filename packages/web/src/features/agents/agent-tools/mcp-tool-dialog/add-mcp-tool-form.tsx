@@ -11,6 +11,11 @@ import { t } from 'i18next';
 import { X } from 'lucide-react';
 import { UseFormReturn } from 'react-hook-form';
 
+import { agentMutations } from '../../hooks/agent-hooks';
+import { useMcpToolDialogStore } from '../stores/mcp-tools';
+
+import { McpToolFormData, ValidationStep } from '.';
+
 import { Button } from '@/components/ui/button';
 import { DialogFooter } from '@/components/ui/dialog';
 import {
@@ -30,11 +35,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { authenticationSession } from '@/lib/authentication-session';
-
-import { agentMutations } from '../../hooks/agent-hooks';
-import { useMcpToolDialogStore } from '../stores/mcp-tools';
-
-import { McpToolFormData, ValidationStep } from '.';
 
 type AddMcpToolFormProps = {
   tools: AgentTool[];

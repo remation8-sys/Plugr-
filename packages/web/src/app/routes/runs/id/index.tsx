@@ -1,11 +1,12 @@
 import { FlowRun, PopulatedFlow } from '@activepieces/shared';
 import { useQuery } from '@tanstack/react-query';
 import { ReactFlowProvider } from '@xyflow/react';
+import { t } from 'i18next';
 import { useParams } from 'react-router-dom';
 
 import { BuilderPage } from '@/app/builder';
 import { BuilderStateProvider } from '@/app/builder/state/builder-state-provider';
-import { LoadingSpinner } from '@/components/custom/spinner';
+import { PageLoadingSkeleton } from '@/components/custom/page-loading-skeleton';
 import { flowRunsApi } from '@/features/flow-runs';
 import { flowsApi, sampleDataHooks } from '@/features/flows';
 
@@ -31,6 +32,10 @@ const FlowRunPage = () => {
     },
     enabled: runId !== undefined,
     refetchInterval: 15000,
+    meta: {
+      loadSubsetOptions: {},
+      showErrorDialog: true,
+    },
   });
 
   const { data: sampleData, isLoading: isSampleDataLoading } =
@@ -41,9 +46,11 @@ const FlowRunPage = () => {
 
   if (isLoading || isSampleDataLoading || isSampleDataInputLoading) {
     return (
-      <div className="bg-background flex h-full w-full items-center justify-center ">
-        <LoadingSpinner isLarge={true}></LoadingSpinner>
-      </div>
+      <PageLoadingSkeleton
+        className="h-full"
+        label={t('Loading flow run')}
+        mode="builder"
+      />
     );
   }
 

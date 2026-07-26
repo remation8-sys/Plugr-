@@ -1,6 +1,6 @@
 import { t } from 'i18next';
 
-import { LoadingSpinner } from '@/components/custom/spinner';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { authenticationSession } from '@/lib/authentication-session';
 
@@ -19,8 +19,11 @@ export const McpServerSettings = () => {
 
   if (isLoading) {
     return (
-      <div className="w-full flex items-center justify-center py-20">
-        <LoadingSpinner />
+      <div aria-busy="true" className="w-full space-y-5 py-6" role="status">
+        <Skeleton className="h-9 w-48" />
+        <Skeleton className="h-4 w-64 max-w-full" />
+        <Skeleton className="h-11 w-full" />
+        <Skeleton className="h-24 w-full" />
       </div>
     );
   }

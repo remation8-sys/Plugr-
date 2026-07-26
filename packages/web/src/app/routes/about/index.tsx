@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { PlugrChatWidget } from '@/app/components/plugr-chat-widget';
 
 const BLUE = '#0055ff';
+const BLUE_TEXT = '#6b8cff';
 const INK = '#0d0e1a';
 
 function Section({
@@ -123,7 +124,7 @@ export function AboutPage() {
               fontSize: '0.75rem',
               letterSpacing: '0.12em',
               textTransform: 'uppercase',
-              color: BLUE,
+              color: BLUE_TEXT,
               fontWeight: 600,
             }}
           >
@@ -135,7 +136,7 @@ export function AboutPage() {
               fontWeight: 700,
               color: '#ffffff',
               letterSpacing: '-0.03em',
-              lineHeight: 1.15,
+              lineHeight: 1.2,
               margin: '0.5rem 0 0.75rem',
             }}
           >
@@ -177,19 +178,19 @@ export function AboutPage() {
         <Section title="Contact us">
           <P>
             <strong style={{ color: '#fff' }}>Email:</strong>{' '}
-            <a href="mailto:support@plugr.cloud" style={{ color: BLUE }}>
+            <a href="mailto:support@plugr.cloud" style={{ color: BLUE_TEXT }}>
               support@plugr.cloud
             </a>
           </P>
           <P>
             <strong style={{ color: '#fff' }}>Phone / WhatsApp:</strong>{' '}
-            <a href="tel:+447776530083" style={{ color: BLUE }}>
+            <a href="tel:+447776530083" style={{ color: BLUE_TEXT }}>
               +44 7776 530083
             </a>
           </P>
           <P>
             <strong style={{ color: '#fff' }}>Website:</strong>{' '}
-            <a href="https://plugr.cloud" style={{ color: BLUE }}>
+            <a href="https://plugr.cloud" style={{ color: BLUE_TEXT }}>
               plugr.cloud
             </a>
           </P>
@@ -209,7 +210,7 @@ export function AboutPage() {
           }}
         >
           <span
-            style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.8125rem' }}
+            style={{ color: 'rgba(255,255,255,0.65)', fontSize: '0.8125rem' }}
           >
             © {new Date().getFullYear()} REMSHIELD SOLUTIONS LTD. All rights
             reserved.
@@ -218,7 +219,7 @@ export function AboutPage() {
             <Link
               to="/"
               style={{
-                color: 'rgba(255,255,255,0.4)',
+                color: 'rgba(255,255,255,0.65)',
                 fontSize: '0.8125rem',
                 textDecoration: 'none',
               }}
@@ -228,7 +229,7 @@ export function AboutPage() {
             <Link
               to="/privacy"
               style={{
-                color: 'rgba(255,255,255,0.4)',
+                color: 'rgba(255,255,255,0.65)',
                 fontSize: '0.8125rem',
                 textDecoration: 'none',
               }}

@@ -7,6 +7,17 @@ import { t } from 'i18next';
 import { Table2 } from 'lucide-react';
 import { forwardRef, useCallback, useEffect, useState } from 'react';
 
+import { recordAccess } from '../../global-search/access-history';
+import { GlobalSearchCommand } from '../../global-search/global-search-command';
+import { STATIC_PAGES } from '../../global-search/static-pages';
+import { ApSidebarItem, SidebarItemType } from '../ap-sidebar-item';
+import { AppSidebarHeader } from '../sidebar-header';
+import { SidebarHelpAndFeedback } from '../sidebar-help';
+import SidebarUsageLimits from '../sidebar-usage-limits';
+import { SidebarUser } from '../sidebar-user';
+
+import { ProjectSwitcher } from './project-switcher';
+
 import { McpSvg } from '@/assets/img/custom/mcp';
 import { BoxIcon } from '@/components/icons/box';
 import { ChartLineIcon } from '@/components/icons/chart-line';
@@ -39,16 +50,7 @@ import { userHooks } from '@/hooks/user-hooks';
 import { authenticationSession } from '@/lib/authentication-session';
 import { cn } from '@/lib/utils';
 
-import { recordAccess } from '../../global-search/access-history';
-import { GlobalSearchCommand } from '../../global-search/global-search-command';
-import { STATIC_PAGES } from '../../global-search/static-pages';
-import { ApSidebarItem, SidebarItemType } from '../ap-sidebar-item';
-import { AppSidebarHeader } from '../sidebar-header';
-import { SidebarHelpAndFeedback } from '../sidebar-help';
-import SidebarUsageLimits from '../sidebar-usage-limits';
-import { SidebarUser } from '../sidebar-user';
 
-import { ProjectSwitcher } from './project-switcher';
 
 // McpSvg is a plain function component; ApSidebarItem passes a ref to icons.
 const McpIcon = forwardRef<SVGSVGElement, { className?: string }>(

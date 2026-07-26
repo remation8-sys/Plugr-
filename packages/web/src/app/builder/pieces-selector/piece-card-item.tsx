@@ -1,5 +1,9 @@
 import { useRef } from 'react';
 
+import { useBuilderStateContext } from '../builder-hooks';
+
+import { PieceActionsOrTriggersList } from './piece-actions-or-triggers-list';
+
 import { CardListItem } from '@/components/custom/card-list';
 import {
   PieceIcon,
@@ -10,10 +14,6 @@ import {
 import { useIsMobile } from '@/hooks/use-mobile';
 import { wait } from '@/lib/dom-utils';
 import { cn } from '@/lib/utils';
-
-import { useBuilderStateContext } from '../builder-hooks';
-
-import { PieceActionsOrTriggersList } from './piece-actions-or-triggers-list';
 
 type PieceCardListItemProps = {
   pieceMetadata: StepMetadataWithSuggestions;

@@ -1,9 +1,9 @@
 import { t } from 'i18next';
 import { ArrowUpRight } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
-
 import { useBuilderStateContext } from '../builder-hooks';
+
+import { Button } from '@/components/ui/button';
 
 export const TestStepSection = ({ stepName }: { stepName: string }) => {
   const isTrigger = stepName === 'trigger';

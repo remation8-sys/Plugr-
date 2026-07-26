@@ -20,6 +20,11 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 
+import { SelectedItemsMap, TreeItem } from '../lib/types';
+import { groupTreeItemsByFolder } from '../lib/utils';
+
+import { CreateInFolderKind } from './create-new-menu';
+
 import { ConfirmationDeleteDialog } from '@/components/custom/delete-dialog';
 import { FormattedDate } from '@/components/custom/formatted-date';
 import { LoadingSpinner } from '@/components/custom/spinner';
@@ -36,11 +41,6 @@ import { MoveToFolderDialog } from '@/features/automations/components/move-to-fo
 import { FlowStatusToggle } from '@/features/flows/components/flow-status-toggle';
 import { PieceIconList } from '@/features/pieces/components/piece-icon-list';
 import { cn } from '@/lib/utils';
-
-import { SelectedItemsMap, TreeItem } from '../lib/types';
-import { groupTreeItemsByFolder } from '../lib/utils';
-
-import { CreateInFolderKind } from './create-new-menu';
 
 type AutomationsCardListProps = {
   items: TreeItem[];
@@ -85,8 +85,7 @@ function isTableItem(
 }
 
 function CardIcon({ item }: { item: TreeItem }) {
-  const base =
-    'w-11 h-11 rounded-xl flex items-center justify-center shrink-0';
+  const base = 'w-11 h-11 rounded-xl flex items-center justify-center shrink-0';
   switch (item.type) {
     case 'folder':
       return (

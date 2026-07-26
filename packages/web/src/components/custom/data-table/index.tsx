@@ -17,6 +17,12 @@ import React, { useRef, useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useDeepCompareEffect } from 'react-use';
 
+import { DataTableBulkActions } from './data-table-bulk-actions';
+import { DataTableColumnHeader } from './data-table-column-header';
+import { DataTableFilter, DataTableFilterProps } from './data-table-filter';
+import { DataTableSkeleton } from './data-table-skeleton';
+import { DataTableToolbar } from './data-table-toolbar';
+
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -36,12 +42,6 @@ import {
 } from '@/components/ui/table';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
-
-import { DataTableBulkActions } from './data-table-bulk-actions';
-import { DataTableColumnHeader } from './data-table-column-header';
-import { DataTableFilter, DataTableFilterProps } from './data-table-filter';
-import { DataTableSkeleton } from './data-table-skeleton';
-import { DataTableToolbar } from './data-table-toolbar';
 
 export type DataWithId = {
   id?: string;
@@ -136,7 +136,7 @@ export function DataTable<
   mobileCard,
 }: DataTableProps<TData, TValue, Keys>) {
   const isMobile = useIsMobile();
-  const useMobileCards = isMobile && !!mobileCard;
+  const useMobileCards = isMobile;
   const selectColumnDef: ColumnDef<RowDataWithActions<TData>, TValue> = {
     id: 'select',
     accessorKey: 'select',
@@ -336,8 +336,8 @@ export function DataTable<
         (customFilters && customFilters.length > 0) ||
         (toolbarButtons && toolbarButtons.length > 0)) && (
         <DataTableToolbar>
-          <div className="w-full flex items-center justify-between">
-            <div className="flex items-center space-x-2">
+          <div className="flex w-full flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div className="flex min-w-0 flex-wrap items-center gap-2">
               {filters &&
                 filters.map((filter) => (
                   <DataTableFilter
@@ -352,7 +352,7 @@ export function DataTable<
                 ))}
             </div>
             {toolbarButtons && toolbarButtons.length > 0 && (
-              <div className="flex items-center gap-2">
+              <div className="flex w-full flex-wrap items-center gap-2 md:w-auto md:justify-end">
                 {toolbarButtons.map((button, idx) => (
                   <React.Fragment key={idx}>{button}</React.Fragment>
                 ))}
@@ -371,22 +371,69 @@ export function DataTable<
         })}
       >
         {useMobileCards ? (
-          <div className="px-4 py-3 space-y-2.5">
+          <div className="space-y-3 px-4 py-3">
             {isLoading ? (
               Array.from({ length: 6 }).map((_, i) => (
                 <div
                   key={i}
-                  className="h-[72px] rounded-2xl border border-border bg-card animate-pulse"
+                  className="h-20 animate-pulse rounded-lg border border-border bg-card"
                 />
               ))
             ) : rows.length ? (
               rows.map((row) => (
                 <div
                   key={row.id}
-                  onClick={(e) => onRowClick?.(row.original, e.ctrlKey, e)}
+                  onClick={(event) => {
+                    if (
+                      event.target instanceof Element &&
+                      event.target.closest(
+                        'button, a, input, [role="button"], [role="checkbox"]',
+                      )
+                    ) {
+                      return;
+                    }
+                    onRowClick?.(
+                      row.original,
+                      event.ctrlKey || event.metaKey,
+                      event,
+                    );
+                  }}
                   className={cn(onRowClick && 'cursor-pointer')}
                 >
-                  {mobileCard!(row.original)}
+                  {mobileCard ? (
+                    mobileCard(row.original)
+                  ) : (
+                    <div className="rounded-lg border bg-card p-4">
+                      <div className="divide-y">
+                        {row.getVisibleCells().map((cell) => {
+                          const label = getMobileColumnLabel(cell.column.id);
+                          const isUtilityCell = isNil(label);
+
+                          return (
+                            <div
+                              key={cell.id}
+                              className={cn(
+                                'min-w-0 py-2 first:pt-0 last:pb-0',
+                                isUtilityCell && 'flex justify-end',
+                              )}
+                            >
+                              {label && (
+                                <p className="mb-1 text-xs font-medium text-muted-foreground">
+                                  {label}
+                                </p>
+                              )}
+                              <div className="min-w-0 overflow-hidden text-sm">
+                                {flexRender(
+                                  cell.column.columnDef.cell,
+                                  cell.getContext(),
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
                 </div>
               ))
             ) : (
@@ -411,267 +458,269 @@ export function DataTable<
           </div>
         ) : (
           <Table className="table-fixed">
-          <TableHeader
-            className={cn(virtualizeRows ? 'sticky top-0 z-10' : undefined)}
-          >
-            {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id} className="hover:bg-transparent">
-                {headerGroup.headers.map((header) => {
-                  const size = header.column.columnDef.size;
-                  return (
-                    <TableHead
-                      key={header.id}
-                      style={
-                        size
-                          ? { width: size, minWidth: size, maxWidth: size }
-                          : undefined
-                      }
-                    >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
-                    </TableHead>
-                  );
-                })}
-              </TableRow>
-            ))}
-          </TableHeader>
-          <TableBody>
-            {isLoading ? (
-              <TableRow className="hover:bg-background">
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center"
-                >
-                  <DataTableSkeleton />
-                </TableCell>
-              </TableRow>
-            ) : rows.length ? (
-              virtualizeRows ? (
-                <>
-                  {virtualizer.getVirtualItems().length > 0 && (
-                    <tr>
-                      <td
-                        colSpan={columns.length}
-                        style={{
-                          height: virtualizer.getVirtualItems()[0].start,
-                        }}
-                      />
-                    </tr>
-                  )}
-                  {virtualizer.getVirtualItems().map((virtualRow) => {
-                    const row = rows[virtualRow.index];
-                    const rowIndex = virtualRow.index;
+            <TableHeader
+              className={cn(virtualizeRows ? 'sticky top-0 z-10' : undefined)}
+            >
+              {table.getHeaderGroups().map((headerGroup) => (
+                <TableRow key={headerGroup.id} className="hover:bg-transparent">
+                  {headerGroup.headers.map((header) => {
+                    const size = header.column.columnDef.size;
                     return (
-                      <TableRow
-                        key={row.id}
-                        data-index={virtualRow.index}
-                        className={cn(
-                          'cursor-pointer',
-                          {
-                            'hover:bg-background cursor-default':
-                              isNil(onRowClick),
-                          },
-                          getRowClassName?.(row.original, rowIndex),
-                        )}
-                        onClick={(e) => {
-                          const clickedCellIndex = (
-                            e.target as HTMLElement
-                          ).closest('td')?.cellIndex;
-                          if (
-                            clickedCellIndex !== undefined &&
-                            columns[clickedCellIndex]?.notClickable
-                          ) {
-                            return;
-                          }
-                          onRowClick?.(row.original, e.ctrlKey, e);
-                        }}
-                        onAuxClick={(e) => {
-                          const clickedCellIndex = (
-                            e.target as HTMLElement
-                          ).closest('td')?.cellIndex;
-                          if (
-                            clickedCellIndex !== undefined &&
-                            columns[clickedCellIndex]?.notClickable
-                          ) {
-                            return;
-                          }
-                          onRowClick?.(row.original, true, e);
-                        }}
-                        data-state={row.getIsSelected() && 'selected'}
+                      <TableHead
+                        key={header.id}
+                        style={
+                          size
+                            ? { width: size, minWidth: size, maxWidth: size }
+                            : undefined
+                        }
                       >
-                        {row.getVisibleCells().map((cell) => {
-                          const size = cell.column.columnDef.size;
-                          return (
-                            <TableCell
-                              key={cell.id}
-                              style={
-                                size
-                                  ? {
-                                      width: size,
-                                      minWidth: size,
-                                      maxWidth: size,
-                                    }
-                                  : undefined
-                              }
-                            >
-                              <div
-                                className={cn('flex w-full items-center', {
-                                  'justify-end': cell.column.id === 'actions',
-                                  'justify-start': cell.column.id !== 'actions',
-                                })}
-                              >
-                                <div
-                                  className="w-full"
-                                  onClick={(e) => {
-                                    if (cell.column.id === 'select') {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                      return;
-                                    }
-                                  }}
-                                >
-                                  {flexRender(
-                                    cell.column.columnDef.cell,
-                                    cell.getContext(),
-                                  )}
-                                </div>
-                              </div>
-                            </TableCell>
-                          );
-                        })}
-                      </TableRow>
+                        {header.isPlaceholder
+                          ? null
+                          : flexRender(
+                              header.column.columnDef.header,
+                              header.getContext(),
+                            )}
+                      </TableHead>
                     );
                   })}
-                  {virtualizer.getVirtualItems().length > 0 && (
-                    <tr>
-                      <td
-                        colSpan={columns.length}
-                        style={{
-                          height:
-                            virtualizer.getTotalSize() -
-                            (virtualizer.getVirtualItems().at(-1)?.end ?? 0),
-                        }}
-                      />
-                    </tr>
-                  )}
-                </>
-              ) : (
-                rows.map((row, rowIndex) => (
-                  <TableRow
-                    className={cn(
-                      'cursor-pointer',
-                      {
-                        'hover:bg-background cursor-default': isNil(onRowClick),
-                      },
-                      getRowClassName?.(row.original, rowIndex),
-                    )}
-                    onClick={(e) => {
-                      const clickedCellIndex = (
-                        e.target as HTMLElement
-                      ).closest('td')?.cellIndex;
-                      if (
-                        clickedCellIndex !== undefined &&
-                        columns[clickedCellIndex]?.notClickable
-                      ) {
-                        return;
-                      }
-                      onRowClick?.(row.original, e.ctrlKey, e);
-                    }}
-                    onAuxClick={(e) => {
-                      const clickedCellIndex = (
-                        e.target as HTMLElement
-                      ).closest('td')?.cellIndex;
-                      if (
-                        clickedCellIndex !== undefined &&
-                        columns[clickedCellIndex]?.notClickable
-                      ) {
-                        return;
-                      }
-                      onRowClick?.(row.original, true, e);
-                    }}
-                    key={row.id}
-                    data-state={row.getIsSelected() && 'selected'}
+                </TableRow>
+              ))}
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                <TableRow className="hover:bg-background">
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
                   >
-                    {row.getVisibleCells().map((cell) => {
-                      const size = cell.column.columnDef.size;
+                    <DataTableSkeleton />
+                  </TableCell>
+                </TableRow>
+              ) : rows.length ? (
+                virtualizeRows ? (
+                  <>
+                    {virtualizer.getVirtualItems().length > 0 && (
+                      <tr>
+                        <td
+                          colSpan={columns.length}
+                          style={{
+                            height: virtualizer.getVirtualItems()[0].start,
+                          }}
+                        />
+                      </tr>
+                    )}
+                    {virtualizer.getVirtualItems().map((virtualRow) => {
+                      const row = rows[virtualRow.index];
+                      const rowIndex = virtualRow.index;
                       return (
-                        <TableCell
-                          key={cell.id}
-                          style={
-                            size
-                              ? {
-                                  width: size,
-                                  minWidth: size,
-                                  maxWidth: size,
-                                }
-                              : undefined
-                          }
+                        <TableRow
+                          key={row.id}
+                          data-index={virtualRow.index}
+                          className={cn(
+                            'cursor-pointer',
+                            {
+                              'hover:bg-background cursor-default':
+                                isNil(onRowClick),
+                            },
+                            getRowClassName?.(row.original, rowIndex),
+                          )}
+                          onClick={(e) => {
+                            const clickedCellIndex = (
+                              e.target as HTMLElement
+                            ).closest('td')?.cellIndex;
+                            if (
+                              clickedCellIndex !== undefined &&
+                              columns[clickedCellIndex]?.notClickable
+                            ) {
+                              return;
+                            }
+                            onRowClick?.(row.original, e.ctrlKey, e);
+                          }}
+                          onAuxClick={(e) => {
+                            const clickedCellIndex = (
+                              e.target as HTMLElement
+                            ).closest('td')?.cellIndex;
+                            if (
+                              clickedCellIndex !== undefined &&
+                              columns[clickedCellIndex]?.notClickable
+                            ) {
+                              return;
+                            }
+                            onRowClick?.(row.original, true, e);
+                          }}
+                          data-state={row.getIsSelected() && 'selected'}
                         >
-                          <div
-                            className={cn('flex w-full items-center', {
-                              'justify-end': cell.column.id === 'actions',
-                              'justify-start': cell.column.id !== 'actions',
-                            })}
-                          >
-                            <div
-                              className="w-full"
-                              onClick={(e) => {
-                                if (cell.column.id === 'select') {
-                                  e.preventDefault();
-                                  e.stopPropagation();
-                                  return;
+                          {row.getVisibleCells().map((cell) => {
+                            const size = cell.column.columnDef.size;
+                            return (
+                              <TableCell
+                                key={cell.id}
+                                style={
+                                  size
+                                    ? {
+                                        width: size,
+                                        minWidth: size,
+                                        maxWidth: size,
+                                      }
+                                    : undefined
                                 }
-                              }}
-                            >
-                              {flexRender(
-                                cell.column.columnDef.cell,
-                                cell.getContext(),
-                              )}
-                            </div>
-                          </div>
-                        </TableCell>
+                              >
+                                <div
+                                  className={cn('flex w-full items-center', {
+                                    'justify-end': cell.column.id === 'actions',
+                                    'justify-start':
+                                      cell.column.id !== 'actions',
+                                  })}
+                                >
+                                  <div
+                                    className="w-full"
+                                    onClick={(e) => {
+                                      if (cell.column.id === 'select') {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        return;
+                                      }
+                                    }}
+                                  >
+                                    {flexRender(
+                                      cell.column.columnDef.cell,
+                                      cell.getContext(),
+                                    )}
+                                  </div>
+                                </div>
+                              </TableCell>
+                            );
+                          })}
+                        </TableRow>
                       );
                     })}
-                  </TableRow>
-                ))
-              )
-            ) : (
-              <TableRow className="hover:bg-background">
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-[350px] text-center"
-                >
-                  <div className="flex flex-col items-center justify-center gap-2">
-                    {emptyStateIcon ? (
-                      <div className="mb-2 text-muted-foreground">
-                        {emptyStateIcon}
-                      </div>
-                    ) : (
-                      <></>
+                    {virtualizer.getVirtualItems().length > 0 && (
+                      <tr>
+                        <td
+                          colSpan={columns.length}
+                          style={{
+                            height:
+                              virtualizer.getTotalSize() -
+                              (virtualizer.getVirtualItems().at(-1)?.end ?? 0),
+                          }}
+                        />
+                      </tr>
                     )}
-                    <p className="text-lg font-medium tracking-tight">
-                      {emptyStateTextTitle}
-                    </p>
-                    {emptyStateTextDescription && (
-                      <p className="text-sm text-muted-foreground ">
-                        {emptyStateTextDescription}
+                  </>
+                ) : (
+                  rows.map((row, rowIndex) => (
+                    <TableRow
+                      className={cn(
+                        'cursor-pointer',
+                        {
+                          'hover:bg-background cursor-default':
+                            isNil(onRowClick),
+                        },
+                        getRowClassName?.(row.original, rowIndex),
+                      )}
+                      onClick={(e) => {
+                        const clickedCellIndex = (
+                          e.target as HTMLElement
+                        ).closest('td')?.cellIndex;
+                        if (
+                          clickedCellIndex !== undefined &&
+                          columns[clickedCellIndex]?.notClickable
+                        ) {
+                          return;
+                        }
+                        onRowClick?.(row.original, e.ctrlKey, e);
+                      }}
+                      onAuxClick={(e) => {
+                        const clickedCellIndex = (
+                          e.target as HTMLElement
+                        ).closest('td')?.cellIndex;
+                        if (
+                          clickedCellIndex !== undefined &&
+                          columns[clickedCellIndex]?.notClickable
+                        ) {
+                          return;
+                        }
+                        onRowClick?.(row.original, true, e);
+                      }}
+                      key={row.id}
+                      data-state={row.getIsSelected() && 'selected'}
+                    >
+                      {row.getVisibleCells().map((cell) => {
+                        const size = cell.column.columnDef.size;
+                        return (
+                          <TableCell
+                            key={cell.id}
+                            style={
+                              size
+                                ? {
+                                    width: size,
+                                    minWidth: size,
+                                    maxWidth: size,
+                                  }
+                                : undefined
+                            }
+                          >
+                            <div
+                              className={cn('flex w-full items-center', {
+                                'justify-end': cell.column.id === 'actions',
+                                'justify-start': cell.column.id !== 'actions',
+                              })}
+                            >
+                              <div
+                                className="w-full"
+                                onClick={(e) => {
+                                  if (cell.column.id === 'select') {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    return;
+                                  }
+                                }}
+                              >
+                                {flexRender(
+                                  cell.column.columnDef.cell,
+                                  cell.getContext(),
+                                )}
+                              </div>
+                            </div>
+                          </TableCell>
+                        );
+                      })}
+                    </TableRow>
+                  ))
+                )
+              ) : (
+                <TableRow className="hover:bg-background">
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-[350px] text-center"
+                  >
+                    <div className="flex flex-col items-center justify-center gap-2">
+                      {emptyStateIcon ? (
+                        <div className="mb-2 text-muted-foreground">
+                          {emptyStateIcon}
+                        </div>
+                      ) : (
+                        <></>
+                      )}
+                      <p className="text-lg font-medium tracking-tight">
+                        {emptyStateTextTitle}
                       </p>
-                    )}
-                  </div>
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
+                      {emptyStateTextDescription && (
+                        <p className="text-sm text-muted-foreground ">
+                          {emptyStateTextDescription}
+                        </p>
+                      )}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
         )}
       </div>
       {!hidePagination && !virtualizeRows && (
-        <div className="flex items-center justify-end gap-4 px-2 py-4 text-sm">
-          <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center justify-between gap-2 px-4 py-4 text-sm md:justify-end">
+          <div className="flex w-full flex-wrap items-center gap-2 md:w-auto md:justify-end">
             <span className="text-muted-foreground">{t('Rows per page')}</span>
             <Select
               value={`${table.getState().pagination.pageSize}`}
@@ -745,4 +794,15 @@ export function DataTable<
       )}
     </div>
   );
+}
+
+function getMobileColumnLabel(columnId: string): string | null {
+  if (['select', '__actions', 'actions'].includes(columnId)) {
+    return null;
+  }
+
+  return columnId
+    .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+    .replace(/[_-]+/g, ' ')
+    .replace(/^./, (character) => character.toUpperCase());
 }

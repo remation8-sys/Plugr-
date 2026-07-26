@@ -6,6 +6,8 @@ import {
 import { ArrowRight } from 'lucide-react';
 import { useRef } from 'react';
 
+import { FlowChat } from './flow-chat';
+
 import { useBuilderStateContext } from '@/app/builder/builder-hooks';
 import { ChatDrawerSource } from '@/app/builder/types';
 import { useSocket } from '@/components/providers/socket-provider';
@@ -16,8 +18,7 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from '@/components/ui/drawer';
-
-import { FlowChat } from './flow-chat';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 export const ChatDrawer = () => {
   const [
@@ -39,6 +40,7 @@ export const ChatDrawer = () => {
     state.chatDrawerOpenSource,
     state.setChatDrawerOpenSource,
   ]);
+  const isMobile = useIsMobile();
   const socket = useSocket();
   const isListening = useRef(false);
   //shouldn't use testFlow hook here because it would run the flow with sample data not the real user message
@@ -64,11 +66,11 @@ export const ChatDrawer = () => {
     <Drawer
       open={chatDrawerOpenSource !== null}
       onOpenChange={() => setChatDrawerOpenSource(null)}
-      direction="right"
+      direction={isMobile ? 'bottom' : 'right'}
       dismissible={false}
       modal={false}
     >
-      <DrawerContent className="w-[500px] overflow-x-hidden">
+      <DrawerContent className="max-h-[85dvh] w-full overflow-x-hidden md:h-full md:max-h-none md:w-[500px]">
         <DrawerHeader>
           <div className="p-4">
             <div className="flex items-center gap-1">

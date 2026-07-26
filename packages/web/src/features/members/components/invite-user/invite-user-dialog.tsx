@@ -17,6 +17,10 @@ import { useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
+import { userInvitationsHooks } from '../../hooks/user-invitations-hooks';
+
+import { UserSuggestionsPopover } from './user-suggestions-popover';
+
 import { CopyToClipboardInput } from '@/components/custom/clipboard/copy-to-clipboard';
 import { useEmbedding } from '@/components/providers/embed-provider';
 import { Button } from '@/components/ui/button';
@@ -43,10 +47,6 @@ import { flagsHooks } from '@/hooks/flags-hooks';
 import { platformHooks } from '@/hooks/platform-hooks';
 import { HttpError } from '@/lib/api';
 import { formatUtils } from '@/lib/format-utils';
-
-import { userInvitationsHooks } from '../../hooks/user-invitations-hooks';
-
-import { UserSuggestionsPopover } from './user-suggestions-popover';
 
 const buildInvalidEmailsMessage = (emails: string[]): string => {
   const maxShown = 3;

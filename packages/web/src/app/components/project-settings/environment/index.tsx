@@ -2,9 +2,9 @@ import { t } from 'i18next';
 import { toast } from 'sonner';
 
 import LockedFeatureGuard from '@/app/components/locked-feature-guard';
-import { LoadingSpinner } from '@/components/custom/spinner';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   ConnectGitDialog,
   gitSyncHooks,
@@ -78,8 +78,17 @@ const EnvironmentSettings = () => {
               </>
             )}
             {isLoading && (
-              <div className="flex grow justify-center items-center">
-                <LoadingSpinner className="size-5"></LoadingSpinner>
+              <div
+                aria-busy="true"
+                className="flex grow items-center justify-between gap-4"
+                role="status"
+              >
+                <div className="flex-1 space-y-3">
+                  <Skeleton className="h-4 w-3/4" />
+                  <Skeleton className="h-4 w-1/2" />
+                  <Skeleton className="h-4 w-2/3" />
+                </div>
+                <Skeleton className="h-9 w-32" />
               </div>
             )}
           </div>

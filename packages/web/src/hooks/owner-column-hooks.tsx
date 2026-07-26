@@ -7,6 +7,8 @@ import { ColumnDef } from '@tanstack/react-table';
 import { t } from 'i18next';
 import { User } from 'lucide-react';
 
+import { ApAvatar } from '../components/custom/ap-avatar';
+
 import {
   DataTableFilters,
   DataWithId,
@@ -14,8 +16,6 @@ import {
 } from '@/components/custom/data-table';
 import { DataTableColumnHeader } from '@/components/custom/data-table/data-table-column-header';
 import { useEmbedding } from '@/components/providers/embed-provider';
-
-import { ApAvatar } from '../components/custom/ap-avatar';
 
 function useOwnerColumn<T extends HasOwner | HasOwnerId>(
   columns: ColumnDef<RowDataWithActions<T>, unknown>[],

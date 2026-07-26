@@ -10,6 +10,8 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { Textarea } from '../../../../../components/ui/textarea';
+
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -26,8 +28,6 @@ import { templateUtils } from '@/features/flows';
 import { templatesApi } from '@/features/templates';
 import { userHooks } from '@/hooks/user-hooks';
 import { api } from '@/lib/api';
-
-import { Textarea } from '../../../../../components/ui/textarea';
 
 const CreateFlowTemplateSchema = z.object({
   displayName: z.string().min(1, t('Name is required')),

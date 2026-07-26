@@ -2,9 +2,9 @@ import { t } from 'i18next';
 import { Download } from 'lucide-react';
 import React from 'react';
 
-import { Button, ButtonProps } from '@/components/ui/button';
-
 import { Tooltip, TooltipTrigger, TooltipContent } from '../ui/tooltip';
+
+import { Button, ButtonProps } from '@/components/ui/button';
 
 interface DownloadButtonProps extends ButtonProps {
   fileName: string;

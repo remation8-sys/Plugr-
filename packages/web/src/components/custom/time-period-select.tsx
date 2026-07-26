@@ -3,6 +3,8 @@
 import { t } from 'i18next';
 import * as React from 'react';
 
+import { Period, display12HourValue, setDateByType } from './time-picker-utils';
+
 import {
   Select,
   SelectContent,
@@ -11,8 +13,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
-
-import { Period, display12HourValue, setDateByType } from './time-picker-utils';
 
 export interface PeriodSelectorProps {
   period: Period;

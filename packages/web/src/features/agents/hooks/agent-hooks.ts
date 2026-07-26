@@ -4,10 +4,10 @@ import {
 } from '@activepieces/shared';
 import { useMutation, useQuery } from '@tanstack/react-query';
 
+import { mcpToolApi } from '../agent-tools/mcp-tool-dialog/api';
+
 import { flowsApi } from '@/features/flows/api/flows-api';
 import { authenticationSession } from '@/lib/authentication-session';
-
-import { mcpToolApi } from '../agent-tools/mcp-tool-dialog/api';
 
 export const agentQueries = {
   useFlowsForAgent: () => {

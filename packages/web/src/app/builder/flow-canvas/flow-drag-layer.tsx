@@ -134,7 +134,12 @@ const FlowDragLayer = ({ children }: { children: React.ReactNode }) => {
         }
       },
     }),
-    useSensor(TouchSensor),
+    useSensor(TouchSensor, {
+      activationConstraint: {
+        delay: 180,
+        tolerance: 8,
+      },
+    }),
   );
   return (
     <>

@@ -125,11 +125,15 @@ export const AgentTools = ({
                     src={icon}
                     alt={icon}
                     className="size-4 object-contain"
+                    width="16"
+                    height="16"
+                    loading="lazy"
+                    decoding="async"
                   />
                 </div>
               ))}
               <div
-                className="relative flex size-9 items-center justify-center rounded-full border text-[10px] bg-background text-foreground font-medium"
+                className="relative flex size-9 items-center justify-center rounded-full border text-xs bg-background text-foreground font-medium"
                 style={{ marginLeft: -10 }}
               >
                 <span>+500</span>

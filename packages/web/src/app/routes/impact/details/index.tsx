@@ -21,6 +21,16 @@ import {
 } from 'lucide-react';
 import { useMemo } from 'react';
 
+import { TimeSavedFilterContent } from '../components/time-saved-filter-content';
+import { exportFlowDetailsCsv } from '../lib/impact-utils';
+import { useDetailsFilters } from '../lib/use-details-filters';
+import {
+  FlowDetailRow,
+  useFlowDetailsData,
+} from '../lib/use-flow-details-data';
+
+import { EditTimeSavedPopover } from './edit-time-saved-popover';
+
 import { ApAvatar } from '@/components/custom/ap-avatar';
 import { DataTable, RowDataWithActions } from '@/components/custom/data-table';
 import { DataTableColumnHeader } from '@/components/custom/data-table/data-table-column-header';
@@ -41,16 +51,6 @@ import {
 import { userHooks } from '@/hooks/user-hooks';
 import { formatUtils } from '@/lib/format-utils';
 import { cn, DASHBOARD_CONTENT_PADDING_X } from '@/lib/utils';
-
-import { TimeSavedFilterContent } from '../components/time-saved-filter-content';
-import { exportFlowDetailsCsv } from '../lib/impact-utils';
-import { useDetailsFilters } from '../lib/use-details-filters';
-import {
-  FlowDetailRow,
-  useFlowDetailsData,
-} from '../lib/use-flow-details-data';
-
-import { EditTimeSavedPopover } from './edit-time-saved-popover';
 
 type FlowsDetailsProps = {
   report?: PlatformAnalyticsReport;
@@ -151,7 +151,7 @@ export function FlowsDetails({
             return (
               <div className="group/cell flex items-center gap-1.5">
                 <span>{displayValue}</span>
-                <span className="inline-flex opacity-0 group-hover/cell:opacity-100 transition-opacity">
+                <span className="inline-flex opacity-0 group-hover/cell:opacity-100 max-md:opacity-100 transition-opacity">
                   <EditTimeSavedPopover
                     flowId={row.original.flowId}
                     currentValue={timeSavedPerRun}

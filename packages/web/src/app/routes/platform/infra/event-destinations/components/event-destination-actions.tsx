@@ -3,6 +3,10 @@ import { t } from 'i18next';
 import { MoreVertical, Pencil, Trash } from 'lucide-react';
 import { useState } from 'react';
 
+import { eventDestinationsCollectionUtils } from '../lib/event-destinations-collection';
+
+import { EventDestinationDialog } from './event-destination-dialog';
+
 import { ConfirmationDeleteDialog } from '@/components/custom/delete-dialog';
 import { Button } from '@/components/ui/button';
 import {
@@ -11,10 +15,6 @@ import {
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-
-import { eventDestinationsCollectionUtils } from '../lib/event-destinations-collection';
-
-import { EventDestinationDialog } from './event-destination-dialog';
 
 const EventDestinationActions = ({
   destination,

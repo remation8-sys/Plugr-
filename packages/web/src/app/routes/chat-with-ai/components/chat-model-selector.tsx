@@ -108,7 +108,7 @@ export function ChatModelSelector({
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className="w-[330px] p-0"
+        className="w-[calc(100vw-2rem)] max-w-[330px] p-0"
         align="end"
         side="top"
         onOpenAutoFocus={(e) => e.preventDefault()}

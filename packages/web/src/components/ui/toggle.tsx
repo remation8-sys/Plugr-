@@ -7,7 +7,7 @@ import * as React from 'react';
 import { cn } from '@/lib/utils';
 
 const toggleVariants = cva(
-  "inline-flex items-center justify-center gap-2 rounded-md text-sm font-medium whitespace-nowrap transition-[color,box-shadow] outline-none hover:bg-muted hover:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 data-[state=on]:bg-accent data-[state=on]:text-accent-foreground dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+  "inline-flex touch-manipulation items-center justify-center gap-2 rounded-md active:scale-[0.98] motion-reduce:transform-none text-sm font-medium whitespace-nowrap max-md:whitespace-normal max-md:leading-[1.4] transition-[color,box-shadow] outline-none hover:bg-muted hover:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 data-[state=on]:bg-accent data-[state=on]:text-accent-foreground dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
@@ -16,9 +16,9 @@ const toggleVariants = cva(
           'border border-input bg-transparent shadow-xs hover:bg-accent hover:text-accent-foreground',
       },
       size: {
-        default: 'h-9 min-w-9 px-2',
-        sm: 'h-7.5 px-2',
-        lg: 'h-10 min-w-10 px-2.5',
+        default: 'h-9 min-w-9 px-2 max-md:h-11 max-md:min-w-11',
+        sm: 'h-7.5 px-2 max-md:h-11 max-md:min-w-11',
+        lg: 'h-10 min-w-10 px-2.5 max-md:h-11 max-md:min-w-11',
       },
     },
     defaultVariants: {

@@ -4,6 +4,8 @@ import { t } from 'i18next';
 import { useContext, useRef, useState } from 'react';
 import { toast } from 'sonner';
 
+import { hmsToSeconds, secondsToHMS } from '../lib/impact-utils';
+
 import { Button } from '@/components/ui/button';
 import {
   Popover,
@@ -15,8 +17,6 @@ import {
   analyticsApi,
   RefreshAnalyticsContext,
 } from '@/features/platform-admin';
-
-import { hmsToSeconds, secondsToHMS } from '../lib/impact-utils';
 
 type EditTimeSavedPopoverProps = {
   flowId: string;
@@ -153,7 +153,7 @@ export function EditTimeSavedPopover({
                   handleTimeInput(e.target.value, 'hours', 1000, minsRef)
                 }
                 onKeyDown={handleKeyDown}
-                className="w-full text-center text-sm bg-transparent outline-none placeholder:text-muted-foreground/50"
+                className="w-full text-center text-sm bg-transparent outline-none placeholder:text-muted-foreground"
                 maxLength={4}
                 autoFocus
               />
@@ -171,7 +171,7 @@ export function EditTimeSavedPopover({
                 }
                 onBlur={() => padOnBlur('mins')}
                 onKeyDown={handleKeyDown}
-                className="w-full text-center text-sm bg-transparent outline-none placeholder:text-muted-foreground/50"
+                className="w-full text-center text-sm bg-transparent outline-none placeholder:text-muted-foreground"
                 maxLength={2}
               />
             </div>
@@ -188,7 +188,7 @@ export function EditTimeSavedPopover({
                 }
                 onBlur={() => padOnBlur('secs')}
                 onKeyDown={handleKeyDown}
-                className="w-full text-center text-sm bg-transparent outline-none placeholder:text-muted-foreground/50"
+                className="w-full text-center text-sm bg-transparent outline-none placeholder:text-muted-foreground"
                 maxLength={2}
               />
             </div>

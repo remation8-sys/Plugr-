@@ -100,7 +100,7 @@ export function NewFieldPopup({ children }: NewFieldDialogProps) {
   return (
     <Popover open={open} modal={false} onOpenChange={setOpen}>
       <PopoverTrigger asChild>{children}</PopoverTrigger>
-      <PopoverContent className="w-[400px] py-4 px-2 drop-shadow-xl">
+      <PopoverContent className="w-[calc(100vw-2rem)] max-w-[400px] px-2 py-4 drop-shadow-xl">
         <div className="text-lg font-semibold mb-4 px-3">{t('New Field')}</div>
 
         <Form {...form}>

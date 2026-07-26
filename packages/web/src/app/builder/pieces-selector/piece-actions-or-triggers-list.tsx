@@ -8,6 +8,10 @@ import { t } from 'i18next';
 import { MoveLeft } from 'lucide-react';
 import React from 'react';
 
+import { useBuilderStateContext } from '../builder-hooks';
+
+import GenericActionOrTriggerItem from './generic-piece-selector-item';
+
 import { CardList } from '@/components/custom/card-list';
 import { useTelemetry } from '@/components/providers/telemetry-provider';
 import { ScrollArea } from '@/components/ui/scroll-area';
@@ -20,9 +24,6 @@ import {
   usePieceSearchContext,
 } from '@/features/pieces';
 
-import { useBuilderStateContext } from '../builder-hooks';
-
-import GenericActionOrTriggerItem from './generic-piece-selector-item';
 type PieceActionsOrTriggersListProps = {
   hidePieceIconAndDescription: boolean;
   stepMetadataWithSuggestions: StepMetadataWithSuggestions | null;
@@ -91,7 +92,7 @@ export const PieceActionsOrTriggersList: React.FC<
   );
   return (
     <ScrollArea className="h-full" viewPortClassName="h-full">
-      <CardList className="min-w-[350px] h-full gap-0" listClassName="gap-0">
+      <CardList className="h-full min-w-0 gap-0" listClassName="gap-0">
         {actionsOrTriggers &&
           actionsOrTriggers.map((item, index) => {
             return (

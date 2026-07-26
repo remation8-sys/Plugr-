@@ -3,11 +3,11 @@ import { t } from 'i18next';
 import { X } from 'lucide-react';
 import { ControllerRenderProps } from 'react-hook-form';
 
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-
 import { AddFieldPopover } from './add-field-popover';
 import { FieldTypeIcon } from './field-type-icon';
+
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 
 export const AgentStructuredOutput = ({
   structuredOutputField,

@@ -49,7 +49,15 @@ const ImageWithColorBackground = ({
     setIsLoading(false);
   }, []);
 
-  const { className, border, ...rest } = props;
+  const {
+    className,
+    border,
+    decoding = 'async',
+    height = 40,
+    loading = 'lazy',
+    width = 40,
+    ...rest
+  } = props;
 
   return (
     <span
@@ -77,8 +85,12 @@ const ImageWithColorBackground = ({
           src={src}
           alt={alt}
           crossOrigin="anonymous"
+          decoding={decoding}
+          height={height}
+          loading={loading}
           onLoad={handleLoad}
           onError={handleError}
+          width={width}
           className={cn(
             `transition-opacity duration-500 w-full h-full object-contain`,
             {

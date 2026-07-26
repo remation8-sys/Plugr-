@@ -15,6 +15,9 @@ import { useMemo, useState, useRef, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
+import { FlowCard } from './flow-card';
+import { PieceCard } from './piece-card';
+
 import { FlowCanvas } from '@/app/builder/flow-canvas';
 import { CanvasControls } from '@/app/builder/flow-canvas/canvas-controls';
 import { BuilderStateProvider } from '@/app/builder/state/builder-state-provider';
@@ -26,9 +29,6 @@ import { UseTemplateDialog } from '@/features/templates/components/use-template-
 import { authenticationSession } from '@/lib/authentication-session';
 import { formatUtils } from '@/lib/format-utils';
 import { FROM_QUERY_PARAM } from '@/lib/navigation-utils';
-
-import { FlowCard } from './flow-card';
-import { PieceCard } from './piece-card';
 
 type TemplateDetailsPageProps = {
   template: Template;
@@ -134,7 +134,7 @@ const TemplateDetailsPage = ({ template }: TemplateDetailsPageProps) => {
   return (
     <div className="h-screen w-full flex flex-col overflow-hidden absolute inset-0">
       {template.type !== TemplateType.SHARED && (
-        <div className="border-b py-4 px-6 flex items-center justify-between shrink-0">
+        <div className="flex shrink-0 items-center justify-between gap-2 border-b px-4 py-3 md:px-6 md:py-4">
           <div className="flex items-center gap-2 min-w-0">
             <Button
               variant="ghost"
@@ -157,7 +157,7 @@ const TemplateDetailsPage = ({ template }: TemplateDetailsPageProps) => {
       <div className="flex-1 min-h-0 min-w-0 overflow-hidden">
         <div className="grid grid-cols-1 lg:grid-cols-[2fr_3fr] h-full w-full overflow-hidden">
           <ScrollArea className="h-full w-full">
-            <div className="flex flex-col gap-4 px-6 mt-6 min-w-0">
+            <div className="mt-6 flex min-w-0 flex-col gap-4 px-4 md:px-6">
               <span className="text-xl font-medium">{template.name}</span>
 
               {!isNil(template.tags) && template.tags.length > 0 && (
@@ -176,7 +176,7 @@ const TemplateDetailsPage = ({ template }: TemplateDetailsPageProps) => {
               )}
 
               <div className="flex flex-col gap-8 min-w-0">
-                <div className="flex flex-row justify-center gap-3 min-w-0">
+                <div className="flex min-w-0 flex-col justify-center gap-3 sm:flex-row">
                   <Button
                     onClick={handleUseTemplate}
                     size="xl"

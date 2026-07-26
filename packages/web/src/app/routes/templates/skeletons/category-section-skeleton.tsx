@@ -1,3 +1,5 @@
+import { TemplateCardSkeleton } from './template-card-skeleton';
+
 import {
   Carousel,
   CarouselContent,
@@ -5,25 +7,38 @@ import {
 } from '@/components/ui/carousel';
 import { Skeleton } from '@/components/ui/skeleton';
 
-import { TemplateCardSkeleton } from './template-card-skeleton';
-
 type CategorySectionSkeletonProps = {
   hideHeader?: boolean;
 };
 
-export const CategorySectionSkeleton = ({
+const CategorySectionSkeleton = ({
   hideHeader = false,
 }: CategorySectionSkeletonProps) => {
   return (
     <div className="space-y-4">
+      <div className="space-y-4 md:hidden">
+        <div className="flex items-center justify-between gap-3">
+          <Skeleton className="h-8 w-40 max-w-[60%]" />
+          <Skeleton className="h-8 w-20" />
+        </div>
+        <div className="grid grid-cols-1 gap-4">
+          {[...Array(4)].map((_, index) => (
+            <TemplateCardSkeleton
+              key={index}
+              showCategoryCarouselButton={hideHeader}
+            />
+          ))}
+        </div>
+      </div>
+
       <Carousel
         opts={{
           align: 'start',
           loop: false,
         }}
-        className="w-full"
+        className="hidden w-full md:block"
       >
-        <div className="flex items-center justify-between mb-4">
+        <div className="mb-4 flex items-center justify-between gap-2">
           <Skeleton className="h-8 w-48" />
           <div className="flex items-center gap-2">
             <Skeleton className="h-8 w-20" />
@@ -38,7 +53,7 @@ export const CategorySectionSkeleton = ({
           {[...Array(4)].map((_, index) => (
             <CarouselItem
               key={index}
-              className="basis-full sm:basis-1/3 lg:basis-1/4 xl:basis-1/5 min-w-[350px]"
+              className="min-w-0 md:basis-1/2 lg:basis-1/4 xl:basis-1/5"
             >
               <TemplateCardSkeleton showCategoryCarouselButton={hideHeader} />
             </CarouselItem>
@@ -48,3 +63,5 @@ export const CategorySectionSkeleton = ({
     </div>
   );
 };
+
+export { CategorySectionSkeleton };

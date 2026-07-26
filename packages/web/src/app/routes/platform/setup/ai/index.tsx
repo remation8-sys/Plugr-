@@ -151,6 +151,10 @@ function ChatProviderSelector({
                       src={logoUrl}
                       alt={provider.provider}
                       className="size-4 object-contain"
+                      width="16"
+                      height="16"
+                      loading="lazy"
+                      decoding="async"
                     />
                   )}
                   <span>{provider.name}</span>

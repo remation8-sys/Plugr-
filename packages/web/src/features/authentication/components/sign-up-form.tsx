@@ -11,6 +11,9 @@ import { useMemo, useState } from 'react';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
+import { authMutations } from '../hooks/auth-hooks';
+import { passwordValidation } from '../utils/password-validation-utils';
+
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -38,9 +41,6 @@ import { flagsHooks } from '@/hooks/flags-hooks';
 import { api } from '@/lib/api';
 import { authenticationSession } from '@/lib/authentication-session';
 import { formatUtils } from '@/lib/format-utils';
-
-import { authMutations } from '../hooks/auth-hooks';
-import { passwordValidation } from '../utils/password-validation-utils';
 
 const SignUpForm = ({
   showCheckYourEmailNote,
@@ -177,7 +177,7 @@ const SignUpForm = ({
     <>
       <Form {...form}>
         <form className="flex flex-col space-y-4">
-          <div className={'flex flex-row gap-2'}>
+          <div className="flex flex-col gap-3 sm:flex-row sm:gap-2">
             <FormField
               control={form.control}
               name="firstName"

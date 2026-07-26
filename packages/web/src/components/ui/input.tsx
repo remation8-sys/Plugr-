@@ -2,12 +2,12 @@ import { t } from 'i18next';
 import { Paperclip } from 'lucide-react';
 import * as React from 'react';
 
-import { cn } from '@/lib/utils';
-
 import { SelectUtilButton } from '../custom/select-util-button';
 
+import { cn } from '@/lib/utils';
+
 export const inputClass =
-  'flex h-9 w-full min-w-0 rounded-md border border-input bg-transparent px-2.5 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none selection:bg-primary selection:text-primary-foreground file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm dark:bg-input/30 focus-visible:border-ring focus-visible:ring-[1px] focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40';
+  'flex h-12 w-full min-w-0 md:h-9 rounded-md border border-input bg-transparent px-2.5 py-1 text-base shadow-xs transition-[color,box-shadow] outline-none selection:bg-primary selection:text-primary-foreground file:inline-flex file:h-7 file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground disabled:pointer-events-none disabled:cursor-not-allowed disabled:opacity-50 md:text-sm dark:bg-input/30 focus-visible:border-ring focus-visible:ring-[1px] focus-visible:ring-ring/50 aria-invalid:border-destructive aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40';
 
 function Input({
   className,
@@ -34,8 +34,22 @@ function Input({
         }
       />
       <div
+        role="button"
+        tabIndex={props.disabled ? -1 : 0}
+        aria-disabled={props.disabled}
+        aria-label={props['aria-label'] ?? t('Select a file')}
         onClick={() => inputRef.current?.click()}
-        className={cn(inputClass, 'cursor-pointer items-center', className)}
+        onKeyDown={(event) => {
+          if (!props.disabled && (event.key === 'Enter' || event.key === ' ')) {
+            event.preventDefault();
+            inputRef.current?.click();
+          }
+        }}
+        className={cn(
+          inputClass,
+          'cursor-pointer touch-manipulation items-center active:bg-accent',
+          className,
+        )}
       >
         <input
           data-slot="input"
@@ -59,7 +73,7 @@ function Input({
       type={type}
       data-slot="input"
       className={cn(inputClass, className, {
-        'h-7 p-2': thin,
+        'h-12 p-2 md:h-7': thin,
       })}
       ref={inputRef}
       {...props}

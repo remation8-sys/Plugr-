@@ -16,6 +16,8 @@ import {
 import { useState } from 'react';
 import { UseFormReturn, useFieldArray } from 'react-hook-form';
 
+import { ModelFormPopover } from './model-form-popover';
+
 import { DictionaryInput } from '@/components/custom/dictionary-input';
 import { Button } from '@/components/ui/button';
 import {
@@ -41,8 +43,6 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { AWS_BEDROCK_REGIONS } from '@/features/agents/aws-regions';
-
-import { ModelFormPopover } from './model-form-popover';
 
 type UpsertProviderConfigFormProps = {
   form: UseFormReturn<CreateAIProviderRequest>;

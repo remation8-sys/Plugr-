@@ -7,7 +7,7 @@ import { Link, useParams } from 'react-router-dom';
 
 import { BuilderPage } from '@/app/builder';
 import { BuilderStateProvider } from '@/app/builder/state/builder-state-provider';
-import { LoadingSpinner } from '@/components/custom/spinner';
+import { PageLoadingSkeleton } from '@/components/custom/page-loading-skeleton';
 import { buttonVariants } from '@/components/ui/button';
 import { flowsApi, sampleDataHooks } from '@/features/flows';
 import { authenticationSession } from '@/lib/authentication-session';
@@ -26,6 +26,10 @@ const FlowBuilderPage = () => {
     gcTime: 0,
     retry: false,
     refetchOnWindowFocus: false,
+    meta: {
+      loadSubsetOptions: {},
+      showErrorDialog: true,
+    },
   });
 
   const { data: sampleData, isLoading: isSampleDataLoading } =
@@ -35,9 +39,11 @@ const FlowBuilderPage = () => {
     sampleDataHooks.useSampleDataInputForFlow(flow?.version, flow?.projectId);
   if (isLoading || isSampleDataLoading || isSampleDataInputLoading) {
     return (
-      <div className="bg-background flex h-full w-full items-center justify-center ">
-        <LoadingSpinner isLarge={true}></LoadingSpinner>
-      </div>
+      <PageLoadingSkeleton
+        className="h-full"
+        label={t('Loading flow')}
+        mode="builder"
+      />
     );
   }
 

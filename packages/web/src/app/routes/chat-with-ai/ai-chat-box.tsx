@@ -176,7 +176,10 @@ function ChatBoxContent({
   const hasConversations = (cachedConversations?.data?.length ?? 0) > 0;
 
   return (
-    <div className="flex flex-col h-full flex-1 min-w-0">
+    <div
+      className="flex h-full min-w-0 flex-1 flex-col"
+      data-mobile-keyboard-viewport
+    >
       <AnimatePresence mode="wait">
         {isEmpty ? (
           <div key="empty-state" className="flex-1 overflow-y-auto min-h-0">
@@ -208,7 +211,7 @@ function ChatBoxContent({
                   'linear-gradient(to bottom, black 0%, black calc(100% - 40px), transparent 100%)',
               }}
             >
-              <ChatContainerContent className="max-w-3xl mx-auto px-6 pt-8 pb-16 gap-0">
+              <ChatContainerContent className="mx-auto max-w-3xl gap-0 px-4 pb-16 pt-8 md:px-6">
                 {isLoadingHistory && <MessageSkeletons />}
 
                 {messages.map((msg, idx) => {
@@ -278,7 +281,10 @@ function ChatBoxContent({
         )}
       </AnimatePresence>
 
-      <div className="px-6 pb-4">
+      <div
+        className="px-4 pb-[max(1rem,env(safe-area-inset-bottom))] md:px-6 md:pb-4"
+        data-mobile-keyboard-anchor
+      >
         <div className="max-w-3xl mx-auto relative">
           <div
             className={cn(

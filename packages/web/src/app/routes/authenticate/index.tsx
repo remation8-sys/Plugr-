@@ -2,6 +2,7 @@ import { isNil } from '@activepieces/shared';
 import { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 
+import { LoadingScreen } from '@/components/custom/loading-screen';
 import { authenticationSession } from '@/lib/authentication-session';
 
 const AuthenticatePage = () => {
@@ -23,7 +24,7 @@ const AuthenticatePage = () => {
     }
   }, [navigate, response]);
 
-  return <>Please wait...</>;
+  return <LoadingScreen message="Preparing your workspace" />;
 };
 
 export default AuthenticatePage;

@@ -7,6 +7,14 @@ import { isNil, PropertySettings } from '@activepieces/shared';
 import { t } from 'i18next';
 import { ControllerRenderProps, UseFormReturn } from 'react-hook-form';
 
+import { ArrayPieceProperty } from './array-property';
+import { AutoFormFieldWrapper } from './auto-form-field-wrapper';
+import { BuilderJsonEditorWrapper } from './builder-json-wrapper';
+import CustomProperty from './custom-property';
+import { DynamicDropdownPieceProperty } from './dynamic-dropdown-piece-property';
+import { DynamicProperties } from './dynamic-piece-property';
+import { TextInputWithMentions } from './text-input-with-mentions';
+
 import { SecretInput } from '@/app/connections/secret-input';
 import { ColorPicker } from '@/components/custom/color-picker';
 import { DictionaryInput } from '@/components/custom/dictionary-input';
@@ -16,14 +24,6 @@ import { MultiSelectPieceProperty } from '@/components/custom/multi-select-piece
 import { SearchableSelect } from '@/components/custom/searchable-select';
 import { FormControl } from '@/components/ui/form';
 import { Switch } from '@/components/ui/switch';
-
-import { ArrayPieceProperty } from './array-property';
-import { AutoFormFieldWrapper } from './auto-form-field-wrapper';
-import { BuilderJsonEditorWrapper } from './builder-json-wrapper';
-import CustomProperty from './custom-property';
-import { DynamicDropdownPieceProperty } from './dynamic-dropdown-piece-property';
-import { DynamicProperties } from './dynamic-piece-property';
-import { TextInputWithMentions } from './text-input-with-mentions';
 
 export const selectGenericFormComponentForProperty = ({
   field,

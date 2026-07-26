@@ -1,10 +1,10 @@
 import { t } from 'i18next';
 import { Dot, FolderIcon, User } from 'lucide-react';
 
+import { type SearchResultItem } from './use-global-search-results';
+
 import { TableIcon } from '@/components/icons/table';
 import { WorkflowIcon } from '@/components/icons/workflow';
-
-import { type SearchResultItem } from './use-global-search-results';
 
 function timeAgo(date: Date | string): string {
   const ms = Date.now() - new Date(date).getTime();
@@ -36,7 +36,7 @@ function ItemIcon({
     if (iconBgColor) {
       return (
         <span
-          className="flex size-5 shrink-0 items-center justify-center rounded-[4px] text-[10px] font-bold"
+          className="flex size-5 shrink-0 items-center justify-center rounded-[4px] text-xs font-bold"
           style={{ backgroundColor: iconBgColor, color: iconTextColor }}
         >
           {iconLetter}
@@ -172,7 +172,7 @@ export function SearchResultRow({
         <HighlightText text={item.label} query={query ?? ''} />
       </span>
       {item.status === 'ENABLED' && (
-        <span className="shrink-0 rounded-full bg-green-500/10 px-1.5 py-0.5 text-[10px] font-medium text-green-600">
+        <span className="shrink-0 rounded-full bg-green-500/10 px-1.5 py-0.5 text-xs font-medium text-green-600">
           {t('Live')}
         </span>
       )}

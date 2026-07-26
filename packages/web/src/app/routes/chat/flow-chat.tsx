@@ -233,7 +233,13 @@ export function FlowChat({
   };
 
   return (
-    <main className={cn('relative flex h-screen w-full flex-col', className)}>
+    <main
+      className={cn(
+        'relative flex h-[var(--mobile-viewport-height,100dvh)] w-full flex-col md:h-screen',
+        className,
+      )}
+      data-mobile-keyboard-viewport
+    >
       {embedded && (
         <header className="flex w-full shrink-0 items-center justify-between border-b bg-background px-4 py-2">
           <span className="truncate text-sm font-medium">{botName}</span>
@@ -274,7 +280,7 @@ export function FlowChat({
           </Button>
         </div>
       )}
-      <div className="relative flex min-h-0 w-full flex-1 flex-col items-center justify-center pb-6">
+      <div className="relative flex min-h-0 w-full flex-1 flex-col items-center justify-center pb-[max(1.5rem,env(safe-area-inset-bottom))] md:pb-6">
         {messages.length > 0 ? (
           <>
             <ChatMessageList
@@ -287,7 +293,7 @@ export function FlowChat({
               sendMessage={sendMessage}
               setSelectedImage={toggleImageDialog}
             />
-            <div className="w-full px-4 max-w-3xl">
+            <div className="w-full max-w-3xl px-4" data-mobile-keyboard-anchor>
               <ChatInput
                 ref={chatInputRef}
                 onSendMessage={handleSendMessage}
@@ -301,7 +307,10 @@ export function FlowChat({
             {showWelcomeMessage && (
               <ChatIntro chatUI={chatUI} botName={botName} />
             )}
-            <div className="w-full px-4 max-w-3xl absolute bottom-6">
+            <div
+              className="absolute bottom-[max(1.5rem,env(safe-area-inset-bottom))] w-full max-w-3xl px-4 md:bottom-6"
+              data-mobile-keyboard-anchor
+            >
               <ChatInput
                 ref={chatInputRef}
                 onSendMessage={handleSendMessage}

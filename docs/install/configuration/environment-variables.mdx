@@ -99,6 +99,15 @@ it will produce these values. </Tip>
 | `HTTP_PROXY` / `HTTPS_PROXY` | Standard proxy env vars. When set, the engine routes all outbound HTTP(S) through the proxy (via `undici`'s `EnvHttpProxyAgent`). If the proxy listens on loopback, its port is automatically exempted from the SSRF guard so user code can still reach it. | `` | `http://127.0.0.1:3128`
 
 
+## PWA browser notifications
+
+The installable PWA works without additional environment variables. To enable
+opt-in production flow-failure notifications, configure
+**AP_WEB_PUSH_PUBLIC_KEY** and **AP_WEB_PUSH_PRIVATE_KEY** with one persistent
+VAPID key pair. **AP_WEB_PUSH_SUBJECT** may be an HTTPS contact URL or mailto
+address and defaults to **AP_FRONTEND_URL**. See
+[Progressive Web App](./progressive-web-app) for deployment and verification
+steps.
 
 <Warning>
   The frontend URL is essential for webhooks and app triggers to work. It must

@@ -5,13 +5,13 @@ import { useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 
+import { variablesApi } from '../api/variables';
+
 import {
   CURSOR_QUERY_PARAM,
   LIMIT_QUERY_PARAM,
 } from '@/components/custom/data-table';
 import { internalErrorToast } from '@/components/ui/sonner';
-
-import { variablesApi } from '../api/variables';
 
 type UseVariablesProps = {
   request: ListVariablesRequestQuery;

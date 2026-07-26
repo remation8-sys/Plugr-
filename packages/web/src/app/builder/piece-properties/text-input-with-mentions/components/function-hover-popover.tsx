@@ -268,8 +268,8 @@ export function FunctionTooltipCard({
       onMouseLeave={onMouseLeave}
     >
       {fnDef.deprecated && (
-        <div className="flex items-center gap-1.5 text-[11px]">
-          <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold uppercase tracking-wide text-[10px]">
+        <div className="flex items-center gap-1.5 text-xs">
+          <span className="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-semibold uppercase tracking-wide text-xs">
             {t('Deprecated')}
           </span>
           {fnDef.deprecated.replacement && (
@@ -307,13 +307,13 @@ export function FunctionTooltipCard({
         </div>
       )}
       <div className="space-y-1">
-        <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wide">
+        <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">
           Example
         </p>
-        <code className="block bg-gray-800 rounded px-2 py-1.5 text-[11px] font-mono text-gray-100 break-all leading-relaxed">
+        <code className="block bg-gray-800 rounded px-2 py-1.5 text-xs font-mono text-gray-100 break-all leading-relaxed">
           {t(fnDef.example)}
         </code>
-        <code className="flex items-center gap-1.5 bg-gray-800 rounded px-2 py-1.5 text-[11px] font-mono break-all leading-relaxed">
+        <code className="flex items-center gap-1.5 bg-gray-800 rounded px-2 py-1.5 text-xs font-mono break-all leading-relaxed">
           <span className="text-gray-500 shrink-0">↳</span>
           <span className="text-green-400">{t(fnDef.exampleResult)}</span>
         </code>

@@ -8,13 +8,13 @@ import {
 } from '@activepieces/shared';
 import React from 'react';
 
-import { Skeleton } from '@/components/ui/skeleton';
-import { flagsHooks } from '@/hooks/flags-hooks';
-
 import { GenericPropertiesForm } from '../../piece-properties/generic-properties-form';
 import { useStepSettingsContext } from '../step-settings-context';
 
 import { ConnectionSelect } from './connection-select';
+
+import { Skeleton } from '@/components/ui/skeleton';
+import { flagsHooks } from '@/hooks/flags-hooks';
 
 type PieceSettingsProps = {
   step: PieceAction | PieceTrigger;

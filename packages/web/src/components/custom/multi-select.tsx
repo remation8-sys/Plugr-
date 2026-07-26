@@ -8,9 +8,6 @@ import { Popover as PopoverPrimitive } from 'radix-ui';
 import React, { ComponentPropsWithoutRef } from 'react';
 import { createPortal } from 'react-dom';
 
-import { SelectUtilButton } from '@/components/custom/select-util-button';
-import { cn } from '@/lib/utils';
-
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import {
@@ -29,6 +26,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '../ui/tooltip';
+
+import { SelectUtilButton } from '@/components/custom/select-util-button';
+import { cn } from '@/lib/utils';
 
 export interface MultiSelectOptionItem {
   value: unknown;

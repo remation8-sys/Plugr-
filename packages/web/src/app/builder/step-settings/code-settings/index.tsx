@@ -3,6 +3,10 @@ import { t } from 'i18next';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 
+import { TextInputWithMentions } from '../../piece-properties/text-input-with-mentions';
+
+import { CodeEditor } from './code-editor';
+
 import { DictionaryInput } from '@/components/custom/dictionary-input';
 import { ApMarkdown } from '@/components/custom/markdown';
 import {
@@ -11,10 +15,6 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
-
-import { TextInputWithMentions } from '../../piece-properties/text-input-with-mentions';
-
-import { CodeEditor } from './code-editor';
 
 const markdown = `
 To use data from previous steps in your code, include them as pairs of keys and values below. 

@@ -4,6 +4,11 @@ import { useTranslation } from 'react-i18next';
 
 import { ApErrorDialog } from '@/components/custom/ap-error-dialog/ap-error-dialog';
 import { EmbeddingProvider } from '@/components/providers/embed-provider';
+import { MobileExperienceProvider } from '@/components/providers/mobile-experience-provider';
+import {
+  OfflineBootstrapProvider,
+  PwaProvider,
+} from '@/components/providers/pwa-provider';
 import TelemetryProvider from '@/components/providers/telemetry-provider';
 import { ThemeProvider } from '@/components/providers/theme-provider';
 import { Toaster } from '@/components/ui/sonner';
@@ -18,27 +23,33 @@ import { queryClient } from './query-client';
 export function App() {
   const { i18n } = useTranslation();
   return (
-    <QueryClientProvider client={queryClient}>
-      <RefreshAnalyticsProvider>
-        <EmbeddingProvider>
-          <InitialDataGuard>
-            <EmbeddingFontLoader>
-              <TelemetryProvider>
-                <TooltipProvider>
-                  <React.Fragment key={i18n.language}>
-                    <ThemeProvider storageKey="vite-ui-theme">
-                      <ApRouter />
-                      <Toaster position="bottom-right" />
-                      <ApErrorDialog />
-                    </ThemeProvider>
-                  </React.Fragment>
-                </TooltipProvider>
-              </TelemetryProvider>
-            </EmbeddingFontLoader>
-          </InitialDataGuard>
-        </EmbeddingProvider>
-      </RefreshAnalyticsProvider>
-    </QueryClientProvider>
+    <MobileExperienceProvider>
+      <OfflineBootstrapProvider>
+        <QueryClientProvider client={queryClient}>
+          <RefreshAnalyticsProvider>
+            <EmbeddingProvider>
+              <PwaProvider>
+                <InitialDataGuard>
+                  <EmbeddingFontLoader>
+                    <TelemetryProvider>
+                      <TooltipProvider>
+                        <React.Fragment key={i18n.language}>
+                          <ThemeProvider storageKey="vite-ui-theme">
+                            <ApRouter />
+                            <Toaster position="bottom-right" />
+                            <ApErrorDialog />
+                          </ThemeProvider>
+                        </React.Fragment>
+                      </TooltipProvider>
+                    </TelemetryProvider>
+                  </EmbeddingFontLoader>
+                </InitialDataGuard>
+              </PwaProvider>
+            </EmbeddingProvider>
+          </RefreshAnalyticsProvider>
+        </QueryClientProvider>
+      </OfflineBootstrapProvider>
+    </MobileExperienceProvider>
   );
 }
 

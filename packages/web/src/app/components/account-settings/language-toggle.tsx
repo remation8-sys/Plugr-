@@ -81,7 +81,7 @@ export const LanguageToggle = () => {
               className="h-8 text-sm"
             />
             <CommandList>
-              <ScrollArea className="h-[200px] w-[300px]">
+              <ScrollArea className="h-[200px] w-[calc(100vw-2rem)] max-w-[300px]">
                 <CommandEmpty className="py-4 text-center text-sm">
                   {i18n.t('No language found.')}
                 </CommandEmpty>

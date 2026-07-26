@@ -3,6 +3,9 @@ import { t } from 'i18next';
 import { Check, ChevronsUpDown, RefreshCcw, Trash2, X } from 'lucide-react';
 import React, { useState, useRef } from 'react';
 
+import { Button } from '../ui/button';
+import { ScrollArea } from '../ui/scroll-area';
+
 import { SelectUtilButton } from '@/components/custom/select-util-button';
 import {
   Command,
@@ -18,9 +21,6 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
-
-import { Button } from '../ui/button';
-import { ScrollArea } from '../ui/scroll-area';
 
 type SelectOption<T> = {
   value: T;
@@ -260,14 +260,15 @@ export const SearchableSelect = <T,>({
                           ) : (
                             <span className="truncate">{option.label}</span>
                           )}
-                          <div className="relative shrink-0 w-4 h-4">
+                          <div className="relative shrink-0 w-4 h-4 max-md:w-11 max-md:h-11">
                             {onOptionDelete && (
                               <button
                                 type="button"
                                 className={cn(
                                   'absolute inset-0 flex items-center justify-center text-muted-foreground hover:text-destructive',
-                                  'opacity-0 group-hover/option:opacity-100',
+                                  'opacity-0 group-hover/option:opacity-100 max-md:opacity-100',
                                 )}
+                                aria-label={t('Delete option')}
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   e.preventDefault();
@@ -285,7 +286,7 @@ export const SearchableSelect = <T,>({
                                   : cn(
                                       'opacity-100',
                                       onOptionDelete &&
-                                        'group-hover/option:opacity-0',
+                                        'group-hover/option:opacity-0 max-md:opacity-0',
                                     ),
                               )}
                             />

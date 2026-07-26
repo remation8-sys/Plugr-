@@ -19,12 +19,12 @@ import {
 import { t } from 'i18next';
 import { CheckIcon, UnplugIcon, XIcon } from 'lucide-react';
 
+import { appConnectionsApi } from '../api/app-connections';
+import { globalConnectionsApi } from '../api/global-connections';
+
 import { OAuth2App } from '@/features/connections/utils/oauth2-utils';
 import { formUtils } from '@/features/pieces/utils/form-utils';
 import { authenticationSession } from '@/lib/authentication-session';
-
-import { appConnectionsApi } from '../api/app-connections';
-import { globalConnectionsApi } from '../api/global-connections';
 
 export class ConnectionNameAlreadyExists extends Error {
   constructor() {

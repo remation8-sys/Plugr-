@@ -19,6 +19,10 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
+import { ApplyButton } from './apply-plan';
+import { PushEverythingDialog } from './push-everything-dialog';
+import { SelectionButton } from './selection-dialog';
+
 import { DataTable, RowDataWithActions } from '@/components/custom/data-table';
 import { DataTableColumnHeader } from '@/components/custom/data-table/data-table-column-header';
 import { FormattedDate } from '@/components/custom/formatted-date';
@@ -39,10 +43,6 @@ import { projectReleaseQueries } from '@/features/project-releases';
 import { projectCollectionUtils } from '@/features/projects';
 import { useAuthorization } from '@/hooks/authorization-hooks';
 import { authenticationSession } from '@/lib/authentication-session';
-
-import { ApplyButton } from './apply-plan';
-import { PushEverythingDialog } from './push-everything-dialog';
-import { SelectionButton } from './selection-dialog';
 
 const ProjectReleasesPage = () => {
   const navigate = useNavigate();

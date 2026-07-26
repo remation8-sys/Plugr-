@@ -23,6 +23,15 @@ import { useEffect, useMemo, useCallback, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
+import { runsTableColumns } from './columns';
+import { FailedRetryRunsDialog } from './failed-retry-runs-dialog';
+import { FailedStepDialog } from './failed-step-dialog';
+import {
+  RetriedRunsSnackbar,
+  RUN_IDS_QUERY_PARAM,
+} from './retried-runs-snackbar';
+import { RunsStatusChart } from './runs-status-chart';
+
 import {
   BulkAction,
   CURSOR_QUERY_PARAM,
@@ -57,15 +66,6 @@ import { authenticationSession } from '@/lib/authentication-session';
 import { formatUtils } from '@/lib/format-utils';
 import { useNewWindow } from '@/lib/navigation-utils';
 
-import { runsTableColumns } from './columns';
-import { FailedRetryRunsDialog } from './failed-retry-runs-dialog';
-import { FailedStepDialog } from './failed-step-dialog';
-import {
-  RetriedRunsSnackbar,
-  RUN_IDS_QUERY_PARAM,
-} from './retried-runs-snackbar';
-import { RunsStatusChart } from './runs-status-chart';
-
 type SelectedRow = {
   id: string;
   status: FlowRunStatus;
@@ -84,7 +84,10 @@ function RunMobileCard({ run }: { run: FlowRun }) {
           {run.flowVersion?.displayName ?? '—'}
         </p>
         <div className="flex items-center gap-1.5 mt-1 text-[12px] text-muted-foreground">
-          <FormattedDate date={new Date(run.created ?? new Date())} includeTime />
+          <FormattedDate
+            date={new Date(run.created ?? new Date())}
+            includeTime
+          />
           {run.finishTime && (
             <>
               <span>·</span>

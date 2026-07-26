@@ -10,9 +10,9 @@ import {
   ItemMedia,
   ItemTitle,
 } from '@/components/custom/item';
-import { LoadingSpinner } from '@/components/custom/spinner';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 import {
   Tooltip,
   TooltipContent,
@@ -23,7 +23,7 @@ import { useAuthorization } from '@/hooks/authorization-hooks';
 
 import { AddAlertEmailForm } from './add-alert-email-form';
 
-export const TeamProjectAlerts = () => {
+const TeamProjectAlerts = () => {
   const { checkAccess } = useAuthorization();
   const {
     data: alertsData,
@@ -51,8 +51,9 @@ export const TeamProjectAlerts = () => {
       </Alert>
       <div>
         {alertsLoading && (
-          <div className="flex items-center justify-center py-8">
-            <LoadingSpinner className="w-6 h-6" />
+          <div aria-busy="true" className="space-y-2 py-4" role="status">
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-12 w-full" />
           </div>
         )}
         {alertsError && (
@@ -104,3 +105,5 @@ export const TeamProjectAlerts = () => {
     </>
   );
 };
+
+export { TeamProjectAlerts };

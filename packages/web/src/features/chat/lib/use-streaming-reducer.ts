@@ -8,10 +8,10 @@ import {
 import { UIMessageChunk } from 'ai';
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import { useSocket } from '@/components/providers/socket-provider';
-
 import { ChatUIMessage } from './chat-types';
 import { chunkReducer, StreamingState } from './chunk-reducer';
+
+import { useSocket } from '@/components/providers/socket-provider';
 
 const THROTTLE_MS = 100;
 // How long the socket can stay silent before we ask the server whether the

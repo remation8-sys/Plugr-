@@ -7,6 +7,9 @@ import { useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
+import { CreateTemplateDialog } from './create-template-dialog';
+import { UpdateTemplateDialog } from './update-template-dialog';
+
 import { DashboardPageHeader } from '@/app/components/dashboard-page-header';
 import LockedFeatureGuard from '@/app/components/locked-feature-guard';
 import { AnimatedIconButton } from '@/components/custom/animated-icon-button';
@@ -29,9 +32,6 @@ import {
 import { PieceIconList } from '@/features/pieces';
 import { templatesApi, templatesMutations } from '@/features/templates';
 import { platformHooks } from '@/hooks/platform-hooks';
-
-import { CreateTemplateDialog } from './create-template-dialog';
-import { UpdateTemplateDialog } from './update-template-dialog';
 
 const PlatformTemplatesPage = () => {
   const { platform } = platformHooks.useCurrentPlatform();

@@ -2,6 +2,8 @@ import { t } from 'i18next';
 import { Loader2, Zap } from 'lucide-react';
 import { useState } from 'react';
 
+import { billingMutations } from '../../hooks/billing-hooks';
+
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -12,8 +14,6 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Slider } from '@/components/ui/slider';
-
-import { billingMutations } from '../../hooks/billing-hooks';
 
 interface PurchaseAICreditsDialogProps {
   isOpen: boolean;

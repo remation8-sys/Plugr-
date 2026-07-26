@@ -6,8 +6,6 @@ import {
 } from '@activepieces/shared';
 import { t } from 'i18next';
 
-import { ScrollArea } from '@/components/ui/scroll-area';
-
 import {
   AgentToolBlock,
   DoneBlock,
@@ -17,6 +15,8 @@ import {
   StructuredOutputBlock,
   ThinkingBlock,
 } from './timeline-blocks';
+
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 type AgentTimelineProps = {
   className?: string;

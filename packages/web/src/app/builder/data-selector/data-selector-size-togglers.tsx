@@ -1,14 +1,14 @@
 import { t } from 'i18next';
 import { ExpandIcon, MinusIcon, PanelRightDashedIcon } from 'lucide-react';
 
+import { cn } from '../../../lib/utils';
+
 import { Button } from '@/components/ui/button';
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-
-import { cn } from '../../../lib/utils';
 
 export enum DataSelectorSizeState {
   EXPANDED,

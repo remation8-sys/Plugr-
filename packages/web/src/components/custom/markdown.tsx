@@ -184,7 +184,14 @@ const ApMarkdown = React.memo(
               <hr className="my-4 border-t border-border/50" {...props} />
             ),
             img: ({ node: _node, ref: _ref, ...props }) => (
-              <img className="my-8" {...props} />
+              <img
+                className="my-8"
+                decoding="async"
+                height={props.height ?? 360}
+                loading="lazy"
+                width={props.width ?? 640}
+                {...props}
+              />
             ),
             b: ({ node: _node, ref: _ref, ...props }) => <b {...props} />,
             em: ({ node: _node, ref: _ref, ...props }) => <em {...props} />,

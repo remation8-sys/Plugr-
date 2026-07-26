@@ -4,6 +4,8 @@ import { Check, Ellipsis } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useMemo, useState } from 'react';
 
+import { ProjectPickerData } from '../lib/message-parsers';
+
 import {
   Command,
   CommandEmpty,
@@ -23,8 +25,6 @@ import {
 } from '@/features/projects';
 import { userHooks } from '@/hooks/user-hooks';
 import { cn } from '@/lib/utils';
-
-import { ProjectPickerData } from '../lib/message-parsers';
 
 export function ProjectPickerCard({
   picker,

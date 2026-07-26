@@ -3,6 +3,12 @@ import { t } from 'i18next';
 import { Download } from 'lucide-react';
 import React, { useMemo } from 'react';
 
+import { OutputArrayList } from './output-array-list';
+import { OutputFieldList } from './output-field-list';
+import { OutputGenericFieldList } from './output-generic-field-list';
+import { isTabularArray, OutputTableView } from './output-table-view';
+import { OutputSchema } from './types';
+
 import { CopyButton } from '@/components/custom/clipboard/copy-button';
 import { JsonViewer } from '@/components/custom/json-viewer';
 import { Button } from '@/components/ui/button';
@@ -13,12 +19,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-
-import { OutputArrayList } from './output-array-list';
-import { OutputFieldList } from './output-field-list';
-import { OutputGenericFieldList } from './output-generic-field-list';
-import { isTabularArray, OutputTableView } from './output-table-view';
-import { OutputSchema } from './types';
 
 function OutputTextDisplay({ text }: { text: string }) {
   if (text === '') {

@@ -8,6 +8,9 @@ import { t } from 'i18next';
 import { Zap, Info, Loader2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
+import { billingMutations, billingQueries } from '../../hooks/billing-hooks';
+import { useManagePlanDialogStore } from '../../stores/active-flows-addon-dialog-state';
+
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -20,9 +23,6 @@ import {
 import { Slider } from '@/components/ui/slider';
 import { platformHooks } from '@/hooks/platform-hooks';
 import { cn } from '@/lib/utils';
-
-import { billingMutations, billingQueries } from '../../hooks/billing-hooks';
-import { useManagePlanDialogStore } from '../../stores/active-flows-addon-dialog-state';
 
 export function PurchaseExtraFlowsDialog() {
   const { closeDialog, isOpen } = useManagePlanDialogStore();

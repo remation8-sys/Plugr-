@@ -2,6 +2,11 @@ import { EventDestination } from '@activepieces/shared';
 import { t } from 'i18next';
 import { ExternalLink, Globe, Workflow } from 'lucide-react';
 
+import { ParsedDestination } from '../lib/parse-flow-id-from-url';
+import { EventLabelsMap } from '../lib/use-event-labels';
+
+import EventDestinationActions from './event-destination-actions';
+
 import {
   Item,
   ItemActions,
@@ -19,11 +24,6 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { formatUtils } from '@/lib/format-utils';
-
-import { ParsedDestination } from '../lib/parse-flow-id-from-url';
-import { EventLabelsMap } from '../lib/use-event-labels';
-
-import EventDestinationActions from './event-destination-actions';
 
 type EventDestinationRowProps = {
   destination: EventDestination;

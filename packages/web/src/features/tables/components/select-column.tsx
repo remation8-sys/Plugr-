@@ -1,9 +1,9 @@
 import { useHeaderRowSelection, useRowSelection } from 'react-data-grid';
 
+import { Row } from '../types/types';
+
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
-
-import { Row } from '../types/types';
 
 export function SelectHeaderCell() {
   const { isRowSelected, onRowSelectionChange } = useHeaderRowSelection();
@@ -43,7 +43,10 @@ export function SelectCell({
       onClick={onClick}
     >
       <div
-        className={cn('group-hover:block hidden', isRowSelected && '!block')}
+        className={cn(
+          'group-hover:block hidden max-md:block',
+          isRowSelected && '!block',
+        )}
       >
         <Checkbox
           aria-label="Select row"
@@ -60,7 +63,7 @@ export function SelectCell({
       </div>
       <div
         className={cn(
-          'group-hover:hidden block select-none',
+          'group-hover:hidden block select-none max-md:hidden',
           isRowSelected && '!hidden',
         )}
       >

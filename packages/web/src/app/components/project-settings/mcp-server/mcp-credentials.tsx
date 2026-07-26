@@ -27,7 +27,7 @@ export function McpCredentials() {
           )}
         </p>
         <div className="flex items-center gap-2">
-          <div className="bg-muted/50 rounded-md px-3 py-2 text-sm flex-1 overflow-x-auto">
+          <div className="min-w-0 flex-1 break-all rounded-md bg-muted/50 px-3 py-2 text-sm">
             {serverUrl}
           </div>
           <CopyButton textToCopy={serverUrl} />

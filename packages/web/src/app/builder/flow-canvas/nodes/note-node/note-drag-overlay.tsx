@@ -2,8 +2,6 @@ import { isNil } from '@activepieces/shared';
 import { useReactFlow } from '@xyflow/react';
 import { useRef, useState } from 'react';
 
-import { SIDEBAR_ID } from '@/app/components/sidebar/dashboard';
-
 import { useBuilderStateContext } from '../../../builder-hooks';
 import { NoteDragOverlayMode } from '../../../state/notes-state';
 import {
@@ -13,6 +11,8 @@ import {
 import { flowCanvasConsts } from '../../utils/consts';
 
 import { NoteContent } from '.';
+
+import { SIDEBAR_ID } from '@/app/components/sidebar/dashboard';
 
 const NoteDragOverlay = () => {
   const { cursorPosition } = useCursorPosition();

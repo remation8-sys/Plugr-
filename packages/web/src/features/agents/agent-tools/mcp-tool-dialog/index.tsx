@@ -13,6 +13,10 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
+import { useMcpToolDialogStore } from '../stores/mcp-tools';
+
+import { AddMcpToolForm } from './add-mcp-tool-form';
+
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -21,10 +25,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-
-import { useMcpToolDialogStore } from '../stores/mcp-tools';
-
-import { AddMcpToolForm } from './add-mcp-tool-form';
 
 const McpToolFormSchema = z.object({
   toolName: z.string().min(1),

@@ -11,10 +11,6 @@ import { Play } from 'lucide-react';
 import { useContext, useEffect } from 'react';
 import { toast } from 'sonner';
 
-import { useBuilderStateContext } from '@/app/builder/builder-hooks';
-import { Button } from '@/components/ui/button';
-import { pieceSelectorUtils } from '@/features/pieces';
-
 import { DynamicPropertiesContext } from '../piece-properties/dynamic-properties-context';
 
 import {
@@ -22,6 +18,10 @@ import {
   useTriggerTestRunner,
 } from './test-runner-context';
 import { TestButtonTooltip } from './test-step-tooltip';
+
+import { useBuilderStateContext } from '@/app/builder/builder-hooks';
+import { Button } from '@/components/ui/button';
+import { pieceSelectorUtils } from '@/features/pieces';
 
 const SOFT_PRIMARY_CTA_CLASSES =
   'w-full justify-center bg-primary/5 enabled:hover:bg-primary/15 enabled:hover:text-primary text-primary border-primary/20';
@@ -317,7 +317,7 @@ const useConfigureStepShortcutToast = (stepIsValid: boolean) => {
 const CTAShell = ({ children }: { children: React.ReactNode }) => (
   <div
     data-test-panel-trigger
-    className="relative px-3 py-3 bg-background z-10 flex flex-col gap-2 shrink-0"
+    className="relative border-t px-3 py-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] bg-background z-10 flex flex-col gap-2 shrink-0"
   >
     <div
       aria-hidden

@@ -55,7 +55,7 @@ const AboveTriggerButton = ({
     return () => {
       window.removeEventListener('keydown', keydownHandler, { capture: true });
     };
-  }, [isMac, loading, onClick]);
+  }, [disable, isMacSystem, loading, onClick, shortCutIsEscape]);
 
   return (
     <Tooltip>
@@ -79,7 +79,7 @@ const AboveTriggerButton = ({
               {showKeyboardShortcut && (
                 <span
                   className={cn(
-                    'text-[10px] bg-muted h-[20px] flex items-center justify-center px-1 rounded-sm tracking-widest whitespace-nowrap text-muted-foreground',
+                    'text-xs bg-muted h-[20px] flex items-center justify-center px-1 rounded-sm tracking-widest whitespace-nowrap text-muted-foreground',
                     {
                       'bg-primary/13 text-primary': showPrimaryBg,
                     },

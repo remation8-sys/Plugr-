@@ -1,9 +1,9 @@
 import { flowStructureUtil, isNil, PopulatedFlow } from '@activepieces/shared';
 import { StoreApi } from 'zustand';
 
-import { RightSideBarType } from '@/app/builder/types';
-
 import { BuilderState } from '../builder-hooks';
+
+import { RightSideBarType } from '@/app/builder/types';
 
 export type PlugrChatState = {
   isPlugrChatOpen: boolean;

@@ -9,6 +9,11 @@ import { Plus } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { AllCategoriesView } from './all-categories-view';
+import { CategoryFilterCarousel } from './category-filter-carousel';
+import { EmptyTemplatesView } from './empty-templates-view';
+import { SelectedCategoryView } from './selected-category-view';
+
 import { PageHeader } from '@/components/custom/page-header';
 import { SearchInput } from '@/components/custom/search-input';
 import { Button } from '@/components/ui/button';
@@ -16,11 +21,6 @@ import { flowHooks } from '@/features/flows';
 import { templatesTelemetryApi, templatesHooks } from '@/features/templates';
 import { platformHooks } from '@/hooks/platform-hooks';
 import { DASHBOARD_CONTENT_PADDING_X } from '@/lib/utils';
-
-import { AllCategoriesView } from './all-categories-view';
-import { CategoryFilterCarousel } from './category-filter-carousel';
-import { EmptyTemplatesView } from './empty-templates-view';
-import { SelectedCategoryView } from './selected-category-view';
 
 const TemplatesPage = () => {
   const navigate = useNavigate();
@@ -104,16 +104,16 @@ const TemplatesPage = () => {
             className="static"
             title={
               <>
-                <div className="flex flex-row w-full justify-between gap-1">
+                <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-stretch sm:justify-between">
                   <SearchInput
                     value={search}
                     onChange={handleSearchChange}
                     placeholder={t('Search templates by name or description')}
                   ></SearchInput>
-                  <div className="flex flex-row justify-end w-[50%]">
+                  <div className="flex w-full justify-end sm:w-auto">
                     <Button
                       variant="outline"
-                      className="gap-2 h-full"
+                      className="h-full w-full gap-2 sm:w-auto"
                       onClick={() => createFlow()}
                       disabled={isCreateFlowPending}
                     >

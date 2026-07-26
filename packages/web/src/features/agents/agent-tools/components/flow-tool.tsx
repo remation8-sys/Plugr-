@@ -2,6 +2,8 @@ import { AgentFlowTool } from '@activepieces/shared';
 import { t } from 'i18next';
 import { Plus, Workflow, X } from 'lucide-react';
 
+import { useFlowToolDialogStore } from '../stores/flows-tools';
+
 import {
   AccordionContent,
   AccordionItem,
@@ -13,8 +15,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-
-import { useFlowToolDialogStore } from '../stores/flows-tools';
 
 type AgentFlowToolsAccordionProps = {
   disabled?: boolean;

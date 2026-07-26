@@ -6,16 +6,16 @@ import {
 import { t } from 'i18next';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 
+import { useBuilderStateContext } from '../builder-hooks';
+
+import { DataSelectorTreeNode } from './type';
+
 import { FieldTypeIcon } from '@/components/custom/smart-output-viewer/field-type-icon';
 import { TextWithTooltip } from '@/components/custom/text-with-tooltip';
 import { useApRipple } from '@/components/providers/theme-provider';
 import { Button } from '@/components/ui/button';
 import { PieceIcon, stepsHooks } from '@/features/pieces';
 import { cn } from '@/lib/utils';
-
-import { useBuilderStateContext } from '../builder-hooks';
-
-import { DataSelectorTreeNode } from './type';
 
 const INDENT_PER_DEPTH = 14;
 const VALUE_PREVIEW_MAX_LENGTH = 60;
@@ -164,7 +164,6 @@ const DataSelectorNodeContent = ({
           <Button
             variant="basic"
             size="sm"
-            tabIndex={-1}
             onClick={(e) => {
               e.stopPropagation();
               if (insertMention && node.data.type === 'value') {
@@ -173,7 +172,7 @@ const DataSelectorNodeContent = ({
             }}
             className={cn(
               'h-6 px-2 text-xs text-primary shrink-0 opacity-0 transition-opacity',
-              'group-hover:opacity-100 focus-visible:opacity-100',
+              'group-hover:opacity-100 focus-visible:opacity-100 max-md:opacity-100',
             )}
           >
             {t('Insert')}

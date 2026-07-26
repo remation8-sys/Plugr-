@@ -23,9 +23,6 @@ import {
 import '@xyflow/react/dist/style.css';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 
-import { useIsMobile } from '@/hooks/use-mobile';
-import { cn } from '@/lib/utils';
-
 import { useBuilderStateContext } from '../builder-hooks';
 import { useHandleKeyPressOnCanvas } from '../shortcuts';
 import { useCursorPosition } from '../state/cursor-position-context';
@@ -41,6 +38,9 @@ import { flowCanvasUtils } from './utils/flow-canvas-utils';
 import { AboveFlowWidgets } from './widgets';
 import Minimap from './widgets/minimap';
 import { useShowChevronNextToSelection } from './widgets/selection-chevron-button';
+
+import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 
 export const FlowCanvas = React.memo(
   ({

@@ -5,6 +5,13 @@ import {
 } from '@activepieces/shared';
 import React, { useState } from 'react';
 
+import { cn } from '../../../lib/utils';
+import { useBuilderStateContext } from '../builder-hooks';
+
+import { NoResultsFound } from './no-results-found';
+import { PieceActionsOrTriggersList } from './piece-actions-or-triggers-list';
+import { PieceCardListItem } from './piece-card-item';
+
 import { CardListItemSkeleton } from '@/components/custom/card-list';
 import { Separator } from '@/components/ui/separator';
 import { VirtualizedScrollArea } from '@/components/ui/virtualized-scroll-area';
@@ -19,13 +26,6 @@ import {
   pieceSelectorUtils,
 } from '@/features/pieces';
 import { useIsMobile } from '@/hooks/use-mobile';
-
-import { cn } from '../../../lib/utils';
-import { useBuilderStateContext } from '../builder-hooks';
-
-import { NoResultsFound } from './no-results-found';
-import { PieceActionsOrTriggersList } from './piece-actions-or-triggers-list';
-import { PieceCardListItem } from './piece-card-item';
 
 type PiecesCardListProps = {
   searchQuery: string;
@@ -113,7 +113,7 @@ export const PiecesCardList: React.FC<PiecesCardListProps> = ({
                 return (
                   <div
                     className={cn(
-                      'px-3 pb-1 pt-3 text-[11px] font-medium uppercase tracking-wide text-muted-foreground/80',
+                      'px-3 pb-1 pt-3 text-xs font-medium uppercase tracking-wide text-muted-foreground/80',
                     )}
                     id={item.displayName}
                   >

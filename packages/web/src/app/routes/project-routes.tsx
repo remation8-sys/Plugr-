@@ -5,16 +5,36 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { PageTitle } from '@/app/components/page-title';
 import { RouteLoadingBar } from '@/components/custom/route-loading-bar';
 import { useEmbedding } from '@/components/providers/embed-provider';
-import { ApTableStateProvider } from '@/features/tables';
 import { routesThatRequireProjectId } from '@/lib/route-utils';
 
-import { BuilderLayout } from '../components/builder-layout';
-import { ProjectDashboardLayout } from '../components/project-layout';
-import { AfterImportFlowRedirect } from '../guards/after-import-flow-redirect';
 import { RoutePermissionGuard } from '../guards/permission-guard';
 import { ProjectRouterWrapper } from '../guards/project-route-wrapper';
 
-import { AutomationsPage } from './automations';
+const ApTableStateProvider = React.lazy(() =>
+  import('@/features/tables').then((module) => ({
+    default: module.ApTableStateProvider,
+  })),
+);
+const BuilderLayout = React.lazy(() =>
+  import('../components/builder-layout').then((module) => ({
+    default: module.BuilderLayout,
+  })),
+);
+const ProjectDashboardLayout = React.lazy(() =>
+  import('../components/project-layout').then((module) => ({
+    default: module.ProjectDashboardLayout,
+  })),
+);
+const AfterImportFlowRedirect = React.lazy(() =>
+  import('../guards/after-import-flow-redirect').then((module) => ({
+    default: module.AfterImportFlowRedirect,
+  })),
+);
+const AutomationsPage = React.lazy(() =>
+  import('./automations').then((module) => ({
+    default: module.AutomationsPage,
+  })),
+);
 const FlowBuilderPage = React.lazy(() =>
   import('./flows/id').then((m) => ({ default: m.FlowBuilderPage })),
 );
@@ -71,7 +91,7 @@ const automationsPagePermissions = [
   Permission.READ_FOLDER,
 ];
 
-export const projectRoutes = [
+const projectRoutes = [
   ...ProjectRouterWrapper({
     path: routesThatRequireProjectId.automations,
     element: (
@@ -257,3 +277,5 @@ export const projectRoutes = [
     ),
   },
 ];
+
+export { projectRoutes };

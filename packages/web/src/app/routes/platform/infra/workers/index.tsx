@@ -10,6 +10,9 @@ import { Server, Clock, Cpu, MemoryStick, HardDrive, Zap } from 'lucide-react';
 import prettyBytes from 'pretty-bytes';
 import React from 'react';
 
+import { SandboxesPopover } from './sandboxes-popover';
+import { WorkerConfigsPopover } from './worker-configs-popover';
+
 import { DashboardPageHeader } from '@/app/components/dashboard-page-header';
 import { RequestTrial } from '@/app/components/request-trial';
 import {
@@ -34,9 +37,6 @@ import { workersQueries } from '@/features/platform-admin';
 import { flagsHooks } from '@/hooks/flags-hooks';
 import { useTimeAgo } from '@/hooks/use-time-ago';
 import { cn } from '@/lib/utils';
-
-import { SandboxesPopover } from './sandboxes-popover';
-import { WorkerConfigsPopover } from './worker-configs-popover';
 
 export default function WorkersPage() {
   const { data: edition } = flagsHooks.useFlag<ApEdition>(ApFlagId.EDITION);

@@ -2,6 +2,8 @@ import { Template } from '@activepieces/shared';
 import { t } from 'i18next';
 import { LayoutGrid } from 'lucide-react';
 
+import { TemplateCardSkeleton } from './skeletons/template-card-skeleton';
+
 import {
   Empty,
   EmptyDescription,
@@ -11,8 +13,6 @@ import {
 } from '@/components/custom/empty';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ExploreTemplateCard } from '@/features/templates/components/explore-template-card';
-
-import { TemplateCardSkeleton } from './skeletons/template-card-skeleton';
 
 type SelectedCategoryViewSkeletonProps = {
   showCategoryTitle?: boolean;

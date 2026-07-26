@@ -109,7 +109,10 @@ const PlugrChatPanel = () => {
 
   if (isMobile) {
     return (
-      <div className="fixed inset-0 z-50 flex flex-col bg-background animate-in slide-in-from-bottom-4 fade-in duration-200">
+      <div
+        className="fixed inset-x-0 top-[var(--mobile-viewport-offset-top,0px)] z-50 flex h-[var(--mobile-viewport-height,100dvh)] flex-col bg-background pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)] pt-[env(safe-area-inset-top)] animate-in slide-in-from-bottom-4 fade-in duration-200"
+        data-mobile-keyboard-viewport
+      >
         <div className="flex items-center justify-between gap-2 border-b px-2 py-2">
           <Button
             variant="ghost"

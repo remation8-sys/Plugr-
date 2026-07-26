@@ -129,6 +129,9 @@ function FormatSingleValue({
         className="max-h-32 max-w-full rounded border border-dividers object-contain"
         loading="lazy"
         referrerPolicy="no-referrer"
+        width="640"
+        height="360"
+        decoding="async"
       />
     );
   }

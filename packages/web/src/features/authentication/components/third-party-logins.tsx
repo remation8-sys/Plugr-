@@ -16,7 +16,17 @@ import { oauth2Utils } from '@/features/connections/utils/oauth2-utils';
 import { flagsHooks } from '@/hooks/flags-hooks';
 
 const ThirdPartyIcon = ({ icon }: { icon: string }) => {
-  return <img src={icon} alt="icon" width={24} height={24} className="mr-2" />;
+  return (
+    <img
+      src={icon}
+      alt="icon"
+      width={24}
+      height={24}
+      className="mr-2"
+      loading="eager"
+      decoding="async"
+    />
+  );
 };
 
 const ThirdPartyLogin = React.memo(

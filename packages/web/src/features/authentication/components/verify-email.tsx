@@ -4,14 +4,14 @@ import { MailCheck, MailX } from 'lucide-react';
 import { useEffect, useState, useRef } from 'react';
 import { Navigate, useNavigate, useSearchParams } from 'react-router-dom';
 
+import { authMutations } from '../hooks/auth-hooks';
+
 import { FullLogo } from '@/components/custom/full-logo';
 import { LoadingSpinner } from '@/components/custom/spinner';
 import { Card } from '@/components/ui/card';
 import { internalErrorToast } from '@/components/ui/sonner';
 import { usePartnerStack } from '@/hooks/use-partner-stack';
 import { api } from '@/lib/api';
-
-import { authMutations } from '../hooks/auth-hooks';
 
 const VerifyEmail = () => {
   const [isExpired, setIsExpired] = useState(false);
@@ -56,9 +56,9 @@ const VerifyEmail = () => {
     <div className="mx-auto h-screen w-screen flex flex-col items-center justify-center gap-2">
       <FullLogo />
 
-      <Card className="w-md rounded-sm drop-shadow-xl p-4">
+      <Card className="w-[calc(100vw-2rem)] max-w-md rounded-sm p-4 drop-shadow-xl">
         <div className="gap-2 w-full flex flex-col">
-          <div className="gap-4 w-full flex flex-row items-center justify-center">
+          <div className="flex w-full flex-col items-center justify-center gap-4 sm:flex-row">
             {!isPending && !isExpired && (
               <>
                 <MailCheck className="w-16 h-16" />

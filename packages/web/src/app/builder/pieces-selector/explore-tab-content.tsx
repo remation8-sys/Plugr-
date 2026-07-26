@@ -1,5 +1,7 @@
 import { FlowOperationType } from '@activepieces/shared';
 
+import { PieceActionsOrTriggersList } from './piece-actions-or-triggers-list';
+
 import {
   CardListItem,
   CardListItemSkeleton,
@@ -12,8 +14,6 @@ import {
   usePieceSelectorTabs,
   PieceSelectorOperation,
 } from '@/features/pieces';
-
-import { PieceActionsOrTriggersList } from './piece-actions-or-triggers-list';
 
 const ExploreTabContent = ({
   operation,

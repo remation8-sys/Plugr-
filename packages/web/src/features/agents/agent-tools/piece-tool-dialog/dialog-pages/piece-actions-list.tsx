@@ -97,6 +97,10 @@ export const PieceActionsList: React.FC<PieceActionsDialogProps> = ({
                     className="size-6 object-contain"
                     src={selectedPiece.logoUrl}
                     alt={selectedPiece.displayName}
+                    width="24"
+                    height="24"
+                    loading="lazy"
+                    decoding="async"
                   />
                 </div>
 

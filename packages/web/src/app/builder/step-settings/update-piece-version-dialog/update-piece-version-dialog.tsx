@@ -7,6 +7,17 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { useBuilderStateContext } from '../../builder-hooks';
+
+import {
+  changeVersionUtils,
+  MinorOrMajorSelectionAlert,
+  PatchDowngradeInfoAlert,
+  PatchUpgradeInfoAlert,
+  VersionChangeType,
+} from './update-piece-version-utils';
+import { UpgradePieceVersionContent } from './upgrade-piece-version-dialog';
+
 import { SearchableSelect } from '@/components/custom/searchable-select';
 import { Button } from '@/components/ui/button';
 import {
@@ -23,17 +34,6 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { piecesHooks } from '@/features/pieces';
-
-import { useBuilderStateContext } from '../../builder-hooks';
-
-import {
-  changeVersionUtils,
-  MinorOrMajorSelectionAlert,
-  PatchDowngradeInfoAlert,
-  PatchUpgradeInfoAlert,
-  VersionChangeType,
-} from './update-piece-version-utils';
-import { UpgradePieceVersionContent } from './upgrade-piece-version-dialog';
 
 type DialogView = 'upgrade' | 'advanced';
 

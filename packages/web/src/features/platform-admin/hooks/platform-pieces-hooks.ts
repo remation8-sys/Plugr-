@@ -60,9 +60,7 @@ export const platformPiecesMutations = {
       },
       onSuccess: () => {
         toast.success(t('Plugs synced'), {
-          description: t(
-            'Plugs have been synced from the Plugr cloud.',
-          ),
+          description: t('Plugs have been synced from the Plugr cloud.'),
         });
       },
     });

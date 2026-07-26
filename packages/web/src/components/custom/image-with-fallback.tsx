@@ -26,7 +26,14 @@ const ImageWithFallback = ({
     setIsLoading(false);
   };
 
-  const { className, ...rest } = props;
+  const {
+    className,
+    decoding = 'async',
+    height = 40,
+    loading = 'lazy',
+    width = 40,
+    ...rest
+  } = props;
 
   return (
     <span className={cn('relative inline-block h-full w-full', className)}>
@@ -39,8 +46,12 @@ const ImageWithFallback = ({
         <img
           src={src}
           alt={alt}
+          decoding={decoding}
+          height={height}
+          loading={loading}
           onLoad={handleLoad}
           onError={handleError}
+          width={width}
           className={cn(
             `transition-opacity duration-500 w-full h-full object-contain`,
             {

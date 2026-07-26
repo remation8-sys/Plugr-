@@ -1,11 +1,11 @@
 import React from 'react';
 
-import { Tabs, TabsTrigger, TabsList } from '@/components/ui/tabs';
-
 import {
   PieceSelectorTabType,
   usePieceSelectorTabs,
 } from '../stores/piece-selector-tabs-provider';
+
+import { Tabs, TabsTrigger, TabsList } from '@/components/ui/tabs';
 
 type TabType = {
   value: PieceSelectorTabType;

@@ -1,4 +1,4 @@
-﻿import { PlugrBillingCurrency, PlugrPaidTier } from '@activepieces/shared';
+import { PlugrBillingCurrency, PlugrPaidTier } from '@activepieces/shared';
 import { Check, CreditCard, Sparkles } from 'lucide-react';
 import { useState } from 'react';
 
@@ -24,7 +24,7 @@ export function PricingPage() {
 
   if (pricingQuery.isLoading || !pricingQuery.data) {
     return (
-      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 p-6">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 p-4 md:p-6">
         <Skeleton className="h-10 w-48" />
         <Skeleton className="h-12 w-full max-w-md" />
         <div className="grid gap-4 lg:grid-cols-4">
@@ -39,13 +39,13 @@ export function PricingPage() {
   const { data } = pricingQuery;
 
   return (
-    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 p-6">
+    <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 p-4 md:p-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold tracking-normal">Pricing</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Simple monthly billing. Plugr credits reset every month, and
-            extra credit packs stay available until used.
+            Simple monthly billing. Plugr credits reset every month, and extra
+            credit packs stay available until used.
           </p>
         </div>
         <div className="flex flex-col items-end gap-1">
@@ -67,8 +67,8 @@ export function PricingPage() {
             ))}
           </div>
           <p className="text-xs text-muted-foreground">
-            Paying with a Nigerian card? Choose NGN so it isn't charged in a
-            foreign currency.
+            Paying with a Nigerian card? Choose NGN so it isn&apos;t charged in
+            a foreign currency.
           </p>
         </div>
       </div>

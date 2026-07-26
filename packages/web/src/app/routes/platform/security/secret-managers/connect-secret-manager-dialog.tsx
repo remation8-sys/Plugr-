@@ -165,6 +165,10 @@ const AddEditSecretManagerForm = ({
                                 src={provider.logo}
                                 alt={provider.name}
                                 className="w-4 h-4 object-contain"
+                                width="16"
+                                height="16"
+                                loading="lazy"
+                                decoding="async"
                               />
                               <span>{provider.name}</span>
                             </div>

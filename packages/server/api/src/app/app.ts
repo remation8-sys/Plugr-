@@ -96,6 +96,7 @@ import { userBadgeModule } from './user/badges/badge-module'
 import { platformUserModule } from './user/platform/platform-user-module'
 import { invitationModule } from './user-invitations/user-invitation.module'
 import { variableModule } from './variable/variable.module'
+import { webPushModule } from './web-push/web-push.module'
 import { webhookModule } from './webhooks/webhook-module'
 import { engineResponseWatcher } from './workers/engine-response-watcher'
 
@@ -195,6 +196,7 @@ export const setupApp = async (app: FastifyInstance): Promise<FastifyInstance> =
     await app.register(appEventRoutingModule)
     await app.register(authenticationModule)
     await app.register(plugrBillingModule)
+    await app.register(webPushModule)
     await app.register(triggerModule)
     await app.register(platformModule)
     await app.register(humanInputModule)

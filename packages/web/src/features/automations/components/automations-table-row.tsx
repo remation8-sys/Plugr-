@@ -21,6 +21,10 @@ import {
 import { useState } from 'react';
 import { toast } from 'sonner';
 
+import { TreeItem } from '../lib/types';
+
+import { CreateNewMenu, CreateInFolderKind } from './create-new-menu';
+
 import { ApAvatar } from '@/components/custom/ap-avatar';
 import { ConfirmationDeleteDialog } from '@/components/custom/delete-dialog';
 import { FormattedDate } from '@/components/custom/formatted-date';
@@ -47,10 +51,6 @@ import { FlowStatusToggle } from '@/features/flows/components/flow-status-toggle
 import { ShareTemplateDialog } from '@/features/flows/components/share-template-dialog';
 import { PieceIconList } from '@/features/pieces/components/piece-icon-list';
 import { cn } from '@/lib/utils';
-
-import { TreeItem } from '../lib/types';
-
-import { CreateNewMenu, CreateInFolderKind } from './create-new-menu';
 
 type AutomationsTableRowProps = {
   item: TreeItem;
@@ -241,7 +241,7 @@ export const AutomationsTableRow = ({
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-8 w-8 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 data-[state=open]:opacity-100 transition-opacity"
+                  className="h-8 w-8 opacity-0 group-hover:opacity-100 max-md:opacity-100 focus-visible:opacity-100 data-[state=open]:opacity-100 transition-opacity"
                   aria-label={t('Create inside folder')}
                 >
                   <Plus className="h-4 w-4" />

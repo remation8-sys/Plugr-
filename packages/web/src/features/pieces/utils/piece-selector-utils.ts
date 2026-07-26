@@ -28,6 +28,8 @@ import {
 } from '@activepieces/shared';
 import { useRef } from 'react';
 
+import { formUtils } from './form-utils';
+
 import {
   PieceSelectorItem,
   PieceSelectorOperation,
@@ -35,7 +37,6 @@ import {
   PieceStepMetadataWithSuggestions,
 } from '@/features/pieces/types';
 
-import { formUtils } from './form-utils';
 const defaultCode = `export const code = async (inputs) => {
   return true;
 };`;
@@ -331,8 +332,8 @@ const useAdjustPieceListHeightToAvailableSpace = () => {
 const MAX_PIECE_SELECTOR_LIST_HEIGHT = 300 as const;
 const MIN_PIECE_SELECTOR_LIST_HEIGHT = 100 as const;
 const SEARCH_INPUT_DIV_HEIGHT = 113 as const;
-const PIECE_ITEM_HEIGHT = 48 as const;
-const ACTION_OR_TRIGGER_ITEM_HEIGHT = 41 as const;
+const PIECE_ITEM_HEIGHT = 56 as const;
+const ACTION_OR_TRIGGER_ITEM_HEIGHT = 56 as const;
 const CATEGORY_ITEM_HEIGHT = 28 as const;
 export const PIECE_SELECTOR_ELEMENTS_HEIGHTS = {
   MAX_PIECE_SELECTOR_LIST_HEIGHT,

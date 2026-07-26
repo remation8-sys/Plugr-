@@ -59,7 +59,9 @@ export function canUsePlugr(user: PlugrBillingUser | null | undefined) {
  */
 export function hasPlugrAiAccess(user: PlugrBillingUser | null | undefined) {
   if (!canUsePlugr(user)) return false;
-  return (user!.aiCreditsIncluded ?? 0) > 0 || (user!.aiCreditsPurchased ?? 0) > 0;
+  return (
+    (user!.aiCreditsIncluded ?? 0) > 0 || (user!.aiCreditsPurchased ?? 0) > 0
+  );
 }
 
 export function hasMinimumPlugrTier(
@@ -67,14 +69,18 @@ export function hasMinimumPlugrTier(
   minimumTier: PlugrPaidTier,
 ) {
   const tier = user?.subscriptionTier;
-  return hasPlugrAppAccess(user) && !!tier && tierRank[tier] >= tierRank[minimumTier];
+  return (
+    hasPlugrAppAccess(user) && !!tier && tierRank[tier] >= tierRank[minimumTier]
+  );
 }
 
 export function getPlugrTierLabel(tier: PlugrSubscriptionTier | undefined) {
   return tier ? tierLabels[tier] : tierLabels.trial;
 }
 
-export function getPlugrCreditsRemaining(user: PlugrBillingUser | null | undefined) {
+export function getPlugrCreditsRemaining(
+  user: PlugrBillingUser | null | undefined,
+) {
   if (!user || user.subscriptionTier === 'trial') return 0;
   return Math.max(
     0,
@@ -84,8 +90,11 @@ export function getPlugrCreditsRemaining(user: PlugrBillingUser | null | undefin
   );
 }
 
-
-export function PlugrAppAccessGuard({ children }: { children: React.ReactNode }) {
+export function PlugrAppAccessGuard({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const { data: user } = userHooks.useCurrentUser();
   const location = useLocation();
   const isBillingRoute =
@@ -115,7 +124,11 @@ export function PlugrAccessGuard({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function PlugrAiAccessGuard({ children }: { children: React.ReactNode }) {
+export function PlugrAiAccessGuard({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const { data: user } = userHooks.useCurrentUser();
 
   if (!user) return null;
@@ -145,7 +158,7 @@ export function PlugrLockedFeature({
   return (
     <div
       className={cn(
-        'flex h-full min-h-[360px] w-full items-center justify-center px-6 py-10',
+        'flex h-full min-h-[360px] w-full items-center justify-center px-4 py-10 md:px-6',
         className,
       )}
     >

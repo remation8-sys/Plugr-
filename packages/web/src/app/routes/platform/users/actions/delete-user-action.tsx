@@ -1,6 +1,8 @@
 import { t } from 'i18next';
 import { Trash } from 'lucide-react';
 
+import { UserRowData } from '../index';
+
 import { ConfirmationDeleteDialog } from '@/components/custom/delete-dialog';
 import { Button } from '@/components/ui/button';
 import {
@@ -8,8 +10,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-
-import { UserRowData } from '../index';
 
 type DeleteUserActionProps = {
   row: UserRowData;

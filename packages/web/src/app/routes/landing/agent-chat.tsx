@@ -89,7 +89,7 @@ export function AgentChat() {
             <Sparkles className="size-4" strokeWidth={1.5} />
           </div>
           <span className="text-sm font-semibold text-white">Plugr AI</span>
-          <span className="ml-auto flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-white/40">
+          <span className="ml-auto flex items-center gap-1.5 font-mono text-xs uppercase tracking-wider text-white/60">
             <span
               className="h-1.5 w-1.5 rounded-full"
               style={{ backgroundColor: '#00c853' }}
@@ -147,7 +147,7 @@ export function AgentChat() {
           style={{ borderColor: 'rgba(255,255,255,0.08)' }}
         >
           <input
-            className="flex-1 rounded-lg border bg-black/40 px-3 py-2 text-sm text-white placeholder:text-white/35 focus:outline-none"
+            className="flex-1 rounded-lg border bg-black/40 px-3 py-2 text-sm text-white placeholder:text-white/60 focus:outline-none"
             style={{ borderColor: 'rgba(255,255,255,0.12)' }}
             placeholder="Describe a workflow…"
             value={input}

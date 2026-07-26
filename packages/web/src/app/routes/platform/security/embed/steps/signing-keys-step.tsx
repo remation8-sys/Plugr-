@@ -2,6 +2,8 @@ import { SigningKey } from '@activepieces/shared';
 import { t } from 'i18next';
 import { Key, MoreHorizontal, Trash } from 'lucide-react';
 
+import { StepShell } from '../stepper';
+
 import { ConfirmationDeleteDialog } from '@/components/custom/delete-dialog';
 import {
   Item,
@@ -23,8 +25,6 @@ import { SkeletonList } from '@/components/ui/skeleton';
 import { internalErrorToast } from '@/components/ui/sonner';
 import { NewSigningKeyDialog, signingKeyApi } from '@/features/platform-admin';
 import { formatUtils } from '@/lib/format-utils';
-
-import { StepShell } from '../stepper';
 
 export const SigningKeysStep = ({
   signingKeys,

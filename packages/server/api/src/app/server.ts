@@ -68,7 +68,12 @@ export const setupServer = async (): Promise<FastifyInstance> => {
             root: frontendPath,
             setHeaders: (res, filepath) => {
                 const normalized = filepath.replace(/\\/g, '/')
-                if (normalized.endsWith('.html')) {
+                if (
+                    normalized.endsWith('.html') ||
+                    normalized.endsWith('/sw.js') ||
+                    normalized.endsWith('/push-sw.js') ||
+                    normalized.endsWith('/manifest.webmanifest')
+                ) {
                     void res.setHeader('Cache-Control', 'no-cache')
                 }
                 else if (normalized.includes('/assets/')) {

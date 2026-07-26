@@ -2,10 +2,10 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { PackageOpen } from 'lucide-react';
 import React, { forwardRef } from 'react';
 
+import { Skeleton } from '../ui/skeleton';
+
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { cn } from '@/lib/utils';
-
-import { Skeleton } from '../ui/skeleton';
 
 const CardList = forwardRef<
   HTMLDivElement,
@@ -28,22 +28,25 @@ const CardList = forwardRef<
 CardList.displayName = 'CardList';
 export { CardList };
 
-const cardItemListVariants = cva('flex items-center gap-3 w-full py-3 px-2 ', {
-  variants: {
-    interactive: {
-      true: 'cursor-pointer transition-all hover:bg-accent hover:text-accent-foreground',
-      false: 'cursor-default text-accent-foreground/50 font-semibold',
+const cardItemListVariants = cva(
+  'flex min-h-14 touch-manipulation items-center gap-3 w-full py-3 px-2 active:bg-accent active:text-accent-foreground ',
+  {
+    variants: {
+      interactive: {
+        true: 'cursor-pointer transition-all hover:bg-accent hover:text-accent-foreground',
+        false: 'cursor-default text-accent-foreground/50 font-semibold',
+      },
+      selected: {
+        true: 'bg-accent text-accent-foreground',
+        false: '',
+      },
     },
-    selected: {
-      true: 'bg-accent text-accent-foreground',
-      false: '',
+    defaultVariants: {
+      interactive: true,
+      selected: false,
     },
   },
-  defaultVariants: {
-    interactive: true,
-    selected: false,
-  },
-});
+);
 
 type CardListItemProps = React.HTMLAttributes<HTMLDivElement> &
   VariantProps<typeof cardItemListVariants> & {
@@ -54,7 +57,18 @@ const CardListItem = React.forwardRef<HTMLDivElement, CardListItemProps>(
   ({ children, onClick, className, interactive, selected, ...props }, ref) => {
     return (
       <div
+        role={interactive === false ? undefined : 'button'}
+        tabIndex={interactive === false ? undefined : 0}
         onClick={onClick}
+        onKeyDown={(event) => {
+          if (
+            interactive !== false &&
+            (event.key === 'Enter' || event.key === ' ')
+          ) {
+            event.preventDefault();
+            event.currentTarget.click();
+          }
+        }}
         ref={ref}
         className={cn(
           cardItemListVariants({ interactive, selected }),

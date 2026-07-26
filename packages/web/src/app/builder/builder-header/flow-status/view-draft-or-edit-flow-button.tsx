@@ -4,12 +4,12 @@ import { EyeIcon, PencilIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-use';
 
-import { Button } from '@/components/ui/button';
-import { useAuthorization } from '@/hooks/authorization-hooks';
-
 import { useBuilderStateContext } from '../../builder-hooks';
 import { flowCanvasHooks } from '../../flow-canvas/hooks';
 import { AboveTriggerButton } from '../../flow-canvas/widgets/above-trigger-button';
+
+import { Button } from '@/components/ui/button';
+import { useAuthorization } from '@/hooks/authorization-hooks';
 
 const EditFlowOrViewDraftButton = ({ onCanvas }: { onCanvas: boolean }) => {
   const location = useLocation();

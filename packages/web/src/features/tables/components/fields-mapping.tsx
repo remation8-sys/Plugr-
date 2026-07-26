@@ -3,10 +3,10 @@ import { t } from 'i18next';
 import { ArrowLeftIcon } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
+import { FieldsMapping } from '../utils/utils';
+
 import { SearchableSelect } from '@/components/custom/searchable-select';
 import { Input } from '@/components/ui/input';
-
-import { FieldsMapping } from '../utils/utils';
 
 const FieldsMappingControl = ({
   onChange,

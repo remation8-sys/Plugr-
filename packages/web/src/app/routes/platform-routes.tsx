@@ -3,9 +3,21 @@ import { Navigate } from 'react-router-dom';
 
 import { PageTitle } from '@/app/components/page-title';
 import { RouteLoadingBar } from '@/components/custom/route-loading-bar';
-import { Error, Success } from '@/features/billing';
-
-import { PlatformLayout } from '../components/platform-layout';
+const PlatformLayout = React.lazy(() =>
+  import('../components/platform-layout').then((module) => ({
+    default: module.PlatformLayout,
+  })),
+);
+const Error = React.lazy(() =>
+  import('@/features/billing/components/error').then((module) => ({
+    default: module.Error,
+  })),
+);
+const Success = React.lazy(() =>
+  import('@/features/billing/components/success').then((module) => ({
+    default: module.Success,
+  })),
+);
 
 const SettingsBilling = React.lazy(() => import('./platform/billing'));
 const EventDestinationsPage = React.lazy(
@@ -72,7 +84,7 @@ function SuspenseWrapper({ children }: { children: React.ReactNode }) {
   return <Suspense fallback={<RouteLoadingBar />}>{children}</Suspense>;
 }
 
-export const platformRoutes = [
+const platformRoutes = [
   {
     path: '/platform',
     element: (
@@ -374,3 +386,5 @@ export const platformRoutes = [
     ),
   },
 ];
+
+export { platformRoutes };

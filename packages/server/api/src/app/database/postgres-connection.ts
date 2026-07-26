@@ -382,6 +382,7 @@ import { AddVariableTable1793000000000 } from './migration/postgres/179300000000
 import { AddCreatedByToFlow1794000000000 } from './migration/postgres/1794000000000-AddCreatedByToFlow'
 import { AddDataManipulationEnabledToPlatformPlan1794000000000 } from './migration/postgres/1794000000000-AddDataManipulationEnabledToPlatformPlan'
 import { AddPlugrUserBilling1795000000000 } from './migration/postgres/1795000000000-AddPlugrUserBilling'
+import { AddWebPushSubscription1796000000000 } from './migration/postgres/1796000000000-AddWebPushSubscription'
 
 const getSslConfig = (): boolean | TlsOptions => {
     const useSsl = system.get(AppSystemProp.POSTGRES_USE_SSL)
@@ -779,6 +780,7 @@ export const getMigrations = (): (new () => Migration)[] => {
         AddStatusToChatConversation1779500000000,
         AddDataManipulationEnabledToPlatformPlan1794000000000,
         AddPlugrUserBilling1795000000000,
+        AddWebPushSubscription1796000000000,
     ]
     return migrations
 }

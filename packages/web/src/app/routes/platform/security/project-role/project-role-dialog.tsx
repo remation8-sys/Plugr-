@@ -243,7 +243,7 @@ export const ProjectRoleDialog = ({
             </span>
             <div className="overflow-y-auto p-2 rounded-md">
               <ScrollArea className="h-[55vh] pr-4">
-                <div className="grid grid-cols-2 gap-x-6">
+                <div className="grid grid-cols-1 gap-x-6 md:grid-cols-2">
                   {initialPermissions.map((permission) => (
                     <div
                       key={permission.name}

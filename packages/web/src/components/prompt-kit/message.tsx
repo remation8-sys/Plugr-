@@ -1,3 +1,5 @@
+import { Markdown } from './markdown';
+
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   Tooltip,
@@ -6,8 +8,6 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
-
-import { Markdown } from './markdown';
 
 export type MessageProps = {
   children: React.ReactNode;

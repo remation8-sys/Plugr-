@@ -6,6 +6,8 @@ import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
+import { projectsTableColumns } from './columns';
+
 import { DashboardPageHeader } from '@/app/components/dashboard-page-header';
 import LockedFeatureGuard from '@/app/components/locked-feature-guard';
 import {
@@ -31,8 +33,6 @@ import { PlatformAdminProjectAlertSubscriptionBulkActions } from '@/features/pro
 import { platformHooks } from '@/hooks/platform-hooks';
 import { formatUtils } from '@/lib/format-utils';
 import { validationUtils } from '@/lib/validation-utils';
-
-import { projectsTableColumns } from './columns';
 
 export default function ProjectsPage() {
   const { platform } = platformHooks.useCurrentPlatform();

@@ -1,20 +1,57 @@
+import React, { Suspense } from 'react';
+
 import { PageTitle } from '@/app/components/page-title';
-import { VerifyEmail } from '@/features/authentication';
-import { AcceptInvitation } from '@/features/members';
+import { RouteLoadingBar } from '@/components/custom/route-loading-bar';
 
-import { ChangePasswordPage } from './change-password';
-import { CreatePlatformPage } from './create-platform';
-import { ResetPasswordPage } from './forget-password';
-import { ConnectToolsPage } from './onboarding/connect-tools';
-import { SignInPage } from './sign-in';
-import { SignUpPage } from './sign-up';
+const ResetPasswordPage = React.lazy(() =>
+  import('./forget-password').then((module) => ({
+    default: module.ResetPasswordPage,
+  })),
+);
+const ChangePasswordPage = React.lazy(() =>
+  import('./change-password').then((module) => ({
+    default: module.ChangePasswordPage,
+  })),
+);
+const SignInPage = React.lazy(() =>
+  import('./sign-in').then((module) => ({ default: module.SignInPage })),
+);
+const VerifyEmail = React.lazy(() =>
+  import('@/features/authentication/components/verify-email').then(
+    (module) => ({ default: module.VerifyEmail }),
+  ),
+);
+const SignUpPage = React.lazy(() =>
+  import('./sign-up').then((module) => ({ default: module.SignUpPage })),
+);
+const CreatePlatformPage = React.lazy(() =>
+  import('./create-platform').then((module) => ({
+    default: module.CreatePlatformPage,
+  })),
+);
+const ConnectToolsPage = React.lazy(() =>
+  import('./onboarding/connect-tools').then((module) => ({
+    default: module.ConnectToolsPage,
+  })),
+);
+const AcceptInvitation = React.lazy(() =>
+  import('@/features/members/components/accept-invitation').then((module) => ({
+    default: module.AcceptInvitation,
+  })),
+);
 
-export const authRoutes = [
+function SuspenseWrapper({ children }: { children: React.ReactNode }) {
+  return <Suspense fallback={<RouteLoadingBar />}>{children}</Suspense>;
+}
+
+const authRoutes = [
   {
     path: '/forget-password',
     element: (
       <PageTitle title="Forget Password">
-        <ResetPasswordPage />
+        <SuspenseWrapper>
+          <ResetPasswordPage />
+        </SuspenseWrapper>
       </PageTitle>
     ),
   },
@@ -22,7 +59,9 @@ export const authRoutes = [
     path: '/reset-password',
     element: (
       <PageTitle title="Reset Password">
-        <ChangePasswordPage />
+        <SuspenseWrapper>
+          <ChangePasswordPage />
+        </SuspenseWrapper>
       </PageTitle>
     ),
   },
@@ -30,7 +69,9 @@ export const authRoutes = [
     path: '/sign-in',
     element: (
       <PageTitle title="Sign In">
-        <SignInPage />
+        <SuspenseWrapper>
+          <SignInPage />
+        </SuspenseWrapper>
       </PageTitle>
     ),
   },
@@ -38,7 +79,9 @@ export const authRoutes = [
     path: '/verify-email',
     element: (
       <PageTitle title="Verify Email">
-        <VerifyEmail />
+        <SuspenseWrapper>
+          <VerifyEmail />
+        </SuspenseWrapper>
       </PageTitle>
     ),
   },
@@ -46,7 +89,9 @@ export const authRoutes = [
     path: '/sign-up',
     element: (
       <PageTitle title="Sign Up">
-        <SignUpPage />
+        <SuspenseWrapper>
+          <SignUpPage />
+        </SuspenseWrapper>
       </PageTitle>
     ),
   },
@@ -54,7 +99,9 @@ export const authRoutes = [
     path: '/create-platform',
     element: (
       <PageTitle title="Create Platform">
-        <CreatePlatformPage />
+        <SuspenseWrapper>
+          <CreatePlatformPage />
+        </SuspenseWrapper>
       </PageTitle>
     ),
   },
@@ -62,7 +109,9 @@ export const authRoutes = [
     path: '/onboarding/connect-tools',
     element: (
       <PageTitle title="Connect Your Tools">
-        <ConnectToolsPage />
+        <SuspenseWrapper>
+          <ConnectToolsPage />
+        </SuspenseWrapper>
       </PageTitle>
     ),
   },
@@ -70,8 +119,12 @@ export const authRoutes = [
     path: '/invitation',
     element: (
       <PageTitle title="Accept Invitation">
-        <AcceptInvitation />
+        <SuspenseWrapper>
+          <AcceptInvitation />
+        </SuspenseWrapper>
       </PageTitle>
     ),
   },
 ];
+
+export { authRoutes };

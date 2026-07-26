@@ -1,14 +1,14 @@
 import { t } from 'i18next';
 import { useContext } from 'react';
 
+import { DynamicPropertiesContext } from '../piece-properties/dynamic-properties-context';
+
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-
-import { DynamicPropertiesContext } from '../piece-properties/dynamic-properties-context';
 
 type TestButtonTooltipProps = {
   children: React.ReactNode;

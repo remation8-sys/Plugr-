@@ -23,6 +23,15 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import semver from 'semver';
 
+import { piecesApi } from '../api/pieces-api';
+import {
+  PieceSelectorTabType,
+  usePieceSelectorTabs,
+} from '../stores/piece-selector-tabs-provider';
+import { pieceSearchUtils } from '../utils/piece-search-utils';
+
+import { stepsHooks } from './steps-hooks';
+
 import { useTelemetry } from '@/components/providers/telemetry-provider';
 import { appConnectionsApi } from '@/features/connections/api/app-connections';
 import {
@@ -32,15 +41,6 @@ import {
 import { flagsHooks } from '@/hooks/flags-hooks';
 import { platformHooks } from '@/hooks/platform-hooks';
 import { authenticationSession } from '@/lib/authentication-session';
-
-import { piecesApi } from '../api/pieces-api';
-import {
-  PieceSelectorTabType,
-  usePieceSelectorTabs,
-} from '../stores/piece-selector-tabs-provider';
-import { pieceSearchUtils } from '../utils/piece-search-utils';
-
-import { stepsHooks } from './steps-hooks';
 
 const {
   getPinnedPieces,

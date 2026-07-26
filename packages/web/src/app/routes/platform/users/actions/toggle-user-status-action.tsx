@@ -2,14 +2,14 @@ import { PlatformRole, UserStatus } from '@activepieces/shared';
 import { t } from 'i18next';
 import { CircleMinus, RotateCcw } from 'lucide-react';
 
+import { UserRowData } from '../index';
+
 import { Button } from '@/components/ui/button';
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-
-import { UserRowData } from '../index';
 
 type ToggleUserStatusActionProps = {
   row: UserRowData;

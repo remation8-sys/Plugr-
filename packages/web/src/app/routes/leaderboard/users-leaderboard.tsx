@@ -58,6 +58,10 @@ const BadgesCell = ({
                   'h-7 w-7 object-cover rounded-md transition-opacity',
                   !isTopRank && 'opacity-30 group-hover/leaderrow:opacity-100',
                 )}
+                width="28"
+                height="28"
+                loading="lazy"
+                decoding="async"
               />
             </TooltipTrigger>
             <TooltipContent className="text-left">

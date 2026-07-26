@@ -9,14 +9,6 @@ import { GripVertical, Trash, CopyPlus, Pencil } from 'lucide-react';
 import React, { useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 
-import EditableText from '@/components/custom/editable-text';
-import { Button } from '@/components/ui/button';
-import {
-  Sortable,
-  SortableDragHandle,
-  SortableItem,
-} from '@/components/ui/sortable';
-
 import { InvalidStepIcon } from '../../../../components/custom/alert-icon';
 import { Separator } from '../../../../components/ui/separator';
 import {
@@ -25,6 +17,14 @@ import {
   TooltipTrigger,
 } from '../../../../components/ui/tooltip';
 import { cn } from '../../../../lib/utils';
+
+import EditableText from '@/components/custom/editable-text';
+import { Button } from '@/components/ui/button';
+import {
+  Sortable,
+  SortableDragHandle,
+  SortableItem,
+} from '@/components/ui/sortable';
 
 type BranchListProps = {
   step: RouterAction;

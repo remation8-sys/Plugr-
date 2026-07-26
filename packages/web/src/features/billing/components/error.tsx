@@ -26,7 +26,7 @@ export const Error = () => {
   return (
     <div className="h-full bg-background flex items-center justify-center p-4">
       <div className="w-full max-w-md border-destructive/20">
-        <CardContent className="pt-8 pb-6 px-6">
+        <CardContent className="px-4 pb-6 pt-8 md:px-6">
           <div className="text-center space-y-6">
             <div className="mx-auto w-20 h-20 bg-destructive/10 rounded-full flex items-center justify-center">
               <AlertCircle className="w-10 h-10 text-destructive" />

@@ -89,7 +89,15 @@ const SSOPage = () => {
 
           <Item variant="outline">
             <ItemMedia variant="icon">
-              <img className="size-6" src={GoogleIcon} alt="icon" />
+              <img
+                className="size-6"
+                src={GoogleIcon}
+                alt="icon"
+                width="24"
+                height="24"
+                loading="lazy"
+                decoding="async"
+              />
             </ItemMedia>
             <ItemContent>
               <ItemTitle>Google</ItemTitle>

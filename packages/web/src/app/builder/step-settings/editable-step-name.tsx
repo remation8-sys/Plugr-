@@ -132,14 +132,14 @@ const EditableStepName: React.FC<EditableStepNameProps> = ({
                         {tooltipTitle}
                       </span>
                       {pieceVersion && (
-                        <span className="text-[11px] font-mono text-background/90">
+                        <span className="text-xs font-mono text-background/90">
                           (v{pieceVersion})
                         </span>
                       )}
                     </div>
                   )}
                   {!tooltipTitle && pieceVersion && (
-                    <span className="text-[11px] font-mono text-background/90">
+                    <span className="text-xs font-mono text-background/90">
                       (v{pieceVersion})
                     </span>
                   )}

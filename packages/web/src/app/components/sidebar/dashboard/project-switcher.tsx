@@ -28,11 +28,8 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from '@/components/ui/sidebar-shadcn';
-import {
-  getProjectName,
-  NewProjectDialog,
-  projectCollectionUtils,
-} from '@/features/projects';
+import { getProjectName, projectCollectionUtils } from '@/features/projects';
+import { NewProjectDialog } from '@/features/projects/components/new-project-dialog';
 import { userHooks } from '@/hooks/user-hooks';
 import { cn } from '@/lib/utils';
 

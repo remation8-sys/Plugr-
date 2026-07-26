@@ -20,6 +20,7 @@ import {
 } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
+import { WebPushSettings } from '@/features/web-push';
 import { userHooks, userMutations } from '@/hooks/user-hooks';
 
 import { AccountBilling } from './account-billing';
@@ -81,12 +82,21 @@ export function AccountSettingsDialog({
           </DialogTitle>
         </DialogHeader>
 
-        <ScrollArea className="flex-1" viewPortClassName="px-1">
+        <ScrollArea className="min-w-0 flex-1" viewPortClassName="px-1">
           <div className="space-y-6">
             <div className="flex items-center gap-4">
               <div
-                className="relative group cursor-pointer"
+                role="button"
+                tabIndex={0}
+                aria-label={t('Change profile image')}
+                className="relative group cursor-pointer touch-manipulation rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
                 onClick={handleAvatarClick}
+                onKeyDown={(event) => {
+                  if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    handleAvatarClick();
+                  }
+                }}
               >
                 <UserAvatar
                   name={(user?.firstName ?? '') + ' ' + (user?.lastName ?? '')}
@@ -95,7 +105,7 @@ export function AccountSettingsDialog({
                   disableTooltip
                   imageUrl={user?.imageUrl}
                 />
-                <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
+                <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full opacity-0 group-hover:opacity-100 max-md:opacity-100 transition-opacity">
                   <Camera className="h-5 w-5 text-white" />
                 </div>
                 <input
@@ -107,11 +117,11 @@ export function AccountSettingsDialog({
                   disabled={uploadMutation.isPending}
                 />
               </div>
-              <div className="flex-1">
+              <div className="min-w-0 flex-1">
                 <div className="text-sm font-semibold">
                   {user?.firstName} {user?.lastName}
                 </div>
-                <div className="text-xs text-muted-foreground flex items-center gap-1">
+                <div className="flex min-w-0 items-center gap-1 truncate text-xs text-muted-foreground">
                   <Mail className="w-3.5 h-3.5" />
                   {user?.email}
                 </div>
@@ -123,6 +133,8 @@ export function AccountSettingsDialog({
             <Separator />
 
             <AccountBilling />
+
+            <WebPushSettings />
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <ThemeToggle />

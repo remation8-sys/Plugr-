@@ -41,6 +41,7 @@ const NODE_WIDTH = 184;
 const NODE_HEIGHT = 84;
 
 const BLUE = '#0055ff';
+const BLUE_TEXT = '#6b8cff';
 const GREEN = '#00c853';
 const AMBER = '#ffab00';
 const VIOLET = '#8b7bff';
@@ -300,8 +301,10 @@ export function WorkflowCanvas() {
                   </div>
                   <div className="min-w-0">
                     <div
-                      className="font-mono text-[9px] uppercase tracking-wider"
-                      style={{ color: node.accent }}
+                      className="font-mono text-xs uppercase tracking-wider"
+                      style={{
+                        color: node.accent === BLUE ? BLUE_TEXT : node.accent,
+                      }}
                     >
                       {node.type}
                     </div>
@@ -310,7 +313,7 @@ export function WorkflowCanvas() {
                     </div>
                   </div>
                 </div>
-                <p className="mt-1.5 truncate text-[11px] text-white/50">
+                <p className="mt-1.5 truncate text-xs text-white/50">
                   {node.subtitle}
                 </p>
               </div>
@@ -324,7 +327,7 @@ export function WorkflowCanvas() {
         className="flex items-center justify-between border-t px-4 py-2.5"
         style={{ borderColor: 'rgba(255,255,255,0.08)' }}
       >
-        <div className="flex items-center gap-4 font-mono text-[11px] text-white/50">
+        <div className="flex items-center gap-4 font-mono text-xs text-white/50">
           <span>
             {nodes.length} {nodes.length === 1 ? 'step' : 'steps'}
           </span>
@@ -333,7 +336,7 @@ export function WorkflowCanvas() {
             {connections.length === 1 ? 'connection' : 'connections'}
           </span>
         </div>
-        <span className="font-mono text-[10px] uppercase tracking-wider text-white/35">
+        <span className="font-mono text-xs uppercase tracking-wider text-white/60">
           Drag preview steps
         </span>
       </div>

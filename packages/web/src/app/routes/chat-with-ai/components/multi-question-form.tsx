@@ -10,13 +10,13 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { Fragment, useEffect, useId, useRef, useState } from 'react';
 
+import { MultiQuestion } from '../lib/message-parsers';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
-
-import { MultiQuestion } from '../lib/message-parsers';
 
 export function MultiQuestionForm({
   questions,

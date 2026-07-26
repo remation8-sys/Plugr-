@@ -60,44 +60,93 @@ export function InternalErrorsTable({
             <p className="text-sm">{t('No internal errors in this period')}</p>
           </div>
         ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>{t('Project')}</TableHead>
-                <TableHead>{t('Flow')}</TableHead>
-                <TableHead className="text-right">{t('Errors')}</TableHead>
-                <TableHead className="text-right">{t('Share')}</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
+          <>
+            <div className="space-y-3 md:hidden">
               {errors.map((error) => (
-                <TableRow
-                  key={`${error.projectId}-${error.flowId}`}
-                  className="cursor-pointer"
+                <button
+                  key={`${error.projectId}-${error.flowId}-mobile`}
+                  type="button"
+                  className="w-full rounded-lg border p-4 text-left transition-colors hover:bg-muted/50"
                   onClick={() =>
                     navigate(
                       `/projects/${error.projectId}/runs?flowId=${error.flowId}`,
                     )
                   }
                 >
-                  <TableCell className="text-muted-foreground">
-                    {error.projectName}
-                  </TableCell>
-                  <TableCell className="font-medium">
-                    {error.flowName}
-                  </TableCell>
-                  <TableCell className="text-right tabular-nums">
-                    {formatUtils.formatNumber(error.count)}
-                  </TableCell>
-                  <TableCell className="text-right tabular-nums text-muted-foreground">
-                    {total === 0
-                      ? '—'
-                      : `${Math.round((error.count / total) * 100)}%`}
-                  </TableCell>
-                </TableRow>
+                  <div className="flex min-h-14 items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-xs text-muted-foreground">
+                        {t('Flow')}
+                      </p>
+                      <p className="truncate text-sm font-medium">
+                        {error.flowName}
+                      </p>
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        {t('Project')}
+                      </p>
+                      <p className="truncate text-sm">{error.projectName}</p>
+                    </div>
+                    <div className="shrink-0 text-right">
+                      <p className="text-xs text-muted-foreground">
+                        {t('Errors')}
+                      </p>
+                      <p className="text-sm font-medium tabular-nums">
+                        {formatUtils.formatNumber(error.count)}
+                      </p>
+                      <p className="mt-2 text-xs text-muted-foreground">
+                        {t('Share')}
+                      </p>
+                      <p className="text-sm tabular-nums">
+                        {total === 0
+                          ? '\u2014'
+                          : `${Math.round((error.count / total) * 100)}%`}
+                      </p>
+                    </div>
+                  </div>
+                </button>
               ))}
-            </TableBody>
-          </Table>
+            </div>
+            <div className="hidden md:block">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>{t('Project')}</TableHead>
+                    <TableHead>{t('Flow')}</TableHead>
+                    <TableHead className="text-right">{t('Errors')}</TableHead>
+                    <TableHead className="text-right">{t('Share')}</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {errors.map((error) => (
+                    <TableRow
+                      key={`${error.projectId}-${error.flowId}`}
+                      className="cursor-pointer"
+                      onClick={() =>
+                        navigate(
+                          `/projects/${error.projectId}/runs?flowId=${error.flowId}`,
+                        )
+                      }
+                    >
+                      <TableCell className="text-muted-foreground">
+                        {error.projectName}
+                      </TableCell>
+                      <TableCell className="font-medium">
+                        {error.flowName}
+                      </TableCell>
+                      <TableCell className="text-right tabular-nums">
+                        {formatUtils.formatNumber(error.count)}
+                      </TableCell>
+                      <TableCell className="text-right tabular-nums text-muted-foreground">
+                        {total === 0
+                          ? '—'
+                          : `${Math.round((error.count / total) * 100)}%`}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </>
         )}
       </CardContent>
     </Card>

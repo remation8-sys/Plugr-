@@ -14,6 +14,11 @@ import {
 import React, { useEffect, useRef } from 'react';
 import { useDebounce } from 'use-debounce';
 
+import { AITabContent } from './ai-tab-content';
+import { ApprovalsTabContent } from './approvals-tab-content';
+import { ExploreTabContent } from './explore-tab-content';
+import { PiecesCardList } from './pieces-card-list';
+
 import { useBuilderStateContext } from '@/app/builder/builder-hooks';
 import {
   Popover,
@@ -34,11 +39,6 @@ import {
 import { aiProviderQueries } from '@/features/platform-admin';
 import { platformHooks } from '@/hooks/platform-hooks';
 import { useIsMobile } from '@/hooks/use-mobile';
-
-import { AITabContent } from './ai-tab-content';
-import { ApprovalsTabContent } from './approvals-tab-content';
-import { ExploreTabContent } from './explore-tab-content';
-import { PiecesCardList } from './pieces-card-list';
 
 const getTabsList = (
   operationType: FlowOperationType,
@@ -192,7 +192,7 @@ const PieceSelectorContent = ({
           onContextMenu={(e) => {
             e.stopPropagation();
           }}
-          className="w-[360px] overflow-hidden rounded-lg border bg-popover p-0 shadow-xl md:w-[640px]"
+          className="w-[calc(100vw-2rem)] max-w-[360px] overflow-hidden rounded-lg border bg-popover p-0 shadow-xl md:w-[640px] md:max-w-[640px]"
           onClick={(e) => {
             e.stopPropagation();
             e.preventDefault();

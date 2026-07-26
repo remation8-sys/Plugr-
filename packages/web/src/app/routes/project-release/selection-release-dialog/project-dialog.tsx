@@ -7,6 +7,8 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
+import { CreateReleaseDialog } from '../create-release-dialog';
+
 import { SearchableSelect } from '@/components/custom/searchable-select';
 import { Button } from '@/components/ui/button';
 import {
@@ -20,8 +22,6 @@ import { FormField, FormItem, Form, FormMessage } from '@/components/ui/form';
 import { Label } from '@/components/ui/label';
 import { projectReleaseApi } from '@/features/project-releases';
 import { projectCollectionUtils } from '@/features/projects';
-
-import { CreateReleaseDialog } from '../create-release-dialog';
 
 const FormSchema = z.object({
   selectedProject: z.string({ message: t('Please select project') }),

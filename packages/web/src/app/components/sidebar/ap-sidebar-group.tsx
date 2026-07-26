@@ -2,6 +2,8 @@ import { ChevronRightIcon } from 'lucide-react';
 import React, { ComponentType, useEffect, useRef, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
+import { ApSidebarItem, SidebarItemType } from './ap-sidebar-item';
+
 import {
   Collapsible,
   CollapsibleContent,
@@ -13,8 +15,6 @@ import {
   SidebarMenuSub,
   SidebarMenuSubItem,
 } from '@/components/ui/sidebar-shadcn';
-
-import { ApSidebarItem, SidebarItemType } from './ap-sidebar-item';
 
 export type SidebarGeneralItemType = SidebarItemType | SidebarGroupType;
 

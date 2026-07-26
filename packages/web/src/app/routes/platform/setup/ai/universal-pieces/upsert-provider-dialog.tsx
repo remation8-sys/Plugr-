@@ -33,6 +33,10 @@ import {
 } from 'react-hook-form';
 import { z } from 'zod';
 
+import { ApMarkdown } from '../../../../../../components/custom/markdown';
+
+import { UpsertProviderConfigForm } from './upsert-provider-config-form';
+
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -57,10 +61,6 @@ import {
   aiProviderApi,
   hasAnyAuthFieldFilled,
 } from '@/features/platform-admin';
-
-import { ApMarkdown } from '../../../../../../components/custom/markdown';
-
-import { UpsertProviderConfigForm } from './upsert-provider-config-form';
 
 type UpsertAIProviderDialogProps = {
   provider: AIProviderName;

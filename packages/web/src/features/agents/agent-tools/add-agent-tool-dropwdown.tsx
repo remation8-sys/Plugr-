@@ -2,6 +2,10 @@ import { t } from 'i18next';
 import { Hammer, Workflow } from 'lucide-react';
 import { useState } from 'react';
 
+import { useFlowToolDialogStore } from './stores/flows-tools';
+import { useMcpToolDialogStore } from './stores/mcp-tools';
+import { usePieceToolsDialogStore } from './stores/pieces-tools';
+
 import { McpSvg } from '@/assets/img/custom/mcp';
 import {
   DropdownMenu,
@@ -9,10 +13,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-
-import { useFlowToolDialogStore } from './stores/flows-tools';
-import { useMcpToolDialogStore } from './stores/mcp-tools';
-import { usePieceToolsDialogStore } from './stores/pieces-tools';
 
 type AddAgentToolDropdownProps = {
   disabled?: boolean;

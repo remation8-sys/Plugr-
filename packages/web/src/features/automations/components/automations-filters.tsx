@@ -129,19 +129,25 @@ export const AutomationsFilters = ({
       value: connection.externalId,
       label: connection.displayName,
       icon: pieceIcon ? (
-        <img src={pieceIcon} alt="" className="h-4 w-4 object-contain" />
+        <img
+          src={pieceIcon}
+          alt=""
+          className="h-4 w-4 object-contain"
+          width="16"
+          height="16"
+          loading="lazy"
+          decoding="async"
+        />
       ) : undefined,
     };
   });
 
   return (
     <>
-      <div
-        className={cn('overflow-x-auto mt-4 mb-4', DASHBOARD_CONTENT_PADDING_X)}
-      >
-        <div className="flex items-center justify-between gap-4 min-w-max">
-          <div className="flex items-center gap-2">
-            <div className="relative">
+      <div className={cn('my-4 overflow-hidden', DASHBOARD_CONTENT_PADDING_X)}>
+        <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="relative w-full sm:w-auto">
               <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder={
@@ -154,7 +160,7 @@ export const AutomationsFilters = ({
                   onSearchChange(e.target.value);
                   onFilterChange?.();
                 }}
-                className="min-w-[300px] max-w-xs pl-8 pr-8 focus-visible:ring-0 focus-visible:ring-offset-0"
+                className="w-full min-w-0 max-w-xs pl-8 pr-8 focus-visible:ring-0 focus-visible:ring-offset-0 sm:min-w-[300px]"
               />
               {searchTerm && (
                 <button
@@ -247,7 +253,7 @@ export const AutomationsFilters = ({
             )}
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {!embedState.hideExportAndImportFlow && (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

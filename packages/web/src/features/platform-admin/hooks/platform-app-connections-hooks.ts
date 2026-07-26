@@ -2,12 +2,12 @@ import { AppConnectionStatus } from '@activepieces/shared';
 import { useQuery } from '@tanstack/react-query';
 import { useSearchParams } from 'react-router-dom';
 
+import { platformAppConnectionsApi } from '../api/platform-app-connections-api';
+
 import {
   CURSOR_QUERY_PARAM,
   LIMIT_QUERY_PARAM,
 } from '@/components/custom/data-table';
-
-import { platformAppConnectionsApi } from '../api/platform-app-connections-api';
 
 export const platformAppConnectionsKeys = {
   list: (searchParams: string) =>

@@ -4,14 +4,14 @@ import React from 'react';
 import { Navigate, useParams, useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
 
+import { authenticationSession } from '../../lib/authentication-session';
+import { AllowOnlyLoggedInUserOnlyGuard } from '../components/allow-logged-in-user-only-guard';
+
 import { projectCollectionUtils } from '@/features/projects';
 import {
   FROM_QUERY_PARAM,
   useDefaultRedirectPath,
 } from '@/lib/navigation-utils';
-
-import { authenticationSession } from '../../lib/authentication-session';
-import { AllowOnlyLoggedInUserOnlyGuard } from '../components/allow-logged-in-user-only-guard';
 
 export const TokenCheckerWrapper: React.FC<{ children: React.ReactNode }> = ({
   children,

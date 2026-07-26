@@ -11,6 +11,12 @@ import {
 import React, { useState } from 'react';
 import { toast } from 'sonner';
 
+import { tablesApi } from '../api/tables-api';
+import { tableMutations } from '../hooks/table-hooks';
+import { tablesUtils } from '../utils/utils';
+
+import { ImportTableDialog } from './import-table-dialog';
+
 import { ConfirmationDeleteDialog } from '@/components/custom/delete-dialog';
 import { PermissionNeededTooltip } from '@/components/custom/permission-needed-tooltip';
 import {
@@ -24,12 +30,6 @@ import { RenameDialog } from '@/features/automations/components/rename-dialog';
 import { PushToGitDialog } from '@/features/project-releases/components/push-to-git-dialog';
 import { gitSyncHooks } from '@/features/project-releases/hooks/git-sync-hooks';
 import { useAuthorization } from '@/hooks/authorization-hooks';
-
-import { tablesApi } from '../api/tables-api';
-import { tableMutations } from '../hooks/table-hooks';
-import { tablesUtils } from '../utils/utils';
-
-import { ImportTableDialog } from './import-table-dialog';
 
 const ApTableActionsMenu = ({
   table,

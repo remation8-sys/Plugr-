@@ -3,15 +3,15 @@ import { useMutation } from '@tanstack/react-query';
 import { t } from 'i18next';
 import React, { useState } from 'react';
 
-import { Button } from '@/components/ui/button';
-import { DialogFooter } from '@/components/ui/dialog';
-
 import { useBuilderStateContext } from '../../builder-hooks';
 
 import {
   changeVersionUtils,
   LatestVersionAvailableAlert,
 } from './update-piece-version-utils';
+
+import { Button } from '@/components/ui/button';
+import { DialogFooter } from '@/components/ui/dialog';
 
 export const UpgradePieceVersionContent: React.FC<
   UpgradePieceVersionContentProps

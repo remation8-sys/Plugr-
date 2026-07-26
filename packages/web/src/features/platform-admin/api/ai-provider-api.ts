@@ -9,7 +9,10 @@ import { api } from '@/lib/api';
 
 export const aiProviderApi = {
   list(params?: { excludeManagedChat?: boolean }) {
-    return api.get<AIProviderWithoutSensitiveData[]>('/v1/ai-providers', params);
+    return api.get<AIProviderWithoutSensitiveData[]>(
+      '/v1/ai-providers',
+      params,
+    );
   },
   listModelsForProvider(provider: string) {
     return api.get<AIProviderModel[]>(`/v1/ai-providers/${provider}/models`);

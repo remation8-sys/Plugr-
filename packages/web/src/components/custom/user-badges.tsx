@@ -69,6 +69,10 @@ export const UserBadges = ({
                         ? 'opacity-50 grayscale'
                         : ''
                     }`}
+                    width="48"
+                    height="48"
+                    loading="lazy"
+                    decoding="async"
                   />
                   {!isUnlocked && showLockedBadges && (
                     <div className="absolute inset-0 flex items-center justify-center rounded">

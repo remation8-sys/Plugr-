@@ -247,8 +247,8 @@ export default function AuditLogsPage() {
           isLoading={isLoading}
         />
         <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-          <SheetContent className="w-[480px] sm:max-w-[480px] flex flex-col p-0">
-            <SheetHeader className="px-6 py-4 border-b shrink-0">
+          <SheetContent className="flex w-full flex-col p-0 md:w-[480px] md:max-w-[480px]">
+            <SheetHeader className="px-4 py-4 md:px-6 border-b shrink-0">
               <SheetTitle className="text-base">
                 {formatUtils.convertEnumToHumanReadable(
                   selectedEvent?.action ?? '',
@@ -259,7 +259,7 @@ export default function AuditLogsPage() {
               </p>
             </SheetHeader>
             <div className="flex-1 overflow-y-auto">
-              <div className="px-6 py-5 flex flex-col gap-4">
+              <div className="px-4 py-5 md:px-6 flex flex-col gap-4">
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                   {t('Who & When')}
                 </p>
@@ -304,7 +304,7 @@ export default function AuditLogsPage() {
                 extractEventDetails(selectedEvent).length > 0 && (
                   <>
                     <Separator />
-                    <div className="px-6 py-5 flex flex-col gap-4">
+                    <div className="px-4 py-5 md:px-6 flex flex-col gap-4">
                       <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                         {t('Event Details')}
                       </p>
@@ -324,7 +324,7 @@ export default function AuditLogsPage() {
                   </>
                 )}
               <Separator />
-              <div className="px-6 py-5 flex flex-col gap-4">
+              <div className="px-4 py-5 md:px-6 flex flex-col gap-4">
                 <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
                   {t('Full Payload')}
                 </p>

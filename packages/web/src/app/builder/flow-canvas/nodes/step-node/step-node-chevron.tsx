@@ -18,7 +18,7 @@ const StepNodeChevron = ({ isSelected }: { isSelected?: boolean }) => {
           size="icon"
           aria-label={t('Open node actions')}
           className={cn(
-            'size-8 rounded-md border border-border/70 bg-background/95 text-muted-foreground shadow-sm opacity-0 transition-all hover:bg-accent hover:text-foreground focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-primary/25 group-hover:opacity-100',
+            'size-8 rounded-md border border-border/70 bg-background/95 text-muted-foreground shadow-sm opacity-0 transition-all hover:bg-accent hover:text-foreground focus-visible:opacity-100 focus-visible:ring-2 focus-visible:ring-primary/25 group-hover:opacity-100 max-md:opacity-100',
             { 'opacity-100': isSelected },
           )}
           onClick={(e) => {

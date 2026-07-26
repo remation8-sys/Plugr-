@@ -9,6 +9,10 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 
+import { UserRowData } from '../index';
+
+import { UpdateUserDialog } from './update-user-dialog';
+
 import { ConfirmationDeleteDialog } from '@/components/custom/delete-dialog';
 import { Button } from '@/components/ui/button';
 import {
@@ -17,10 +21,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-
-import { UserRowData } from '../index';
-
-import { UpdateUserDialog } from './update-user-dialog';
 
 type UserActionsProps = {
   row: UserRowData;

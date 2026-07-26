@@ -1,11 +1,11 @@
 import { cva, type VariantProps } from 'class-variance-authority';
 import * as React from 'react';
 
+import MessageLoading from './message-loading';
+
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button, ButtonProps } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-
-import MessageLoading from './message-loading';
 
 // ChatBubble
 const chatBubbleVariant = cva('flex gap-2 w-full items-start relative group', {

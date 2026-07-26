@@ -237,9 +237,10 @@ function CreateOrEditConnectionSection({
             </FormError>
           )}
           <DialogFooter className="mt-0">
-            <div className="mx-5 flex gap-2 w-full">
+            <div className="mx-5 grid flex-1 grid-cols-2 gap-2 sm:flex">
               {showTryAnotherMethodButton && (
                 <Button
+                  className="col-span-2 w-full sm:w-auto"
                   variant="outline"
                   type="button"
                   onClick={onTryAnotherMethodButtonClicked}
@@ -247,11 +248,14 @@ function CreateOrEditConnectionSection({
                   {t('Try another method')}
                 </Button>
               )}
-              <div className="grow"></div>
+              <div className="hidden grow sm:block"></div>
               <DialogClose asChild>
-                <Button variant="outline">{t('Cancel')}</Button>
+                <Button className="w-full sm:w-auto" variant="outline">
+                  {t('Cancel')}
+                </Button>
               </DialogClose>
               <Button
+                className="w-full sm:w-auto"
                 onClick={(e) => form.handleSubmit(() => upsertConnection())(e)}
                 loading={isPending}
                 type="submit"
@@ -367,7 +371,7 @@ function CreateOrEditConnectionDialog({
     <Dialog open={open} onOpenChange={(open) => setOpen(open)} key={piece.name}>
       <DialogContent
         onInteractOutside={(e) => e.preventDefault()}
-        className="max-h-[70vh] px-0  min-w-[450px] max-w-[450px] lg:min-w-[650px] lg:max-w-[650px] overflow-y-auto"
+        className="max-h-[70vh] w-[calc(100vw-2rem)] max-w-[650px] overflow-y-auto px-0"
       >
         {loadingPiecesOAuth2AppsMap && hasOAuth2PieceAuth(piece) ? (
           <>

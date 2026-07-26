@@ -13,7 +13,15 @@ function ItemMediaImage({ src, alt }: ItemMediaImageProps) {
       variant="icon"
       style={backgroundColor ? { backgroundColor } : undefined}
     >
-      <img src={src} alt={alt} className="size-6" />
+      <img
+        src={src}
+        alt={alt}
+        className="size-6"
+        width="24"
+        height="24"
+        loading="lazy"
+        decoding="async"
+      />
     </ItemMedia>
   );
 }

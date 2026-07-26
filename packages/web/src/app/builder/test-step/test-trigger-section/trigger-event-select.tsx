@@ -4,6 +4,8 @@ import { t } from 'i18next';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 
+import { useBuilderStateContext } from '../../builder-hooks';
+
 import {
   Select,
   SelectContent,
@@ -11,8 +13,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-
-import { useBuilderStateContext } from '../../builder-hooks';
 
 type TriggerEventSelectProps = {
   pollResults: { data: TriggerEventWithPayload[] } | undefined;

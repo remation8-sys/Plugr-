@@ -7,6 +7,11 @@ import { useSearchParams } from 'react-router-dom';
 import { useEffectOnce } from 'react-use';
 import { toast } from 'sonner';
 
+import { ProjectSelect } from './components/project-select';
+import { FlowsDetails } from './details';
+import { Summary } from './summary';
+import { Trends } from './trends';
+
 import LockedFeatureGuard from '@/app/components/locked-feature-guard';
 import { PageHeader } from '@/components/custom/page-header';
 import { Button } from '@/components/ui/button';
@@ -32,11 +37,6 @@ import { projectCollectionUtils } from '@/features/projects';
 import { platformHooks } from '@/hooks/platform-hooks';
 import { userHooks } from '@/hooks/user-hooks';
 import { cn, DASHBOARD_CONTENT_PADDING_X } from '@/lib/utils';
-
-import { ProjectSelect } from './components/project-select';
-import { FlowsDetails } from './details';
-import { Summary } from './summary';
-import { Trends } from './trends';
 
 const REPORT_TTL_MS = 1000 * 60 * 60 * 24;
 
@@ -127,7 +127,7 @@ export default function ImpactPage() {
             </div>
           }
           rightContent={
-            <div className="flex items-center gap-3">
+            <div className="flex w-full flex-wrap items-center gap-2 md:w-auto md:gap-3">
               <div className="flex items-center gap-2 px-3 py-1.5 border border-dashed rounded-md text-sm text-muted-foreground">
                 <span>
                   {t('Updated')}{' '}

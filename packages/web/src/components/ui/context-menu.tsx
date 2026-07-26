@@ -4,7 +4,11 @@ import { CheckIcon, ChevronRightIcon, CircleIcon } from 'lucide-react';
 import { ContextMenu as ContextMenuPrimitive } from 'radix-ui';
 import * as React from 'react';
 
+import { mobileHaptics } from '@/lib/mobile-haptics';
 import { cn } from '@/lib/utils';
+
+const LONG_PRESS_DELAY = 600;
+const LONG_PRESS_MOVE_TOLERANCE = 10;
 
 function ContextMenu({
   ...props
@@ -13,10 +17,92 @@ function ContextMenu({
 }
 
 function ContextMenuTrigger({
+  disabled,
+  onPointerCancel,
+  onPointerDown,
+  onPointerMove,
+  onPointerUp,
   ...props
 }: React.ComponentProps<typeof ContextMenuPrimitive.Trigger>) {
+  const longPressTimerRef = React.useRef<number | null>(null);
+  const pointerStartRef = React.useRef<PointerStart | null>(null);
+
+  function clearLongPress() {
+    if (longPressTimerRef.current !== null) {
+      window.clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+    pointerStartRef.current = null;
+  }
+
+  function handlePointerDown(event: React.PointerEvent<HTMLSpanElement>) {
+    onPointerDown?.(event);
+    if (disabled || event.defaultPrevented || event.pointerType === 'mouse') {
+      return;
+    }
+
+    clearLongPress();
+    const target = event.target;
+    const pointerStart = {
+      id: event.pointerId,
+      x: event.clientX,
+      y: event.clientY,
+    };
+    pointerStartRef.current = pointerStart;
+    longPressTimerRef.current = window.setTimeout(() => {
+      mobileHaptics.longPress();
+      target.dispatchEvent(
+        new MouseEvent('contextmenu', {
+          bubbles: true,
+          cancelable: true,
+          clientX: pointerStart.x,
+          clientY: pointerStart.y,
+          button: 2,
+          buttons: 2,
+        }),
+      );
+      clearLongPress();
+    }, LONG_PRESS_DELAY);
+  }
+
+  function handlePointerMove(event: React.PointerEvent<HTMLSpanElement>) {
+    onPointerMove?.(event);
+    const pointerStart = pointerStartRef.current;
+    if (!pointerStart || pointerStart.id !== event.pointerId) {
+      return;
+    }
+
+    const movement = Math.hypot(
+      event.clientX - pointerStart.x,
+      event.clientY - pointerStart.y,
+    );
+    if (movement > LONG_PRESS_MOVE_TOLERANCE) {
+      clearLongPress();
+    }
+  }
+
+  function handlePointerUp(event: React.PointerEvent<HTMLSpanElement>) {
+    onPointerUp?.(event);
+    clearLongPress();
+  }
+
+  function handlePointerCancel(event: React.PointerEvent<HTMLSpanElement>) {
+    onPointerCancel?.(event);
+    clearLongPress();
+  }
+
+  React.useEffect(() => clearLongPress, []);
+
   return (
-    <ContextMenuPrimitive.Trigger data-slot="context-menu-trigger" {...props} />
+    <ContextMenuPrimitive.Trigger
+      data-slot="context-menu-trigger"
+      disabled={disabled}
+      onPointerCancel={handlePointerCancel}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      {...props}
+    />
   );
 }
 
@@ -66,7 +152,7 @@ function ContextMenuSubTrigger({
       data-slot="context-menu-sub-trigger"
       data-inset={inset}
       className={cn(
-        "flex cursor-default items-center rounded-sm px-2 py-1.5 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground data-[inset]:pl-8 data-[state=open]:bg-accent data-[state=open]:text-accent-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        "flex cursor-default items-center rounded-sm px-2 py-1.5 text-sm max-md:min-h-11 outline-hidden select-none touch-manipulation active:bg-accent active:text-accent-foreground focus:bg-accent focus:text-accent-foreground data-[inset]:pl-8 data-[state=open]:bg-accent data-[state=open]:text-accent-foreground [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         className,
       )}
       {...props}
@@ -85,7 +171,7 @@ function ContextMenuSubContent({
     <ContextMenuPrimitive.SubContent
       data-slot="context-menu-sub-content"
       className={cn(
-        'z-50 min-w-[8rem] origin-(--radix-context-menu-content-transform-origin) overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95',
+        'z-50 min-w-[8rem] max-md:max-w-[calc(100vw-1rem)] origin-(--radix-context-menu-content-transform-origin) overflow-hidden rounded-md border bg-popover p-1 text-popover-foreground shadow-lg data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95',
         className,
       )}
       {...props}
@@ -102,7 +188,7 @@ function ContextMenuContent({
       <ContextMenuPrimitive.Content
         data-slot="context-menu-content"
         className={cn(
-          'z-50 max-h-(--radix-context-menu-content-available-height) min-w-[8rem] origin-(--radix-context-menu-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95',
+          'z-50 max-h-(--radix-context-menu-content-available-height) min-w-[8rem] max-md:max-w-[calc(100vw-1rem)] origin-(--radix-context-menu-content-transform-origin) overflow-x-hidden overflow-y-auto rounded-md border bg-popover p-1 text-popover-foreground shadow-md data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95',
           className,
         )}
         {...props}
@@ -126,7 +212,7 @@ function ContextMenuItem({
       data-inset={inset}
       data-variant={variant}
       className={cn(
-        "relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[inset]:pl-8 data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 data-[variant=destructive]:focus:text-destructive dark:data-[variant=destructive]:focus:bg-destructive/20 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4  data-[variant=destructive]:*:[svg]:text-destructive!",
+        "relative flex cursor-default items-center gap-2 rounded-sm px-2 py-1.5 text-sm max-md:min-h-11 outline-hidden select-none touch-manipulation active:bg-accent active:text-accent-foreground focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 data-[inset]:pl-8 data-[variant=destructive]:text-destructive data-[variant=destructive]:focus:bg-destructive/10 data-[variant=destructive]:focus:text-destructive dark:data-[variant=destructive]:focus:bg-destructive/20 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4  data-[variant=destructive]:*:[svg]:text-destructive!",
         className,
       )}
       {...props}
@@ -144,7 +230,7 @@ function ContextMenuCheckboxItem({
     <ContextMenuPrimitive.CheckboxItem
       data-slot="context-menu-checkbox-item"
       className={cn(
-        "relative flex cursor-default items-center gap-2 rounded-sm py-1.5 pr-2 pl-8 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        "relative flex cursor-default items-center gap-2 rounded-sm py-1.5 pr-2 pl-8 text-sm max-md:min-h-11 outline-hidden select-none touch-manipulation active:bg-accent active:text-accent-foreground focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         className,
       )}
       checked={checked}
@@ -169,7 +255,7 @@ function ContextMenuRadioItem({
     <ContextMenuPrimitive.RadioItem
       data-slot="context-menu-radio-item"
       className={cn(
-        "relative flex cursor-default items-center gap-2 rounded-sm py-1.5 pr-2 pl-8 text-sm outline-hidden select-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
+        "relative flex cursor-default items-center gap-2 rounded-sm py-1.5 pr-2 pl-8 text-sm max-md:min-h-11 outline-hidden select-none touch-manipulation active:bg-accent active:text-accent-foreground focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
         className,
       )}
       {...props}
@@ -229,6 +315,12 @@ function ContextMenuShortcut({
     />
   );
 }
+
+type PointerStart = {
+  id: number;
+  x: number;
+  y: number;
+};
 
 export {
   ContextMenu,

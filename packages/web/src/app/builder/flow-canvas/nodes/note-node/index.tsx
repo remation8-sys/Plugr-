@@ -6,6 +6,13 @@ import { t } from 'i18next';
 import { useRef, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 
+import { useBuilderStateContext } from '../../../builder-hooks';
+import { flowCanvasConsts } from '../../utils/consts';
+import { ApNoteNode } from '../../utils/types';
+
+import { NoteFooter } from './note-footer';
+import { NoteTools } from './note-tools';
+
 import { MarkdownInput } from '@/components/custom/markdown-input';
 import {
   Tooltip,
@@ -13,13 +20,6 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
-
-import { useBuilderStateContext } from '../../../builder-hooks';
-import { flowCanvasConsts } from '../../utils/consts';
-import { ApNoteNode } from '../../utils/types';
-
-import { NoteFooter } from './note-footer';
-import { NoteTools } from './note-tools';
 
 const ApNoteCanvasNode = (props: NodeProps & Omit<ApNoteNode, 'position'>) => {
   const [draggedNote, resizeNote, note, readonly, panningMode] =

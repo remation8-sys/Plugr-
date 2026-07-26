@@ -21,7 +21,7 @@ export const RetriedRunsSnackbar = ({
     return null;
   }
   return (
-    <div className="fixed bottom-5 p-4 left-1/2 transform -translate-x-1/2  w-[480px]  animate-slide-in-from-bottom  bg-background shadow-lg border rounded-lg z-9999">
+    <div className="fixed inset-x-4 bottom-20 z-9999 mx-auto w-auto max-w-[480px] animate-slide-in-from-bottom rounded-lg border bg-background p-4 shadow-lg md:bottom-5">
       <div className="flex items-center justify-between animate-fade">
         <div className="flex items-center gap-2">
           <Info className="size-5" />

@@ -5,16 +5,31 @@ import * as ReactDOM from 'react-dom/client';
 import { registerSW } from 'virtual:pwa-register';
 
 import './i18n';
-import { detectAndPersistNativeApp } from '@/lib/native-app';
-
 import App from './app/app';
+
+import { detectAndPersistNativeApp } from '@/lib/native-app';
 
 detectAndPersistNativeApp();
 
-// autoUpdate + this helper: when a deploy ships a new service worker, open
-// pages reload themselves to the fresh version instead of staying one
-// cold-start behind.
-registerSW({ immediate: true });
+// autoUpdate + this helper keeps the app shell current while retaining a
+// bounded offline cache for assets and explicitly safe background work.
+registerSW({
+  immediate: true,
+  onRegisteredSW: (_serviceWorkerUrl, registration) => {
+    if (!registration) {
+      return;
+    }
+
+    window.setInterval(() => {
+      if (navigator.onLine) {
+        void registration.update();
+      }
+    }, 60 * 60 * 1000);
+  },
+  onRegisterError: (error) => {
+    console.error('Plugr service worker registration failed', error);
+  },
+});
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement,

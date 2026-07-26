@@ -55,6 +55,10 @@ const HomeButton = () => {
                     className="h-5 w-5 object-contain"
                     src={branding.logos.logoIconUrl}
                     alt={branding.websiteName}
+                    width="20"
+                    height="20"
+                    loading="eager"
+                    decoding="async"
                   />
                 )}
                 {showBackButton && <ChevronLeft className="h-4 w-4" />}

@@ -6,11 +6,13 @@ import { useApErrorDialogStore } from '@/components/custom/ap-error-dialog/ap-er
 import { internalErrorToast } from '@/components/ui/sonner';
 import { useManagePlanDialogStore } from '@/features/billing';
 import { api } from '@/lib/api';
+import { mobileHaptics } from '@/lib/mobile-haptics';
 
 export const queryClient = new QueryClient({
   queryCache: new QueryCache({
     onError: (error, query) => {
       if (query.meta?.showErrorDialog) {
+        mobileHaptics.error();
         const { openDialog } = useApErrorDialogStore.getState();
         openDialog({
           title: t('Failed to load data'),
@@ -27,12 +29,16 @@ export const queryClient = new QueryClient({
   }),
   mutationCache: new MutationCache({
     onError: (err: Error, _, __, mutation) => {
+      mobileHaptics.error();
       if (api.isApError(err, ErrorCode.QUOTA_EXCEEDED)) {
         const { openDialog } = useManagePlanDialogStore.getState();
         openDialog();
       } else if (isNil(mutation.options.onError)) {
         internalErrorToast();
       }
+    },
+    onSuccess: () => {
+      mobileHaptics.success();
     },
   }),
 });

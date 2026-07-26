@@ -1,93 +1,125 @@
-import { t } from 'i18next';
-import { Settings } from 'lucide-react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Permission } from '@activepieces/shared';
+import { useTranslation } from 'react-i18next';
+import { Link, useLocation } from 'react-router-dom';
 
 import { CompassIcon } from '@/components/icons/compass';
+import { ConnectIcon } from '@/components/icons/connect';
+import { HistoryIcon } from '@/components/icons/history';
 import { SendIcon } from '@/components/icons/send';
 import { WorkflowIcon } from '@/components/icons/workflow';
-import { cn } from '@/lib/utils';
+import { useAuthorization } from '@/hooks/authorization-hooks';
 import { authenticationSession } from '@/lib/authentication-session';
+import { cn } from '@/lib/utils';
 
-const useMobileNavTabs = () => {
-  return [
-    {
-      label: t('Automations'),
-      icon: WorkflowIcon,
-      to: authenticationSession.appendProjectRoutePrefix('/automations'),
-      matchSegment: '/automations',
-    },
-    {
-      label: t('Plugr'),
-      icon: SendIcon,
-      to: '/chat',
-      matchSegment: '/chat',
-    },
-    {
-      label: t('Explore'),
-      icon: CompassIcon,
-      to: '/templates',
-      matchSegment: '/templates',
-    },
-    {
-      label: t('Settings'),
-      icon: Settings,
-      to: authenticationSession.appendProjectRoutePrefix('/settings'),
-      matchSegment: '/settings',
-    },
-  ];
-};
-
-export function MobileBottomNav() {
+function MobileBottomNav() {
+  const { t } = useTranslation();
   const location = useLocation();
-  const navigate = useNavigate();
   const tabs = useMobileNavTabs();
 
   return (
-    <div
-      className="fixed inset-x-0 bottom-0 z-50 pointer-events-none px-4"
-      style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 0.75rem)' }}
+    <nav
+      aria-label={t('Primary navigation')}
+      data-mobile-bottom-nav
+      className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background/95 pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)] backdrop-blur supports-[backdrop-filter]:bg-background/85 md:hidden"
     >
-      <nav className="pointer-events-auto mx-auto flex h-16 max-w-md items-stretch gap-1 rounded-[26px] border border-border bg-card/80 px-2 shadow-[0_10px_40px_-12px_rgba(0,0,0,0.7)] backdrop-blur-xl">
+      <div className="mx-auto flex h-16 max-w-lg items-stretch">
         {tabs.map((tab) => {
-          const isActive = location.pathname.includes(tab.matchSegment);
+          const isActive = tab.matchSegments.some((segment) =>
+            location.pathname.includes(segment),
+          );
           const Icon = tab.icon;
+
           return (
-            <button
+            <Link
               key={tab.to}
+              to={tab.to}
               aria-current={isActive ? 'page' : undefined}
-              aria-label={tab.label}
-              onClick={() => navigate(tab.to)}
-              className="group flex flex-1 flex-col items-center justify-center gap-1 touch-manipulation active:scale-95 transition-transform duration-100"
+              aria-label={tab.accessibleLabel}
+              className={cn(
+                'relative flex min-h-11 min-w-0 flex-1 touch-manipulation flex-col items-center justify-center gap-1 px-1 text-muted-foreground outline-none transition-colors hover:text-foreground focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary active:bg-muted',
+                isActive && 'text-primary hover:text-primary',
+              )}
             >
-              <div
-                className={cn(
-                  'flex items-center justify-center w-11 h-8 rounded-full transition-all duration-200',
-                  isActive
-                    ? 'bg-primary/15 glow-primary'
-                    : 'bg-transparent',
-                )}
-              >
-                <Icon
-                  className={cn(
-                    'size-[22px] transition-colors duration-200',
-                    isActive
-                      ? 'text-primary'
-                      : 'text-muted-foreground group-active:text-foreground',
-                  )}
+              {isActive && (
+                <span
+                  className="absolute top-0 h-0.5 w-8 rounded-b-full bg-primary"
+                  aria-hidden="true"
                 />
-              </div>
-              <span
-                className={cn(
-                  'text-[10px] font-semibold leading-none tracking-tight transition-colors duration-200',
-                  isActive ? 'text-primary' : 'text-muted-foreground',
-                )}
-              >
+              )}
+              <Icon className="size-5" aria-hidden="true" />
+              <span className="max-w-full truncate text-xs font-medium leading-none">
                 {tab.label}
               </span>
-            </button>
+            </Link>
           );
         })}
-      </nav>
-    </div>
+      </div>
+    </nav>
   );
 }
+
+function useMobileNavTabs(): MobileNavTab[] {
+  const { t } = useTranslation();
+  const { checkAccess } = useAuthorization();
+  const tabs: MobileNavTab[] = [
+    {
+      label: t('Flows'),
+      accessibleLabel: t('Flows'),
+      icon: WorkflowIcon,
+      to: authenticationSession.appendProjectRoutePrefix('/automations'),
+      matchSegments: ['/automations', '/flows', '/tables'],
+      hasPermission:
+        checkAccess(Permission.READ_FLOW) ||
+        checkAccess(Permission.READ_TABLE) ||
+        checkAccess(Permission.READ_FOLDER),
+    },
+    {
+      label: t('Runs'),
+      accessibleLabel: t('Runs'),
+      icon: HistoryIcon,
+      to: authenticationSession.appendProjectRoutePrefix('/runs'),
+      matchSegments: ['/runs'],
+      hasPermission: checkAccess(Permission.READ_RUN),
+    },
+    {
+      label: t('AI'),
+      accessibleLabel: t('AI'),
+      icon: SendIcon,
+      to: '/chat',
+      matchSegments: ['/chat'],
+      hasPermission: true,
+    },
+    {
+      label: t('Connect'),
+      accessibleLabel: t('Connect'),
+      icon: ConnectIcon,
+      to: authenticationSession.appendProjectRoutePrefix('/connections'),
+      matchSegments: ['/connections'],
+      hasPermission: checkAccess(Permission.READ_APP_CONNECTION),
+    },
+    {
+      label: t('Explore'),
+      accessibleLabel: t('Explore'),
+      icon: CompassIcon,
+      to: '/templates',
+      matchSegments: ['/templates'],
+      hasPermission: true,
+    },
+  ];
+
+  return tabs.filter((tab) => tab.hasPermission);
+}
+
+type MobileNavTab = {
+  label: string;
+  accessibleLabel: string;
+  icon: React.ComponentType<{
+    className?: string;
+    'aria-hidden'?: React.AriaAttributes['aria-hidden'];
+  }>;
+  to: string;
+  matchSegments: string[];
+  hasPermission: boolean;
+};
+
+export { MobileBottomNav };

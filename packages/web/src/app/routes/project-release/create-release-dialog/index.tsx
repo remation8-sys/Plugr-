@@ -12,7 +12,6 @@ import { useState } from 'react';
 import { Resolver, useForm, UseFormReturn } from 'react-hook-form';
 import * as z from 'zod';
 
-import { LoadingSpinner } from '@/components/custom/spinner';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -25,6 +24,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Skeleton } from '@/components/ui/skeleton';
 import { Textarea } from '@/components/ui/textarea';
 import { projectReleaseMutations } from '@/features/project-releases';
 import { authenticationSession } from '@/lib/authentication-session';
@@ -91,8 +91,11 @@ const CreateReleaseDialogContent = ({
   return (
     <>
       {loading && (
-        <div className="flex items-center justify-center h-24">
-          <LoadingSpinner />
+        <div aria-busy="true" className="space-y-3 py-3" role="status">
+          <Skeleton className="h-4 w-20" />
+          <Skeleton className="h-10 w-full" />
+          <Skeleton className="h-4 w-28" />
+          <Skeleton className="h-20 w-full" />
         </div>
       )}
 

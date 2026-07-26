@@ -28,31 +28,22 @@ const CarouselContentWithButtons = ({
 
   return (
     <div
-      className={`relative my-4 transition-[padding] duration-200 py-3 border-b border-t `}
+      className="relative my-4 border-y py-3 transition-[padding] duration-200"
       style={{
         paddingLeft: canScrollPrev ? '3rem' : '0',
         paddingRight: canScrollNext ? '3rem' : '0',
       }}
     >
       <CarouselContent className={cn('-ml-2 gap-1', className)}>
-        {categories.map((category) => {
-          const isSelected = selectedCategory === category;
-          return (
-            <CarouselItem key={category} className="basis-auto pl-2">
-              <Button
-                variant="outline"
-                onClick={() => onCategorySelect(category)}
-                className={`px-4 py-1.5 h-auto whitespace-nowrap transition-colors ${
-                  isSelected
-                    ? 'bg-black text-white border-black hover:!bg-black hover:!text-white'
-                    : 'bg-transparent hover:!bg-sidebar-accent hover:!text-sidebar-accent-foreground border-none'
-                }`}
-              >
-                {category}
-              </Button>
-            </CarouselItem>
-          );
-        })}
+        {categories.map((category) => (
+          <CarouselItem key={category} className="basis-auto pl-2">
+            <CategoryButton
+              category={category}
+              selected={selectedCategory === category}
+              onSelect={onCategorySelect}
+            />
+          </CarouselItem>
+        ))}
       </CarouselContent>
       {canScrollPrev && (
         <CarouselPrevious variant="ghost" className="left-0 z-10">
@@ -68,25 +59,64 @@ const CarouselContentWithButtons = ({
   );
 };
 
-export const CategoryFilterCarousel = ({
+const CategoryFilterCarousel = ({
   categories,
   selectedCategory,
   onCategorySelect,
 }: CategoryFilterCarouselProps) => {
   return (
-    <Carousel
-      opts={{
-        align: 'start',
-        loop: false,
-      }}
-      className="w-full"
-    >
-      <CarouselContentWithButtons
-        className={DASHBOARD_CONTENT_PADDING_X}
-        categories={categories}
-        selectedCategory={selectedCategory}
-        onCategorySelect={onCategorySelect}
-      />
-    </Carousel>
+    <>
+      <div className="my-4 flex flex-wrap gap-2 border-y px-4 py-3 md:hidden">
+        {categories.map((category) => (
+          <CategoryButton
+            key={category}
+            category={category}
+            selected={selectedCategory === category}
+            onSelect={onCategorySelect}
+          />
+        ))}
+      </div>
+      <Carousel
+        opts={{
+          align: 'start',
+          loop: false,
+        }}
+        className="hidden w-full md:block"
+      >
+        <CarouselContentWithButtons
+          className={DASHBOARD_CONTENT_PADDING_X}
+          categories={categories}
+          selectedCategory={selectedCategory}
+          onCategorySelect={onCategorySelect}
+        />
+      </Carousel>
+    </>
   );
 };
+
+function CategoryButton({
+  category,
+  selected,
+  onSelect,
+}: {
+  category: string;
+  selected: boolean;
+  onSelect: (category: string) => void;
+}) {
+  return (
+    <Button
+      variant="outline"
+      onClick={() => onSelect(category)}
+      className={cn(
+        'h-auto min-h-10 whitespace-normal px-4 py-1.5 transition-colors',
+        selected
+          ? 'border-black bg-black text-white hover:!bg-black hover:!text-white'
+          : 'border-none bg-transparent hover:!bg-sidebar-accent hover:!text-sidebar-accent-foreground',
+      )}
+    >
+      {category}
+    </Button>
+  );
+}
+
+export { CategoryFilterCarousel };

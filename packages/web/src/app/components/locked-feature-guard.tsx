@@ -1,9 +1,9 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-import { Button } from '@/components/ui/button';
-
 import { FeatureKey, RequestTrial } from './request-trial';
+
+import { Button } from '@/components/ui/button';
 
 type LockedFeatureGuardProps = {
   children: React.ReactNode;
@@ -38,7 +38,7 @@ export const LockedFeatureGuard = ({
     <div className="flex w-full flex-col items-center justify-center gap-2">
       <div className="pt-8 text-center flex flex-col gap-2 justify-center items-center">
         <h1 className="text-3xl font-bold">{lockTitle}</h1>
-        <div className="text-center w-[485px] my-4 flex flex-col gap-2 justify-center items-center">
+        <div className="my-4 flex w-full max-w-lg flex-col items-center justify-center gap-2 px-4 text-center">
           <p className="text-md leading-relaxed text-muted-foreground">
             {lockDescription}
             {lockDocumentationUrl && (
@@ -76,7 +76,7 @@ export const LockedFeatureGuard = ({
             loop
             muted
             playsInline
-            className="max-w-[70vh] rounded-lg"
+            className="h-auto w-full max-w-3xl rounded-lg"
             controls={false}
             src={lockVideoUrl}
           />

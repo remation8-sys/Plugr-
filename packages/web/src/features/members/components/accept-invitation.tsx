@@ -3,7 +3,7 @@ import { t } from 'i18next';
 import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 
-import { LoadingSpinner } from '@/components/custom/spinner';
+import { LoadingScreen } from '@/components/custom/loading-screen';
 import { internalErrorToast } from '@/components/ui/sonner';
 
 import { api } from '../../../lib/api';
@@ -51,9 +51,7 @@ const AcceptInvitation = () => {
   }, [mutate, searchParams]);
 
   return isPending ? (
-    <div className="w-screen h-screen flex justify-center items-center">
-      <LoadingSpinner isLarge={true}></LoadingSpinner>
-    </div>
+    <LoadingScreen message={t('Accepting your invitation')} />
   ) : (
     <div className="container mx-auto mt-10 max-w-md">
       {isInvitationLinkValid ? (

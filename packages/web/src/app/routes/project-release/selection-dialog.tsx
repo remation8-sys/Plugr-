@@ -1,10 +1,10 @@
 import { ProjectReleaseType } from '@activepieces/shared';
 import { ReactNode, useState } from 'react';
 
+import { ProjectSelectionDialog } from './selection-release-dialog/project-dialog';
+
 import { Button, ButtonProps } from '@/components/ui/button';
 import { projectCollectionUtils } from '@/features/projects';
-
-import { ProjectSelectionDialog } from './selection-release-dialog/project-dialog';
 
 type SelectionButtonProps = ButtonProps & {
   ReleaseType: ProjectReleaseType;

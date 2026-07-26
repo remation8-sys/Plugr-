@@ -1,6 +1,6 @@
-import { stringUtils } from '@/lib/string-utils';
-
 import type { OutputSchemaField } from './types';
+
+import { stringUtils } from '@/lib/string-utils';
 
 function resolveFieldLabel(field: OutputSchemaField): string {
   return field.label ?? stringUtils.titleCase(field.key);

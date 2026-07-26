@@ -7,6 +7,8 @@ import { t } from 'i18next';
 import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
 
+import { billingMutations } from '../../hooks/billing-hooks';
+
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -18,8 +20,6 @@ import {
 } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Slider } from '@/components/ui/slider';
-
-import { billingMutations } from '../../hooks/billing-hooks';
 
 interface AutoTopUpConfigDialogProps {
   isOpen: boolean;

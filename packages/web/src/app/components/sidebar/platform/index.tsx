@@ -3,6 +3,9 @@ import { t } from 'i18next';
 import { ComponentType, useRef } from 'react';
 import { Link } from 'react-router-dom';
 
+import { ApSidebarItem } from '../ap-sidebar-item';
+import { SidebarUser } from '../sidebar-user';
+
 import { McpSvg } from '@/assets/img/custom/mcp';
 import { BotIcon } from '@/components/icons/bot';
 import {
@@ -42,9 +45,6 @@ import { flagsHooks } from '@/hooks/flags-hooks';
 import { platformHooks } from '@/hooks/platform-hooks';
 import { determineDefaultRoute } from '@/lib/route-utils';
 import { cn } from '@/lib/utils';
-
-import { ApSidebarItem } from '../ap-sidebar-item';
-import { SidebarUser } from '../sidebar-user';
 
 export function PlatformSidebar() {
   const { platform } = platformHooks.useCurrentPlatform();

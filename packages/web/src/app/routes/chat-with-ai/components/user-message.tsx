@@ -3,6 +3,10 @@ import { Paperclip } from 'lucide-react';
 import { motion } from 'motion/react';
 import { memo } from 'react';
 
+import { getTextFromParts } from '../lib/message-parsers';
+
+import { CopyIconButton } from './copy-icon-button';
+
 import {
   Message,
   MessageAction,
@@ -11,10 +15,6 @@ import {
 } from '@/components/prompt-kit/message';
 import { ChatUIMessage } from '@/features/chat/lib/chat-types';
 import { cn } from '@/lib/utils';
-
-import { getTextFromParts } from '../lib/message-parsers';
-
-import { CopyIconButton } from './copy-icon-button';
 
 export const UserMessage = memo(function UserMessage({
   message,
@@ -73,7 +73,7 @@ export const UserMessage = memo(function UserMessage({
             'justify-end mt-1 transition-opacity',
             isLastMessage
               ? 'opacity-100'
-              : 'opacity-0 group-hover/msg:opacity-100 focus-within:opacity-100',
+              : 'opacity-0 group-hover/msg:opacity-100 focus-within:opacity-100 max-md:opacity-100',
           )}
         >
           <MessageAction tooltip={t('Copy')}>

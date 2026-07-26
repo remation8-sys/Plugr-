@@ -4,11 +4,11 @@ import { Check, ChevronDown, ChevronUp } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useState } from 'react';
 
+import { normalizePieceName } from '../lib/message-parsers';
+
 import { Button } from '@/components/ui/button';
 import { PieceIconWithPieceName } from '@/features/pieces/components/piece-icon-from-name';
 import { cn } from '@/lib/utils';
-
-import { normalizePieceName } from '../lib/message-parsers';
 
 export function ActionPreviewCard({
   preview,

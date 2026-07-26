@@ -1,6 +1,9 @@
 import { isNil, isObject } from '@activepieces/shared';
 import { t } from 'i18next';
 
+import { pathHelpers } from './path-helpers';
+import { DataSelectorTreeNode, DataSelectorTreeNodeDataUnion } from './type';
+
 import { schemaUtils } from '@/components/custom/smart-output-viewer/resolve-schema';
 import {
   OutputSchemaField,
@@ -8,9 +11,6 @@ import {
 } from '@/components/custom/smart-output-viewer/types';
 import { pathUtils } from '@/lib/path-utils';
 import { stringUtils } from '@/lib/string-utils';
-
-import { pathHelpers } from './path-helpers';
-import { DataSelectorTreeNode, DataSelectorTreeNodeDataUnion } from './type';
 
 function buildFieldChildNode({
   stepName,

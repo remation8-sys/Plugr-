@@ -3,13 +3,13 @@ import { t } from 'i18next';
 import { Globe, UserCheck } from 'lucide-react';
 import React, { useCallback, useRef, useState } from 'react';
 
+import { SuggestedUserItem } from './suggested-user-item';
+import { useUserSuggestions } from './use-user-suggestions';
+
 import { TagInput, TagMeta } from '@/components/custom/tag-input';
 import { Command, CommandGroup, CommandList } from '@/components/ui/command';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { formatUtils } from '@/lib/format-utils';
-
-import { SuggestedUserItem } from './suggested-user-item';
-import { useUserSuggestions } from './use-user-suggestions';
 
 function UserSuggestionsPopover({
   value,

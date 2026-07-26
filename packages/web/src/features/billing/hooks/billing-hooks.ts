@@ -9,9 +9,9 @@ import { t } from 'i18next';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
-import { internalErrorToast } from '@/components/ui/sonner';
-
 import { platformBillingApi } from '../api/billing-plans-api';
+
+import { internalErrorToast } from '@/components/ui/sonner';
 
 export const billingKeys = {
   platformSubscription: (platformId: string) =>

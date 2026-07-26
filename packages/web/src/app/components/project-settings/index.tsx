@@ -11,6 +11,15 @@ import { useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 
+import { ProjectAvatar } from '../project-avatar';
+
+import { AlertsSettings } from './alerts';
+import { EnvironmentSettings } from './environment';
+import { GeneralSettings, FormValues } from './general';
+import { McpServerSettings } from './mcp-server';
+import { MembersSettings } from './members';
+import { PiecesSettings } from './pieces';
+
 import { McpSvg } from '@/assets/img/custom/mcp';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -23,15 +32,6 @@ import { flagsHooks } from '@/hooks/flags-hooks';
 import { platformHooks } from '@/hooks/platform-hooks';
 import { userHooks } from '@/hooks/user-hooks';
 import { cn } from '@/lib/utils';
-
-import { ProjectAvatar } from '../project-avatar';
-
-import { AlertsSettings } from './alerts';
-import { EnvironmentSettings } from './environment';
-import { GeneralSettings, FormValues } from './general';
-import { McpServerSettings } from './mcp-server';
-import { MembersSettings } from './members';
-import { PiecesSettings } from './pieces';
 
 type TabId =
   | 'general'
@@ -190,7 +190,7 @@ export function ProjectSettingsDialog({
 
     return (
       <div className="border-t bg-background rounded-br-md">
-        <div className="flex items-center justify-end gap-3 px-6 py-4">
+        <div className="flex items-center justify-end gap-3 px-4 py-4 md:px-6">
           <Button variant="outline" size="sm" onClick={onClose}>
             {t('Close')}
           </Button>
@@ -211,7 +211,7 @@ export function ProjectSettingsDialog({
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-5xl w-full max-h-[95vh] rounded-sm flex flex-col p-0">
-        <div className="flex flex-col md:flex-row h-[85vh] md:h-[700px]">
+        <div className="flex h-full min-h-0 flex-col md:h-[700px] md:flex-row">
           <div className="w-full md:w-[238px] shrink-0">
             <nav className="bg-sidebar bg-muted rounded-sm md:rounded-r-none h-auto md:h-full flex flex-col md:rounded-l-md">
               <div className="hidden md:block">
@@ -224,7 +224,7 @@ export function ProjectSettingsDialog({
                   projectType={project.type}
                 />
               </div>
-              <div className="flex flex-row md:flex-col px-2 py-2 md:py-0 gap-1 overflow-x-auto md:overflow-visible scrollbar-none">
+              <div className="flex flex-wrap gap-1 px-2 py-2 md:flex-col md:flex-nowrap md:overflow-visible md:py-0">
                 {tabs.map((tab) => (
                   <div
                     key={tab.id}

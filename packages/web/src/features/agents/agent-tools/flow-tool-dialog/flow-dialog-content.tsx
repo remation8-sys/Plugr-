@@ -9,11 +9,11 @@ import { Workflow } from 'lucide-react';
 import { useMemo } from 'react';
 import { useDebounce } from 'use-debounce';
 
-import { Checkbox } from '@/components/ui/checkbox';
-import { PieceIconList } from '@/features/pieces/components/piece-icon-list';
-
 import { CreateMcpFlowButton } from './create-mcp-flow-button';
 import { flowDialogUtils } from './flow-dialog-utils';
+
+import { Checkbox } from '@/components/ui/checkbox';
+import { PieceIconList } from '@/features/pieces/components/piece-icon-list';
 
 interface FlowDialogContentProps {
   flows: PopulatedFlow[];

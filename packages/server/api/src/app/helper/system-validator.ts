@@ -143,6 +143,19 @@ const systemPropValidators: {
     [AppSystemProp.TELEMETRY_ENABLED]: booleanValidator,
     [AppSystemProp.TRIGGER_DEFAULT_POLL_INTERVAL]: numberValidator,
     [AppSystemProp.WEBHOOK_TIMEOUT_SECONDS]: numberValidator,
+    [AppSystemProp.WEB_PUSH_PRIVATE_KEY]: stringValidator,
+    [AppSystemProp.WEB_PUSH_PUBLIC_KEY]: stringValidator,
+    [AppSystemProp.WEB_PUSH_SUBJECT]: (value: string) => {
+        if (value.startsWith('mailto:') && value.slice('mailto:'.length).includes('@')) {
+            return true
+        }
+        try {
+            return new URL(value).protocol === 'https:' ? true : 'Value must use https: or mailto:'
+        }
+        catch {
+            return 'Value must be a valid https: or mailto: VAPID subject'
+        }
+    },
     [AppSystemProp.LOAD_TRANSLATIONS_FOR_DEV_PIECES]: booleanValidator,
     [AppSystemProp.APPSUMO_TOKEN]: stringValidator,
     [AppSystemProp.FILE_STORAGE_LOCATION]: enumValidator(Object.values(FileLocation)),

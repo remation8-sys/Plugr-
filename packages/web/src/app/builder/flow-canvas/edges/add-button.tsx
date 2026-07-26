@@ -4,13 +4,13 @@ import { t } from 'i18next';
 import { Plus } from 'lucide-react';
 import React, { useState } from 'react';
 
-import { PieceSelector } from '@/app/builder/pieces-selector';
-import { cn } from '@/lib/utils';
-
 import { useBuilderStateContext } from '../../builder-hooks';
 import { flowCanvasConsts } from '../utils/consts';
 import { flowCanvasUtils } from '../utils/flow-canvas-utils';
 import { ApButtonData } from '../utils/types';
+
+import { PieceSelector } from '@/app/builder/pieces-selector';
+import { cn } from '@/lib/utils';
 
 const ApAddButton = React.memo((props: ApButtonData) => {
   const [isStepInsideDropZone, setIsStepInsideDropzone] = useState(false);
@@ -110,28 +110,22 @@ const ApAddButton = React.memo((props: ApButtonData) => {
                 'shadow-add-button': isPieceSelectorOpen,
               })}
             >
-              <div
-                style={{
-                  width: flowCanvasConsts.AP_NODE_SIZE.ADD_BUTTON.width + 'px',
-                  height:
-                    flowCanvasConsts.AP_NODE_SIZE.ADD_BUTTON.height + 'px',
-                }}
+              <button
+                type="button"
                 className={cn(
-                  'group relative z-50 flex cursor-pointer items-center justify-center overflow-visible rounded-lg border border-border bg-card transition-all duration-150 hover:scale-110 hover:border-primary/40 hover:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25 motion-reduce:transition-none',
+                  'group relative z-50 flex h-5 w-5 cursor-pointer touch-manipulation items-center justify-center overflow-visible rounded-lg border border-border bg-card transition-all duration-150 hover:scale-110 hover:border-primary/40 hover:bg-accent active:scale-95 active:bg-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25 motion-reduce:transition-none max-md:-translate-x-3 max-md:-translate-y-3 max-md:h-11 max-md:w-11',
                   {
                     'border-primary bg-primary text-primary-foreground':
                       isPieceSelectorOpen,
                   },
                 )}
-                role="button"
-                tabIndex={0}
                 aria-label={t('Add step')}
                 data-testid="add-action-button"
               >
                 {!isPieceSelectorOpen && (
-                  <Plus className="size-3 stroke-[3px] text-muted-foreground transition-colors group-hover:text-foreground" />
+                  <Plus className="size-3 stroke-[3px] text-muted-foreground transition-colors group-hover:text-foreground max-md:size-5" />
                 )}
-              </div>
+              </button>
             </div>
           </div>
         </PieceSelector>

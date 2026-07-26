@@ -126,7 +126,7 @@ export function FlowPreviewCard({ preview }: { preview: FlowPreviewData }) {
               key={`${step}-${i}`}
               className="flex items-center gap-2 text-xs text-muted-foreground"
             >
-              <span className="flex size-4 shrink-0 items-center justify-center rounded-full bg-background text-[10px] font-medium">
+              <span className="flex size-4 shrink-0 items-center justify-center rounded-full bg-background text-xs font-medium">
                 {i + 1}
               </span>
               <span className="truncate">{step}</span>

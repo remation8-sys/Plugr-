@@ -1,11 +1,11 @@
-﻿import { AlertCircle } from 'lucide-react';
+import { AlertCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
 
 export function BillingFailedPage() {
   return (
-    <div className="mx-auto flex h-full max-w-xl flex-col items-center justify-center gap-4 p-6 text-center">
+    <div className="mx-auto flex h-full max-w-xl flex-col items-center justify-center gap-4 p-4 text-center md:p-6">
       <div className="flex size-12 items-center justify-center rounded-full bg-destructive/10 text-destructive">
         <AlertCircle className="size-7" />
       </div>

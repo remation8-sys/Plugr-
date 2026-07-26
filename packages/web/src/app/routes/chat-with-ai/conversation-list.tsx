@@ -4,13 +4,13 @@ import { t } from 'i18next';
 import { ChevronDown, MessageSquare, Plus, Search, Trash2 } from 'lucide-react';
 import { useMemo, useState, useRef, useCallback, useEffect } from 'react';
 
+import { DelayedTooltip } from './components/delayed-tooltip';
+
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { chatApi } from '@/features/chat/lib/chat-api';
 import { cn } from '@/lib/utils';
-
-import { DelayedTooltip } from './components/delayed-tooltip';
 
 export function ConversationList({
   onSelect,
@@ -49,7 +49,10 @@ export function ConversationList({
     },
   });
 
-  const allConversations = conversationsPage?.data ?? [];
+  const allConversations = useMemo(
+    () => conversationsPage?.data ?? [],
+    [conversationsPage?.data],
+  );
 
   const conversations = useMemo(() => {
     if (!searchQuery.trim()) return allConversations;
@@ -114,7 +117,7 @@ export function ConversationList({
       <div className="mb-2 flex flex-col gap-px">
         <button
           type="button"
-          className="flex items-center gap-0.5 rounded-md bg-transparent border-none cursor-pointer text-[11px] font-semibold px-2 py-1 uppercase tracking-wider text-muted-foreground transition-colors hover:text-foreground"
+          className="flex items-center gap-0.5 rounded-md bg-transparent border-none cursor-pointer text-xs font-semibold px-2 py-1 uppercase tracking-wider text-muted-foreground transition-colors hover:text-foreground"
           onClick={() => toggleGroup(label)}
         >
           {label}
@@ -146,7 +149,8 @@ export function ConversationList({
                   <span
                     role="button"
                     tabIndex={0}
-                    className="absolute right-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 p-1 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all"
+                    aria-label={t('Delete conversation')}
+                    className="absolute right-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 max-md:opacity-100 p-1 rounded-md text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all"
                     onClick={(e) => handleDelete(e, conv.id)}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter') {
@@ -186,7 +190,7 @@ export function ConversationList({
             <Plus size={14} />
             {t('New chat')}
           </span>
-          <span className="text-[11px] opacity-50">⇧⌘O</span>
+          <span className="text-xs text-muted-foreground">⇧⌘O</span>
         </button>
         {allConversations.length > 5 && (
           <div className="relative">

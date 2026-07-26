@@ -100,12 +100,16 @@ export async function openPlugrInlineCheckout(
       if (!incomplete) {
         return;
       }
-      window.location.href = `/billing/success?tx_ref=${encodeURIComponent(inline.txRef)}`;
+      window.location.href = `/billing/success?tx_ref=${encodeURIComponent(
+        inline.txRef,
+      )}`;
     },
   });
 }
 
-function normalizeFlutterwaveValue(value: number | string | undefined): string | undefined {
+function normalizeFlutterwaveValue(
+  value: number | string | undefined,
+): string | undefined {
   const normalized = value === undefined ? undefined : String(value).trim();
   if (
     !normalized ||

@@ -20,7 +20,7 @@ const CheckEmailNote = ({ email, type }: CreateOtpRequestBody) => {
   });
   return (
     <div className="gap-2 w-full flex flex-col">
-      <div className="gap-4 w-full flex flex-row items-center justify-center">
+      <div className="flex w-full flex-col items-center justify-center gap-4 sm:flex-row">
         <MailCheck className="w-16 h-16" />
         <span className="text-left w-fit">
           {type === OtpType.EMAIL_VERIFICATION
@@ -29,7 +29,7 @@ const CheckEmailNote = ({ email, type }: CreateOtpRequestBody) => {
           <strong>&nbsp;{email}</strong>.
         </span>
       </div>
-      <div className="flex flex-row gap-1">
+      <div className="flex flex-wrap gap-1">
         {t("Didn't receive an email or it expired?")}
         <button
           className="cursor-pointer text-primary underline"

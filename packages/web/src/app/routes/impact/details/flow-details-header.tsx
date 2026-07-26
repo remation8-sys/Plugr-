@@ -33,7 +33,7 @@ export function FlowDetailsHeader({ report }: FlowDetailsHeaderProps) {
   };
 
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between">
       <div className="text-lg font-semibold">{t('Details')}</div>
       <Button
         variant="outline"

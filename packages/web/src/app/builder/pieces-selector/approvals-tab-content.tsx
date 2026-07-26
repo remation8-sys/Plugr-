@@ -1,5 +1,9 @@
 import { FlowActionType, FlowOperationType, isNil } from '@activepieces/shared';
 
+import { useBuilderStateContext } from '../builder-hooks';
+
+import GenericActionOrTriggerItem from './generic-piece-selector-item';
+
 import { CardList, CardListItemSkeleton } from '@/components/custom/card-list';
 import {
   piecesHooks,
@@ -8,10 +12,6 @@ import {
   PieceSelectorOperation,
   stepUtils,
 } from '@/features/pieces';
-
-import { useBuilderStateContext } from '../builder-hooks';
-
-import GenericActionOrTriggerItem from './generic-piece-selector-item';
 
 const APPROVAL_PIECES_CONFIG = [
   {

@@ -1,4 +1,5 @@
 /// <reference types='vitest' />
+import { readFileSync } from 'node:fs';
 import path from 'path';
 
 import tsconfigPaths from 'vite-tsconfig-paths';
@@ -99,15 +100,15 @@ export default defineConfig(({ command, mode }) => {
         '@': path.resolve(__dirname, './src'),
         '@activepieces/shared': path.resolve(
           __dirname,
-          '../../packages/shared/src',
+          '../../packages/shared/src'
         ),
         'ee-embed-sdk': path.resolve(
           __dirname,
-          '../../packages/ee/embed-sdk/src',
+          '../../packages/ee/embed-sdk/src'
         ),
         '@activepieces/pieces-framework': path.resolve(
           __dirname,
-          '../../packages/pieces/framework/src',
+          '../../packages/pieces/framework/src'
         ),
       },
     },
@@ -132,35 +133,228 @@ export default defineConfig(({ command, mode }) => {
         : []),
       VitePWA({
         registerType: 'autoUpdate',
-        includeAssets: ['favicon.ico', 'favicon.svg', 'logo-180.png', 'logo-192.png', 'plugr-icon.png'],
+        includeAssets: [
+          'favicon.ico',
+          'favicon.svg',
+          'logo-180.png',
+          'icons/*.png',
+        ],
         manifest: {
+          id: '/',
           name: 'Plugr',
           short_name: 'Plugr',
-          description: 'Build and run automations with Plugr',
-          theme_color: '#0a0a0b',
+          description: 'Automate your business from your phone',
+          theme_color: '#0055ff',
           background_color: '#0a0a0b',
           display: 'standalone',
           orientation: 'portrait',
           start_url: '/',
           scope: '/',
           icons: [
-            { src: 'favicon-32.png', sizes: '32x32', type: 'image/png' },
-            { src: 'logo-180.png', sizes: '180x180', type: 'image/png' },
-            { src: 'logo-192.png', sizes: '192x192', type: 'image/png' },
-            { src: 'plugr-icon.png', sizes: '512x512', type: 'image/png', purpose: 'any maskable' },
+            {
+              src: 'icons/icon-72.png',
+              sizes: '72x72',
+              type: 'image/png',
+            },
+            {
+              src: 'icons/icon-96.png',
+              sizes: '96x96',
+              type: 'image/png',
+            },
+            {
+              src: 'icons/icon-128.png',
+              sizes: '128x128',
+              type: 'image/png',
+            },
+            {
+              src: 'icons/icon-144.png',
+              sizes: '144x144',
+              type: 'image/png',
+            },
+            {
+              src: 'icons/icon-152.png',
+              sizes: '152x152',
+              type: 'image/png',
+            },
+            {
+              src: 'icons/icon-192.png',
+              sizes: '192x192',
+              type: 'image/png',
+            },
+            {
+              src: 'icons/icon-384.png',
+              sizes: '384x384',
+              type: 'image/png',
+            },
+            {
+              src: 'icons/icon-512.png',
+              sizes: '512x512',
+              type: 'image/png',
+            },
+            {
+              src: 'icons/icon-192-maskable.png',
+              sizes: '192x192',
+              type: 'image/png',
+              purpose: 'maskable',
+            },
+            {
+              src: 'icons/icon-512-maskable.png',
+              sizes: '512x512',
+              type: 'image/png',
+              purpose: 'maskable',
+            },
             { src: 'favicon.svg', sizes: 'any', type: 'image/svg+xml' },
+          ],
+          categories: ['business', 'productivity', 'utilities'],
+          shortcuts: [
+            {
+              name: 'Automations',
+              short_name: 'Automations',
+              url: '/automations',
+              icons: [
+                {
+                  src: 'icons/icon-96.png',
+                  sizes: '96x96',
+                  type: 'image/png',
+                },
+              ],
+            },
+            {
+              name: 'Plugr Chat',
+              short_name: 'Chat',
+              url: '/chat',
+              icons: [
+                {
+                  src: 'icons/icon-96.png',
+                  sizes: '96x96',
+                  type: 'image/png',
+                },
+              ],
+            },
+            {
+              name: 'Explore templates',
+              short_name: 'Explore',
+              url: '/templates',
+              icons: [
+                {
+                  src: 'icons/icon-96.png',
+                  sizes: '96x96',
+                  type: 'image/png',
+                },
+              ],
+            },
           ],
         },
         workbox: {
+          importScripts: ['/push-sw.js'],
           globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,ttf}'],
           // The chat-suggestion card backgrounds are multi-MB decorative SVGs.
-          // Don't bloat the precache with them — they load fine at runtime.
-          globIgnores: ['**/chat-suggestions/**'],
-          // Allow the ~4.8MB app-shell JS bundle to be precached (default is 2 MiB).
-          maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
+          // Keep them out of the precache; they load normally at runtime.
+          globIgnores: ['**/blog/**', '**/chat-suggestions/**'],
+          manifestTransforms: [
+            (entries) => {
+              const indexHtml = readFileSync(
+                path.resolve(__dirname, '../../dist/packages/web/index.html'),
+                'utf8',
+              );
+              const initialScriptUrls = new Set(
+                Array.from(
+                  indexHtml.matchAll(/(?:src|href)="\/([^"]+\.js)"/g),
+                  (match) => match[1],
+                ),
+              );
+              return {
+                manifest: entries.filter(
+                  (entry) =>
+                    !entry.url.endsWith('.js') ||
+                    initialScriptUrls.has(entry.url),
+                ),
+                warnings: [],
+              };
+            },
+          ],
+          cleanupOutdatedCaches: true,
+          clientsClaim: true,
+          skipWaiting: true,
           navigateFallback: '/index.html',
-          navigateFallbackDenylist: [/^\/api\//, /^\/mcp\//],
+          navigateFallbackDenylist: [
+            /^\/api(?:\/|$)/,
+            /^\/mcp(?:\/|$)/,
+            /^\/blog(?:\/|$)/,
+            /^\/feed\.xml$/,
+            /^\/robots\.txt$/,
+            /^\/sitemap\.xml$/,
+            /^\/\.well-known(?:\/|$)/,
+            /^\/(?:register|authorize|token|revoke)(?:\/|$)/,
+          ],
           runtimeCaching: [
+            {
+              urlPattern: ({ request, url }) =>
+                url.origin === self.location.origin &&
+                (request.destination === 'script' ||
+                  request.destination === 'style' ||
+                  request.destination === 'worker'),
+              handler: 'StaleWhileRevalidate',
+              options: {
+                cacheName: 'plugr-app-assets-v1',
+                cacheableResponse: {
+                  statuses: [200],
+                },
+                expiration: {
+                  maxAgeSeconds: 30 * 24 * 60 * 60,
+                  maxEntries: 180,
+                },
+              },
+            },
+            {
+              urlPattern: ({ request, url }) =>
+                request.method === 'GET' &&
+                !request.headers.has('authorization') &&
+                url.origin === self.location.origin &&
+                (url.pathname.startsWith('/api/v1/templates') ||
+                  url.pathname === '/api/v1/user-billing/pricing'),
+              handler: 'NetworkFirst',
+              options: {
+                cacheName: 'plugr-public-data-v1',
+                networkTimeoutSeconds: 4,
+                cacheableResponse: {
+                  statuses: [200],
+                },
+                expiration: {
+                  maxAgeSeconds: 24 * 60 * 60,
+                  maxEntries: 60,
+                },
+              },
+            },
+            {
+              urlPattern: ({ request, url }) =>
+                request.destination === 'image' &&
+                !url.pathname.startsWith('/api/'),
+              handler: 'StaleWhileRevalidate',
+              options: {
+                cacheName: 'plugr-images-v1',
+                cacheableResponse: {
+                  statuses: [0, 200],
+                },
+                expiration: {
+                  maxAgeSeconds: 30 * 24 * 60 * 60,
+                  maxEntries: 120,
+                },
+              },
+            },
+            {
+              urlPattern: /\/api\/v1\/templates-telemetry\/event$/,
+              method: 'POST',
+              handler: 'NetworkOnly',
+              options: {
+                backgroundSync: {
+                  name: 'plugr-safe-actions-v1',
+                  options: {
+                    maxRetentionTime: 24 * 60,
+                  },
+                },
+              },
+            },
             {
               urlPattern: /^\/api\//,
               handler: 'NetworkOnly',
@@ -171,6 +365,7 @@ export default defineConfig(({ command, mode }) => {
     ],
 
     build: {
+      cssCodeSplit: true,
       outDir: '../../dist/packages/web',
       emptyOutDir: true,
       reportCompressedSize: true,
@@ -178,6 +373,18 @@ export default defineConfig(({ command, mode }) => {
         transformMixedEsModules: true,
       },
       rollupOptions: {
+        output: {
+          manualChunks(id) {
+            if (
+              id.includes('/node_modules/react/') ||
+              id.includes('/node_modules/react-dom/') ||
+              id.includes('/node_modules/scheduler/')
+            ) {
+              return 'vendor-react';
+            }
+            return undefined;
+          },
+        },
         onLog(level, log, handler) {
           if (
             log.cause &&

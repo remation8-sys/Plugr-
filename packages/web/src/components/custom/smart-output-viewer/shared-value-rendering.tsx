@@ -3,9 +3,9 @@ import { t } from 'i18next';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 
-import { stringUtils } from '@/lib/string-utils';
-
 import { FieldTypeIcon } from './field-type-icon';
+
+import { stringUtils } from '@/lib/string-utils';
 
 const formatKey = stringUtils.titleCase;
 const MAX_NESTED_DEPTH = 10;
@@ -104,7 +104,7 @@ function ValueRow({ label, value, depth }: ValueRowProps) {
       </span>
       <span className="text-sm text-foreground/70 flex-1 min-w-0 break-words whitespace-pre-wrap">
         {isNil(value) || value === '' ? (
-          <span className="text-muted-foreground/40 italic">{t('empty')}</span>
+          <span className="text-muted-foreground italic">{t('empty')}</span>
         ) : Array.isArray(value) ? (
           t('itemCount', { count: value.length })
         ) : (

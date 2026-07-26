@@ -1,0 +1,73 @@
+---
+title: 'Progressive Web App'
+description: 'Deploy Plugr as an installable PWA with optional browser push notifications.'
+icon: 'mobile-screen'
+---
+
+Plugr ships as a Progressive Web App (PWA). Users install the same HTTPS web
+deployment from their browser, so a Google Play Store listing or Android wrapper
+is not required.
+
+## Production requirements
+
+- Serve the public frontend URL over HTTPS. Localhost is the only development
+  exception allowed by browsers.
+- Keep the generated service worker, web manifest, and icons at the root paths
+  produced by the web build.
+- Route application paths back to index.html while continuing to route /api to
+  the API server.
+- Do not cache sw.js, push-sw.js, manifest.webmanifest, or index.html for a long
+  period. Hashed files under /assets may be cached as immutable.
+
+The bundled server already applies these cache rules when it serves the web
+build directly.
+
+## Enable browser notifications
+
+Generate one VAPID key pair for the deployment. Keep the private key secret and
+reuse the same pair across deployments:
+
+    bunx web-push generate-vapid-keys --json
+
+Set these environment variables on the application containers:
+
+| Variable | Required | Description |
+| --- | --- | --- |
+| **AP_WEB_PUSH_PUBLIC_KEY** | Yes | URL-safe public VAPID key sent to supported browsers. |
+| **AP_WEB_PUSH_PRIVATE_KEY** | Yes | Private VAPID key used only by the API server. |
+| **AP_WEB_PUSH_SUBJECT** | No | HTTPS contact URL or mailto address. Defaults to AP_FRONTEND_URL. |
+
+If either key is absent or invalid, the PWA remains installable and browser
+notifications are shown as unavailable. Users opt in from Account Settings;
+Plugr never opens the browser permission prompt automatically.
+
+Deploying the server runs the web push subscription migration automatically.
+The subscription endpoint and browser-generated encryption keys are stored per
+platform and per user.
+
+## Installation
+
+On Android with Chrome, open the HTTPS site, use the in-app install prompt or
+the browser menu, and choose Install app.
+
+On iPhone or iPad, open the site in Safari, tap Share, choose Add to Home
+Screen, and launch the installed app. Browser notifications on iOS are offered
+only from the installed Home Screen app.
+
+## Verification checklist
+
+1. Open the production URL in a private browser window and confirm that the
+   manifest and service worker load without errors.
+2. Install the app, launch it from the Home Screen, sign in, and confirm that
+   navigation stays in standalone mode.
+3. Open Account Settings, enable Browser notifications, and accept the browser
+   permission request.
+4. Run an enabled production flow that fails and confirm one notification opens
+   the matching run detail page.
+5. Disable Browser notifications and confirm the browser subscription is
+   removed.
+6. Test an offline reload of a previously visited application route and confirm
+   that the offline recovery experience is shown.
+
+Flow-failure notifications are deduplicated to one notification per published
+flow version per day, preventing repeated failures from flooding a device.

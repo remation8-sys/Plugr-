@@ -5,6 +5,8 @@ import { useState } from 'react';
 import { ControllerRenderProps, useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { useBuilderStateContext } from '../../builder-hooks';
+
 import { DictionaryInput } from '@/components/custom/dictionary-input';
 import { JsonEditor } from '@/components/custom/json-editor';
 import { SearchableSelect } from '@/components/custom/searchable-select';
@@ -22,8 +24,6 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { flagsHooks } from '@/hooks/flags-hooks';
 import { api } from '@/lib/api';
-
-import { useBuilderStateContext } from '../../builder-hooks';
 
 enum BodyType {
   JSON = 'json',

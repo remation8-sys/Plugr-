@@ -167,6 +167,10 @@ export function AIModelSelector({
                       src={getProviderLogo(selectedProvider)}
                       alt={selectedProvider}
                       className="h-4 w-4 object-contain"
+                      width="16"
+                      height="16"
+                      loading="lazy"
+                      decoding="async"
                     />
                   )}
                   <span className="truncate">
@@ -206,6 +210,10 @@ export function AIModelSelector({
                           src={getProviderLogo(provider.provider)}
                           alt={provider.provider}
                           className="h-4 w-4 object-contain"
+                          width="16"
+                          height="16"
+                          loading="lazy"
+                          decoding="async"
                         />
                       )}
                       <span>{provider.name}</span>

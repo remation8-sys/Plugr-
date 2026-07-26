@@ -1,8 +1,8 @@
+import { StepNodeRunDurationAndPieceName } from './step-node-run-duration-and-piece-name';
+
 import { useBuilderStateContext } from '@/app/builder/builder-hooks';
 import { TextWithTooltip } from '@/components/custom/text-with-tooltip';
 import { cn } from '@/lib/utils';
-
-import { StepNodeRunDurationAndPieceName } from './step-node-run-duration-and-piece-name';
 
 const StepNodeDisplayName = ({
   stepDisplayName,
@@ -36,7 +36,7 @@ const StepNodeDisplayName = ({
       >
         <TextWithTooltip tooltipMessage={stepDisplayName} key={stepDisplayName}>
           <div
-            className={cn('text-sm font-medium truncate grow shrink ', {
+            className={cn('text-sm font-semibold truncate grow shrink ', {
               'text-accent-foreground/70': isSkipped,
               'text-center': isHorizontal,
             })}

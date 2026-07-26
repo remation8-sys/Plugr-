@@ -77,7 +77,7 @@ export function Pricing() {
             return (
               <div
                 key={plan.tier}
-                className="relative flex h-full flex-col rounded-2xl border p-6 backdrop-blur-xl"
+                className="relative flex h-full flex-col rounded-2xl border p-4 backdrop-blur-xl sm:p-6"
                 style={{
                   background: plan.popular
                     ? 'linear-gradient(160deg, rgba(0,85,255,0.18), rgba(255,255,255,0.04))'
@@ -92,7 +92,7 @@ export function Pricing() {
               >
                 {plan.popular && (
                   <div
-                    className="absolute -top-3 left-6 rounded-full px-3 py-1 text-[11px] font-semibold text-white"
+                    className="absolute -top-3 left-6 rounded-full px-3 py-1 text-xs font-semibold text-white"
                     style={{ backgroundColor: BLUE }}
                   >
                     Most popular
@@ -146,7 +146,7 @@ export function Pricing() {
           })}
         </div>
 
-        <div className="mt-10 space-y-2 text-center text-xs text-white/45">
+        <div className="mt-10 space-y-2 text-center text-xs text-white/60">
           <p>
             Prices in USD, billed monthly. Local currency is shown at checkout.
           </p>

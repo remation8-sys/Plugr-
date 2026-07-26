@@ -1,5 +1,7 @@
 import { FlowOperationType, isNil } from '@activepieces/shared';
 
+import { AIPieceActionsList } from './ai-actions-list';
+
 import { CardListItemSkeleton } from '@/components/custom/card-list';
 import {
   piecesHooks,
@@ -8,8 +10,6 @@ import {
   PieceSelectorOperation,
   stepUtils,
 } from '@/features/pieces';
-
-import { AIPieceActionsList } from './ai-actions-list';
 
 const AITabContent = ({ operation }: { operation: PieceSelectorOperation }) => {
   const { selectedTab } = usePieceSelectorTabs();

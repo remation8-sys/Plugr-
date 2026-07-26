@@ -1,13 +1,13 @@
 import { AP_FUNCTIONS, ApFunction } from '@activepieces/shared';
 import { ExternalLink } from 'lucide-react';
-import { RefObject, useEffect, useRef, useState } from 'react';
+import { RefObject, useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 
+import { FunctionTooltipCard } from './function-hover-popover';
+
 import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-
-import { FunctionTooltipCard } from './function-hover-popover';
 
 const SCREEN_MARGIN = 8;
 
@@ -42,11 +42,15 @@ export function FunctionSearchPopover({
   const [hoverItemRect, setHoverItemRect] = useState<DOMRect | null>(null);
   const listRef = useRef<HTMLDivElement>(null);
 
-  const filtered = query
-    ? AP_FUNCTIONS.filter((fn) =>
-        fn.name.toLowerCase().includes(query.toLowerCase()),
-      )
-    : [];
+  const filtered = useMemo(
+    () =>
+      query
+        ? AP_FUNCTIONS.filter((fn) =>
+            fn.name.toLowerCase().includes(query.toLowerCase()),
+          )
+        : [],
+    [query],
+  );
 
   useEffect(() => {
     setActiveIdx(0);
@@ -102,7 +106,7 @@ export function FunctionSearchPopover({
     <div className="border-t border-border px-3 py-2 text-xs text-muted-foreground flex items-center justify-between">
       <div className="flex items-center gap-1">
         {t('Press')}
-        <kbd className="bg-muted border border-border rounded px-1 flex justify-center text-[10px]">
+        <kbd className="bg-muted border border-border rounded px-1 flex justify-center text-xs">
           ↵
         </kbd>
         {t('to apply')}
@@ -165,7 +169,7 @@ export function FunctionSearchPopover({
         >
           {Object.entries(grouped).map(([category, fns]) => (
             <div key={category}>
-              <div className="px-3 py-1 text-[10px] font-semibold text-muted-foreground uppercase tracking-wide sticky top-0 bg-popover">
+              <div className="px-3 py-1 text-xs font-semibold text-muted-foreground uppercase tracking-wide sticky top-0 bg-popover">
                 {category}
               </div>
               {fns.map((fn) => {
@@ -201,14 +205,14 @@ export function FunctionSearchPopover({
                   >
                     <span
                       className={cn(
-                        'text-[11px] font-mono font-medium px-1.5 py-0.5 rounded border shrink-0',
+                        'text-xs font-mono font-medium px-1.5 py-0.5 rounded border shrink-0',
                         CATEGORY_COLORS[fn.category] ??
                           'bg-muted text-muted-foreground',
                       )}
                     >
                       {fn.name}
                     </span>
-                    <span className="text-muted-foreground text-[11px] truncate">
+                    <span className="text-muted-foreground text-xs truncate">
                       {t(fn.description)}
                     </span>
                   </div>

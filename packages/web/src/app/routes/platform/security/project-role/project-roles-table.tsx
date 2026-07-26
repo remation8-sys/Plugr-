@@ -11,6 +11,9 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 
+import { ProjectRoleDialog } from './project-role-dialog';
+import { ProjectRoleUsersSheet } from './project-role-users-table';
+
 import { ConfirmationDeleteDialog } from '@/components/custom/delete-dialog';
 import {
   Item,
@@ -26,9 +29,6 @@ import { Button } from '@/components/ui/button';
 import { SkeletonList } from '@/components/ui/skeleton';
 import { projectRoleMutations } from '@/features/platform-admin';
 import { platformHooks } from '@/hooks/platform-hooks';
-
-import { ProjectRoleDialog } from './project-role-dialog';
-import { ProjectRoleUsersSheet } from './project-role-users-table';
 
 interface ProjectRolesListProps {
   projectRoles: SeekPage<ProjectRole> | undefined;

@@ -104,7 +104,7 @@ type CenteredProps = {
 
 function Centered({ icon, tone, title, description, actions }: CenteredProps) {
   return (
-    <div className="mx-auto flex h-full max-w-xl flex-col items-center justify-center gap-4 p-6 text-center">
+    <div className="mx-auto flex h-full max-w-xl flex-col items-center justify-center gap-4 p-4 text-center md:p-6">
       <div
         className={
           tone === 'primary'

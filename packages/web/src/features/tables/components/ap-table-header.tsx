@@ -13,6 +13,12 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 
+import { tablesApi } from '../api/tables-api';
+import { tablesUtils } from '../utils/utils';
+
+import { useTableState } from './ap-table-state-provider';
+import { ImportTableDialog } from './import-table-dialog';
+
 import { ActiveUsersWidget } from '@/components/custom/active-users-widget';
 import { ConfirmationDeleteDialog } from '@/components/custom/delete-dialog';
 import EditableText from '@/components/custom/editable-text';
@@ -42,12 +48,6 @@ import {
 } from '@/features/projects/stores/project-collection';
 import { useAuthorization } from '@/hooks/authorization-hooks';
 import { downloadFile } from '@/lib/dom-utils';
-
-import { tablesApi } from '../api/tables-api';
-import { tablesUtils } from '../utils/utils';
-
-import { useTableState } from './ap-table-state-provider';
-import { ImportTableDialog } from './import-table-dialog';
 
 interface ApTableHeaderProps {
   onBack: () => void;

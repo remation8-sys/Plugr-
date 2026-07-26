@@ -8,6 +8,11 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
+import { useBuilderStateContext } from '../../builder-hooks';
+import { convertStepMetadataToPieceSelectorItems } from '../piece-actions-or-triggers-list';
+
+import AIActionItem from './ai-action';
+
 import { useTelemetry } from '@/components/providers/telemetry-provider';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import {
@@ -18,11 +23,6 @@ import {
 import { hasMinimumPlugrTier } from '@/features/plugr-billing';
 import { flagsHooks } from '@/hooks/flags-hooks';
 import { userHooks } from '@/hooks/user-hooks';
-
-import { useBuilderStateContext } from '../../builder-hooks';
-import { convertStepMetadataToPieceSelectorItems } from '../piece-actions-or-triggers-list';
-
-import AIActionItem from './ai-action';
 
 type AIPieceActionsListProps = {
   hidePieceIconAndDescription: boolean;
@@ -62,7 +62,7 @@ export const AIPieceActionsList: React.FC<AIPieceActionsListProps> = ({
 
   return (
     <ScrollArea className="h-full" viewPortClassName="h-full">
-      <div className="grid grid-cols-3 p-2 gap-3 min-w-[350px]">
+      <div className="grid grid-cols-1 gap-3 p-2 sm:grid-cols-2 lg:grid-cols-3">
         {aiActions.map((item, index) => {
           const actionIcon =
             item.type === FlowActionType.PIECE
@@ -83,17 +83,20 @@ export const AIPieceActionsList: React.FC<AIPieceActionsListProps> = ({
                   item.actionOrTrigger.name === 'run_agent' &&
                   !hasMinimumPlugrTier(user, 'business')
                 ) {
-                  toast('The specialist agent is available on the Business plan.', {
-                    description: t(
-                      'A real expert will build and fix your flows within 24-48hrs.',
-                    ),
-                    action: {
-                      label: t('Upgrade to Business'),
-                      onClick: () => {
-                        navigate('/pricing');
+                  toast(
+                    'The specialist agent is available on the Business plan.',
+                    {
+                      description: t(
+                        'A real expert will build and fix your flows within 24-48hrs.',
+                      ),
+                      action: {
+                        label: t('Upgrade to Business'),
+                        onClick: () => {
+                          navigate('/pricing');
+                        },
                       },
                     },
-                  });
+                  );
                   return;
                 }
 

@@ -7,6 +7,13 @@ import { useState } from 'react';
 import { FieldErrors, useForm } from 'react-hook-form';
 import { useNavigate } from 'react-router-dom';
 
+import { recordsApi } from '../api/records-api';
+import { tableHooks } from '../hooks/table-hooks';
+import { FieldsMapping, fileUtils, SupportedFileType } from '../utils/utils';
+
+import { useOptionalTableStore } from './ap-table-state-provider';
+import { FieldsMappingControl } from './fields-mapping';
+
 import { CopyButton } from '@/components/custom/clipboard/copy-button';
 import { ApMarkdown } from '@/components/custom/markdown';
 import { Button } from '@/components/ui/button';
@@ -32,13 +39,6 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { flagsHooks } from '@/hooks/flags-hooks';
 import { api } from '@/lib/api';
 import { authenticationSession } from '@/lib/authentication-session';
-
-import { recordsApi } from '../api/records-api';
-import { tableHooks } from '../hooks/table-hooks';
-import { FieldsMapping, fileUtils, SupportedFileType } from '../utils/utils';
-
-import { useOptionalTableStore } from './ap-table-state-provider';
-import { FieldsMappingControl } from './fields-mapping';
 
 type ImportTableDialogProps = {
   open?: boolean;

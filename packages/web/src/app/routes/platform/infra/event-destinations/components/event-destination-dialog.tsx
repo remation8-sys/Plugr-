@@ -13,6 +13,10 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 
+import { eventDestinationsCollectionUtils } from '../lib/event-destinations-collection';
+import { handlerFlowBuilder } from '../lib/handler-flow-builder';
+import { useEventLabels } from '../lib/use-event-labels';
+
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import {
@@ -41,10 +45,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { flagsHooks } from '@/hooks/flags-hooks';
-
-import { eventDestinationsCollectionUtils } from '../lib/event-destinations-collection';
-import { handlerFlowBuilder } from '../lib/handler-flow-builder';
-import { useEventLabels } from '../lib/use-event-labels';
 
 interface EventDestinationDialogProps {
   children: React.ReactNode;
@@ -239,7 +239,7 @@ const EventDestinationForm = ({
                   className="h-48 rounded-md "
                   viewPortClassName="px-0"
                 >
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                     {availableEvents.map((event) => {
                       const checkboxId = `${checkboxIdPrefix}-${event}`;
                       const isChecked = field.value?.includes(event) ?? false;

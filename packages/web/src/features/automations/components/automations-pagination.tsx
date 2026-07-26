@@ -1,6 +1,8 @@
 import { t } from 'i18next';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
+import { PAGE_SIZE_OPTIONS } from '../lib/utils';
+
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -9,8 +11,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-
-import { PAGE_SIZE_OPTIONS } from '../lib/utils';
 
 type AutomationsPaginationProps = {
   currentPage: number;

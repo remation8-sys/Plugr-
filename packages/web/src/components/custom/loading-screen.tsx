@@ -1,4 +1,4 @@
-import { LoadingSpinner } from '@/components/custom/spinner';
+import { PageLoadingSkeleton } from '@/components/custom/page-loading-skeleton';
 import { cn } from '@/lib/utils';
 
 type LoadingScreenProps = {
@@ -12,23 +12,12 @@ export const LoadingScreen = ({
   message,
 }: LoadingScreenProps) => {
   return (
-    <div
+    <PageLoadingSkeleton
       className={cn(
-        'flex h-screen w-screen flex-col items-center justify-center gap-3',
-        {
-          'h-full w-full': mode === 'container',
-        },
+        mode === 'fullscreen' ? 'min-h-dvh' : 'h-full min-h-[22rem]',
+        brightSpinner && 'dark',
       )}
-    >
-      <LoadingSpinner
-        className={cn({
-          'stroke-background!': brightSpinner,
-        })}
-        isLarge={true}
-      ></LoadingSpinner>
-      {message && (
-        <p className="text-sm text-muted-foreground">{message}</p>
-      )}
-    </div>
+      label={message ?? 'Loading application'}
+    />
   );
 };

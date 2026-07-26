@@ -23,6 +23,7 @@ import { AgentChat } from './agent-chat';
  */
 
 const BLUE = '#0055ff';
+const BLUE_TEXT = '#6b8cff';
 const INK = '#0d0e1a';
 const GREEN = '#00c853';
 
@@ -107,8 +108,8 @@ function FlowMock() {
               </div>
               <div>
                 <div
-                  className="font-mono text-[9px] uppercase tracking-wider"
-                  style={{ color: s.accent }}
+                  className="font-mono text-xs uppercase tracking-wider"
+                  style={{ color: s.accent === BLUE ? BLUE_TEXT : s.accent }}
                 >
                   {s.label}
                 </div>
@@ -148,10 +149,10 @@ function StatsMock() {
         borderColor: 'rgba(255,255,255,0.1)',
       }}
     >
-      <div className="mb-3 font-mono text-[10px] uppercase tracking-wider text-white/35">
+      <div className="mb-3 font-mono text-xs uppercase tracking-wider text-white/60">
         Illustrative Pro analytics
       </div>
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         {stats.map((s) => (
           <div
             key={s.label}
@@ -159,14 +160,14 @@ function StatsMock() {
             style={{ borderColor: 'rgba(255,255,255,0.1)' }}
           >
             <div className="text-xl font-bold text-white">{s.value}</div>
-            <div className="mt-0.5 text-[10px] text-white/45">{s.label}</div>
+            <div className="mt-0.5 text-xs text-white/60">{s.label}</div>
           </div>
         ))}
       </div>
-      <div className="mt-4 space-y-2 font-mono text-[11px]">
+      <div className="mt-4 space-y-2 font-mono text-xs">
         {log.map((row, i) => (
           <div key={i} className="flex items-center gap-3">
-            <span className="text-white/30">{row[0]}</span>
+            <span className="text-white/60">{row[0]}</span>
             <span className="flex-1 text-white/70">{row[1]}</span>
             <span style={{ color: row[3] as string }}>{row[2]}</span>
           </div>
@@ -237,7 +238,7 @@ export function ProductTour() {
 
         {/* Active tab content */}
         <div
-          className="mt-8 rounded-2xl border bg-white p-6 sm:p-10"
+          className="mt-8 rounded-2xl border bg-white p-4 sm:p-10"
           style={{ borderColor: '#e1e1ef' }}
         >
           <div className="grid items-center gap-10 lg:grid-cols-2">
@@ -256,7 +257,7 @@ export function ProductTour() {
                   <li key={b} className="flex items-start gap-2.5">
                     <Check
                       className="mt-0.5 size-4 shrink-0"
-                      style={{ color: BLUE }}
+                      style={{ color: BLUE_TEXT }}
                       strokeWidth={2}
                     />
                     <span className="text-sm" style={{ color: '#191b25' }}>

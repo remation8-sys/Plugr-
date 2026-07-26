@@ -1,10 +1,10 @@
 import { t } from 'i18next';
 import { Search } from 'lucide-react';
 
+import { useGlobalSearch } from './global-search-context';
+
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-
-import { useGlobalSearch } from './global-search-context';
 
 export function GlobalSearchCommand() {
   const { setOpen } = useGlobalSearch();
@@ -25,7 +25,7 @@ export function GlobalSearchCommand() {
       <span className="flex-1 text-left text-muted-foreground group-data-[collapsible=icon]:hidden">
         {t('Search...')}
       </span>
-      <kbd className="pointer-events-none hidden h-5 select-none items-center gap-1 rounded border bg-muted py-0.5 px-1 font-mono text-[9px] font-medium sm:flex group-data-[collapsible=icon]:hidden!">
+      <kbd className="pointer-events-none hidden h-5 select-none items-center gap-1 rounded border bg-muted py-0.5 px-1 font-mono text-xs font-medium sm:flex group-data-[collapsible=icon]:hidden!">
         {isMac ? '⌘' : 'Ctrl'}&nbsp;K
       </kbd>
     </Button>

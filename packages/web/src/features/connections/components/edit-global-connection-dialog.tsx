@@ -5,6 +5,9 @@ import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { ProjectSelector } from '../../projects/components/projects-selector';
+import { globalConnectionsMutations } from '../hooks/global-connections-hooks';
+
 import { GlobalConnectionWarning } from '@/components/custom/global-connection-utils';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -24,9 +27,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-
-import { ProjectSelector } from '../../projects/components/projects-selector';
-import { globalConnectionsMutations } from '../hooks/global-connections-hooks';
 
 const EditGlobalConnectionSchema = z.object({
   displayName: z.string(),

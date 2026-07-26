@@ -3,6 +3,8 @@ import { t } from 'i18next';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 
+import { useBuilderStateContext } from '../builder-hooks';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -11,8 +13,6 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { flowRunUtils } from '@/features/flow-runs';
-
-import { useBuilderStateContext } from '../builder-hooks';
 
 const LoopIterationInput = ({ stepName }: { stepName: string }) => {
   const [setLoopIndex, currentIndex, run, flowVersion, loopsIndexes, stepType] =

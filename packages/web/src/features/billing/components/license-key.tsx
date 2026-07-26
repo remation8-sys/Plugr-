@@ -4,6 +4,9 @@ import { t } from 'i18next';
 import { Shield, AlertTriangle, Check, ExternalLink } from 'lucide-react';
 import { useState } from 'react';
 
+import { ActivateLicenseDialog } from './activate-license-dialog';
+import { FeatureStatus } from './features-status';
+
 import { AnimatedIconButton } from '@/components/custom/animated-icon-button';
 import {
   Item,
@@ -18,9 +21,6 @@ import { StatusIconWithText } from '@/components/custom/status-icon-with-text';
 import { ArrowUpIcon } from '@/components/icons/arrow-up';
 import { Button } from '@/components/ui/button';
 import { formatUtils } from '@/lib/format-utils';
-
-import { ActivateLicenseDialog } from './activate-license-dialog';
-import { FeatureStatus } from './features-status';
 
 export const LicenseKey = ({
   platform,

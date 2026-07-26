@@ -25,6 +25,7 @@ import {
 } from '@/components/ui/sidebar-shadcn';
 import { Switch } from '@/components/ui/switch';
 import { getPlugrTierLabel } from '@/features/plugr-billing';
+import { cleanUpWebPushSession } from '@/features/web-push';
 import { userHooks } from '@/hooks/user-hooks';
 import { authenticationSession } from '@/lib/authentication-session';
 import { cn } from '@/lib/utils';
@@ -46,7 +47,8 @@ export function SidebarUser() {
     return null;
   }
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await cleanUpWebPushSession();
     userHooks.invalidateCurrentUser(queryClient);
     authenticationSession.logOut();
     reset();
@@ -144,7 +146,7 @@ export function SidebarUser() {
               <HelpAndFeedback />
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={handleLogout}>
+            <DropdownMenuItem onClick={() => void handleLogout()}>
               <LogOut className="w-4 h-4 mr-2" />
               {t('Log out')}
             </DropdownMenuItem>
@@ -172,7 +174,7 @@ function TierBadge({
   return (
     <span
       className={cn(
-        'w-fit rounded px-1.5 py-0.5 text-[10px] font-medium leading-none',
+        'w-fit rounded px-1.5 py-0.5 text-xs font-medium leading-none',
         compact && 'mt-0.5',
         isTrial && 'bg-muted text-muted-foreground',
         !isTrial && !isBusiness && 'bg-primary/10 text-primary',

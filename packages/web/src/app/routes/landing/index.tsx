@@ -136,7 +136,7 @@ function PrimaryCta({ to, children }: { to: string; children: ReactNode }) {
   return (
     <Link
       to={to}
-      className="inline-flex h-11 items-center justify-center gap-2 rounded-lg px-6 text-sm font-semibold text-white transition-colors"
+      className="inline-flex h-11 shrink-0 items-center justify-center gap-2 whitespace-nowrap rounded-lg px-4 text-sm font-semibold sm:px-6 text-white transition-colors"
       style={{ backgroundColor: BLUE }}
       onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#0041c8')}
       onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = BLUE)}
@@ -148,8 +148,16 @@ function PrimaryCta({ to, children }: { to: string; children: ReactNode }) {
 
 function PlugrMark({ dark = false }: { dark?: boolean }) {
   return (
-    <Link to="/" className="flex items-center gap-2">
-      <img src="/plugr-icon.png" alt="" className="h-6 w-auto" />
+    <Link to="/" className="flex shrink-0 items-center gap-2 whitespace-nowrap">
+      <img
+        src="/plugr-icon.png"
+        alt=""
+        className="h-6 w-auto"
+        width="24"
+        height="24"
+        loading="eager"
+        decoding="async"
+      />
       <span
         className="text-lg font-bold tracking-tight"
         style={{ color: dark ? INK : '#ffffff' }}
@@ -170,7 +178,7 @@ function Nav() {
         backdropFilter: 'blur(12px)',
       }}
     >
-      <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
+      <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-5">
         <PlugrMark />
         <div className="hidden items-center gap-8 md:flex">
           {[
@@ -190,10 +198,10 @@ function Nav() {
             </a>
           ))}
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex shrink-0 items-center gap-2 sm:gap-4">
           <Link
             to="/sign-in"
-            className="text-sm font-medium text-white/80 transition-colors hover:text-white"
+            className="shrink-0 whitespace-nowrap text-sm font-medium text-white/80 transition-colors hover:text-white"
           >
             Sign in
           </Link>
@@ -248,7 +256,7 @@ function Hero() {
               See how it works
             </a>
           </div>
-          <p className="mt-3 text-xs text-white/45">
+          <p className="mt-3 text-xs text-white/60">
             No free trial. Your first paid subscription has a 3-day refund
             window.
           </p>
@@ -269,7 +277,7 @@ function Hero() {
           </p>
           <div className="mt-5 flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
             {INTEGRATIONS.map((name) => (
-              <span key={name} className="text-sm font-medium text-white/45">
+              <span key={name} className="text-sm font-medium text-white/60">
                 {name}
               </span>
             ))}
@@ -337,7 +345,7 @@ function ObservabilitySection() {
             className="flex items-center justify-between border-b px-4 py-3"
             style={{ borderColor: 'rgba(255,255,255,0.08)' }}
           >
-            <span className="font-mono text-xs text-white/40">
+            <span className="font-mono text-xs text-white/60">
               example run · #8f2a1c
             </span>
             <span
@@ -356,14 +364,14 @@ function ObservabilitySection() {
               ['12:04:03', 'action', 'notified #support', '#00c853'],
             ].map((row, i) => (
               <div key={i} className="flex gap-3">
-                <span className="text-white/30">{row[0]}</span>
+                <span className="text-white/60">{row[0]}</span>
                 <span className="w-16 shrink-0" style={{ color: row[3] }}>
                   {row[1]}
                 </span>
                 <span className="text-white/60">{row[2]}</span>
               </div>
             ))}
-            <div className="pt-2 text-white/40">
+            <div className="pt-2 text-white/60">
               done · 5 steps · 2.1s · 0 errors
             </div>
           </div>
@@ -394,7 +402,7 @@ function DeploySection() {
           {DEPLOY_COLS.map((col) => (
             <div
               key={col.title}
-              className="rounded-xl border bg-white p-6"
+              className="rounded-xl border bg-white p-4 sm:p-6"
               style={{ borderColor: '#e1e1ef' }}
             >
               <div
@@ -480,7 +488,7 @@ function RefundPolicySection() {
             </div>
 
             <div
-              className="mt-5 rounded-xl border bg-white p-6"
+              className="mt-5 rounded-xl border bg-white p-4 sm:p-6"
               style={{ borderColor: '#e1e1ef' }}
             >
               <h3 className="text-base font-semibold" style={{ color: INK }}>
@@ -579,14 +587,14 @@ function Footer() {
         <div className="flex flex-col justify-between gap-10 sm:flex-row">
           <div className="max-w-xs">
             <PlugrMark />
-            <p className="mt-4 text-sm text-white/45">
+            <p className="mt-4 text-sm text-white/60">
               Visual workflow automation with an AI builder that discovers live
               tools and keeps every flow visible and editable.
             </p>
           </div>
-          <div className="grid grid-cols-2 gap-12 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-8 sm:grid-cols-3 sm:gap-12">
             <div>
-              <h4 className="font-mono text-xs uppercase tracking-wider text-white/40">
+              <h4 className="font-mono text-xs uppercase tracking-wider text-white/60">
                 Product
               </h4>
               <ul className="mt-4 space-y-3 text-sm">
@@ -635,7 +643,7 @@ function Footer() {
               </ul>
             </div>
             <div>
-              <h4 className="font-mono text-xs uppercase tracking-wider text-white/40">
+              <h4 className="font-mono text-xs uppercase tracking-wider text-white/60">
                 Company
               </h4>
               <ul className="mt-4 space-y-3 text-sm">
@@ -674,14 +682,14 @@ function Footer() {
                   </a>
                 </li>
                 <li className="max-w-[15rem] text-white/65">
-                  <span className="block text-white/40">Commercial office</span>
+                  <span className="block text-white/60">Commercial office</span>
                   1, Bazyjacobs Estate, Irhirhi Road, Benin City 300102, Edo
                   State, Nigeria
                 </li>
               </ul>
             </div>
             <div>
-              <h4 className="font-mono text-xs uppercase tracking-wider text-white/40">
+              <h4 className="font-mono text-xs uppercase tracking-wider text-white/60">
                 Get started
               </h4>
               <ul className="mt-4 space-y-3 text-sm">
@@ -709,7 +717,7 @@ function Footer() {
           className="mt-12 flex flex-col gap-3 border-t pt-6 sm:flex-row sm:items-center sm:justify-between"
           style={{ borderColor: 'rgba(255,255,255,0.08)' }}
         >
-          <div className="text-xs text-white/40">
+          <div className="text-xs text-white/60">
             <p>
               Plugr is a product of{' '}
               <span className="text-white/60">REMSHIELD SOLUTIONS LTD</span>
@@ -719,7 +727,7 @@ function Footer() {
               reserved.
             </p>
           </div>
-          <div className="flex items-center gap-2 font-mono text-xs text-white/40">
+          <div className="flex items-center gap-2 font-mono text-xs text-white/60">
             <Check className="size-3" style={{ color: '#00c853' }} />
             Fully managed cloud
           </div>

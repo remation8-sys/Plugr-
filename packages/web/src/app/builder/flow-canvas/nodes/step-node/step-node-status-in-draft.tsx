@@ -9,6 +9,11 @@ import { t } from 'i18next';
 import { TriangleAlert } from 'lucide-react';
 import React, { useMemo } from 'react';
 
+import { useBuilderStateContext } from '../../../builder-hooks';
+import { flowCanvasUtils } from '../../utils/flow-canvas-utils';
+
+import { StepNodeBadgeContainer } from './step-node-badge-container';
+
 import { InvalidStepIcon } from '@/components/custom/alert-icon';
 import {
   Tooltip,
@@ -18,10 +23,6 @@ import {
 import { StepStatusIcon, flowRunUtils } from '@/features/flow-runs';
 import { pieceSelectorUtils } from '@/features/pieces';
 
-import { useBuilderStateContext } from '../../../builder-hooks';
-import { flowCanvasUtils } from '../../utils/flow-canvas-utils';
-
-import { StepNodeBadgeContainer } from './step-node-badge-container';
 type DraftStepStatus =
   | 'invalid'
   | 'testing'

@@ -74,7 +74,7 @@ export const FeatureStatus = ({
   platform: PlatformWithoutSensitiveData;
 }) => {
   return (
-    <div className="grid grid-cols-2 gap-x-6 gap-y-2">
+    <div className="grid grid-cols-1 gap-x-6 gap-y-2 sm:grid-cols-2">
       {Object.entries(LICENSE_PROPS_MAP)
         .sort(([aKey], [bKey]) => {
           const aEnabled = platform?.plan?.[aKey as keyof PlatformPlanLimits];

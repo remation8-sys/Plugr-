@@ -146,12 +146,12 @@ const FlowRunCard = React.memo(
               >
                 <Tooltip>
                   <TooltipTrigger>
-                    <DropdownMenuTrigger>
+                    <DropdownMenuTrigger asChild>
                       <Button
                         variant="ghost"
                         size={'icon'}
                         className={cn(
-                          'group-hover:opacity-100 opacity-0 rounded-full bg-accent drop-shadow-md',
+                          'group-hover:opacity-100 max-md:opacity-100 opacity-0 rounded-full bg-accent drop-shadow-md',
                           {
                             'opacity-100': isRetryDropdownOpen,
                           },

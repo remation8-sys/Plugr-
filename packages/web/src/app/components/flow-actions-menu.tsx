@@ -24,6 +24,8 @@ import React, { useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { toast } from 'sonner';
 
+import { ShareTemplateDialog } from '../../features/flows/components/share-template-dialog';
+
 import { ConfirmationDeleteDialog } from '@/components/custom/delete-dialog';
 import { PermissionNeededTooltip } from '@/components/custom/permission-needed-tooltip';
 import { LoadingSpinner } from '@/components/custom/spinner';
@@ -48,8 +50,6 @@ import { useAuthorization } from '@/hooks/authorization-hooks';
 import { platformHooks } from '@/hooks/platform-hooks';
 import { authenticationSession } from '@/lib/authentication-session';
 import { useNewWindow } from '@/lib/navigation-utils';
-
-import { ShareTemplateDialog } from '../../features/flows/components/share-template-dialog';
 
 type FlowActionMenuProps = {
   flow: PopulatedFlow;

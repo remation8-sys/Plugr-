@@ -15,6 +15,10 @@ export function ChatIntro({ chatUI, botName }: ChatIntroProps) {
             src={chatUI?.platformLogoUrl}
             alt="Bot Avatar"
             className="w-10 h-10"
+            width="40"
+            height="40"
+            loading="eager"
+            decoding="async"
           />
         </div>
         <div className="flex items-center gap-1 justify-center">

@@ -2,6 +2,8 @@ import { AgentMcpTool } from '@activepieces/shared';
 import { t } from 'i18next';
 import { Plus, X } from 'lucide-react';
 
+import { useMcpToolDialogStore } from '../stores/mcp-tools';
+
 import { McpSvg } from '@/assets/img/custom/mcp';
 import {
   AccordionContent,
@@ -14,8 +16,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-
-import { useMcpToolDialogStore } from '../stores/mcp-tools';
 
 type AgentMcpToolsAccordionProps = {
   disabled?: boolean;

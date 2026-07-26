@@ -569,7 +569,7 @@ const VerificationRecordRow = ({
         {record.type}
       </span>
     </div>
-    <div className="grid grid-cols-2 gap-3">
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
       <div className="flex flex-col gap-1.5 min-w-0">
         <Label className="text-xs text-muted-foreground">{t('Name')}</Label>
         <CopyToClipboardInput textToCopy={record.name} useInput={true} />

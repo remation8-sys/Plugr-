@@ -6,6 +6,10 @@ import { createContext, useContext, useRef } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { useStore } from 'zustand';
 
+import { fieldsApi } from '../api/fields-api';
+import { recordsApi } from '../api/records-api';
+import { tablesApi } from '../api/tables-api';
+
 import { RouteLoadingBar } from '@/components/custom/route-loading-bar';
 import { buttonVariants } from '@/components/ui/button';
 import {
@@ -14,10 +18,6 @@ import {
   createApTableStore,
 } from '@/features/tables/stores/store/ap-tables-client-state';
 import { cn } from '@/lib/utils';
-
-import { fieldsApi } from '../api/fields-api';
-import { recordsApi } from '../api/records-api';
-import { tablesApi } from '../api/tables-api';
 
 const TableContext = createContext<ApTableStore | null>(null);
 

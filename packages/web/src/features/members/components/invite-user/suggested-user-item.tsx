@@ -1,13 +1,13 @@
 import { t } from 'i18next';
 
+import { EmailStatusType } from './types';
+import { SuggestedUser } from './use-user-suggestions';
+
 import { UserAvatar } from '@/components/custom/user-avatar';
 import { Badge } from '@/components/ui/badge';
 import { CommandItem } from '@/components/ui/command';
 import { formatUtils } from '@/lib/format-utils';
 import { cn } from '@/lib/utils';
-
-import { EmailStatusType } from './types';
-import { SuggestedUser } from './use-user-suggestions';
 
 export function SuggestedUserItem(props: SuggestedUserItemProps) {
   if (props.type === 'platform-user') {

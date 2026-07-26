@@ -14,8 +14,8 @@ import {
 import { useEffect, useRef, useState } from 'react';
 
 import { memoryRouter } from '@/app/guards';
-import { LoadingSpinner } from '@/components/custom/spinner';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Skeleton } from '@/components/ui/skeleton';
 import { oauthAppsQueries } from '@/features/connections';
 import { piecesHooks } from '@/features/pieces';
 import { parentWindow } from '@/lib/dom-utils';
@@ -132,7 +132,7 @@ const EmbeddedConnectionDialogContent = ({
         showOverlay={false}
         onInteractOutside={(e) => e.preventDefault()}
         className={cn(
-          'max-h-[70vh]  min-w-[450px] max-w-[450px] lg:min-w-[650px] lg:max-w-[650px] overflow-y-auto',
+          'max-h-[70vh] w-[calc(100vw-2rem)] max-w-[650px] overflow-y-auto',
           {
             'bg-transparent! border-none! focus:outline-hidden border-transparent! shadow-none!':
               isLoadingPiece,
@@ -140,12 +140,28 @@ const EmbeddedConnectionDialogContent = ({
         )}
         showCloseButton={!isLoadingPiece}
       >
-        {isLoadingPiece ||
-          (loadingPiecesOAuth2AppsMap && (
-            <div className="flex justify-center items-center">
-              <LoadingSpinner className="stroke-background size-[50px]"></LoadingSpinner>
+        {(isLoadingPiece || loadingPiecesOAuth2AppsMap) && (
+          <div
+            aria-busy="true"
+            aria-label="Loading connection settings"
+            className="space-y-5 py-4"
+            role="status"
+          >
+            <div className="flex items-center gap-3">
+              <Skeleton className="size-10 rounded-lg" />
+              <div className="flex-1 space-y-2">
+                <Skeleton className="h-4 w-40" />
+                <Skeleton className="h-3 w-56 max-w-full" />
+              </div>
             </div>
-          ))}
+            <Skeleton className="h-11 w-full" />
+            <Skeleton className="h-11 w-full" />
+            <div className="flex justify-end gap-2">
+              <Skeleton className="h-10 w-24" />
+              <Skeleton className="h-10 w-28" />
+            </div>
+          </div>
+        )}
 
         {!isLoadingPiece && pieceModel && piecesOAuth2AppsMap && (
           <CreateOrEditConnectionDialogContent

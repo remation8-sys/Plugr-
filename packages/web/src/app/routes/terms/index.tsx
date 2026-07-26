@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { PlugrChatWidget } from '@/app/components/plugr-chat-widget';
 
 const BLUE = '#0055ff';
+const BLUE_TEXT = '#6b8cff';
 const INK = '#0d0e1a';
 
 const LAST_UPDATED = 'July 18, 2026';
@@ -135,7 +136,7 @@ export function TermsPage() {
               fontSize: '0.75rem',
               letterSpacing: '0.12em',
               textTransform: 'uppercase',
-              color: BLUE,
+              color: BLUE_TEXT,
               fontWeight: 600,
             }}
           >
@@ -147,7 +148,7 @@ export function TermsPage() {
               fontWeight: 700,
               color: '#ffffff',
               letterSpacing: '-0.03em',
-              lineHeight: 1.15,
+              lineHeight: 1.2,
               margin: '0.5rem 0 0.75rem',
             }}
           >
@@ -155,7 +156,7 @@ export function TermsPage() {
           </h1>
           <p
             style={{
-              color: 'rgba(255,255,255,0.4)',
+              color: 'rgba(255,255,255,0.65)',
               fontSize: '0.875rem',
             }}
           >
@@ -209,7 +210,7 @@ export function TermsPage() {
             </Li>
             <Li>
               You must notify us promptly at{' '}
-              <a href="mailto:support@plugr.cloud" style={{ color: BLUE }}>
+              <a href="mailto:support@plugr.cloud" style={{ color: BLUE_TEXT }}>
                 support@plugr.cloud
               </a>{' '}
               if you suspect unauthorised account access.
@@ -458,17 +459,17 @@ export function TermsPage() {
             Operator: REMSHIELD SOLUTIONS LTD
             <br />
             Email:{' '}
-            <a href="mailto:support@plugr.cloud" style={{ color: BLUE }}>
+            <a href="mailto:support@plugr.cloud" style={{ color: BLUE_TEXT }}>
               support@plugr.cloud
             </a>
             <br />
             Phone:{' '}
-            <a href="tel:+447776530083" style={{ color: BLUE }}>
+            <a href="tel:+447776530083" style={{ color: BLUE_TEXT }}>
               +44 7776 530083
             </a>
             <br />
             Website:{' '}
-            <a href="https://plugr.cloud" style={{ color: BLUE }}>
+            <a href="https://plugr.cloud" style={{ color: BLUE_TEXT }}>
               plugr.cloud
             </a>
           </P>
@@ -487,7 +488,7 @@ export function TermsPage() {
           }}
         >
           <span
-            style={{ color: 'rgba(255,255,255,0.3)', fontSize: '0.8125rem' }}
+            style={{ color: 'rgba(255,255,255,0.65)', fontSize: '0.8125rem' }}
           >
             Copyright {new Date().getFullYear()} REMSHIELD SOLUTIONS LTD. All
             rights reserved.
@@ -496,7 +497,7 @@ export function TermsPage() {
             <Link
               to="/"
               style={{
-                color: 'rgba(255,255,255,0.4)',
+                color: 'rgba(255,255,255,0.65)',
                 fontSize: '0.8125rem',
                 textDecoration: 'none',
               }}
@@ -506,7 +507,7 @@ export function TermsPage() {
             <Link
               to="/privacy"
               style={{
-                color: 'rgba(255,255,255,0.4)',
+                color: 'rgba(255,255,255,0.65)',
                 fontSize: '0.8125rem',
                 textDecoration: 'none',
               }}

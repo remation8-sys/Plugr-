@@ -33,7 +33,7 @@ export function EmptyState({
           className="bg-hero-glow pointer-events-none absolute inset-x-0 top-0 h-80"
         />
       )}
-      <div className="relative max-w-3xl mx-auto px-6">
+      <div className="relative mx-auto max-w-3xl px-4 md:px-6">
         <Greeting firstName={firstName} incognito={incognito} />
       </div>
       {!incognito && (
@@ -49,7 +49,7 @@ export function EmptyState({
             {showFlowCards && (
               <FlowCards onSuggestionClick={onSuggestionClick} />
             )}
-            <div className="max-w-3xl mx-auto px-6">
+            <div className="mx-auto max-w-3xl px-4 md:px-6">
               <Separator className="my-6" />
               <TextSuggestions onSuggestionClick={onSuggestionClick} />
             </div>
@@ -115,7 +115,7 @@ function Greeting({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
     >
-      <h1 className="text-[2.4rem] leading-[1.08] md:text-4xl md:leading-tight font-bold text-balance font-sentient">
+      <h1 className="text-balance font-sentient text-3xl font-bold leading-tight md:text-4xl">
         {incognito ? (
           t('Private Chat')
         ) : firstName ? (
@@ -143,42 +143,38 @@ function FlowCards({
   onSuggestionClick: (text: string) => void;
 }) {
   return (
-    <div
-      className="mt-6 flex gap-4 overflow-x-auto scrollbar-none pb-1 max-md:snap-x max-md:snap-mandatory"
-      style={{
-        paddingLeft: 'max(1.5rem, calc((100% - 48rem) / 2 + 1.5rem))',
-        paddingRight: 'max(1.5rem, calc((100% - 48rem) / 2 + 1.5rem))',
-      }}
-    >
+    <div className="mx-auto mt-6 grid max-w-3xl grid-cols-1 gap-4 px-4 md:grid-cols-3 md:px-6">
       {FLOW_CARDS.map((card, i) => (
         <motion.button
           key={card.title}
           type="button"
           className={cn(
-            'shrink-0 text-left cursor-pointer group max-md:snap-start',
-            card.wide ? 'w-[380px]' : 'w-[245px]',
+            'group w-full cursor-pointer text-left',
+            card.wide && 'md:col-span-2',
           )}
           onClick={() => onSuggestionClick(card.description)}
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3, delay: 0.2 + i * 0.1 }}
         >
-          <div
-            className={cn(
-              'h-[245px] rounded-xl overflow-hidden relative',
-              !card.wide && 'aspect-square',
-            )}
-          >
+          <div className="relative aspect-[4/3] overflow-hidden rounded-xl md:h-[245px] md:aspect-auto">
             <img
               src={card.bgImage}
               alt=""
               className="absolute inset-0 w-full h-full object-cover"
+              width="928"
+              height="696"
+              loading="lazy"
+              decoding="async"
             />
             <img
               src={card.image}
               alt={card.title}
               loading="lazy"
               className="absolute inset-0 m-auto w-[79%] h-[69%] object-contain transition-transform duration-300 ease-out group-hover:scale-105"
+              width="671"
+              height="594"
+              decoding="async"
             />
           </div>
           <h3 className="mt-3 text-sm font-semibold group-hover:text-primary transition-colors">
@@ -219,6 +215,9 @@ function TextSuggestions({
                 'max-w-full max-h-full object-contain',
                 suggestion.darkIcon && 'dark:hidden',
               )}
+              width="54"
+              height="41"
+              decoding="async"
             />
             {suggestion.darkIcon && (
               <img
@@ -226,6 +225,9 @@ function TextSuggestions({
                 alt=""
                 loading="lazy"
                 className="max-w-full max-h-full object-contain hidden dark:block"
+                width="54"
+                height="41"
+                decoding="async"
               />
             )}
           </div>

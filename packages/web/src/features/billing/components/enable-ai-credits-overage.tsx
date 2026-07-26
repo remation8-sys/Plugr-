@@ -1,10 +1,10 @@
 import { t } from 'i18next';
 import { Info } from 'lucide-react';
 
+import { billingMutations } from '../hooks/billing-hooks';
+
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-
-import { billingMutations } from '../hooks/billing-hooks';
 
 interface EnableAIOverageDialogProps {
   isOpen?: boolean;

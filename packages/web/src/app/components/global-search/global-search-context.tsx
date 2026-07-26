@@ -10,6 +10,13 @@ import React, {
 import { useNavigate } from 'react-router-dom';
 import { useDebounce } from 'use-debounce';
 
+import { recordAccess, type AccessedItemType } from './access-history';
+import { SearchResultRow } from './search-result-item';
+import {
+  type SearchResultItem,
+  useGlobalSearchResults,
+} from './use-global-search-results';
+
 import {
   CommandDialog,
   CommandGroup,
@@ -19,13 +26,6 @@ import {
   CommandSeparator,
 } from '@/components/ui/command';
 import { projectCollectionUtils } from '@/features/projects';
-
-import { recordAccess, type AccessedItemType } from './access-history';
-import { SearchResultRow } from './search-result-item';
-import {
-  type SearchResultItem,
-  useGlobalSearchResults,
-} from './use-global-search-results';
 
 type GlobalSearchContextType = {
   open: boolean;
@@ -192,7 +192,7 @@ function GlobalSearchDialogContent({
         ))}
       </CommandList>
 
-      <div className="flex items-center gap-4 border-t bg-muted/50 px-4 py-2.5 text-[11px] text-muted-foreground">
+      <div className="flex items-center gap-4 border-t bg-muted/50 px-4 py-2.5 text-xs text-muted-foreground">
         <span className="flex items-center gap-1.5">
           <kbd className="inline-flex h-5 items-center rounded border bg-background px-1 font-mono">
             ↑
@@ -209,7 +209,7 @@ function GlobalSearchDialogContent({
           {t('to select')}
         </span>
         <span className="flex items-center gap-1.5">
-          <kbd className="inline-flex h-5 items-center rounded border bg-background px-1.5 font-mono text-[10px]">
+          <kbd className="inline-flex h-5 items-center rounded border bg-background px-1.5 font-mono text-xs">
             esc
           </kbd>
           {t('to close')}

@@ -1,10 +1,10 @@
 import { t } from 'i18next';
 
+import { TimeUnit } from '../lib/impact-utils';
+
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-
-import { TimeUnit } from '../lib/impact-utils';
 
 type TimeSavedFilterContentProps = {
   draftMin: string;

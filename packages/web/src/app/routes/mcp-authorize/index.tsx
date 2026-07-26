@@ -175,7 +175,7 @@ function McpAuthorizePage() {
                   return (
                     <div className="flex w-full items-center justify-between gap-2">
                       <span className="truncate">{project.displayName}</span>
-                      <Badge variant="outline" className="shrink-0 text-[10px]">
+                      <Badge variant="outline" className="shrink-0 text-xs">
                         {project.type === ProjectType.PERSONAL
                           ? t('Personal')
                           : t('Team')}

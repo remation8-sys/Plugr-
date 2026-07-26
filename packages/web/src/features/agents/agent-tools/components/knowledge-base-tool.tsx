@@ -8,6 +8,11 @@ import {
 import { t } from 'i18next';
 import { BookOpen, FileText, Table2, X } from 'lucide-react';
 
+import { AgentKnowledgeBaseDialog } from '../knowledge-base-dialog';
+import { useKnowledgeBaseToolDialogStore } from '../stores/knowledge-base-tools';
+
+import { AddKnowledgeBaseDropdown } from './add-knowledge-base-dropdown';
+
 import { Button } from '@/components/ui/button';
 import {
   Tooltip,
@@ -17,11 +22,6 @@ import {
 import { PROVIDER_EMBEDDING_MODELS } from '@/features/agents';
 import { flagsHooks } from '@/hooks/flags-hooks';
 import { cn } from '@/lib/utils';
-
-import { AgentKnowledgeBaseDialog } from '../knowledge-base-dialog';
-import { useKnowledgeBaseToolDialogStore } from '../stores/knowledge-base-tools';
-
-import { AddKnowledgeBaseDropdown } from './add-knowledge-base-dropdown';
 
 function KnowledgeBaseToolPills({
   tools,

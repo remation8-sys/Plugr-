@@ -121,6 +121,10 @@ const DataTableSelectPopover = ({
                           src={option.icon}
                           alt={option.label}
                           className="mr-2 size-4 object-contain"
+                          width="16"
+                          height="16"
+                          loading="lazy"
+                          decoding="async"
                         />
                       ) : (
                         option.icon && (

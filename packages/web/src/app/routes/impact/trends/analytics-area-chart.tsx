@@ -3,6 +3,8 @@ import { Download } from 'lucide-react';
 import { useRef } from 'react';
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 
+import { downloadChartAsPng } from '../lib/impact-utils';
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -17,8 +19,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-
-import { downloadChartAsPng } from '../lib/impact-utils';
 
 type AnalyticsAreaChartProps = {
   title: string;

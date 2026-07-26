@@ -3,10 +3,10 @@ import { t } from 'i18next';
 import React from 'react';
 import { useFormContext } from 'react-hook-form';
 
+import { TextInputWithMentions } from '../piece-properties/text-input-with-mentions';
+
 import { ApMarkdown } from '@/components/custom/markdown';
 import { FormField, FormItem, FormLabel } from '@/components/ui/form';
-
-import { TextInputWithMentions } from '../piece-properties/text-input-with-mentions';
 
 const markdown = t(
   'Select the items to iterate over from the previous step by clicking on the **Items** input, which should be a **list** of items.\n\nThe loop will iterate over each item in the list and execute the next step for every item.',

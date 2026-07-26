@@ -227,7 +227,7 @@ export default function PlatformConnectionsPage() {
         )}
       />
       {owners?.truncated && (
-        <div className="px-6 pb-2 text-xs text-muted-foreground">
+        <div className="px-4 pb-2 md:px-6 text-xs text-muted-foreground">
           {t('Owner filter is limited to the first {count} owners', {
             count: MAX_PLATFORM_APP_CONNECTION_OWNERS,
           })}

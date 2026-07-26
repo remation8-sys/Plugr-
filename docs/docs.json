@@ -175,6 +175,7 @@
                   "pages": [
                      "install/configuration/overview",
                      "install/configuration/environment-variables",
+                     "install/configuration/progressive-web-app",
                      "install/configuration/hardware",
                      "install/configuration/breaking-changes",
                      "install/configuration/telemetry"

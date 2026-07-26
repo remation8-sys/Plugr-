@@ -9,6 +9,7 @@ import { useTheme } from '@/components/providers/theme-provider';
 import {
   ApTableFooter,
   ApTableHeader,
+  MobileTableCards,
   useTableState,
   useTableColumns,
   mapRecordsToRows,
@@ -112,7 +113,7 @@ const ApTableEditorPage = () => {
 
   return (
     <div className="w-full flex flex-col justify-start items-start h-full">
-      <div className="flex items-center justify-between w-full pr-4 border-b">
+      <div className="flex w-full flex-col border-b md:flex-row md:items-center md:justify-between md:pr-4">
         <ApTableHeader
           onBack={handleBack}
           lockedBy={lockedBy}
@@ -122,7 +123,14 @@ const ApTableEditorPage = () => {
 
       <div className="flex w-full flex-col flex-1 min-h-0">
         <div className="flex-1 flex flex-col min-h-0">
-          <div className="flex-1 min-h-0">
+          <div className="flex-1 min-h-0 overflow-y-auto md:hidden">
+            <MobileTableCards
+              canEdit={canEdit}
+              canCreateRecord={Boolean(isAllowedToCreateRecord)}
+              onCreateRecord={createEmptyRecord}
+            />
+          </div>
+          <div className="hidden flex-1 min-h-0 md:block">
             <DataGrid
               ref={gridRef}
               columns={columns}

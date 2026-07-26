@@ -48,7 +48,7 @@ export const CircularIcon: React.FC<Props> = ({
           y="50%"
           dominantBaseline="middle"
           textAnchor="middle"
-          fontSize={size * 0.225}
+          fontSize={Math.max(12, size * 0.225)}
           fontWeight="bold"
           className="fill-current text-gray-700 dark:text-gray-200"
         >

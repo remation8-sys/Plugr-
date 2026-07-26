@@ -2,6 +2,8 @@ import { AIProviderWithoutSensitiveData } from '@activepieces/shared';
 import { t } from 'i18next';
 import { Pencil, Trash } from 'lucide-react';
 
+import { UpsertAIProviderDialog } from './upsert-provider-dialog';
+
 import { ConfirmationDeleteDialog } from '@/components/custom/delete-dialog';
 import {
   Item,
@@ -13,8 +15,6 @@ import {
 import { ItemMediaImage } from '@/components/custom/item-media-image';
 import { Button } from '@/components/ui/button';
 import { AiProviderInfo } from '@/features/agents';
-
-import { UpsertAIProviderDialog } from './upsert-provider-dialog';
 
 const AIProviderCard = ({
   providerInfo,

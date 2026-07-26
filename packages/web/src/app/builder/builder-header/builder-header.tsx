@@ -16,6 +16,11 @@ import {
   useSearchParams,
 } from 'react-router-dom';
 
+import FlowActionMenu from '../../components/flow-actions-menu';
+import { flowCanvasConsts } from '../flow-canvas/utils/consts';
+
+import { BuilderFlowStatusSection } from './flow-status';
+
 import { useBuilderStateContext } from '@/app/builder/builder-hooks';
 import { RightSideBarType } from '@/app/builder/types';
 import { ActiveUsersWidget } from '@/components/custom/active-users-widget';
@@ -42,11 +47,6 @@ import { authenticationSession } from '@/lib/authentication-session';
 import { useNewWindow } from '@/lib/navigation-utils';
 import { NEW_FLOW_QUERY_PARAM } from '@/lib/route-utils';
 import { cn } from '@/lib/utils';
-
-import FlowActionMenu from '../../components/flow-actions-menu';
-import { flowCanvasConsts } from '../flow-canvas/utils/consts';
-
-import { BuilderFlowStatusSection } from './flow-status';
 
 export const BuilderHeader = () => {
   const [queryParams] = useSearchParams();
@@ -218,6 +218,7 @@ export const BuilderHeader = () => {
         title={titleContent}
         rightContent={rightContent}
         leftContent={leftContent}
+        compactOnMobile={true}
         className="select-none border-b"
       />
     </div>

@@ -9,6 +9,8 @@ import {
 import { t } from 'i18next';
 import { CircleHelp, Zap } from 'lucide-react';
 
+import { useManagePlanDialogStore } from '../../stores/active-flows-addon-dialog-state';
+
 import {
   Item,
   ItemMedia,
@@ -25,8 +27,6 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { flagsHooks } from '@/hooks/flags-hooks';
-
-import { useManagePlanDialogStore } from '../../stores/active-flows-addon-dialog-state';
 
 type BusinessActiveFlowsProps = {
   platformSubscription: PlatformBillingInformation;

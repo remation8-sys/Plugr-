@@ -80,6 +80,10 @@ export const AgentPieceToolComponent = ({
                   src={pieceMetadata.logoUrl}
                   alt={pieceMetadata.displayName}
                   className="h-5 w-5 object-contain"
+                  width="20"
+                  height="20"
+                  loading="lazy"
+                  decoding="async"
                 />
               ) : (
                 <Puzzle className="h-5 w-5 text-muted-foreground" />

@@ -4,14 +4,14 @@ import React from 'react';
 import { useFormContext } from 'react-hook-form';
 import { z } from 'zod';
 
+import { SecretInput } from './secret-input';
+
 import {
   FormControl,
   FormField,
   FormItem,
   FormLabel,
 } from '@/components/ui/form';
-
-import { SecretInput } from './secret-input';
 
 type SecretTextConnectionSettingsProps = {
   authProperty: SecretTextProperty<boolean>;

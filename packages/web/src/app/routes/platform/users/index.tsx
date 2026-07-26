@@ -7,6 +7,9 @@ import { t } from 'i18next';
 import { User } from 'lucide-react';
 import { useMemo, useState } from 'react';
 
+import { UserActions } from './actions/user-actions';
+import { createUsersTableColumns } from './columns';
+
 import { DashboardPageHeader } from '@/app/components/dashboard-page-header';
 import LockedFeatureGuard from '@/app/components/locked-feature-guard';
 import { DataTable } from '@/components/custom/data-table';
@@ -17,9 +20,6 @@ import {
   platformUserHooks,
   platformUserMutations,
 } from '@/features/platform-admin/hooks/platform-user-hooks';
-
-import { UserActions } from './actions/user-actions';
-import { createUsersTableColumns } from './columns';
 
 export type UserRowData =
   | {

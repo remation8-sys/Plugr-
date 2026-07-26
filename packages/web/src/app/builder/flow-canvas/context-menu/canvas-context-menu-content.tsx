@@ -19,16 +19,6 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { Shortcut, ShortcutProps } from '@/components/custom/shortcut';
-import {
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuSeparator,
-  ContextMenuSub,
-  ContextMenuSubContent,
-  ContextMenuSubTrigger,
-} from '@/components/ui/context-menu';
-
 import { useBuilderStateContext } from '../../builder-hooks';
 import { CanvasShortcuts } from '../../shortcuts';
 import {
@@ -40,6 +30,16 @@ import {
 } from '../utils/bulk-actions';
 
 import { CanvasContextMenuProps, ContextMenuType } from './canvas-context-menu';
+
+import { Shortcut, ShortcutProps } from '@/components/custom/shortcut';
+import {
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuSub,
+  ContextMenuSubContent,
+  ContextMenuSubTrigger,
+} from '@/components/ui/context-menu';
 
 const ShortcutWrapper = ({
   children,

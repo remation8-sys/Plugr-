@@ -2,6 +2,10 @@ import { t } from 'i18next';
 import { useContext } from 'react';
 import { FieldErrors, useForm } from 'react-hook-form';
 
+import { FieldHeaderContext } from '../utils/utils';
+
+import { useTableState } from './ap-table-state-provider';
+
 import { Button } from '@/components/ui/button';
 import {
   Form,
@@ -11,10 +15,6 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-
-import { FieldHeaderContext } from '../utils/utils';
-
-import { useTableState } from './ap-table-state-provider';
 
 const RenameFieldPopoverContent = ({ name }: { name: string }) => {
   const [fields, renameField] = useTableState((state) => [

@@ -37,6 +37,8 @@ export function UserAvatar({
       height={size}
       className={cn('rounded-full aspect-square object-cover', className)}
       style={{ width: `${size}px !important`, height: `${size}px !important` }}
+      loading="lazy"
+      decoding="async"
     />
   ) : (
     <Avatar

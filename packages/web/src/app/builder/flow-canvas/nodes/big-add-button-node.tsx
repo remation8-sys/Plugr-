@@ -5,14 +5,14 @@ import { t } from 'i18next';
 import { Plus } from 'lucide-react';
 import React, { useId, useState } from 'react';
 
-import { PieceSelector } from '@/app/builder/pieces-selector';
-import { Button } from '@/components/ui/button';
-import { cn } from '@/lib/utils';
-
 import { useBuilderStateContext } from '../../builder-hooks';
 import { flowCanvasConsts } from '../utils/consts';
 import { flowCanvasUtils } from '../utils/flow-canvas-utils';
 import { ApBigAddButtonNode } from '../utils/types';
+
+import { PieceSelector } from '@/app/builder/pieces-selector';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 const ApBigAddButtonCanvasNode = React.memo(
   ({ data, id }: Omit<ApBigAddButtonNode, 'position'>) => {
@@ -96,7 +96,7 @@ const ApBigAddButtonCanvasNode = React.memo(
                           <Button
                             variant="transparent"
                             aria-label={t('Add step')}
-                            className="flex h-full w-full items-center rounded-lg border border-border bg-card text-foreground transition-all duration-150 hover:scale-105 hover:border-primary/40 hover:bg-accent focus-visible:ring-2 focus-visible:ring-primary/25 motion-reduce:transition-none"
+                            className="flex h-full w-full items-center rounded-lg border border-border bg-card text-foreground transition-all duration-150 hover:scale-105 hover:border-primary/40 hover:bg-accent active:scale-95 active:bg-accent focus-visible:ring-2 focus-visible:ring-primary/25 motion-reduce:transition-none"
                           >
                             <Plus
                               className={cn('size-6 text-foreground', {

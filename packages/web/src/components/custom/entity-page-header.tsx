@@ -20,12 +20,12 @@ const EntityPageHeader = ({
   return (
     <div
       className={cn(
-        'flex flex-wrap items-center justify-between gap-x-4 gap-y-2',
+        'flex flex-col items-stretch justify-between gap-3 md:flex-row md:items-center',
         className,
       )}
     >
       <div className="flex min-w-0 flex-col gap-1">
-        <h1 className="truncate text-xl font-semibold tracking-tight md:text-2xl">
+        <h1 className="break-words text-xl font-semibold tracking-tight md:truncate md:text-2xl">
           {title}
         </h1>
         {description && (
@@ -33,11 +33,14 @@ const EntityPageHeader = ({
         )}
       </div>
       {actions && (
-        <div className="flex shrink-0 items-center gap-2">{actions}</div>
+        <div className="flex w-full flex-wrap items-center gap-2 md:w-auto md:shrink-0">
+          {actions}
+        </div>
       )}
     </div>
   );
 };
 
 EntityPageHeader.displayName = 'EntityPageHeader';
+
 export { EntityPageHeader };

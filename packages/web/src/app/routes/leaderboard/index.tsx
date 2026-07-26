@@ -20,6 +20,16 @@ import {
 import { useContext, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 
+import { TimeSavedFilterContent } from '../impact/components/time-saved-filter-content';
+import {
+  convertToSeconds,
+  TIME_UNITS,
+  TimeUnit,
+} from '../impact/lib/impact-utils';
+
+import { ProjectsLeaderboard, ProjectStats } from './projects-leaderboard';
+import { UsersLeaderboard, UserStats } from './users-leaderboard';
+
 import { userApi } from '@/api/user-api';
 import LockedFeatureGuard from '@/app/components/locked-feature-guard';
 import { PageHeader } from '@/components/custom/page-header';
@@ -55,16 +65,6 @@ import { userHooks } from '@/hooks/user-hooks';
 import { downloadFile } from '@/lib/dom-utils';
 import { formatUtils } from '@/lib/format-utils';
 import { cn, DASHBOARD_CONTENT_PADDING_X } from '@/lib/utils';
-
-import { TimeSavedFilterContent } from '../impact/components/time-saved-filter-content';
-import {
-  convertToSeconds,
-  TIME_UNITS,
-  TimeUnit,
-} from '../impact/lib/impact-utils';
-
-import { ProjectsLeaderboard, ProjectStats } from './projects-leaderboard';
-import { UsersLeaderboard, UserStats } from './users-leaderboard';
 
 type TimeSavedFilter = {
   min: string;
@@ -371,7 +371,7 @@ export default function LeaderboardPage() {
               </div>
             }
             rightContent={
-              <div className="flex items-center gap-3">
+              <div className="flex w-full flex-wrap items-center gap-2 md:w-auto md:gap-3">
                 <div className="flex items-center gap-2 px-3 py-1.5 border border-dashed rounded-md text-sm text-muted-foreground">
                   <span>
                     {t('Updated')}{' '}
@@ -458,11 +458,11 @@ export default function LeaderboardPage() {
 
             <div
               className={cn(
-                'flex items-center justify-between mt-4 mb-4',
+                'my-4 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between',
                 DASHBOARD_CONTENT_PADDING_X,
               )}
             >
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <SearchInput
                   value={searchQuery}
                   onChange={setSearchQuery}
@@ -471,7 +471,7 @@ export default function LeaderboardPage() {
                       ? t('Search users')
                       : t('Search projects')
                   }
-                  className="w-[200px]"
+                  className="w-full sm:w-[200px]"
                 />
                 <Popover
                   open={timeSavedPopoverOpen}

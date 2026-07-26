@@ -1,6 +1,6 @@
 import { ProjectMemberWithUser, ProjectRole } from '@activepieces/shared';
 import { t } from 'i18next';
-import { Loader2, Users } from 'lucide-react';
+import { Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 import {
@@ -17,10 +17,13 @@ import {
   SheetHeader,
   SheetTitle,
 } from '@/components/ui/sheet';
+import { Skeleton } from '@/components/ui/skeleton';
 import { VirtualizedScrollArea } from '@/components/ui/virtualized-scroll-area';
 import { projectRoleQueries } from '@/features/platform-admin';
 
-export const ProjectRoleUsersSheet = ({
+const USER_SKELETON_IDS = ['one', 'two', 'three', 'four', 'five'];
+
+const ProjectRoleUsersSheet = ({
   projectRole,
   isOpen,
   onOpenChange,
@@ -34,8 +37,8 @@ export const ProjectRoleUsersSheet = ({
 
   return (
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
-      <SheetContent className="w-[600px] sm:max-w-[600px] flex flex-col p-0">
-        <SheetHeader className="px-6 py-4 border-b shrink-0">
+      <SheetContent className="flex w-full flex-col p-0 md:w-[600px] md:max-w-[600px]">
+        <SheetHeader className="px-4 py-4 md:px-6 border-b shrink-0">
           <SheetTitle className="text-base">
             {projectRole?.name} {t('Role')} {t('Users')}
           </SheetTitle>
@@ -45,8 +48,21 @@ export const ProjectRoleUsersSheet = ({
         </SheetHeader>
         <div className="flex-1 overflow-hidden">
           {isLoading ? (
-            <div className="flex items-center justify-center h-full">
-              <Loader2 className="size-8 animate-spin text-muted-foreground" />
+            <div
+              aria-busy="true"
+              aria-label={t('Loading role users')}
+              className="space-y-3 p-4 md:p-6"
+              role="status"
+            >
+              {USER_SKELETON_IDS.map((id) => (
+                <div className="flex items-center gap-3" key={id}>
+                  <Skeleton className="size-9 rounded-full" />
+                  <div className="flex-1 space-y-2">
+                    <Skeleton className="h-4 w-36" />
+                    <Skeleton className="h-3 w-56 max-w-full" />
+                  </div>
+                </div>
+              ))}
             </div>
           ) : users.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full gap-2 text-muted-foreground">
@@ -102,3 +118,5 @@ type ProjectRoleUsersSheetProps = {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
 };
+
+export { ProjectRoleUsersSheet };

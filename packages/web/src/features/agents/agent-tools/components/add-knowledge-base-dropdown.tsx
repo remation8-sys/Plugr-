@@ -3,6 +3,8 @@ import { t } from 'i18next';
 import { FileText, Plus, Table2 } from 'lucide-react';
 import { useState } from 'react';
 
+import { useKnowledgeBaseToolDialogStore } from '../stores/knowledge-base-tools';
+
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -10,8 +12,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-
-import { useKnowledgeBaseToolDialogStore } from '../stores/knowledge-base-tools';
 
 type AddKnowledgeBaseDropdownProps = {
   disabled?: boolean;

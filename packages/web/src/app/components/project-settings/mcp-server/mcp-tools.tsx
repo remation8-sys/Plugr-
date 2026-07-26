@@ -3,6 +3,8 @@ import { Lock } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useDebouncedCallback } from 'use-debounce';
 
+import { TOOL_CATEGORIES } from './utils/mcp-tools-metadata';
+
 import {
   Accordion,
   AccordionContent,
@@ -16,8 +18,6 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
-
-import { TOOL_CATEGORIES } from './utils/mcp-tools-metadata';
 
 type McpToolsProps = {
   disabledTools: string[] | null;

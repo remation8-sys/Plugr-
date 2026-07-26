@@ -116,7 +116,7 @@ export const BadgeCelebrate = () => {
     };
 
     return cleanupRef.current;
-  }, [socket, showBadges]);
+  }, [refetch, showBadges, socket]);
 
   return (
     <AccountSettingsDialog
@@ -149,11 +149,15 @@ const BadgeToast = ({
       src={imageUrl}
       alt={title}
       className="w-12 h-12 rounded-lg object-cover shadow-md flex-shrink-0"
+      width="48"
+      height="48"
+      loading="eager"
+      decoding="async"
     />
     <div className="flex flex-col gap-0.5 min-w-0">
       <div className="flex items-center gap-2">
         <span className="font-semibold text-foreground text-sm">{title}</span>
-        <span className="text-[10px] font-medium text-primary uppercase tracking-wide flex items-center gap-1">
+        <span className="text-xs font-medium text-primary uppercase tracking-wide flex items-center gap-1">
           <Trophy className="w-3 h-3" />
           Badge Earned!
         </span>

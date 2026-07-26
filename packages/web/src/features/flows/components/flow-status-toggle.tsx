@@ -7,9 +7,6 @@ import {
 import { t } from 'i18next';
 import { useEffect, useState } from 'react';
 
-import { LoadingSpinner } from '@/components/custom/spinner';
-import { useAuthorization } from '@/hooks/authorization-hooks';
-
 import { Switch } from '../../../components/ui/switch';
 import {
   Tooltip,
@@ -18,6 +15,9 @@ import {
 } from '../../../components/ui/tooltip';
 import { flowHooks } from '../hooks/flow-hooks';
 import { flowsUtils } from '../utils/flows-utils';
+
+import { LoadingSpinner } from '@/components/custom/spinner';
+import { useAuthorization } from '@/hooks/authorization-hooks';
 
 type FlowStatusToggleProps = {
   flow: PopulatedFlow;

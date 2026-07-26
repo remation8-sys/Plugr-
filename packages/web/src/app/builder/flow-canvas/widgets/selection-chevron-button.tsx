@@ -3,9 +3,9 @@ import { ChevronDown } from 'lucide-react';
 import { useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 
-import { Button } from '@/components/ui/button';
-
 import { flowCanvasConsts } from '../utils/consts';
+
+import { Button } from '@/components/ui/button';
 
 const showChevronNextToSelection = (targetDiv: HTMLElement) => {
   const container = document.createElement('div');

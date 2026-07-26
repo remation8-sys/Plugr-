@@ -4,6 +4,12 @@ import { t } from 'i18next';
 import { Workflow } from 'lucide-react';
 import { useMemo } from 'react';
 
+import { EventDestinationDialog } from './components/event-destination-dialog';
+import { EventDestinationRow } from './components/event-destination-row';
+import { eventDestinationsCollectionUtils } from './lib/event-destinations-collection';
+import { parseFlowIdFromUrl } from './lib/parse-flow-id-from-url';
+import { useEventLabels } from './lib/use-event-labels';
+
 import { CenteredPage } from '@/app/components/centered-page';
 import LockedFeatureGuard from '@/app/components/locked-feature-guard';
 import { AnimatedIconButton } from '@/components/custom/animated-icon-button';
@@ -13,12 +19,6 @@ import { SkeletonList } from '@/components/ui/skeleton';
 import { flowsApi } from '@/features/flows';
 import { flagsHooks } from '@/hooks/flags-hooks';
 import { platformHooks } from '@/hooks/platform-hooks';
-
-import { EventDestinationDialog } from './components/event-destination-dialog';
-import { EventDestinationRow } from './components/event-destination-row';
-import { eventDestinationsCollectionUtils } from './lib/event-destinations-collection';
-import { parseFlowIdFromUrl } from './lib/parse-flow-id-from-url';
-import { useEventLabels } from './lib/use-event-labels';
 
 const EventDestinationsPage = () => {
   const { platform } = platformHooks.useCurrentPlatform();

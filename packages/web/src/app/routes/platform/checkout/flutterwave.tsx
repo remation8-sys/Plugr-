@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef } from 'react';
 import { Navigate, useSearchParams } from 'react-router-dom';
 
 import { CenteredPage } from '@/app/components/centered-page';
-import { LoadingSpinner } from '@/components/custom/spinner';
+import { Skeleton } from '@/components/ui/skeleton';
 import { plugrBillingMutations } from '@/features/plugr-billing';
 
 export default function FlutterwaveCheckoutPage() {
@@ -34,8 +34,9 @@ export default function FlutterwaveCheckoutPage() {
       title={t('Preparing checkout')}
       description={t('Connecting you to Flutterwave secure checkout.')}
     >
-      <div className="flex h-32 items-center justify-center">
-        <LoadingSpinner />
+      <div aria-busy="true" className="space-y-3 py-8" role="status">
+        <Skeleton className="h-11 w-full" />
+        <Skeleton className="h-4 w-3/4" />
       </div>
     </CenteredPage>
   );

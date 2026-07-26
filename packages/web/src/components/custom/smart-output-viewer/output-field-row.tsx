@@ -3,13 +3,6 @@ import { t } from 'i18next';
 import { ChevronDown, ChevronRight, Info } from 'lucide-react';
 import { useState } from 'react';
 
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from '@/components/ui/tooltip';
-
 import { FieldTypeIcon } from './field-type-icon';
 import {
   FormatSingleValue,
@@ -19,6 +12,13 @@ import {
 import { schemaUtils } from './resolve-schema';
 import { truncateValue } from './shared-value-rendering';
 import { OutputSchemaField } from './types';
+
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 function ChildFieldRow({
   child,

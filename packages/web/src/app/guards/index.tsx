@@ -8,7 +8,6 @@ import {
 
 import { PageTitle } from '@/app/components/page-title';
 import { authRoutes } from '@/app/routes/auth-routes';
-import { LandingPage } from '@/app/routes/landing';
 import { platformRoutes } from '@/app/routes/platform-routes';
 import { projectRoutes } from '@/app/routes/project-routes';
 import { publicRoutes } from '@/app/routes/public-routes';
@@ -19,10 +18,24 @@ import { authenticationSession } from '@/lib/authentication-session';
 import { isNativeApp } from '@/lib/native-app';
 
 import { AllowOnlyLoggedInUserOnlyGuard } from '../components/allow-logged-in-user-only-guard';
-import { ProjectDashboardLayout } from '../components/project-layout';
 
-import { DefaultRoute } from './default-route';
 import { TokenCheckerWrapper } from './project-route-wrapper';
+
+const LandingPage = React.lazy(() =>
+  import('@/app/routes/landing').then((module) => ({
+    default: module.LandingPage,
+  })),
+);
+const ProjectDashboardLayout = React.lazy(() =>
+  import('../components/project-layout').then((module) => ({
+    default: module.ProjectDashboardLayout,
+  })),
+);
+const DefaultRoute = React.lazy(() =>
+  import('./default-route').then((module) => ({
+    default: module.DefaultRoute,
+  })),
+);
 
 const ChatWithAIPage = React.lazy(() =>
   import('@/app/routes/chat-with-ai').then((m) => ({
@@ -95,7 +108,11 @@ const RootRoute = () => {
   if (isNativeApp()) {
     return <Navigate to="/sign-in" replace />;
   }
-  return <LandingPage />;
+  return (
+    <Suspense fallback={<RouteLoadingBar />}>
+      <LandingPage />
+    </Suspense>
+  );
 };
 
 const routes = [

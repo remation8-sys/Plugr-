@@ -5,6 +5,8 @@ import {
 } from '@activepieces/shared';
 import { useState, ReactNode } from 'react';
 
+import { CreateReleaseDialog } from './create-release-dialog';
+
 import { Button, ButtonProps } from '@/components/ui/button';
 import {
   ConnectGitDialog,
@@ -12,8 +14,6 @@ import {
   projectReleaseMutations,
 } from '@/features/project-releases';
 import { authenticationSession } from '@/lib/authentication-session';
-
-import { CreateReleaseDialog } from './create-release-dialog';
 
 type ApplyButtonProps = ButtonProps & {
   request: DiffReleaseRequest;

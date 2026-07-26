@@ -5,6 +5,9 @@ import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 
+import { MultiSelectPieceProperty } from '../../../../components/custom/multi-select-piece-property';
+import { authenticationSession } from '../../../../lib/authentication-session';
+
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -19,9 +22,6 @@ import { Form, FormField, FormItem } from '@/components/ui/form';
 import { Label } from '@/components/ui/label';
 import { piecesHooks } from '@/features/pieces';
 import { projectCollectionUtils } from '@/features/projects';
-
-import { MultiSelectPieceProperty } from '../../../../components/custom/multi-select-piece-property';
-import { authenticationSession } from '../../../../lib/authentication-session';
 
 type ManagePiecesDialogProps = {
   onSuccess: () => void;

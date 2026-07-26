@@ -11,6 +11,10 @@ import { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
+import { SelectedItemsMap, TreeItem } from '../lib/types';
+
+import { getSelectedIdsByType } from './use-automations-selection';
+
 import { flowsApi } from '@/features/flows/api/flows-api';
 import { flowHooks } from '@/features/flows/hooks/flow-hooks';
 import { foldersApi } from '@/features/folders/api/folders-api';
@@ -20,10 +24,6 @@ import { tableHooks } from '@/features/tables/hooks/table-hooks';
 import { authenticationSession } from '@/lib/authentication-session';
 import { useNewWindow } from '@/lib/navigation-utils';
 import { NEW_FLOW_QUERY_PARAM, NEW_TABLE_QUERY_PARAM } from '@/lib/route-utils';
-
-import { SelectedItemsMap, TreeItem } from '../lib/types';
-
-import { getSelectedIdsByType } from './use-automations-selection';
 
 type MutationDeps = {
   invalidateAll: () => void;

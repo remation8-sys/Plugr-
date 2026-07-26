@@ -9,6 +9,8 @@ import {
 } from 'lucide-react';
 import { Navigate, useNavigate, useParams } from 'react-router-dom';
 
+import { ApplyButton } from './apply-plan';
+
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 import {
@@ -19,8 +21,6 @@ import {
 } from '@/components/ui/tooltip';
 import { projectReleaseQueries } from '@/features/project-releases';
 import { authenticationSession } from '@/lib/authentication-session';
-
-import { ApplyButton } from './apply-plan';
 
 const getReleaseSummaryType = (type: ProjectReleaseType) => {
   switch (type) {

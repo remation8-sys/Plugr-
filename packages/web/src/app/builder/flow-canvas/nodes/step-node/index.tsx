@@ -8,13 +8,6 @@ import { useDraggable } from '@dnd-kit/core';
 import { Handle, NodeProps, Position, useKeyPress } from '@xyflow/react';
 import React, { useMemo } from 'react';
 
-import { useBuilderStateContext } from '@/app/builder/builder-hooks';
-import { PieceSelector } from '@/app/builder/pieces-selector';
-import { LoopIterationInput } from '@/app/builder/run-details/loop-iteration-input';
-import { RightSideBarType } from '@/app/builder/types';
-import { stepsHooks } from '@/features/pieces';
-import { cn } from '@/lib/utils';
-
 import { flowCanvasConsts } from '../../utils/consts';
 import { flowCanvasUtils } from '../../utils/flow-canvas-utils';
 import { ApStepNode } from '../../utils/types';
@@ -27,6 +20,13 @@ import { ApStepNodeStatusInDraft } from './step-node-status-in-draft';
 import { ApStepNodeStatusInRun } from './step-node-status-in-run';
 import { ApStepNodeStatusRing } from './step-node-status-ring';
 import { TriggerWidget } from './trigger-widget';
+
+import { useBuilderStateContext } from '@/app/builder/builder-hooks';
+import { PieceSelector } from '@/app/builder/pieces-selector';
+import { LoopIterationInput } from '@/app/builder/run-details/loop-iteration-input';
+import { RightSideBarType } from '@/app/builder/types';
+import { stepsHooks } from '@/features/pieces';
+import { cn } from '@/lib/utils';
 
 const ApStepCanvasNode = React.memo(
   ({ data: { step } }: NodeProps & Omit<ApStepNode, 'position'>) => {
@@ -79,7 +79,7 @@ const ApStepCanvasNode = React.memo(
     });
 
     const handleStepClick = (
-      e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+      e: React.SyntheticEvent<HTMLDivElement>,
       preventDefault = true,
     ) => {
       selectStepByName(step.name);
@@ -140,7 +140,7 @@ const ApStepCanvasNode = React.memo(
         onContextMenu={(e) => handleContextMenu(e)}
         aria-label={step.displayName}
         className={cn(
-          'transition-all border-box rounded-md border border-solid border-muted-foreground/30 dark:border-border shadow-sm relative overflow-visible group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25',
+          'transition-all touch-manipulation active:bg-accent/50 border-box rounded-md border border-solid border-muted-foreground/30 dark:border-border shadow-sm relative overflow-visible group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/25',
           {
             'border-primary dark:border-primary ring-2 ring-primary/15 shadow-md':
               isSelected,
@@ -158,6 +158,13 @@ const ApStepCanvasNode = React.memo(
         ref={isPieceSelectorOpened ? null : setNodeRef}
         {...stepNodeDivAttributes}
         {...stepNodeDivListeners}
+        role="button"
+        tabIndex={0}
+        onKeyDown={(event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            handleStepClick(event);
+          }
+        }}
       >
         {isTrigger && <TriggerWidget isSelected={isSelected} />}
         <ApStepNodeStatusRing

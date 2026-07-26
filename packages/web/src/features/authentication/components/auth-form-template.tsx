@@ -134,7 +134,7 @@ const AuthLayout = ({
   return (
     <div className="h-dvh w-full overflow-hidden flex bg-background relative">
       {/* Form — left side */}
-      <div className="flex flex-col w-full lg:w-1/2 p-5 lg:px-[100px] pt-[max(1.25rem,env(safe-area-inset-top))] pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+      <div className="flex flex-col w-full lg:w-1/2 p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pl-[max(1.25rem,env(safe-area-inset-left))] pr-[max(1.25rem,env(safe-area-inset-right))] pt-[max(1.25rem,env(safe-area-inset-top))] lg:px-[100px]">
         <div className="pt-3 flex justify-center">
           <FullLogo />
         </div>

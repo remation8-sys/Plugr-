@@ -23,6 +23,10 @@ export const FileInputPreview = ({
           src={URL.createObjectURL(file)}
           alt={file.name}
           className="w-20 h-20 object-cover rounded-lg"
+          width="80"
+          height="80"
+          loading="eager"
+          decoding="async"
         />
       )}
       {isVideo && (

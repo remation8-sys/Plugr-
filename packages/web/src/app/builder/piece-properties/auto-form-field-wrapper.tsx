@@ -15,6 +15,9 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { ControllerRenderProps, useFormContext } from 'react-hook-form';
 import { toast } from 'sonner';
 
+import { ArrayPiecePropertyInInlineItemMode } from './array-property-in-inline-item-mode';
+import { TextInputWithMentions } from './text-input-with-mentions';
+
 import { ReadMoreDescription } from '@/components/custom/read-more-description';
 import { Button } from '@/components/ui/button';
 import { FormItem, FormLabel } from '@/components/ui/form';
@@ -27,9 +30,6 @@ import {
 } from '@/components/ui/tooltip';
 import { formUtils } from '@/features/pieces';
 import { cn } from '@/lib/utils';
-
-import { ArrayPiecePropertyInInlineItemMode } from './array-property-in-inline-item-mode';
-import { TextInputWithMentions } from './text-input-with-mentions';
 
 function AutoFormFieldWrapper({
   placeBeforeLabelText = false,

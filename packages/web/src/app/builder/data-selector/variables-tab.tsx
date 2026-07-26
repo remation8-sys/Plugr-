@@ -4,6 +4,8 @@ import { Plus, SearchXIcon, Variable } from 'lucide-react';
 import { useState } from 'react';
 import { useDebounce } from 'use-debounce';
 
+import { useBuilderStateContext } from '../builder-hooks';
+
 import { VariableDialog } from '@/app/variables/variable-dialog';
 import { SearchInput } from '@/components/custom/search-input';
 import { Button } from '@/components/ui/button';
@@ -12,8 +14,6 @@ import { variablesQueries } from '@/features/variables/hooks/variables-hooks';
 import { useAuthorization } from '@/hooks/authorization-hooks';
 import { authenticationSession } from '@/lib/authentication-session';
 import { cn } from '@/lib/utils';
-
-import { useBuilderStateContext } from '../builder-hooks';
 
 const VariablesTab = () => {
   const insertMention = useBuilderStateContext((state) => state.insertMention);

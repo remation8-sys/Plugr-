@@ -12,6 +12,8 @@ import {
   Hash,
 } from 'lucide-react';
 
+import { UserRowData } from './index';
+
 import { RowDataWithActions } from '@/components/custom/data-table';
 import { DataTableColumnHeader } from '@/components/custom/data-table/data-table-column-header';
 import { TruncatedColumnTextValue } from '@/components/custom/data-table/truncated-column-text-value';
@@ -21,8 +23,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
-
-import { UserRowData } from './index';
 
 type ColumnDefWithAccessorKey = ColumnDef<RowDataWithActions<UserRowData>> & {
   accessorKey: string;
