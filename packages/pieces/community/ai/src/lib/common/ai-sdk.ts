@@ -219,7 +219,7 @@ export const anthropicSearchTool = anthropic.tools.webSearch_20250305;
 export const openaiSearchTool = openai.tools.webSearchPreview;
 export const googleSearchTool = google.tools.googleSearch;
 
-const EMBEDDING_DIMENSIONS = 768
+export const EMBEDDING_DIMENSIONS = 768
 
 const DEFAULT_EMBEDDING_MODELS: Partial<Record<AIProviderName, string>> = {
     [AIProviderName.OPENAI]: 'text-embedding-3-small',

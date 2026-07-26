@@ -1,6 +1,7 @@
 import { dynamicTool, embed, embedMany, EmbeddingModel, LanguageModel, Tool } from "ai";
 import z from "zod";
 import { agentUtils } from "./utils";
+import { EMBEDDING_DIMENSIONS } from "../../common/ai-sdk";
 import { agentOutputBuilder } from "./agent-output-builder";
 import { AgentKnowledgeBaseTool, AgentMcpTool, AgentOutputField, AgentTaskStatus, AgentTool, AgentToolType, buildAuthHeaders, isNil, isString, KnowledgeBaseSourceType, McpProtocol, mcpToolNameUtils, TASK_COMPLETION_TOOL_NAME } from "@activepieces/shared";
 import { StreamableHTTPClientTransport } from '@modelcontextprotocol/sdk/client/streamableHttp.js'
@@ -44,6 +45,20 @@ function createTransportConfig(
 }
 
 const SEARCH_KNOWLEDGE_BASE_TOOL_NAME = 'search_knowledge_base'
+
+// Some providers (e.g. OpenRouter's passthrough) don't honor the `dimensions` embedding
+// option, so text-embedding-3-small comes back at its native 1536 length instead of the
+// 768 the knowledge base column is fixed to. text-embedding-3 models are trained with
+// Matryoshka representation learning, so truncating to the first N dims and re-normalizing
+// is the same technique OpenAI's own `dimensions` param uses server-side.
+function toStoredDimensions(vector: number[]): number[] {
+    if (vector.length <= EMBEDDING_DIMENSIONS) {
+        return vector
+    }
+    const truncated = vector.slice(0, EMBEDDING_DIMENSIONS)
+    const norm = Math.sqrt(truncated.reduce((sum, v) => sum + v * v, 0))
+    return norm > 0 ? truncated.map(v => v / norm) : truncated
+}
 
 function flattenMcpServers(
     servers: McpServerTools[],
@@ -163,7 +178,7 @@ async function constructKnowledgeBaseTools(
                         await api.post(`v1/knowledge-base/files/${fileTool.sourceId}/store-chunks`, {
                             chunks: batch.map((c, j) => ({
                                 id: c.id,
-                                embedding: Array.from(embeddings[j]),
+                                embedding: toStoredDimensions(Array.from(embeddings[j])),
                             })),
                         })
                     }
@@ -189,7 +204,7 @@ async function constructKnowledgeBaseTools(
 
                 const response = await api.post<SearchResultItem[]>('v1/knowledge-base/files/search', {
                     knowledgeBaseFileIds: fileIds,
-                    queryEmbedding: Array.from(embedding),
+                    queryEmbedding: toStoredDimensions(Array.from(embedding)),
                     limit: 5,
                     similarityThreshold: 0.5,
                 })
