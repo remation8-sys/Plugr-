@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
 
+import { PlugrChatWidget } from '@/app/components/plugr-chat-widget';
+
 const BLUE = '#0055ff';
 const INK = '#0d0e1a';
 
@@ -236,6 +238,7 @@ export function AboutPage() {
           </div>
         </div>
       </main>
+      <PlugrChatWidget />
     </div>
   );
 }

@@ -14,6 +14,8 @@ import {
 import { type CSSProperties, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 
+import { PlugrChatWidget } from '@/app/components/plugr-chat-widget';
+
 import { PixelCanvas } from './pixel-canvas';
 import { Pricing } from './pricing';
 import { ProductTour } from './product-tour';
@@ -741,6 +743,7 @@ export function LandingPage() {
         <ClosingCta />
       </main>
       <Footer />
+      <PlugrChatWidget />
     </div>
   );
 }
