@@ -46,6 +46,9 @@ fi
 echo "=== load env ==="
 set -a; . ./.env; set +a
 
+echo "=== install deps ==="
+bun install 2>&1 | tail -10
+
 echo "=== build engine + api + worker + dev pieces ==="
 npx turbo run build --filter=@activepieces/engine --filter=api --filter=worker --filter=@activepieces/piece-forms --filter=@activepieces/piece-ai --filter=@activepieces/piece-gmail 2>&1 | tail -8
 
