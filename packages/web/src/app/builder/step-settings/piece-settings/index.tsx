@@ -15,6 +15,7 @@ import { ConnectionSelect } from './connection-select';
 
 import { Skeleton } from '@/components/ui/skeleton';
 import { flagsHooks } from '@/hooks/flags-hooks';
+import { platformHooks } from '@/hooks/platform-hooks';
 
 type PieceSettingsProps = {
   step: PieceAction | PieceTrigger;
@@ -66,11 +67,12 @@ const PieceSettings = React.memo((props: PieceSettingsProps) => {
   );
 
   const { data: frontendUrl } = flagsHooks.useFlag<string>(ApFlagId.PUBLIC_URL);
+  const { platform } = platformHooks.useCurrentPlatform();
   const markdownVariables = {
     webhookUrl: `${webhookPrefixUrl}/${props.flowId}`,
     formUrl: `${frontendUrl}forms/${props.flowId}`,
     chatUrl: `${frontendUrl}chats/${props.flowId}`,
-    chatEmbedCode: `<script src="${frontendUrl}plugr-chat.js" data-flow-id="${props.flowId}" defer></script>`,
+    chatEmbedCode: `<script src="${frontendUrl}plugr-chat.js" data-flow-id="${props.flowId}" data-logo="${platform.logoIconUrl}" defer></script>`,
     pausedFlowTimeoutDays: pausedFlowTimeoutDays?.toString() ?? '',
     webhookTimeoutSeconds: webhookTimeoutSeconds?.toString() ?? '',
   };

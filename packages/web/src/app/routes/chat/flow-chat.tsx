@@ -242,7 +242,16 @@ export function FlowChat({
     >
       {embedded && (
         <header className="flex w-full shrink-0 items-center justify-between border-b bg-background px-4 py-2">
-          <span className="truncate text-sm font-medium">{botName}</span>
+          <div className="flex min-w-0 items-center gap-2">
+            {chatUI?.platformLogoUrl && (
+              <img
+                src={chatUI.platformLogoUrl}
+                alt=""
+                className="size-5 shrink-0 rounded-full object-cover"
+              />
+            )}
+            <span className="truncate text-sm font-medium">{botName}</span>
+          </div>
           <div className="flex items-center gap-1">
             {onNewChat && (
               <Button

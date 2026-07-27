@@ -7,6 +7,7 @@
  * Optional attributes:
  *   data-color="#7C3AED"      bubble + header accent color
  *   data-position="right"     "right" (default) or "left"
+ *   data-logo="https://..."   image shown on the closed bubble instead of the default chat icon
  *   data-origin="https://..." override the Plugr origin (defaults to where this script is served from)
  */
 (function () {
@@ -40,6 +41,7 @@
   origin = origin.replace(/\/+$/, '');
 
   var color = script.getAttribute('data-color') || '#7C3AED';
+  var logoUrl = script.getAttribute('data-logo') || '';
   var position = script.getAttribute('data-position') === 'left' ? 'left' : 'right';
   var chatUrl = origin + '/chats/' + encodeURIComponent(flowId) + '?embed=true';
 
@@ -62,6 +64,7 @@
     '.plugr-chat-bubble:hover{' + (reducedMotion ? '' : 'transform:scale(1.06);') + 'box-shadow:0 10px 28px rgba(0,0,0,.3)}' +
     '.plugr-chat-bubble:focus-visible{outline:2px solid #fff;outline-offset:2px}' +
     '.plugr-chat-bubble svg{width:26px;height:26px;pointer-events:none}' +
+    '.plugr-chat-bubble img{width:32px;height:32px;border-radius:9999px;object-fit:cover;pointer-events:none}' +
     '.plugr-chat-panel{position:fixed;bottom:88px;' + position + ':20px;width:380px;height:min(600px,calc(100vh - 110px));' +
     'max-width:calc(100vw - 40px);border-radius:16px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.28);' +
     'background:#fff;z-index:' + Z_INDEX + ';display:none;' +
@@ -81,9 +84,14 @@
   bubble.setAttribute('aria-label', 'Open chat');
   bubble.setAttribute('aria-expanded', 'false');
 
-  var chatIcon =
+  var defaultChatIcon =
     '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
     '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>';
+  // Falls back to the default icon if the logo 404s or otherwise fails to load,
+  // so the bubble never ends up blank.
+  var chatIcon = logoUrl
+    ? '<img src="' + logoUrl + '" alt="" onerror="this.outerHTML=\'' + defaultChatIcon.replace(/'/g, "\\'") + '\'">'
+    : defaultChatIcon;
   var closeIcon =
     '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
     '<line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
