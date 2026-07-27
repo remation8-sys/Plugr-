@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 
 const CHAT_FLOW_ID = 'gPZOw0V8nIDz7VR0dhGvO';
+const CHAT_LOGO_URL = '/logo.svg';
 const SCRIPT_ID = 'plugr-chat-widget-script';
 
 // Mounts the public support-chat bubble (see packages/web/public/plugr-chat.js).
@@ -15,6 +16,7 @@ export function PlugrChatWidget() {
       script.src = '/plugr-chat.js';
       script.defer = true;
       script.setAttribute('data-flow-id', CHAT_FLOW_ID);
+      script.setAttribute('data-logo', CHAT_LOGO_URL);
       document.body.appendChild(script);
     }
 
