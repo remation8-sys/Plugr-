@@ -10,19 +10,21 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useReactFlow } from '@xyflow/react';
 import { t } from 'i18next';
 import { useEffect, useRef } from 'react';
+import { unstable_usePrompt } from 'react-router-dom';
 import { useLocation, usePrevious } from 'react-use';
 import { useDebouncedCallback } from 'use-debounce';
-
-import { useBuilderStateContext } from '../builder-hooks';
-import { textMentionUtils } from '../piece-properties/text-input-with-mentions/text-input-utils';
-
-import { flowCanvasUtils } from './utils/flow-canvas-utils';
 
 import { useEmbedding } from '@/components/providers/embed-provider';
 import { useSocket } from '@/components/providers/socket-provider';
 import { flowRunsApi, flowRunUtils } from '@/features/flow-runs';
 import { flowsApi } from '@/features/flows';
 import { useAuthorization } from '@/hooks/authorization-hooks';
+import { useIsMobile } from '@/hooks/use-mobile';
+
+import { useBuilderStateContext } from '../builder-hooks';
+import { textMentionUtils } from '../piece-properties/text-input-with-mentions/text-input-utils';
+
+import { flowCanvasUtils } from './utils/flow-canvas-utils';
 
 const useSetSocketListener = (refetchPiece: () => void) => {
   const socket = useSocket();
@@ -70,30 +72,39 @@ const useShowBuilderIsSavingWarningBeforeLeaving = () => {
   const {
     embedState: { isEmbedded },
   } = useEmbedding();
-  const isSaving = useBuilderStateContext((state) => state.saving);
+  const isMobile = useIsMobile();
+  const [isSaving, saveError] = useBuilderStateContext((state) => [
+    state.saving,
+    state.saveError,
+  ]);
+  const hasUnsavedChanges = isSaving || saveError;
+  const message = t(
+    'Leaving now may discard changes that have not reached the server. Continue?',
+  );
+  unstable_usePrompt({
+    when: isMobile && !isEmbedded && hasUnsavedChanges,
+    message,
+  });
   useEffect(() => {
     if (isEmbedded) {
       return;
     }
-    const message = t(
-      'Leaving this page while saving will discard your changes, are you sure you want to leave?',
-    );
     const handleBeforeUnload = (e: BeforeUnloadEvent) => {
-      if (isSaving) {
+      if (hasUnsavedChanges) {
         e.preventDefault();
         e.returnValue = message;
         return message;
       }
     };
 
-    if (isSaving) {
+    if (hasUnsavedChanges) {
       window.addEventListener('beforeunload', handleBeforeUnload);
     }
 
     return () => {
       window.removeEventListener('beforeunload', handleBeforeUnload);
     };
-  }, [isSaving, isEmbedded]);
+  }, [hasUnsavedChanges, isEmbedded, message]);
 };
 
 export const useSwitchToDraft = () => {

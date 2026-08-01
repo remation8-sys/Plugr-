@@ -1,4 +1,5 @@
 const INSTALL_PROMPT_DISMISSED_KEY = 'plugr:pwa-install-dismissed';
+const INSTALL_PROMPT_COOLDOWN_MS = 30 * 24 * 60 * 60 * 1000;
 
 type PromptStorage = Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>;
 
@@ -16,6 +17,7 @@ function getBrowserStorage(): PromptStorage | null {
 
 function shouldSuppressInstallPrompt(
   storage: PromptStorage | null = getBrowserStorage(),
+  now = Date.now(),
 ): boolean {
   if (!storage) {
     return false;
@@ -26,12 +28,16 @@ function shouldSuppressInstallPrompt(
     if (dismissalState === null) {
       return false;
     }
-    if (dismissalState !== 'true') {
+    const dismissedAt = Number(dismissalState);
+    if (!Number.isFinite(dismissedAt)) {
       storage.removeItem(INSTALL_PROMPT_DISMISSED_KEY);
       return false;
     }
-
-    return true;
+    if (now - dismissedAt < INSTALL_PROMPT_COOLDOWN_MS) {
+      return true;
+    }
+    storage.removeItem(INSTALL_PROMPT_DISMISSED_KEY);
+    return false;
   } catch {
     return false;
   }
@@ -39,13 +45,14 @@ function shouldSuppressInstallPrompt(
 
 function rememberInstallPromptDismissal(
   storage: PromptStorage | null = getBrowserStorage(),
+  now = Date.now(),
 ): void {
   if (!storage) {
     return;
   }
 
   try {
-    storage.setItem(INSTALL_PROMPT_DISMISSED_KEY, 'true');
+    storage.setItem(INSTALL_PROMPT_DISMISSED_KEY, now.toString());
   } catch {
     // Storage can be unavailable in private browsing or restricted embeds.
   }
@@ -67,6 +74,7 @@ function clearInstallPromptDismissal(
 
 export {
   INSTALL_PROMPT_DISMISSED_KEY,
+  INSTALL_PROMPT_COOLDOWN_MS,
   clearInstallPromptDismissal,
   rememberInstallPromptDismissal,
   shouldSuppressInstallPrompt,

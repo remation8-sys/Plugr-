@@ -1,11 +1,13 @@
 import { PlatformRole, ProjectType } from '@activepieces/shared';
 import { Search } from 'lucide-react';
-import { useState } from 'react';
+import { lazy, Suspense, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 
 import { SettingsIcon } from '@/components/icons/settings';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { Skeleton } from '@/components/ui/skeleton';
 import { projectCollectionUtils } from '@/features/projects';
 import { useAuthorization } from '@/hooks/authorization-hooks';
 import { flagsHooks } from '@/hooks/flags-hooks';
@@ -14,7 +16,13 @@ import { userHooks } from '@/hooks/user-hooks';
 import { determineDefaultRoute } from '@/lib/route-utils';
 
 import { useGlobalSearch } from '../global-search/global-search-context';
-import { ProjectSettingsDialog } from '../project-settings';
+
+const MobileProjectSettingsDialog = lazy(async () => {
+  const module = await import(
+    '../project-settings/mobile-project-settings-dialog'
+  );
+  return { default: module.MobileProjectSettingsDialog };
+});
 
 function MobileAppHeader() {
   const { t } = useTranslation();
@@ -81,16 +89,59 @@ function MobileAppHeader() {
           </Button>
         </div>
       </header>
-      <ProjectSettingsDialog
-        open={settingsOpen}
-        onClose={() => setSettingsOpen(false)}
-        initialTab={settingsInitialTab}
-        initialValues={{
-          projectName: project.displayName,
-        }}
-      />
+      {settingsOpen && (
+        <Suspense
+          fallback={
+            <MobileSettingsLoadingDialog
+              onClose={() => setSettingsOpen(false)}
+            />
+          }
+        >
+          <MobileProjectSettingsDialog
+            open={settingsOpen}
+            onClose={() => setSettingsOpen(false)}
+            initialTab={settingsInitialTab}
+          />
+        </Suspense>
+      )}
     </>
   );
 }
 
+function MobileSettingsLoadingDialog({
+  onClose,
+}: MobileSettingsLoadingDialogProps) {
+  const { t } = useTranslation();
+
+  return (
+    <Dialog
+      open
+      onOpenChange={(open) => {
+        if (!open) {
+          onClose();
+        }
+      }}
+    >
+      <DialogContent className="flex h-dvh max-h-dvh flex-col gap-4 overflow-hidden max-md:p-4">
+        <DialogTitle>{t('Project settings')}</DialogTitle>
+        <div
+          aria-busy="true"
+          aria-label={t('Project settings')}
+          className="space-y-4"
+          role="status"
+        >
+          <Skeleton className="h-11 w-full" />
+          <Skeleton className="h-20 w-full" />
+          <Skeleton className="h-20 w-full" />
+          <Skeleton className="h-20 w-full" />
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 export { MobileAppHeader };
+
+type MobileSettingsLoadingDialogProps = {
+  onClose: () => void;
+};

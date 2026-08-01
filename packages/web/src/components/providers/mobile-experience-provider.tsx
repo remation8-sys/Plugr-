@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 
+import { MobileLaunchScreen } from '@/components/custom/pwa/mobile-launch-screen';
 import { mobileHaptics } from '@/lib/mobile-haptics';
 
 const MOBILE_BREAKPOINT = 768;
@@ -108,7 +109,12 @@ function MobileExperienceProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  return children;
+  return (
+    <>
+      {children}
+      <MobileLaunchScreen />
+    </>
+  );
 }
 
 export { MobileExperienceProvider };

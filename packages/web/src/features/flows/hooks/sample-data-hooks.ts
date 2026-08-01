@@ -1,103 +1,72 @@
-import {
-  flowStructureUtil,
-  FlowVersion,
-  SampleDataFileType,
-} from '@activepieces/shared';
+import { FlowVersion, flowStructureUtil } from '@activepieces/shared';
 import { useQuery, QueryClient } from '@tanstack/react-query';
 
 import { sampleDataApi } from '../api/sample-data-api';
 
 export const sampleDataHooks = {
-  useSampleDataForFlow: (
-    flowVersion: FlowVersion | undefined,
-    projectId: string | undefined,
-  ) => {
+  useSampleDataForFlow: ({
+    flowVersion,
+    projectId,
+    enabled = true,
+  }: SampleDataQueryParams) => {
     return useQuery({
-      queryKey: ['sampleData', flowVersion?.id],
-      enabled: !!flowVersion,
-      staleTime: 0,
-      retry: 4,
+      queryKey: ['flowSampleData', flowVersion?.id],
+      enabled: !!flowVersion && enabled,
+      staleTime: Infinity,
+      retry: 1,
       refetchOnWindowFocus: false,
-      queryFn: async () => {
-        const steps = flowStructureUtil.getAllSteps(flowVersion!.trigger);
-        const singleStepSampleData = await Promise.all(
-          steps.map(async (step) => {
-            return {
-              [step.name]: await getSampleData(
-                flowVersion!,
-                step.name,
-                projectId!,
-                SampleDataFileType.OUTPUT,
-              ),
-            };
-          }),
-        );
-        const sampleData: Record<string, unknown> = {};
-        singleStepSampleData.forEach((stepData) => {
-          Object.assign(sampleData, stepData);
-        });
-        return sampleData;
-      },
+      queryFn: () =>
+        sampleDataApi.getForFlow({
+          flowId: flowVersion!.flowId,
+          flowVersionId: flowVersion!.id,
+          projectId: projectId!,
+        }),
+      select: (sampleData) => sampleData.output,
     });
   },
-  useSampleDataInputForFlow: (
-    flowVersion: FlowVersion | undefined,
-    projectId: string | undefined,
-  ) => {
+  useSampleDataInputForFlow: ({
+    flowVersion,
+    projectId,
+    enabled = true,
+  }: SampleDataQueryParams) => {
     return useQuery({
-      queryKey: ['sampleDataInput', flowVersion?.id],
-      enabled: !!flowVersion,
-      staleTime: 0,
-      retry: 4,
+      queryKey: ['flowSampleData', flowVersion?.id],
+      enabled: !!flowVersion && enabled,
+      staleTime: Infinity,
+      retry: 1,
       refetchOnWindowFocus: false,
-      queryFn: async () => {
-        const steps = flowStructureUtil.getAllSteps(flowVersion!.trigger);
-        const singleStepSampleDataInput = await Promise.all(
-          steps.map(async (step) => {
-            return {
-              [step.name]: step.settings.sampleData?.sampleDataInputFileId
-                ? await getSampleData(
-                    flowVersion!,
-                    step.name,
-                    projectId!,
-                    SampleDataFileType.INPUT,
-                  )
+      queryFn: () =>
+        sampleDataApi.getForFlow({
+          flowId: flowVersion!.flowId,
+          flowVersionId: flowVersion!.id,
+          projectId: projectId!,
+        }),
+      select: (sampleData) => {
+        if (!flowVersion) {
+          return sampleData.input;
+        }
+        return Object.fromEntries(
+          flowStructureUtil
+            .getAllSteps(flowVersion.trigger)
+            .map((step) => [
+              step.name,
+              step.settings.sampleData?.sampleDataInputFileId
+                ? sampleData.input[step.name]
                 : undefined,
-            };
-          }),
+            ]),
         );
-        const sampleDataInput: Record<string, unknown> = {};
-        singleStepSampleDataInput.forEach((stepData) => {
-          Object.assign(sampleDataInput, stepData);
-        });
-        return sampleDataInput;
       },
     });
   },
   invalidateSampleData: (flowVersionId: string, queryClient: QueryClient) => {
-    queryClient.invalidateQueries({ queryKey: ['sampleData', flowVersionId] });
     queryClient.invalidateQueries({
-      queryKey: ['sampleDataInput', flowVersionId],
+      queryKey: ['flowSampleData', flowVersionId],
     });
   },
 };
 
-async function getSampleData(
-  flowVersion: FlowVersion,
-  stepName: string,
-  projectId: string,
-  type: SampleDataFileType,
-): Promise<unknown> {
-  return sampleDataApi
-    .get({
-      flowId: flowVersion.flowId,
-      flowVersionId: flowVersion.id,
-      stepName,
-      projectId,
-      type,
-    })
-    .catch((error) => {
-      console.error(error);
-      return undefined;
-    });
-}
+type SampleDataQueryParams = {
+  flowVersion: FlowVersion | undefined;
+  projectId: string | undefined;
+  enabled?: boolean;
+};

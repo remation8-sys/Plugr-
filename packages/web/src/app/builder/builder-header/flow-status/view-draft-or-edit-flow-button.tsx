@@ -4,14 +4,18 @@ import { EyeIcon, PencilIcon } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useLocation } from 'react-use';
 
+import { Button } from '@/components/ui/button';
+import { useAuthorization } from '@/hooks/authorization-hooks';
+import { cn } from '@/lib/utils';
+
 import { useBuilderStateContext } from '../../builder-hooks';
 import { flowCanvasHooks } from '../../flow-canvas/hooks';
 import { AboveTriggerButton } from '../../flow-canvas/widgets/above-trigger-button';
 
-import { Button } from '@/components/ui/button';
-import { useAuthorization } from '@/hooks/authorization-hooks';
-
-const EditFlowOrViewDraftButton = ({ onCanvas }: { onCanvas: boolean }) => {
+const EditFlowOrViewDraftButton = ({
+  mobile = false,
+  onCanvas,
+}: EditFlowOrViewDraftButtonProps) => {
   const location = useLocation();
   const navigate = useNavigate();
   const { checkAccess } = useAuthorization();
@@ -52,7 +56,10 @@ const EditFlowOrViewDraftButton = ({ onCanvas }: { onCanvas: boolean }) => {
           size={'sm'}
           variant={'basic'}
           loading={isSwitchingToDraftPending}
-          className="gap-2"
+          className={cn(
+            'gap-2',
+            mobile && 'h-12 w-full rounded-xl text-sm font-semibold',
+          )}
           onClick={() => {
             if (location.pathname?.includes('/runs')) {
               navigate(`/flows/${flowId}`);
@@ -88,3 +95,8 @@ function getButtonTextAndIcon({
     text,
   };
 }
+
+type EditFlowOrViewDraftButtonProps = {
+  mobile?: boolean;
+  onCanvas: boolean;
+};

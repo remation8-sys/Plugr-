@@ -150,7 +150,7 @@ export const findRecords = createAction({
 
     const request: ListRecordsRequest = {
       tableId,
-      limit: limit ?? 999999999,
+      limit: limit ?? 1000,
       cursor: undefined,
       filters: parsedFilters,
     };

@@ -9,17 +9,6 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { PanelImperativeHandle } from 'react-resizable-panels';
 import { usePrevious } from 'react-use';
 
-import { BuilderHeader } from './builder-header/builder-header';
-import { FlowCanvas } from './flow-canvas';
-import { flowCanvasHooks } from './flow-canvas/hooks';
-import { flowCanvasConsts } from './flow-canvas/utils/consts';
-import { BuilderBanner } from './flow-canvas/widgets/builder-banner';
-import { FlowVersionsList } from './flow-versions';
-import { PlugrChatPanel } from './plugr-chat/plugr-chat-panel';
-import { PlugrChatWidget } from './plugr-chat/plugr-chat-widget';
-import { RunsList } from './run-list';
-
-import { CursorPositionProvider } from './state/cursor-position-context';
 import { useBuilderStateContext } from '@/app/builder/builder-hooks';
 import { DataSelector } from '@/app/builder/data-selector';
 import { CanvasControls } from '@/app/builder/flow-canvas/canvas-controls';
@@ -39,6 +28,18 @@ import { useElementSize } from '@/hooks/use-element-size';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 
+import { BuilderHeader } from './builder-header/builder-header';
+import { FlowCanvas } from './flow-canvas';
+import { flowCanvasHooks } from './flow-canvas/hooks';
+import { flowCanvasConsts } from './flow-canvas/utils/consts';
+import { BuilderBanner } from './flow-canvas/widgets/builder-banner';
+import { FlowVersionsList } from './flow-versions';
+import { MobileFlowBuilder } from './mobile/mobile-flow-builder';
+import { MobileSampleDataBoundary } from './mobile/mobile-sample-data-boundary';
+import { PlugrChatPanel } from './plugr-chat/plugr-chat-panel';
+import { PlugrChatWidget } from './plugr-chat/plugr-chat-widget';
+import { RunsList } from './run-list';
+import { CursorPositionProvider } from './state/cursor-position-context';
 import { StepSettingsContainer } from './step-settings';
 const animateResizeClassName = `transition-all `;
 
@@ -163,30 +164,19 @@ const BuilderPage = () => {
         </div>
 
         <div ref={middlePanelRef} className="relative flex-1 w-full min-h-0">
-          <CursorPositionProvider>
-            <FlowCanvas
-              setHasCanvasBeenInitialised={setHasCanvasBeenInitialised}
-            />
-          </CursorPositionProvider>
+          <MobileFlowBuilder />
 
           <BuilderBanner />
-          {middlePanelRef.current && middlePanelRef.current.clientWidth > 0 && (
-            <CanvasControls
-              canvasHeight={middlePanelRef.current?.clientHeight ?? 0}
-              canvasWidth={middlePanelRef.current?.clientWidth ?? 0}
-              hasCanvasBeenInitialised={hasCanvasBeenInitialised}
-              selectedStep={selectedStepName}
-            />
-          )}
-
           <ShowPoweredBy
             position="absolute"
             show={platform?.plan.showPoweredBy}
           />
-          <DataSelector
-            parentHeight={middlePanelSize.height}
-            parentWidth={middlePanelSize.width}
-          />
+          {selectedStep && rightSidebar === RightSideBarType.PIECE_SETTINGS && (
+            <DataSelector
+              parentHeight={middlePanelSize.height}
+              parentWidth={middlePanelSize.width}
+            />
+          )}
           <PlugrChatWidget />
         </div>
 
@@ -199,22 +189,28 @@ const BuilderPage = () => {
           modal={false}
         >
           <DrawerContent
+            data-mobile-step-editor
             className="flex flex-col overflow-hidden pb-[env(safe-area-inset-bottom)]"
-            style={{ height: '85dvh' }}
+            style={{
+              height:
+                'min(calc(var(--mobile-viewport-height, 100dvh) - 1rem), 920px)',
+            }}
           >
             {rightSidebar === RightSideBarType.PIECE_SETTINGS &&
               selectedStep && (
-                <StepSettingsProvider
-                  pieceModel={pieceModel}
-                  selectedStep={selectedStep}
-                  key={constructContainerKey({
-                    flowVersionId: flowVersion.id,
-                    step: selectedStep,
-                    hasPieceModelLoaded: !!pieceModel,
-                  })}
-                >
-                  <StepSettingsContainer />
-                </StepSettingsProvider>
+                <MobileSampleDataBoundary>
+                  <StepSettingsProvider
+                    pieceModel={pieceModel}
+                    selectedStep={selectedStep}
+                    key={constructContainerKey({
+                      flowVersionId: flowVersion.id,
+                      step: selectedStep,
+                      hasPieceModelLoaded: !!pieceModel,
+                    })}
+                  >
+                    <StepSettingsContainer />
+                  </StepSettingsProvider>
+                </MobileSampleDataBoundary>
               )}
             {rightSidebar === RightSideBarType.RUNS && <RunsList />}
             {rightSidebar === RightSideBarType.VERSIONS && <FlowVersionsList />}

@@ -9,6 +9,7 @@ import {
 
 import { InstallPrompt } from '@/components/custom/pwa/install-prompt';
 import { OfflinePage } from '@/components/custom/pwa/offline-page';
+import { UpdatePrompt } from '@/components/custom/pwa/update-prompt';
 import { useEmbedding } from '@/components/providers/embed-provider';
 import { Button } from '@/components/ui/button';
 import { useOnlineStatus } from '@/hooks/use-online-status';
@@ -18,8 +19,14 @@ import {
   rememberInstallPromptDismissal,
   shouldSuppressInstallPrompt,
 } from '@/lib/pwa-storage';
+import {
+  getPendingPwaUpdate,
+  hasPendingPwaUpdate,
+  subscribeToPwaUpdates,
+} from '@/lib/pwa-update';
 
 const INSTALL_PROMPT_DELAY_MS = 30_000;
+const UPDATE_REMINDER_DELAY_MS = 10 * 60 * 1000;
 
 type BeforeInstallPromptEvent = Event & {
   prompt: () => Promise<void>;
@@ -38,10 +45,7 @@ function isStandaloneDisplayMode() {
 }
 
 function isMobileInstallContext() {
-  return (
-    window.matchMedia('(max-width: 767px)').matches ||
-    window.matchMedia('(pointer: coarse)').matches
-  );
+  return window.matchMedia('(max-width: 767px)').matches;
 }
 
 function isIosBrowser() {
@@ -55,7 +59,7 @@ function OfflineNotice({ onOpen }: { onOpen: () => void }) {
   return (
     <div
       aria-live="polite"
-      className="fixed inset-x-4 bottom-[calc(5.5rem+env(safe-area-inset-bottom))] z-[65] mx-auto flex max-w-lg items-center gap-3 rounded-lg border bg-card p-3 text-card-foreground shadow-lg md:bottom-4"
+      className="fixed inset-x-4 bottom-4 z-[65] mx-auto flex max-w-lg items-center gap-3 rounded-lg border bg-card p-3 text-card-foreground shadow-lg"
       role="status"
     >
       <WifiOff aria-hidden="true" className="size-5 shrink-0 text-warning" />
@@ -98,6 +102,9 @@ function PwaProvider({ children }: { children: ReactNode }) {
   const [installPrompt, setInstallPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
+  const [showUpdatePrompt, setShowUpdatePrompt] = useState(() =>
+    hasPendingPwaUpdate(),
+  );
 
   const installPromptsAllowed =
     !embedState.isEmbedded &&
@@ -106,6 +113,7 @@ function PwaProvider({ children }: { children: ReactNode }) {
     isMobileInstallContext() &&
     !shouldSuppressInstallPrompt();
   const iosInstallCandidate = installPromptsAllowed && isIosBrowser();
+  const isMobileExperience = isMobileInstallContext();
 
   useEffect(() => {
     const handleBeforeInstallPrompt = (event: Event) => {
@@ -129,6 +137,14 @@ function PwaProvider({ children }: { children: ReactNode }) {
       window.removeEventListener('appinstalled', handleAppInstalled);
     };
   }, []);
+
+  useEffect(
+    () =>
+      subscribeToPwaUpdates(() => {
+        setShowUpdatePrompt(hasPendingPwaUpdate());
+      }),
+    [],
+  );
 
   useEffect(() => {
     if (
@@ -180,6 +196,22 @@ function PwaProvider({ children }: { children: ReactNode }) {
     }
   }, [dismissInstallPrompt, installPrompt, iosInstallCandidate]);
 
+  const updateApp = useCallback(async () => {
+    const pendingUpdate = getPendingPwaUpdate();
+    if (pendingUpdate) {
+      await pendingUpdate();
+    }
+  }, []);
+
+  const remindAboutUpdateLater = useCallback(() => {
+    setShowUpdatePrompt(false);
+    window.setTimeout(() => {
+      if (hasPendingPwaUpdate()) {
+        setShowUpdatePrompt(true);
+      }
+    }, UPDATE_REMINDER_DELAY_MS);
+  }, []);
+
   if ((!hasBeenOnline && !isOnline) || showRecovery) {
     return (
       <OfflinePage
@@ -192,13 +224,28 @@ function PwaProvider({ children }: { children: ReactNode }) {
   return (
     <>
       {children}
-      {!isOnline && <OfflineNotice onOpen={() => setShowRecovery(true)} />}
-      {showInstallPrompt && isOnline && (
+      {!isOnline && isMobileExperience && (
+        <div className="fixed inset-0 z-[90] bg-background">
+          <OfflinePage onRetry={() => window.location.reload()} />
+        </div>
+      )}
+      {!isOnline && !isMobileExperience && (
+        <OfflineNotice onOpen={() => setShowRecovery(true)} />
+      )}
+      {showInstallPrompt && !showUpdatePrompt && isOnline && (
         <InstallPrompt
           avoidBottomNavigation={authenticationSession.isLoggedIn()}
           mode={iosInstallCandidate ? 'ios' : 'native'}
           onDismiss={dismissInstallPrompt}
           onInstall={() => void installApp()}
+        />
+      )}
+      {showUpdatePrompt && isOnline && isMobileExperience && (
+        <UpdatePrompt
+          avoidBottomNavigation={authenticationSession.isLoggedIn()}
+          isEditingFlow={window.location.pathname.includes('/flows/')}
+          onLater={remindAboutUpdateLater}
+          onUpdate={updateApp}
         />
       )}
     </>

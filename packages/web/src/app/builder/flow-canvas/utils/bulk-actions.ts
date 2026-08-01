@@ -17,7 +17,7 @@ type CopyActionsRequest = {
   actions: FlowAction[];
 };
 
-export function copySelectedNodes({
+export async function copySelectedNodes({
   selectedNodes,
   flowVersion,
 }: Pick<BuilderState, 'selectedNodes' | 'flowVersion'>) {
@@ -29,7 +29,7 @@ export function copySelectedNodes({
     type: 'COPY_ACTIONS',
     actions: actionsToCopy,
   };
-  navigator.clipboard.writeText(JSON.stringify(request));
+  await navigator.clipboard.writeText(JSON.stringify(request));
 }
 
 export function deleteSelectedNodes({

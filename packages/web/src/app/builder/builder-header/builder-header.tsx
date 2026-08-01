@@ -16,11 +16,6 @@ import {
   useSearchParams,
 } from 'react-router-dom';
 
-import FlowActionMenu from '../../components/flow-actions-menu';
-import { flowCanvasConsts } from '../flow-canvas/utils/consts';
-
-import { BuilderFlowStatusSection } from './flow-status';
-
 import { useBuilderStateContext } from '@/app/builder/builder-hooks';
 import { RightSideBarType } from '@/app/builder/types';
 import { ActiveUsersWidget } from '@/components/custom/active-users-widget';
@@ -43,12 +38,20 @@ import { foldersHooks } from '@/features/folders';
 import { getProjectName, projectCollectionUtils } from '@/features/projects';
 import { useAuthorization } from '@/hooks/authorization-hooks';
 import { flagsHooks } from '@/hooks/flags-hooks';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { authenticationSession } from '@/lib/authentication-session';
 import { useNewWindow } from '@/lib/navigation-utils';
 import { NEW_FLOW_QUERY_PARAM } from '@/lib/route-utils';
 import { cn } from '@/lib/utils';
 
+import FlowActionMenu from '../../components/flow-actions-menu';
+import { flowCanvasConsts } from '../flow-canvas/utils/consts';
+import { MobileBuilderHeader } from '../mobile/mobile-builder-header';
+
+import { BuilderFlowStatusSection } from './flow-status';
+
 export const BuilderHeader = () => {
+  const isMobile = useIsMobile();
   const [queryParams] = useSearchParams();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -207,6 +210,10 @@ export const BuilderHeader = () => {
   );
 
   const leftContent = embedState.isEmbedded ? <HomeButton /> : null;
+
+  if (isMobile && !embedState.isEmbedded) {
+    return <MobileBuilderHeader />;
+  }
 
   return (
     <div

@@ -5,18 +5,20 @@ import {
   assertNotNullOrUndefined,
 } from '@activepieces/shared';
 import { t } from 'i18next';
+import { MessageCircle, Play } from 'lucide-react';
 import { useRef } from 'react';
-
-import { AboveTriggerButton } from './above-trigger-button';
 
 import { EditFlowOrViewDraftButton } from '@/app/builder/builder-header/flow-status/view-draft-or-edit-flow-button';
 import { useBuilderStateContext } from '@/app/builder/builder-hooks';
 import { ChatDrawerSource } from '@/app/builder/types';
+import { Button } from '@/components/ui/button';
 import { flowRunUtils } from '@/features/flow-runs';
 import { flowHooks } from '@/features/flows';
 import { pieceSelectorUtils } from '@/features/pieces';
 
-const TestFlowWidget = () => {
+import { AboveTriggerButton } from './above-trigger-button';
+
+const TestFlowWidget = ({ mobile = false }: TestFlowWidgetProps) => {
   const [
     setChatDrawerOpenSource,
     flowVersion,
@@ -70,6 +72,7 @@ const TestFlowWidget = () => {
             { ...response.flowRun, startTime, steps: updatedSteps },
             flowVersion,
           );
+          return;
         }
         setRun({ ...response.flowRun, startTime, steps }, flowVersion);
       },
@@ -90,12 +93,22 @@ const TestFlowWidget = () => {
   }
 
   if (readonly) {
-    return (
-      <EditFlowOrViewDraftButton onCanvas={true}></EditFlowOrViewDraftButton>
-    );
+    return <EditFlowOrViewDraftButton mobile={mobile} onCanvas={!mobile} />;
   }
 
   if (isChatTrigger) {
+    if (mobile) {
+      return (
+        <MobileTestFlowButton
+          icon={MessageCircle}
+          loading={isTestingFlow}
+          onClick={() => {
+            setChatDrawerOpenSource(ChatDrawerSource.TEST_FLOW);
+          }}
+          text={t('Open Chat')}
+        />
+      );
+    }
     return (
       <AboveTriggerButton
         onClick={() => {
@@ -103,6 +116,18 @@ const TestFlowWidget = () => {
         }}
         text={t('Open Chat')}
         loading={isTestingFlow}
+      />
+    );
+  }
+
+  if (mobile) {
+    return (
+      <MobileTestFlowButton
+        disabled={!triggerHasSampleData && !isManualTrigger}
+        icon={Play}
+        loading={isTestingFlow}
+        onClick={() => runFlow()}
+        text={isManualTrigger ? t('Run Flow') : t('Test Flow')}
       />
     );
   }
@@ -119,6 +144,48 @@ const TestFlowWidget = () => {
   );
 };
 
+function MobileTestFlowButton({
+  disabled = false,
+  icon: Icon,
+  loading,
+  onClick,
+  text,
+}: MobileTestFlowButtonProps) {
+  return (
+    <div className="w-full">
+      <Button
+        className="h-12 w-full rounded-xl text-sm font-semibold shadow-[0_12px_30px_-18px_hsl(var(--primary)/0.8)]"
+        disabled={disabled}
+        loading={loading}
+        onClick={onClick}
+      >
+        <Icon aria-hidden="true" className="size-4" />
+        {text}
+      </Button>
+      {disabled && (
+        <p className="mt-2 text-center text-xs text-muted-foreground">
+          {t('Test the trigger first to run the complete flow.')}
+        </p>
+      )}
+    </div>
+  );
+}
+
 TestFlowWidget.displayName = 'TestFlowWidget';
 
 export { TestFlowWidget };
+
+type TestFlowWidgetProps = {
+  mobile?: boolean;
+};
+
+type MobileTestFlowButtonProps = {
+  disabled?: boolean;
+  icon: React.ComponentType<{
+    className?: string;
+    'aria-hidden'?: React.AriaAttributes['aria-hidden'];
+  }>;
+  loading: boolean;
+  onClick: () => void;
+  text: string;
+};

@@ -39,21 +39,25 @@ export const BadgeAwarded = z.object({
 
 export const LockResourceRequest = z.object({
     resourceId: z.string(),
+    editorSessionId: z.string().optional(),
     force: z.boolean().optional(),
 })
 
 export const LockResourceResponse = z.object({
     acquired: z.boolean(),
-    lock: z.object({
-        userId: z.string(),
-        userDisplayName: z.string(),
-    }).nullable(),
+    lock: z
+        .object({
+            userId: z.string(),
+            userDisplayName: z.string(),
+        })
+        .nullable(),
 })
 
 export const ResourceLockedEvent = z.object({
     resourceId: z.string(),
     userId: z.string(),
     userDisplayName: z.string(),
+    editorSessionId: z.string().optional(),
 })
 
 export const ResourceUnlockedEvent = z.object({

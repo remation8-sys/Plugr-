@@ -10,11 +10,13 @@ import { BuilderStateProvider } from '@/app/builder/state/builder-state-provider
 import { PageLoadingSkeleton } from '@/components/custom/page-loading-skeleton';
 import { buttonVariants } from '@/components/ui/button';
 import { flowsApi, sampleDataHooks } from '@/features/flows';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { authenticationSession } from '@/lib/authentication-session';
 import { cn } from '@/lib/utils';
 
 const FlowBuilderPage = () => {
   const { flowId } = useParams();
+  const isMobile = useIsMobile();
 
   const {
     data: flow,
@@ -33,11 +35,22 @@ const FlowBuilderPage = () => {
   });
 
   const { data: sampleData, isLoading: isSampleDataLoading } =
-    sampleDataHooks.useSampleDataForFlow(flow?.version, flow?.projectId);
+    sampleDataHooks.useSampleDataForFlow({
+      flowVersion: flow?.version,
+      projectId: flow?.projectId,
+      enabled: !isMobile,
+    });
 
   const { data: sampleDataInput, isLoading: isSampleDataInputLoading } =
-    sampleDataHooks.useSampleDataInputForFlow(flow?.version, flow?.projectId);
-  if (isLoading || isSampleDataLoading || isSampleDataInputLoading) {
+    sampleDataHooks.useSampleDataInputForFlow({
+      flowVersion: flow?.version,
+      projectId: flow?.projectId,
+      enabled: !isMobile,
+    });
+  if (
+    isLoading ||
+    (!isMobile && (isSampleDataLoading || isSampleDataInputLoading))
+  ) {
     return (
       <PageLoadingSkeleton
         className="h-full"
@@ -63,9 +76,9 @@ const FlowBuilderPage = () => {
 
         <Link
           className={cn(buttonVariants({ variant: 'outline' }))}
-          to="/dashboard"
+          to={authenticationSession.appendProjectRoutePrefix('/automations')}
         >
-          {t('Go to Dashboard')}
+          {t('Go to automations')}
         </Link>
       </div>
     );
@@ -81,6 +94,7 @@ const FlowBuilderPage = () => {
         run={null}
         outputSampleData={sampleData ?? {}}
         inputSampleData={sampleDataInput ?? {}}
+        initiallySelectStep={!isMobile}
       >
         <BuilderPage />
       </BuilderStateProvider>

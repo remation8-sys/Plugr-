@@ -1,8 +1,6 @@
 import { t } from 'i18next';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-import { PAGE_SIZE_OPTIONS } from '../lib/utils';
-
 import { Button } from '@/components/ui/button';
 import {
   Select,
@@ -11,6 +9,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+
+import { PAGE_SIZE_OPTIONS } from '../lib/utils';
 
 type AutomationsPaginationProps = {
   currentPage: number;
@@ -32,8 +32,14 @@ export const AutomationsPagination = ({
   const maxPages = Math.max(totalPages, 1);
 
   return (
-    <div className="flex items-center justify-end gap-4 px-2 py-4 text-sm">
-      <div className="flex items-center gap-2">
+    <div className="flex items-center justify-end gap-4 px-2 py-4 text-sm max-md:justify-between max-md:gap-2 max-md:px-4">
+      <span className="mr-auto text-sm font-medium text-muted-foreground md:hidden">
+        {t('Page {current} of {total}', {
+          current: Math.min(currentPage + 1, maxPages),
+          total: maxPages,
+        })}
+      </span>
+      <div className="flex items-center gap-2 max-md:hidden">
         <span className="text-muted-foreground">{t('Rows per page')}</span>
         <Select
           value={String(pageSize)}
@@ -56,19 +62,21 @@ export const AutomationsPagination = ({
         size="sm"
         onClick={onPrevPage}
         disabled={currentPage === 0}
-        className="gap-1"
+        className="h-11 gap-1 max-md:size-11 max-md:px-0"
+        aria-label={t('Previous page')}
       >
         <ChevronLeft className="h-4 w-4" />
-        {t('Previous')}
+        <span className="max-md:hidden">{t('Previous')}</span>
       </Button>
       <Button
         variant="ghost"
         size="sm"
         onClick={onNextPage}
         disabled={currentPage >= maxPages - 1}
-        className="gap-1"
+        className="h-11 gap-1 max-md:size-11 max-md:px-0"
+        aria-label={t('Next page')}
       >
-        {t('Next')}
+        <span className="max-md:hidden">{t('Next')}</span>
         <ChevronRight className="h-4 w-4" />
       </Button>
     </div>

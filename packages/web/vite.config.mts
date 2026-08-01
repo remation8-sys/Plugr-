@@ -132,7 +132,7 @@ export default defineConfig(({ command, mode }) => {
           ]
         : []),
       VitePWA({
-        registerType: 'autoUpdate',
+        registerType: 'prompt',
         includeAssets: [
           'favicon.ico',
           'favicon.svg',
@@ -274,8 +274,8 @@ export default defineConfig(({ command, mode }) => {
             },
           ],
           cleanupOutdatedCaches: true,
-          clientsClaim: true,
-          skipWaiting: true,
+          clientsClaim: false,
+          skipWaiting: false,
           navigateFallback: '/index.html',
           navigateFallbackDenylist: [
             /^\/api(?:\/|$)/,

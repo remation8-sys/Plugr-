@@ -8,17 +8,18 @@ import { useReactFlow } from '@xyflow/react';
 import { t } from 'i18next';
 import { ArrowRight, CircleHelp, Magnet } from 'lucide-react';
 
+import { Button } from '@/components/ui/button';
+import { flowRunUtils } from '@/features/flow-runs';
+import { flagsHooks } from '@/hooks/flags-hooks';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { formatUtils } from '@/lib/format-utils';
+import { cn } from '@/lib/utils';
+
 import { EditFlowOrViewDraftButton } from '../../builder-header/flow-status/view-draft-or-edit-flow-button';
 import { useBuilderStateContext } from '../../builder-hooks';
 import { flowCanvasUtils } from '../utils/flow-canvas-utils';
 
 import LargeWidgetWrapper from './large-widget-wrapper';
-
-import { Button } from '@/components/ui/button';
-import { flowRunUtils } from '@/features/flow-runs';
-import { flagsHooks } from '@/hooks/flags-hooks';
-import { formatUtils } from '@/lib/format-utils';
-import { cn } from '@/lib/utils';
 
 function getStatusText({
   status,
@@ -96,10 +97,10 @@ const RunInfoWidget = () => {
       )}
       key={run.id + run.status}
     >
-      <div className="flex items-center justify-between w-full flex-wrap">
-        <div className="flex items-center text-sm shrink-0">
-          <Icon className="size-5 mr-2" />
-          <span className="text-foreground dark:text-foreground font-medium">
+      <div className="flex w-full flex-wrap items-center justify-between gap-2">
+        <div className="flex min-w-0 flex-1 flex-wrap items-center text-sm md:shrink-0 md:flex-nowrap">
+          <Icon aria-hidden="true" className="mr-2 size-5 shrink-0" />
+          <span className="min-w-0 font-medium text-foreground dark:text-foreground">
             {getStatusText({
               status: run.status,
               timeout: timeoutSeconds ?? -1,
@@ -108,7 +109,7 @@ const RunInfoWidget = () => {
             })}
           </span>
 
-          <div className="shrink-0 text-foreground dark:text-foreground">
+          <div className="hidden shrink-0 text-foreground dark:text-foreground md:block">
             {isRunTerminal && (
               <>
                 &nbsp;-&nbsp;
@@ -136,7 +137,7 @@ const RunInfoWidget = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
           <ResumeLiveFollowButton isRunTerminal={isRunTerminal} />
           {run.failedStep && (
             <JumpToFailedStepButton failedStepName={run.failedStep.name} />
@@ -193,6 +194,7 @@ const JumpToFailedStepButton = ({
 }: {
   failedStepName: string;
 }) => {
+  const isMobile = useIsMobile();
   const [selectedStep, selectFailedStep, run, loopsIndexes] =
     useBuilderStateContext((state) => [
       state.selectedStep,
@@ -217,6 +219,14 @@ const JumpToFailedStepButton = ({
   }
   const handleClick = () => {
     selectFailedStep();
+    if (isMobile) {
+      window.requestAnimationFrame(() =>
+        document
+          .getElementById('mobile-flow-step-' + failedStepName)
+          ?.scrollIntoView({ behavior: 'smooth', block: 'center' }),
+      );
+      return;
+    }
     fitView(flowCanvasUtils.createFocusStepInGraphParams(failedStepName));
   };
   return (

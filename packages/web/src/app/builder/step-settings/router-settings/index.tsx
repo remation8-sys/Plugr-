@@ -14,6 +14,8 @@ import { Split } from 'lucide-react';
 import { memo, useEffect } from 'react';
 import { useFieldArray, useFormContext } from 'react-hook-form';
 
+import { useIsMobile } from '@/hooks/use-mobile';
+
 import { FormField, FormItem } from '../../../../components/ui/form';
 import { Label } from '../../../../components/ui/label';
 import {
@@ -31,6 +33,7 @@ import { BranchesList } from './branches-list';
 import BranchesToolbar from './branches-toolbar';
 
 export const RouterSettings = memo(({ readonly }: { readonly: boolean }) => {
+  const isMobile = useIsMobile();
   const [
     step,
     applyOperation,
@@ -70,7 +73,9 @@ export const RouterSettings = memo(({ readonly }: { readonly: boolean }) => {
     });
 
     setSelectedBranchIndex(null);
-    fitView(flowCanvasUtils.createFocusStepInGraphParams(step.name));
+    if (!isMobile) {
+      fitView(flowCanvasUtils.createFocusStepInGraphParams(step.name));
+    }
   };
 
   useEffect(() => {
@@ -208,6 +213,9 @@ export const RouterSettings = memo(({ readonly }: { readonly: boolean }) => {
             }}
             setSelectedBranchIndex={(index) => {
               setSelectedBranchIndex(index);
+              if (isMobile) {
+                return;
+              }
               if (step.children[index]) {
                 fitView(
                   flowCanvasUtils.createFocusStepInGraphParams(

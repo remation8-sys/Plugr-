@@ -1,5 +1,5 @@
 import { t } from 'i18next';
-import { Lock } from 'lucide-react';
+import { LoaderCircle, Lock } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
 
@@ -9,21 +9,23 @@ function ResourceLockWidget({
   resourceLabel,
 }: ResourceLockWidgetProps) {
   return (
-    <div className="absolute top-[12px] z-40 w-full px-2 flex justify-center">
-      <div className="py-1.5 px-3.5 border min-h-11.5 border-border bg-background z-40 w-full animate animate-fade duration-300 rounded-md flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <Lock className="size-5" />
-          <span>
-            {t(
-              '{name} is editing this {resource}. Only one person can edit at a time.',
-              {
-                name: lockedBy.userDisplayName,
-                resource: resourceLabel,
-              },
-            )}
+    <div className="absolute top-2 z-40 flex w-full justify-center px-2 md:top-3">
+      <div className="z-40 flex min-h-12 w-full animate-fade flex-wrap items-center justify-between gap-2 rounded-xl border border-border bg-background/95 px-3 py-2 text-sm shadow-lg backdrop-blur duration-300 md:min-h-11 md:flex-nowrap md:rounded-md md:px-3.5 md:py-1.5 md:shadow-none">
+        <div className="flex min-w-0 flex-1 items-start gap-2">
+          <Lock aria-hidden="true" className="mt-0.5 size-5 shrink-0" />
+          <span className="min-w-0 leading-5">
+            {t('{name} is editing this {resource}. This view is read-only.', {
+              name: lockedBy.userDisplayName,
+              resource: resourceLabel,
+            })}
           </span>
         </div>
-        <Button variant="ghost" size="sm" onClick={takeOver}>
+        <Button
+          className="h-11 shrink-0 md:h-8"
+          variant="ghost"
+          size="sm"
+          onClick={takeOver}
+        >
           {t('Take Over')}
         </Button>
       </div>
@@ -32,7 +34,31 @@ function ResourceLockWidget({
 }
 
 ResourceLockWidget.displayName = 'ResourceLockWidget';
-export { ResourceLockWidget };
+
+function ResourceLockAcquiringWidget({
+  resourceLabel,
+}: {
+  resourceLabel: string;
+}) {
+  return (
+    <div className="absolute top-2 z-40 flex w-full justify-center px-2 md:top-3">
+      <div className="z-40 flex min-h-12 w-full items-center gap-2 rounded-xl border border-border bg-background/95 px-3 py-2 text-sm shadow-lg backdrop-blur md:min-h-11 md:rounded-md md:px-3.5 md:py-1.5 md:shadow-none">
+        <LoaderCircle
+          aria-hidden="true"
+          className="size-5 shrink-0 animate-spin motion-reduce:animate-none"
+        />
+        <span>
+          {t('Securing this {resource} for editing…', {
+            resource: resourceLabel,
+          })}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+ResourceLockAcquiringWidget.displayName = 'ResourceLockAcquiringWidget';
+export { ResourceLockAcquiringWidget, ResourceLockWidget };
 
 type ResourceLockWidgetProps = {
   lockedBy: {

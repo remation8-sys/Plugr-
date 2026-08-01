@@ -134,7 +134,11 @@ const basePiecesController: FastifyPluginAsyncZod = async (app) => {
                 id: req.body.flowId,
                 versionId: req.body.flowVersionId,
             })
-            const sampleData = await sampleDataService(req.log).getSampleDataForFlow(projectId, flow.version, SampleDataFileType.OUTPUT)
+            const sampleData = await sampleDataService(req.log).getSampleDataForFlow({
+                projectId,
+                flowVersion: flow.version,
+                type: SampleDataFileType.OUTPUT,
+            })
             const { response } = await userInteractionWatcher.submitAndWaitForResponse<EngineResponse<unknown>>({
                 jobType: WorkerJobType.EXECUTE_PROPERTY,
                 platformId: platform.id,

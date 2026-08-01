@@ -48,8 +48,8 @@ function OfflinePage({ onContinue, onRetry }: OfflinePageProps) {
           You are offline
         </h1>
         <p className="mt-3 text-base leading-6 text-muted-foreground">
-          You are offline. Check your connection and try again. Pages and public
-          templates you have already opened may still be available.
+          Editing is paused so your automation cannot drift from the server.
+          Reconnect to continue safely. Your saved work is unchanged.
         </p>
 
         <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:justify-center">

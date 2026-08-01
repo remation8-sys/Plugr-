@@ -9,13 +9,9 @@ import {
   isNil,
   StepSettings,
   FlowTriggerType,
-  debounce,
 } from '@activepieces/shared';
 import { QueryClient } from '@tanstack/react-query';
 import { StoreApi } from 'zustand';
-
-import { BuilderState } from '../builder-hooks';
-import { flowCanvasUtils } from '../flow-canvas/utils/flow-canvas-utils';
 
 import { RightSideBarType } from '@/app/builder/types';
 import { flowsApi, sampleDataHooks } from '@/features/flows';
@@ -26,12 +22,17 @@ import {
 } from '@/features/pieces';
 import { PromiseQueue } from '@/lib/promise-queue';
 
+import { BuilderState } from '../builder-hooks';
+import { flowCanvasUtils } from '../flow-canvas/utils/flow-canvas-utils';
+
 export type FlowState = {
   flow: PopulatedFlow;
   flowVersion: FlowVersion;
   outputSampleData: Record<string, unknown | undefined>;
   inputSampleData: Record<string, unknown | undefined>;
+  sampleDataFlowVersionId: string;
   saving: boolean;
+  saveError: boolean;
   renameFlowClientSide: (newName: string) => void;
   moveToFolderClientSide: (folderId: string) => void;
   applyOperation: (
@@ -43,6 +44,11 @@ export type FlowState = {
     stepName: string;
     type: 'input' | 'output';
     value: unknown;
+  }) => void;
+  hydrateSampleData: (params: {
+    flowVersionId: string;
+    input: Record<string, unknown | undefined>;
+    output: Record<string, unknown | undefined>;
   }) => void;
   setVersion: (
     flowVersion: FlowVersion,
@@ -78,6 +84,7 @@ export type FlowInitialState = Pick<
   'flow' | 'flowVersion' | 'outputSampleData' | 'inputSampleData'
 > & {
   queryClient: QueryClient;
+  initiallySelectStep?: boolean;
 };
 
 export const createFlowState = (
@@ -86,16 +93,36 @@ export const createFlowState = (
   set: StoreApi<BuilderState>['setState'],
 ): FlowState => {
   const flowUpdatesQueue = new PromiseQueue();
-  const debouncedAddToFlowUpdatesQueue = debounce(
-    (updateRequest: () => Promise<void>) => {
-      flowUpdatesQueue.add(updateRequest);
-    },
-    1000,
-  );
+  const pendingDebouncedUpdates = new Map<
+    string,
+    ReturnType<typeof setTimeout>
+  >();
+  const debouncedAddToFlowUpdatesQueue = (
+    key: string,
+    updateRequest: () => Promise<void>,
+  ) => {
+    const pendingUpdate = pendingDebouncedUpdates.get(key);
+    if (pendingUpdate) {
+      clearTimeout(pendingUpdate);
+    }
+    pendingDebouncedUpdates.set(
+      key,
+      setTimeout(() => {
+        pendingDebouncedUpdates.delete(key);
+        flowUpdatesQueue.add(updateRequest);
+      }, 1000),
+    );
+  };
+  const cancelPendingDebouncedUpdates = () => {
+    pendingDebouncedUpdates.forEach((timeout) => clearTimeout(timeout));
+    pendingDebouncedUpdates.clear();
+  };
   return {
     saving: false,
+    saveError: false,
     outputSampleData: initialState.outputSampleData,
     inputSampleData: initialState.inputSampleData,
+    sampleDataFlowVersionId: initialState.flowVersion.id,
     flow: initialState.flow,
     flowVersion: initialState.flowVersion,
     renameFlowClientSide: (newName: string) => {
@@ -119,6 +146,20 @@ export const createFlowState = (
       });
     },
     setFlow: (flow: PopulatedFlow) => set({ flow, selectedStep: null }),
+    hydrateSampleData: ({ flowVersionId, input, output }) =>
+      set((state) => {
+        const isSameFlowVersion =
+          state.sampleDataFlowVersionId === flowVersionId;
+        return {
+          sampleDataFlowVersionId: flowVersionId,
+          inputSampleData: isSameFlowVersion
+            ? { ...input, ...state.inputSampleData }
+            : input,
+          outputSampleData: isSameFlowVersion
+            ? { ...output, ...state.outputSampleData }
+            : output,
+        };
+      }),
     setSampleDataLocally: ({
       stepName,
       value,
@@ -159,6 +200,16 @@ export const createFlowState = (
     isPublishing: false,
     applyOperation: (operation: FlowOperationRequest, onSuccess?: () => void) =>
       set((state) => {
+        if (state.saveError) {
+          console.warn('Cannot apply operation after a save failure');
+          return state;
+        }
+        const editorLockIsRequired =
+          !state.readonly || state.editorLockStatus !== 'disabled';
+        if (editorLockIsRequired && state.editorLockStatus !== 'owned') {
+          console.warn('Cannot apply operation without the editor lock');
+          return state;
+        }
         if (state.readonly) {
           if (operation.type === FlowOperationType.UPDATE_NOTE) {
             const newFlowVersion = flowOperations.apply(
@@ -206,13 +257,18 @@ export const createFlowState = (
                   id: serverFlowVersion.id,
                   state: serverFlowVersion.state,
                 },
-                saving: flowUpdatesQueue.size() !== 0,
+                saving:
+                  flowUpdatesQueue.size() !== 0 ||
+                  pendingDebouncedUpdates.size !== 0,
+                saveError: false,
               };
             });
             onSuccess?.();
           } catch (error) {
             console.error(error);
+            cancelPendingDebouncedUpdates();
             flowUpdatesQueue.halt();
+            set({ readonly: true, saveError: true, saving: false });
           }
         };
 
@@ -268,21 +324,38 @@ export const createFlowState = (
       const isEmptyTriggerInitiallySelected =
         initiallySelectedStep === 'trigger' &&
         flowVersion.trigger.type === FlowTriggerType.EMPTY;
-      set((state) => ({
-        flowVersion,
-        run: null,
-        selectedStep: shouldReselectInitialStep
-          ? initiallySelectedStep
-          : state.selectedStep,
-        readonly:
-          state.flow.publishedVersionId !== flowVersion.id &&
-          flowVersion.state === FlowVersionState.LOCKED,
-        rightSidebar:
-          initiallySelectedStep && !isEmptyTriggerInitiallySelected
+      set((state) => {
+        const skipInitialSelection = initialState.initiallySelectStep === false;
+        const mobileVersionChanged =
+          skipInitialSelection && state.flowVersion.id !== flowVersion.id;
+        return {
+          flowVersion,
+          run: null,
+          ...(mobileVersionChanged
+            ? {
+                inputSampleData: {},
+                outputSampleData: {},
+                sampleDataFlowVersionId: flowVersion.id,
+              }
+            : {}),
+          selectedStep: shouldReselectInitialStep
+            ? skipInitialSelection
+              ? null
+              : initiallySelectedStep
+            : state.selectedStep,
+          readonly:
+            state.flow.publishedVersionId !== flowVersion.id &&
+            flowVersion.state === FlowVersionState.LOCKED,
+          rightSidebar: skipInitialSelection
+            ? shouldReselectInitialStep
+              ? RightSideBarType.NONE
+              : state.rightSidebar
+            : initiallySelectedStep && !isEmptyTriggerInitiallySelected
             ? RightSideBarType.PIECE_SETTINGS
             : RightSideBarType.NONE,
-        selectedBranchIndex: null,
-      }));
+          selectedBranchIndex: null,
+        };
+      });
     },
     operationListeners: [],
     addOperationListener: (

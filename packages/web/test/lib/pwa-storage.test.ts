@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 
 import {
   INSTALL_PROMPT_DISMISSED_KEY,
+  INSTALL_PROMPT_COOLDOWN_MS,
   clearInstallPromptDismissal,
   rememberInstallPromptDismissal,
   shouldSuppressInstallPrompt,
@@ -26,12 +27,27 @@ describe('PWA install prompt storage', () => {
     expect(shouldSuppressInstallPrompt(createStorage())).toBe(false);
   });
 
-  it('keeps the prompt dismissed across future visits', () => {
+  it('suppresses the prompt during the cooldown', () => {
     const storage = createStorage();
-    rememberInstallPromptDismissal(storage);
+    const now = 2_000_000_000_000;
+    rememberInstallPromptDismissal(storage, now);
 
-    expect(shouldSuppressInstallPrompt(storage)).toBe(true);
-    expect(storage.getItem(INSTALL_PROMPT_DISMISSED_KEY)).toBe('true');
+    expect(shouldSuppressInstallPrompt(storage, now + 1_000)).toBe(true);
+    expect(storage.getItem(INSTALL_PROMPT_DISMISSED_KEY)).toBe(now.toString());
+  });
+
+  it('shows the prompt again after the cooldown', () => {
+    const storage = createStorage();
+    const now = 2_000_000_000_000;
+    rememberInstallPromptDismissal(storage, now);
+
+    expect(
+      shouldSuppressInstallPrompt(
+        storage,
+        now + INSTALL_PROMPT_COOLDOWN_MS + 1,
+      ),
+    ).toBe(false);
+    expect(storage.getItem(INSTALL_PROMPT_DISMISSED_KEY)).toBeNull();
   });
 
   it('allows the prompt after the dismissal is explicitly reset', () => {

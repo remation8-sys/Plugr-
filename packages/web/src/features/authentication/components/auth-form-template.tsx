@@ -29,7 +29,7 @@ const BottomNote = ({ isSignup }: { isSignup: boolean }) => {
       {t('Already have an account?')}
       <Link
         to={`/sign-in?${searchQuery}`}
-        className="pl-1 font-medium text-foreground hover:underline transition-all duration-200"
+        className="inline-flex min-h-11 items-center pl-1 font-medium text-foreground transition-all duration-200 hover:underline md:min-h-0"
       >
         {t('Sign in')}
       </Link>
@@ -39,7 +39,7 @@ const BottomNote = ({ isSignup }: { isSignup: boolean }) => {
       {t("Don't have an account?")}
       <Link
         to={`/sign-up?${searchQuery}`}
-        className="pl-1 font-medium text-foreground hover:underline transition-all duration-200"
+        className="inline-flex min-h-11 items-center pl-1 font-medium text-foreground transition-all duration-200 hover:underline md:min-h-0"
       >
         {t('Sign up')}
       </Link>

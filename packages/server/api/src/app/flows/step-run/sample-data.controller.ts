@@ -1,12 +1,14 @@
 import { CreateStepRunRequestBody, GetSampleDataRequest, PrincipalType, SERVICE_KEY_SECURITY_OPENAPI } from '@activepieces/shared'
 import { FastifyPluginAsyncZod } from 'fastify-type-provider-zod'
+import { StatusCodes } from 'http-status-codes'
+import { z } from 'zod'
 import { ProjectResourceType } from '../../core/security/authorization/common'
 import { securityAccess } from '../../core/security/authorization/fastify-security'
 import { flowService } from '../flow/flow.service'
 import { flowRunService } from '../flow-run/flow-run-service'
 import { sampleDataService } from './sample-data.service'
 
-export const sampleDataController: FastifyPluginAsyncZod = async (fastify) => {
+const sampleDataController: FastifyPluginAsyncZod = async (fastify) => {
 
     fastify.post('/test-step', TestSampleDataRequestBody, async (request) => {
         return flowRunService(request.log).test({
@@ -30,6 +32,18 @@ export const sampleDataController: FastifyPluginAsyncZod = async (fastify) => {
             type: request.query.type,
         })
         return sampleData
+    })
+
+    fastify.get('/flow', GetFlowSampleDataRequestParams, async (request) => {
+        const flow = await flowService(request.log).getOnePopulatedOrThrow({
+            id: request.query.flowId,
+            projectId: request.projectId,
+            versionId: request.query.flowVersionId,
+        })
+        return sampleDataService(request.log).getAllSampleDataForFlow({
+            projectId: request.projectId,
+            flowVersion: flow.version,
+        })
     })
 }
 
@@ -62,3 +76,31 @@ const TestSampleDataRequestBody = {
         security: [SERVICE_KEY_SECURITY_OPENAPI],
     },
 }
+
+const FlowSampleDataResponse = z.object({
+    input: z.record(z.string(), z.unknown()),
+    output: z.record(z.string(), z.unknown()),
+})
+
+const GetFlowSampleDataRequestParams = {
+    config: {
+        security: securityAccess.project(
+            [PrincipalType.USER, PrincipalType.SERVICE],
+            undefined,
+            {
+                type: ProjectResourceType.QUERY,
+            },
+        ),
+    },
+    schema: {
+        tags: ['sample-data'],
+        description: 'Get sample data for every step in a flow',
+        querystring: GetSampleDataRequest.omit({ stepName: true, type: true }),
+        response: {
+            [StatusCodes.OK]: FlowSampleDataResponse,
+        },
+        security: [SERVICE_KEY_SECURITY_OPENAPI],
+    },
+}
+
+export { sampleDataController }

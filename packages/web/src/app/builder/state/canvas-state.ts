@@ -1,19 +1,21 @@
 import { FlowTriggerType, isNil } from '@activepieces/shared';
 import { StoreApi } from 'zustand';
 
+import { RightSideBarType } from '@/app/builder/types';
+import { flowRunUtils } from '@/features/flow-runs';
+
 import { BuilderState } from '../builder-hooks';
 import { flowCanvasUtils } from '../flow-canvas/utils/flow-canvas-utils';
 import { CanvasOrientation } from '../flow-canvas/utils/types';
 
-import { RightSideBarType } from '@/app/builder/types';
-import { flowRunUtils } from '@/features/flow-runs';
-
 export type StepDataPanelView = 'drawer' | 'split';
+export type EditorLockStatus = 'acquiring' | 'owned' | 'locked' | 'disabled';
 
 export type CanvasState = {
   canvasOrientation: CanvasOrientation;
   setCanvasOrientation: (orientation: CanvasOrientation) => void;
   readonly: boolean;
+  editorLockStatus: EditorLockStatus;
   hideTestWidget: boolean;
   rightSidebar: RightSideBarType;
   selectedStep: string | null;
@@ -34,6 +36,7 @@ export type CanvasState = {
   resumeLiveFollow: () => void;
   setActiveDraggingStep: (stepName: string | null) => void;
   setReadOnly: (readOnly: boolean) => void;
+  setEditorLockStatus: (status: EditorLockStatus) => void;
   selectedNodes: string[];
   setSelectedNodes: (nodes: string[]) => void;
   panningMode: 'grab' | 'pan';
@@ -52,7 +55,9 @@ export type CanvasState = {
 type CanvasStateInitialState = Pick<
   BuilderState,
   'readonly' | 'hideTestWidget' | 'run' | 'flowVersion'
->;
+> & {
+  initiallySelectStep?: boolean;
+};
 
 export const createCanvasState = (
   initialState: CanvasStateInitialState,
@@ -64,10 +69,13 @@ export const createCanvasState = (
         initialState.run.steps,
       )
     : null;
-  const initiallySelectedStep = flowCanvasUtils.determineInitiallySelectedStep(
-    failedStepNameInRun,
-    initialState.flowVersion,
-  );
+  const initiallySelectedStep =
+    initialState.initiallySelectStep === false
+      ? null
+      : flowCanvasUtils.determineInitiallySelectedStep(
+          failedStepNameInRun,
+          initialState.flowVersion,
+        );
   const isEmptyTriggerInitiallySelected =
     initiallySelectedStep === 'trigger' &&
     initialState.flowVersion.trigger.type === FlowTriggerType.EMPTY;
@@ -85,6 +93,7 @@ export const createCanvasState = (
     showMinimap: false,
     setShowMinimap: (showMinimap: boolean) => set({ showMinimap }),
     readonly: initialState.readonly,
+    editorLockStatus: initialState.readonly ? 'disabled' : 'acquiring',
     hideTestWidget: initialState.hideTestWidget ?? false,
     selectedStep: initiallySelectedStep,
     activeDraggingStep: null,
@@ -108,6 +117,8 @@ export const createCanvasState = (
         selectedBranchIndex: branchIndex,
       }),
     setReadOnly: (readonly: boolean) => set({ readonly }),
+    setEditorLockStatus: (editorLockStatus: EditorLockStatus) =>
+      set({ editorLockStatus }),
     renameFlowClientSide: (newName: string) => {
       set((state) => {
         return {

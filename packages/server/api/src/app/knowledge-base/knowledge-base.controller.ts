@@ -208,7 +208,7 @@ const DeleteKnowledgeBaseFileRequest = {
 const GetChunkCountRequest = {
     config: {
         security: securityAccess.project(KB_PRINCIPALS, Permission.READ_KNOWLEDGE_BASE, {
-            type: ProjectResourceType.PARAM,
+            type: ProjectResourceType.QUERY,
         }),
     },
     schema: {
@@ -218,13 +218,16 @@ const GetChunkCountRequest = {
         params: z.object({
             id: z.string(),
         }),
+        querystring: z.object({
+            projectId: z.string(),
+        }),
     },
 }
 
 const ExtractChunksRequest = {
     config: {
         security: securityAccess.project(KB_PRINCIPALS, Permission.WRITE_KNOWLEDGE_BASE, {
-            type: ProjectResourceType.PARAM,
+            type: ProjectResourceType.QUERY,
         }),
     },
     schema: {
@@ -234,13 +237,16 @@ const ExtractChunksRequest = {
         params: z.object({
             id: z.string(),
         }),
+        querystring: z.object({
+            projectId: z.string(),
+        }),
     },
 }
 
 const StoreChunksRequest = {
     config: {
         security: securityAccess.project(KB_PRINCIPALS, Permission.WRITE_KNOWLEDGE_BASE, {
-            type: ProjectResourceType.PARAM,
+            type: ProjectResourceType.QUERY,
         }),
     },
     schema: {
@@ -249,6 +255,9 @@ const StoreChunksRequest = {
         description: 'Store or update chunks for a knowledge base file. Provide id to update existing chunks, or content to create new ones.',
         params: z.object({
             id: z.string(),
+        }),
+        querystring: z.object({
+            projectId: z.string(),
         }),
         body: z.object({
             chunks: z.array(z.object({
@@ -265,7 +274,7 @@ const StoreChunksRequest = {
 const ListChunksRequest = {
     config: {
         security: securityAccess.project(KB_PRINCIPALS, Permission.READ_KNOWLEDGE_BASE, {
-            type: ProjectResourceType.PARAM,
+            type: ProjectResourceType.QUERY,
         }),
     },
     schema: {
@@ -276,6 +285,7 @@ const ListChunksRequest = {
             id: z.string(),
         }),
         querystring: z.object({
+            projectId: z.string(),
             embedded: z.enum(['true', 'false']).optional(),
         }),
     },
