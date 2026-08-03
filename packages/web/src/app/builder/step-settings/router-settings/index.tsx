@@ -8,7 +8,6 @@ import {
   RouterAction,
   RouterExecutionType,
 } from '@activepieces/shared';
-import { useReactFlow } from '@xyflow/react';
 import { t } from 'i18next';
 import { Split } from 'lucide-react';
 import { memo, useEffect } from 'react';
@@ -26,7 +25,7 @@ import {
   SelectItem,
 } from '../../../../components/ui/select';
 import { useBuilderStateContext } from '../../builder-hooks';
-import { flowCanvasUtils } from '../../flow-canvas/utils/flow-canvas-utils';
+import { useCanvasNavigation } from '../../canvas-navigation-context';
 import { BranchSettings } from '../branch-settings';
 
 import { BranchesList } from './branches-list';
@@ -52,7 +51,7 @@ export const RouterSettings = memo(({ readonly }: { readonly: boolean }) => {
     state.addOperationListener,
     state.removeOperationListener,
   ]);
-  const { fitView } = useReactFlow();
+  const { focusStep } = useCanvasNavigation();
 
   const { control, setValue, formState } =
     useFormContext<Omit<RouterAction, 'children' | 'nextAction'>>();
@@ -74,7 +73,7 @@ export const RouterSettings = memo(({ readonly }: { readonly: boolean }) => {
 
     setSelectedBranchIndex(null);
     if (!isMobile) {
-      fitView(flowCanvasUtils.createFocusStepInGraphParams(step.name));
+      focusStep(step.name);
     }
   };
 
@@ -217,16 +216,10 @@ export const RouterSettings = memo(({ readonly }: { readonly: boolean }) => {
                 return;
               }
               if (step.children[index]) {
-                fitView(
-                  flowCanvasUtils.createFocusStepInGraphParams(
-                    step.children[index].name,
-                  ),
-                );
+                focusStep(step.children[index].name);
               } else {
-                fitView(
-                  flowCanvasUtils.createFocusStepInGraphParams(
-                    `${step.name}-big-add-button-${step.name}-branch-${index}-start-edge`,
-                  ),
+                focusStep(
+                  `${step.name}-big-add-button-${step.name}-branch-${index}-start-edge`,
                 );
               }
             }}

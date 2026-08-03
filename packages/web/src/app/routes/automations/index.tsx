@@ -1,6 +1,6 @@
 import { Permission, UncategorizedFolderId } from '@activepieces/shared';
 import { t } from 'i18next';
-import { useCallback } from 'react';
+import { useCallback, useState } from 'react';
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 import { recordAccess } from '@/app/components/global-search/access-history';
@@ -33,6 +33,7 @@ import { piecesHooks } from '@/features/pieces';
 import { projectCollectionUtils, getProjectName } from '@/features/projects';
 import { ImportTableDialog } from '@/features/tables/components/import-table-dialog';
 import { useAuthorization } from '@/hooks/authorization-hooks';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { authenticationSession } from '@/lib/authentication-session';
 import { cn, DASHBOARD_CONTENT_PADDING_X } from '@/lib/utils';
 
@@ -47,6 +48,9 @@ const AutomationsPageContent = ({ projectId }: { projectId: string }) => {
   const [, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const { embedState } = useEmbedding();
+  const isMobile = useIsMobile();
+  const [connectionOptionsRequested, setConnectionOptionsRequested] =
+    useState(false);
 
   const { data: allProjects = [] } = projectCollectionUtils.useAll();
   const currentProjectName = (() => {
@@ -98,7 +102,7 @@ const AutomationsPageContent = ({ projectId }: { projectId: string }) => {
     invalidateAll,
     invalidateRoot,
     invalidateFolder,
-  } = useAutomationsData(filters, pinnedList);
+  } = useAutomationsData({ filters, pinnedList, isMobile });
 
   const expandFolderIfCollapsed = useCallback(
     (folderId: string) => {
@@ -129,13 +133,18 @@ const AutomationsPageContent = ({ projectId }: { projectId: string }) => {
 
   const dialogs = useAutomationsDialogs({ mutations, selectedItems });
 
+  const shouldLoadConnectionOptions =
+    !isMobile || connectionOptionsRequested || connectionFilter.length > 0;
   const { data: connections } = appConnectionsQueries.useAppConnections({
     request: { projectId, limit: 10000 },
     extraKeys: [projectId],
+    enabled: shouldLoadConnectionOptions,
   });
 
   const { projectMembers } = projectMembersHooks.useProjectMembers();
-  const { pieces } = piecesHooks.usePieces({});
+  const { pieces } = piecesHooks.usePieces({
+    enabled: shouldLoadConnectionOptions,
+  });
 
   // Bulk actions resolve selected items from the loaded treeItems, so the
   // selection must never outlive the view that produced it. Clearing it on
@@ -304,6 +313,11 @@ const AutomationsPageContent = ({ projectId }: { projectId: string }) => {
         folders={folders}
         connections={connections?.data}
         pieces={pieces}
+        onConnectionsFilterOpenChange={(open) => {
+          if (open) {
+            setConnectionOptionsRequested(true);
+          }
+        }}
         userHasPermissionToWriteFlow={userHasPermissionToWriteFlow}
         userHasPermissionToWriteTable={userHasPermissionToWriteTable}
         userHasPermissionToWriteFolder={userHasPermissionToWriteFolder}

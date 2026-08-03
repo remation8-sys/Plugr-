@@ -22,18 +22,21 @@ function UpdatePrompt({
   const [blockedMessage, setBlockedMessage] = useState<string | null>(null);
 
   const applyUpdate = async () => {
-    if (window.location.pathname.includes('/flows/')) {
-      setBlockedMessage(
-        'Leave the flow editor first so every change can finish saving.',
-      );
-      return;
-    }
     const builderSaveState = document
       .querySelector<HTMLElement>('[data-builder-save-state]')
       ?.getAttribute('data-builder-save-state');
     if (builderSaveState === 'saving') {
       setBlockedMessage(
         'Plugr is still saving. Try again when saving finishes.',
+      );
+      return;
+    }
+    if (
+      window.location.pathname.includes('/flows/') &&
+      builderSaveState !== 'saved'
+    ) {
+      setBlockedMessage(
+        'Wait for the flow to finish saving, or leave the editor, before updating.',
       );
       return;
     }
@@ -79,7 +82,7 @@ function UpdatePrompt({
           </h2>
           <p className="mt-1 text-sm leading-5 text-muted-foreground">
             {isEditingFlow
-              ? 'Leave the flow editor first. This update will wait here so your work is not interrupted.'
+              ? 'Finish saving, then update here, or leave the editor. Plugr will remind you on the next screen.'
               : 'Reload once to use the newest version of Plugr.'}
           </p>
           <div aria-live="polite" role="status">

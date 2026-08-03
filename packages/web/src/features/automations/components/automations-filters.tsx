@@ -16,7 +16,7 @@ import {
   Workflow,
   X,
 } from 'lucide-react';
-import { useState } from 'react';
+import { lazy, Suspense, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
 import { AnimatedIconButton } from '@/components/custom/animated-icon-button';
@@ -33,12 +33,18 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { useOwnerOptions } from '@/features/automations/hooks/use-owner-options';
-import { TemplatesBrowseDialog } from '@/features/templates';
 import { formatUtils } from '@/lib/format-utils';
 import { cn, DASHBOARD_CONTENT_PADDING_X } from '@/lib/utils';
 
 import { CreateNewMenu } from './create-new-menu';
 import { MultiSelectFilter } from './multi-select-filter';
+
+const TemplatesBrowseDialog = lazy(async () => {
+  const module = await import(
+    '@/features/templates/components/templates-browse-dialog'
+  );
+  return { default: module.TemplatesBrowseDialog };
+});
 
 type AutomationsFiltersProps = {
   searchTerm: string;
@@ -57,6 +63,7 @@ type AutomationsFiltersProps = {
   folders: FolderDto[];
   connections: AppConnectionWithoutSensitiveData[] | undefined;
   pieces: PieceMetadataModelSummary[] | undefined;
+  onConnectionsFilterOpenChange?: (open: boolean) => void;
   userHasPermissionToWriteFlow: boolean;
   userHasPermissionToWriteTable: boolean;
   userHasPermissionToWriteFolder: boolean;
@@ -88,6 +95,7 @@ export const AutomationsFilters = ({
   folders,
   connections,
   pieces,
+  onConnectionsFilterOpenChange,
   userHasPermissionToWriteFlow,
   userHasPermissionToWriteTable,
   userHasPermissionToWriteFolder,
@@ -121,26 +129,32 @@ export const AutomationsFilters = ({
     label: folder.displayName,
   }));
 
-  const connectionOptions = (connections || []).map((connection) => {
-    const pieceIcon = pieces?.find(
-      (p) => p.name === connection.pieceName,
-    )?.logoUrl;
-    return {
-      value: connection.externalId,
-      label: connection.displayName,
-      icon: pieceIcon ? (
-        <img
-          src={pieceIcon}
-          alt=""
-          className="h-4 w-4 object-contain"
-          width="16"
-          height="16"
-          loading="lazy"
-          decoding="async"
-        />
-      ) : undefined,
-    };
-  });
+  const pieceLogoByName = useMemo(
+    () => new Map((pieces ?? []).map((piece) => [piece.name, piece.logoUrl])),
+    [pieces],
+  );
+  const connectionOptions = useMemo(
+    () =>
+      (connections ?? []).map((connection) => {
+        const pieceIcon = pieceLogoByName.get(connection.pieceName);
+        return {
+          value: connection.externalId,
+          label: connection.displayName,
+          icon: pieceIcon ? (
+            <img
+              src={pieceIcon}
+              alt=""
+              className="h-4 w-4 object-contain"
+              width="16"
+              height="16"
+              loading="lazy"
+              decoding="async"
+            />
+          ) : undefined,
+        };
+      }),
+    [connections, pieceLogoByName],
+  );
 
   return (
     <>
@@ -206,6 +220,7 @@ export const AutomationsFilters = ({
                 onConnectionFilterChange(values);
                 onFilterChange?.();
               }}
+              onOpenChange={onConnectionsFilterOpenChange}
               searchable
             />
 
@@ -331,10 +346,14 @@ export const AutomationsFilters = ({
           </div>
         </div>
       </div>
-      <TemplatesBrowseDialog
-        open={isTemplatesBrowseDialogOpen}
-        onOpenChange={setIsTemplatesBrowseDialogOpen}
-      />
+      {isTemplatesBrowseDialogOpen && (
+        <Suspense fallback={null}>
+          <TemplatesBrowseDialog
+            open={isTemplatesBrowseDialogOpen}
+            onOpenChange={setIsTemplatesBrowseDialogOpen}
+          />
+        </Suspense>
+      )}
     </>
   );
 };

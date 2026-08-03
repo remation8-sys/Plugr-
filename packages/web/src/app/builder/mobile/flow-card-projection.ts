@@ -14,6 +14,7 @@ function projectFlowToMobileCards(trigger: FlowTrigger): MobileFlowProjection {
     stepNumberByName: new Map(),
     descendantStepNamesByBranchId: new Map(),
     ancestorStepNamesByStepName: new Map(),
+    selectorOwnerStepNameById: new Map(),
   };
   const projectedRoot = projectSequence({
     firstStep: trigger,
@@ -28,6 +29,7 @@ function projectFlowToMobileCards(trigger: FlowTrigger): MobileFlowProjection {
     stepNumberByName: context.stepNumberByName,
     descendantStepNamesByBranchId: context.descendantStepNamesByBranchId,
     ancestorStepNamesByStepName: context.ancestorStepNamesByStepName,
+    selectorOwnerStepNameById: context.selectorOwnerStepNameById,
   };
 }
 
@@ -54,13 +56,15 @@ function projectSequence({
       ancestorStepNames,
       context,
     });
+    const addAfter = createAddSlot({
+      parentStep: currentStep.name,
+      stepLocationRelativeToParent: StepLocationRelativeToParent.AFTER,
+    });
+    context.selectorOwnerStepNameById.set(addAfter.id, currentStep.name);
     nodes.push({
       step: currentStep,
       branches,
-      addAfter: createAddSlot({
-        parentStep: currentStep.name,
-        stepLocationRelativeToParent: StepLocationRelativeToParent.AFTER,
-      }),
+      addAfter,
     });
     stepNames.push(
       currentStep.name,
@@ -160,17 +164,19 @@ function createBranch({
       })
     : { nodes: [], stepNames: [] };
   context.descendantStepNamesByBranchId.set(id, projectedContent.stepNames);
+  const emptyAddSlot = createAddSlot({
+    parentStep: parentStep.name,
+    stepLocationRelativeToParent,
+    branchIndex,
+  });
+  context.selectorOwnerStepNameById.set(emptyAddSlot.id, parentStep.name);
 
   return {
     id,
     label,
     kind,
     content: projectedContent.nodes,
-    emptyAddSlot: createAddSlot({
-      parentStep: parentStep.name,
-      stepLocationRelativeToParent,
-      branchIndex,
-    }),
+    emptyAddSlot,
   };
 }
 
@@ -199,6 +205,7 @@ type MobileFlowProjection = {
   stepNumberByName: ReadonlyMap<string, number>;
   descendantStepNamesByBranchId: ReadonlyMap<string, readonly string[]>;
   ancestorStepNamesByStepName: ReadonlyMap<string, readonly string[]>;
+  selectorOwnerStepNameById: ReadonlyMap<string, string>;
 };
 
 type MobileFlowCardNode = {
@@ -230,6 +237,7 @@ type ProjectionContext = {
   stepNumberByName: Map<string, number>;
   descendantStepNamesByBranchId: Map<string, readonly string[]>;
   ancestorStepNamesByStepName: Map<string, readonly string[]>;
+  selectorOwnerStepNameById: Map<string, string>;
 };
 
 type ProjectSequenceParams = {

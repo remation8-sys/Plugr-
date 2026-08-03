@@ -1,6 +1,7 @@
 import type { PieceMetadataModelSummary } from '@activepieces/pieces-framework';
 import {
   FlowActionType,
+  FlowRun,
   FlowOperationType,
   FlowRunStatus,
   FlowTriggerType,
@@ -33,11 +34,21 @@ import {
   Trash,
   Zap,
 } from 'lucide-react';
-import { AnimatePresence, motion, useReducedMotion } from 'motion/react';
-import { useEffect, useMemo, useRef } from 'react';
+import { motion, useReducedMotion } from 'motion/react';
+import {
+  lazy,
+  memo,
+  ReactNode,
+  Suspense,
+  useDeferredValue,
+  useEffect,
+  useMemo,
+  useRef,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import { usePrevious } from 'react-use';
 import { toast } from 'sonner';
+import { useShallow } from 'zustand/react/shallow';
 
 import { ConfirmationDeleteDialog } from '@/components/custom/delete-dialog';
 import { Button } from '@/components/ui/button';
@@ -57,16 +68,14 @@ import {
 import { cn } from '@/lib/utils';
 
 import { BuilderFlowStatusSection } from '../builder-header/flow-status';
-import { useBuilderStateContext } from '../builder-hooks';
+import { useBuilderStateContext, useBuilderStateStore } from '../builder-hooks';
 import {
   copySelectedNodes,
   deleteSelectedNodes,
   pasteNodes,
   toggleSkipSelectedNodes,
 } from '../flow-canvas/utils/bulk-actions';
-import { flowCanvasUtils } from '../flow-canvas/utils/flow-canvas-utils';
 import { TestFlowWidget } from '../flow-canvas/widgets/test-flow-widget';
-import { PieceSelector } from '../pieces-selector';
 
 import {
   MobileFlowAddSlot,
@@ -81,15 +90,31 @@ import {
   MobileViewportMountProvider,
 } from './mobile-viewport-mount';
 
+const LazyPieceSelector = lazy(() =>
+  import('../pieces-selector').then((module) => ({
+    default: module.PieceSelector,
+  })),
+);
+
 function MobileFlowBuilder() {
   const { t } = useTranslation();
+  const prefersReducedMotion = useReducedMotion();
+  const allowMotion = !prefersReducedMotion;
   const scrollRootRef = useRef<HTMLElement>(null);
-  const currentRunStep = useMobileRunFollow();
-  const selectedStep = useBuilderStateContext((state) => state.selectedStep);
-  const flowVersion = useBuilderStateContext((state) => state.flowVersion);
+  const currentRunStep = useMobileRunFollow({ allowMotion });
+  const [selectedStep, flowTrigger, notesCount, openedPieceSelectorId] =
+    useBuilderStateContext(
+      useShallow((state) => [
+        state.selectedStep,
+        state.flowVersion.trigger,
+        state.flowVersion.notes.length,
+        state.openedPieceSelectorStepNameOrAddButtonId,
+      ]),
+    );
+  const deferredFlowTrigger = useDeferredValue(flowTrigger);
   const projection = useMemo(
-    () => projectFlowToMobileCards(flowVersion.trigger),
-    [flowVersion.trigger],
+    () => projectFlowToMobileCards(deferredFlowTrigger),
+    [deferredFlowTrigger],
   );
   const pieceNames = useMemo(
     () =>
@@ -110,28 +135,42 @@ function MobileFlowBuilder() {
     () => new Map(summaries.map((summary) => [summary.name, summary])),
     [summaries],
   );
+  const openedSelectorOwnerStep = useMemo(() => {
+    if (!openedPieceSelectorId) {
+      return null;
+    }
+    return projection.stepByName.has(openedPieceSelectorId)
+      ? openedPieceSelectorId
+      : projection.selectorOwnerStepNameById.get(openedPieceSelectorId) ?? null;
+  }, [openedPieceSelectorId, projection]);
   const pinnedStepNames = useMemo(() => {
     const pinnedNames = new Set<string>();
-    [selectedStep, currentRunStep].forEach((stepName) => {
-      if (!stepName) {
-        return;
-      }
-      pinnedNames.add(stepName);
-      projection.ancestorStepNamesByStepName
-        .get(stepName)
-        ?.forEach((ancestorName) => pinnedNames.add(ancestorName));
-    });
+    [selectedStep, currentRunStep, openedSelectorOwnerStep].forEach(
+      (stepName) => {
+        if (!stepName) {
+          return;
+        }
+        pinnedNames.add(stepName);
+        projection.ancestorStepNamesByStepName
+          .get(stepName)
+          ?.forEach((ancestorName) => pinnedNames.add(ancestorName));
+      },
+    );
     return pinnedNames;
-  }, [currentRunStep, projection, selectedStep]);
+  }, [currentRunStep, openedSelectorOwnerStep, projection, selectedStep]);
   const renderingModel = useMemo<MobileFlowRenderingModel>(
     () => ({
       animateEntryMotion:
+        allowMotion &&
         projection.totalSteps <= MAX_FLOW_STEPS_WITH_ENTRY_MOTION,
+      animateStatusMotion:
+        allowMotion &&
+        projection.totalSteps <= MAX_FLOW_STEPS_WITH_STATUS_MOTION,
       pinnedStepNames,
       projection,
       summariesByName,
     }),
-    [pinnedStepNames, projection, summariesByName],
+    [allowMotion, pinnedStepNames, projection, summariesByName],
   );
 
   return (
@@ -156,7 +195,7 @@ function MobileFlowBuilder() {
             </h1>
           </div>
           <div className="flex shrink-0 flex-col items-end gap-2">
-            <div className="rounded-full border border-border/80 bg-background/80 px-3 py-1.5 text-xs font-medium text-muted-foreground shadow-sm backdrop-blur">
+            <div className="rounded-full border border-border/80 bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground shadow-sm">
               {t('{count} steps', {
                 count: projection.totalSteps,
               })}
@@ -176,11 +215,11 @@ function MobileFlowBuilder() {
           />
         </MobileViewportMountProvider>
 
-        {flowVersion.notes.length > 0 && (
-          <aside className="mt-6 rounded-2xl border border-dashed border-border bg-background/70 p-4 text-sm text-muted-foreground">
+        {notesCount > 0 && (
+          <aside className="mt-6 rounded-2xl border border-dashed border-border bg-background p-4 text-sm text-muted-foreground">
             <p className="font-medium text-foreground">
               {t('{count} canvas notes', {
-                count: flowVersion.notes.length,
+                count: notesCount,
               })}
             </p>
             <p className="mt-1 leading-5">
@@ -195,11 +234,9 @@ function MobileFlowBuilder() {
   );
 }
 
-function useMobileRunFollow() {
-  const prefersReducedMotion = useReducedMotion();
-  const run = useBuilderStateContext((state) => state.run);
-  const userManuallySelectedStepDuringRun = useBuilderStateContext(
-    (state) => state.userManuallySelectedStepDuringRun,
+function useMobileRunFollow({ allowMotion }: { allowMotion: boolean }) {
+  const [run, userManuallySelectedStepDuringRun] = useBuilderStateContext(
+    useShallow((state) => [state.run, state.userManuallySelectedStepDuringRun]),
   );
   const previousRunStatus = usePrevious(run?.status);
   const currentStep = flowRunUtils.findLastStepWithStatus(
@@ -216,18 +253,18 @@ function useMobileRunFollow() {
       document
         .getElementById('mobile-flow-step-' + currentStep)
         ?.scrollIntoView({
-          behavior: prefersReducedMotion ? 'auto' : 'smooth',
+          behavior: allowMotion ? 'smooth' : 'auto',
           block: 'center',
         });
     }, 180);
 
     return () => window.clearTimeout(scrollTimer);
-  }, [currentStep, prefersReducedMotion, userManuallySelectedStepDuringRun]);
+  }, [allowMotion, currentStep, userManuallySelectedStepDuringRun]);
 
   return currentStep;
 }
 
-function MobileFlowSequence({
+const MobileFlowSequence = memo(function MobileFlowSequence({
   nodes,
   renderingModel,
   nested = false,
@@ -256,21 +293,18 @@ function MobileFlowSequence({
       ))}
     </div>
   );
-}
+});
 
 function MobileProjectedNode({
   node,
   renderingModel,
   terminal,
 }: MobileProjectedNodeProps) {
-  const prefersReducedMotion = useReducedMotion();
   const status = useMobileStepStatus(node.step);
-  const animateEntry =
-    renderingModel.animateEntryMotion && !prefersReducedMotion;
+  const animateEntry = renderingModel.animateEntryMotion;
 
   return (
     <motion.div
-      layout={animateEntry ? 'position' : false}
       initial={animateEntry ? { opacity: 0, y: 10 } : false}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
@@ -297,7 +331,12 @@ function MobileProjectedNode({
         </div>
       )}
 
-      <MobileAddStep slot={node.addAfter} status={status} terminal={terminal} />
+      <MobileAddStep
+        allowMotion={renderingModel.animateStatusMotion}
+        slot={node.addAfter}
+        status={status}
+        terminal={terminal}
+      />
     </motion.div>
   );
 }
@@ -326,14 +365,20 @@ function MobileStepCard({
   summary,
 }: MobileStepCardProps) {
   const { t } = useTranslation();
-  const prefersReducedMotion = useReducedMotion();
-  const readonly = useBuilderStateContext((state) => state.readonly);
-  const selectedStep = useBuilderStateContext((state) => state.selectedStep);
-  const selectStepByName = useBuilderStateContext(
-    (state) => state.selectStepByName,
-  );
-  const setSelectedBranchIndex = useBuilderStateContext(
-    (state) => state.setSelectedBranchIndex,
+  const [
+    readonly,
+    selectedStep,
+    selectedBranchIndex,
+    selectStepByName,
+    setSelectedBranchIndex,
+  ] = useBuilderStateContext(
+    useShallow((state) => [
+      state.readonly,
+      state.selectedStep,
+      state.selectedBranchIndex,
+      state.selectStepByName,
+      state.setSelectedBranchIndex,
+    ]),
   );
   const isSelected = selectedStep === step.name;
   const operation = getReplaceOperation(step);
@@ -344,8 +389,13 @@ function MobileStepCard({
     if (readonly && step.type === FlowTriggerType.EMPTY) {
       return;
     }
-    selectStepByName(step.name);
-    setSelectedBranchIndex(null);
+    if (selectedStep !== step.name) {
+      selectStepByName(step.name);
+      return;
+    }
+    if (selectedBranchIndex !== null) {
+      setSelectedBranchIndex(null);
+    }
   }
 
   return (
@@ -360,20 +410,17 @@ function MobileStepCard({
       )}
       data-mobile-flow-step={step.name}
     >
-      <PieceSelector
+      <MobilePieceSelectorTrigger
         id={step.name}
         operation={operation}
-        openSelectorOnClick={false}
         stepToReplacePieceDisplayName={summary?.displayName}
       >
-        <motion.button
+        <button
           type="button"
           aria-label={t('Edit {stepName}', { stepName: step.displayName })}
           aria-pressed={isSelected}
-          className="flex min-h-[5.25rem] w-full items-center gap-3 px-3.5 py-3 pr-14 text-left outline-none"
+          className="flex min-h-[5.25rem] w-full items-center gap-3 px-3.5 py-3 pr-14 text-left outline-none transition-transform active:scale-[0.985] motion-reduce:transition-none"
           onClick={openStep}
-          whileTap={prefersReducedMotion ? undefined : { scale: 0.985 }}
-          transition={{ duration: 0.1 }}
         >
           <MobileStepSignal status={status} />
           <StepArtwork step={step} summary={summary} />
@@ -418,26 +465,55 @@ function MobileStepCard({
               {statusView.label}
             </span>
           </span>
-        </motion.button>
-      </PieceSelector>
+        </button>
+      </MobilePieceSelectorTrigger>
 
       <MobileStepActions readonly={readonly} step={step} />
     </div>
   );
 }
 
+function MobilePieceSelectorTrigger({
+  children,
+  id,
+  operation,
+  stepToReplacePieceDisplayName,
+}: MobilePieceSelectorTriggerProps) {
+  const isOpen = useBuilderStateContext(
+    (state) => state.openedPieceSelectorStepNameOrAddButtonId === id,
+  );
+  if (!isOpen) {
+    return children;
+  }
+  return (
+    <Suspense fallback={children}>
+      <LazyPieceSelector
+        id={id}
+        operation={operation}
+        openSelectorOnClick={false}
+        stepToReplacePieceDisplayName={stepToReplacePieceDisplayName}
+      >
+        {children}
+      </LazyPieceSelector>
+    </Suspense>
+  );
+}
+
 function MobileStepActions({ readonly, step }: MobileStepActionsProps) {
   const { t } = useTranslation();
-  const applyOperation = useBuilderStateContext(
-    (state) => state.applyOperation,
-  );
-  const exitStepSettings = useBuilderStateContext(
-    (state) => state.exitStepSettings,
-  );
-  const flowVersion = useBuilderStateContext((state) => state.flowVersion);
-  const selectedStep = useBuilderStateContext((state) => state.selectedStep);
-  const setOpenedPieceSelectorStepNameOrAddButtonId = useBuilderStateContext(
-    (state) => state.setOpenedPieceSelectorStepNameOrAddButtonId,
+  const builderStore = useBuilderStateStore();
+  const [
+    applyOperation,
+    exitStepSettings,
+    isSelected,
+    setOpenedPieceSelectorStepNameOrAddButtonId,
+  ] = useBuilderStateContext(
+    useShallow((state) => [
+      state.applyOperation,
+      state.exitStepSettings,
+      state.selectedStep === step.name,
+      state.setOpenedPieceSelectorStepNameOrAddButtonId,
+    ]),
   );
   const isTrigger = flowStructureUtil.isTrigger(step.type);
   const isSkipped = 'skip' in step && Boolean(step.skip);
@@ -472,7 +548,10 @@ function MobileStepActions({ readonly, step }: MobileStepActionsProps) {
         {!isTrigger && (
           <DropdownMenuItem
             onClick={() => {
-              void copySelectedNodes({ selectedNodes, flowVersion })
+              void copySelectedNodes({
+                selectedNodes,
+                flowVersion: builderStore.getState().flowVersion,
+              })
                 .then(() => toast.success(t('Step copied')))
                 .catch(() => toast.error(t('Could not access the clipboard')));
             }}
@@ -499,7 +578,7 @@ function MobileStepActions({ readonly, step }: MobileStepActionsProps) {
             onClick={() =>
               toggleSkipSelectedNodes({
                 selectedNodes,
-                flowVersion,
+                flowVersion: builderStore.getState().flowVersion,
                 applyOperation,
               })
             }
@@ -527,7 +606,7 @@ function MobileStepActions({ readonly, step }: MobileStepActionsProps) {
           <DropdownMenuItem
             onClick={() =>
               void pasteNodes(
-                flowVersion,
+                builderStore.getState().flowVersion,
                 {
                   parentStepName: step.name,
                   stepLocationRelativeToParent:
@@ -557,7 +636,7 @@ function MobileStepActions({ readonly, step }: MobileStepActionsProps) {
                 deleteSelectedNodes({
                   selectedNodes,
                   applyOperation,
-                  selectedStep,
+                  selectedStep: isSelected ? step.name : null,
                   exitStepSettings,
                 });
               }}
@@ -583,20 +662,18 @@ function MobileBranchGroup({
   renderingModel,
 }: MobileBranchGroupProps) {
   const { t } = useTranslation();
-  const prefersReducedMotion = useReducedMotion();
   const branchStatus = useMobileBranchStatus(
     renderingModel.projection.descendantStepNamesByBranchId.get(branch.id) ??
       EMPTY_STEP_NAMES,
   );
-  const animateEntry =
-    renderingModel.animateEntryMotion && !prefersReducedMotion;
-  const selectStepByName = useBuilderStateContext(
-    (state) => state.selectStepByName,
-  );
-  const setSelectedBranchIndex = useBuilderStateContext(
-    (state) => state.setSelectedBranchIndex,
-  );
-  const readonly = useBuilderStateContext((state) => state.readonly);
+  const [selectStepByName, setSelectedBranchIndex, readonly] =
+    useBuilderStateContext(
+      useShallow((state) => [
+        state.selectStepByName,
+        state.setSelectedBranchIndex,
+        state.readonly,
+      ]),
+    );
   const label = getBranchLabel(branch, t);
   const Icon = getBranchIcon(branch.kind);
 
@@ -611,7 +688,7 @@ function MobileBranchGroup({
     <section
       aria-label={label}
       className={cn(
-        'relative ml-3 rounded-2xl border bg-background/70 p-2.5 shadow-sm',
+        'relative ml-3 rounded-2xl border bg-background p-2.5 shadow-sm',
         branch.kind === 'failure'
           ? 'border-destructive/25'
           : branch.kind === 'success'
@@ -663,47 +740,49 @@ function MobileBranchGroup({
         )}
       </button>
 
-      <AnimatePresence initial={false}>
-        {branch.content.length > 0 ? (
-          <MobileFlowSequence
-            nodes={branch.content}
-            renderingModel={renderingModel}
-            nested
-          />
-        ) : (
-          <motion.div
-            initial={animateEntry ? { opacity: 0 } : false}
-            animate={{ opacity: 1 }}
-            exit={animateEntry ? { opacity: 0 } : undefined}
-          >
-            <MobileAddStep
-              slot={branch.emptyAddSlot}
-              terminal
-              emptyBranchLabel={label}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {branch.content.length > 0 ? (
+        <MobileFlowSequence
+          nodes={branch.content}
+          renderingModel={renderingModel}
+          nested
+        />
+      ) : (
+        <MobileAddStep
+          allowMotion={renderingModel.animateStatusMotion}
+          slot={branch.emptyAddSlot}
+          terminal
+          emptyBranchLabel={label}
+        />
+      )}
     </section>
   );
 }
 
 function MobileAddStep({
+  allowMotion,
   slot,
   terminal,
   status,
   emptyBranchLabel,
 }: MobileAddStepProps) {
   const { t } = useTranslation();
-  const readonly = useBuilderStateContext((state) => state.readonly);
-  const flowVersion = useBuilderStateContext((state) => state.flowVersion);
-  const applyOperation = useBuilderStateContext(
-    (state) => state.applyOperation,
+  const builderStore = useBuilderStateStore();
+  const [
+    readonly,
+    applyOperation,
+    setOpenedPieceSelectorStepNameOrAddButtonId,
+  ] = useBuilderStateContext(
+    useShallow((state) => [
+      state.readonly,
+      state.applyOperation,
+      state.setOpenedPieceSelectorStepNameOrAddButtonId,
+    ]),
   );
-  const prefersReducedMotion = useReducedMotion();
 
   if (readonly) {
-    return terminal ? null : <MobileConnector status={status} />;
+    return terminal ? null : (
+      <MobileConnector allowMotion={allowMotion} status={status} />
+    );
   }
 
   const label = emptyBranchLabel
@@ -714,22 +793,25 @@ function MobileAddStep({
 
   return (
     <div className="relative flex min-h-14 flex-col items-center justify-center">
-      <MobileConnector status={status} />
+      <MobileConnector allowMotion={allowMotion} status={status} />
       <div className="relative z-10 flex items-center gap-2">
-        <PieceSelector id={slot.id} operation={getAddOperation(slot)}>
-          <motion.button
+        <MobilePieceSelectorTrigger
+          id={slot.id}
+          operation={getAddOperation(slot)}
+        >
+          <button
             type="button"
             aria-label={label}
             className={cn(
-              'flex min-h-11 items-center justify-center gap-2 rounded-full border border-border bg-background px-3 text-xs font-semibold text-muted-foreground shadow-sm outline-none transition-[border-color,color,box-shadow,background-color] hover:border-primary/45 hover:bg-card hover:text-foreground focus-visible:ring-2 focus-visible:ring-primary/35 active:bg-muted',
+              'flex min-h-11 items-center justify-center gap-2 rounded-full border border-border bg-background px-3 text-xs font-semibold text-muted-foreground shadow-sm outline-none transition-[border-color,color,box-shadow,background-color,transform] hover:border-primary/45 hover:bg-card hover:text-foreground focus-visible:ring-2 focus-visible:ring-primary/35 active:scale-95 active:bg-muted motion-reduce:transition-none',
               terminal && 'text-primary',
             )}
-            whileTap={prefersReducedMotion ? undefined : { scale: 0.94 }}
+            onClick={() => setOpenedPieceSelectorStepNameOrAddButtonId(slot.id)}
           >
             <Plus aria-hidden="true" className="size-4" />
             {(terminal || emptyBranchLabel) && <span>{label}</span>}
-          </motion.button>
-        </PieceSelector>
+          </button>
+        </MobilePieceSelectorTrigger>
         {(terminal || emptyBranchLabel) && (
           <Button
             type="button"
@@ -739,7 +821,7 @@ function MobileAddStep({
             variant="outline"
             onClick={() =>
               void pasteNodes(
-                flowVersion,
+                builderStore.getState().flowVersion,
                 getPasteLocation(slot),
                 applyOperation,
               )
@@ -753,8 +835,13 @@ function MobileAddStep({
   );
 }
 
-function MobileConnector({ status }: { status?: MobileStepStatus }) {
-  const prefersReducedMotion = useReducedMotion();
+function MobileConnector({
+  allowMotion,
+  status,
+}: {
+  allowMotion: boolean;
+  status?: MobileStepStatus;
+}) {
   const isActive = status === 'running' || status === 'succeeded';
   return (
     <span
@@ -764,7 +851,7 @@ function MobileConnector({ status }: { status?: MobileStepStatus }) {
         isActive && 'bg-primary/45',
       )}
     >
-      {status === 'running' && !prefersReducedMotion && (
+      {status === 'running' && allowMotion && (
         <motion.span
           className="absolute left-1/2 top-0 size-2 -translate-x-1/2 rounded-full bg-primary shadow-[0_0_14px_hsl(var(--primary)/0.8)]"
           animate={{ y: [0, 42, 0], opacity: [0.2, 1, 0.2] }}
@@ -821,20 +908,24 @@ function StepArtwork({ step, summary }: StepArtworkProps) {
 }
 
 function useMobileStepStatus(step: Step): MobileStepStatus {
-  const run = useBuilderStateContext((state) => state.run);
-  const loopIndexes = useBuilderStateContext((state) => state.loopsIndexes);
-  const isBeingTested = useBuilderStateContext((state) =>
-    Boolean(state.stepTestListeners[step.name]),
-  );
-  const hasError = useBuilderStateContext((state) =>
-    Boolean(state.errorLogs[step.name]),
+  const [run, loopIndexes, isBeingTested, hasError] = useBuilderStateContext(
+    useShallow((state) => [
+      state.run,
+      state.loopsIndexes,
+      Boolean(state.stepTestListeners[step.name]),
+      Boolean(state.errorLogs[step.name]),
+    ]),
   );
 
   if ('skip' in step && step.skip) {
     return 'skipped';
   }
 
-  const runStatus = flowCanvasUtils.getStepStatus(step.name, run, loopIndexes);
+  const runStatus = getStepRunStatus({
+    stepName: step.name,
+    run,
+    loopIndexes,
+  });
   if (runStatus) {
     return getRunStatus(runStatus);
   }
@@ -858,15 +949,16 @@ function useMobileStepStatus(step: Step): MobileStepStatus {
 function useMobileBranchStatus(
   stepNames: readonly string[],
 ): MobileBranchStatus | null {
-  const run = useBuilderStateContext((state) => state.run);
-  const loopIndexes = useBuilderStateContext((state) => state.loopsIndexes);
+  const [run, loopIndexes] = useBuilderStateContext(
+    useShallow((state) => [state.run, state.loopsIndexes]),
+  );
 
   if (!run || stepNames.length === 0) {
     return null;
   }
 
   const statuses = stepNames.flatMap((stepName) => {
-    const status = flowCanvasUtils.getStepStatus(stepName, run, loopIndexes);
+    const status = getStepRunStatus({ stepName, run, loopIndexes });
     return status ? [status] : [];
   });
 
@@ -886,6 +978,18 @@ function useMobileBranchStatus(
     return 'succeeded';
   }
   return null;
+}
+
+function getStepRunStatus({
+  stepName,
+  run,
+  loopIndexes,
+}: GetStepRunStatusParams) {
+  if (!run?.steps) {
+    return undefined;
+  }
+  return flowRunUtils.extractStepOutput(stepName, loopIndexes, run.steps)
+    ?.status;
 }
 
 function BranchStatus({ status }: { status: MobileBranchStatus }) {
@@ -1147,6 +1251,13 @@ type MobileStepActionsProps = {
   step: Step;
 };
 
+type MobilePieceSelectorTriggerProps = {
+  children: ReactNode;
+  id: string;
+  operation: PieceSelectorOperation;
+  stepToReplacePieceDisplayName?: string;
+};
+
 type MobileBranchGroupProps = {
   branch: MobileFlowBranch;
   parentStep: Step;
@@ -1154,6 +1265,7 @@ type MobileBranchGroupProps = {
 };
 
 type MobileAddStepProps = {
+  allowMotion: boolean;
   slot: MobileFlowAddSlot;
   terminal: boolean;
   status?: MobileStepStatus;
@@ -1167,14 +1279,22 @@ type StepArtworkProps = {
 
 type MobileFlowRenderingModel = {
   animateEntryMotion: boolean;
+  animateStatusMotion: boolean;
   pinnedStepNames: ReadonlySet<string>;
   projection: MobileFlowProjection;
   summariesByName: ReadonlyMap<string, PieceMetadataModelSummary>;
 };
 
-const EAGER_ROOT_MOBILE_NODE_COUNT = 10;
+type GetStepRunStatusParams = {
+  stepName: string;
+  run: FlowRun | null;
+  loopIndexes: Record<string, number>;
+};
+
+const EAGER_ROOT_MOBILE_NODE_COUNT = 5;
 const EAGER_NESTED_MOBILE_NODE_COUNT = 0;
-const MAX_FLOW_STEPS_WITH_ENTRY_MOTION = 24;
+const MAX_FLOW_STEPS_WITH_ENTRY_MOTION = 12;
+const MAX_FLOW_STEPS_WITH_STATUS_MOTION = 32;
 const MOBILE_NODE_ESTIMATED_HEIGHT = 140;
 const MOBILE_BRANCH_ESTIMATED_OVERHEAD = 72;
 const EMPTY_STEP_NAMES: readonly string[] = [];

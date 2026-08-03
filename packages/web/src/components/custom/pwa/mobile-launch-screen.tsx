@@ -1,21 +1,22 @@
 import { useEffect, useState } from 'react';
 
 const MOBILE_LAUNCH_SEEN_KEY = 'plugr.mobile-launch.seen';
-const MOBILE_LAUNCH_DURATION_MS = 760;
 
 function MobileLaunchScreen() {
   const [visible, setVisible] = useState(shouldShowLaunchScreen);
+  const [launchMode] = useState(getLaunchMode);
+  const launchDuration =
+    launchMode === 'lightweight'
+      ? MOBILE_LAUNCH_LIGHTWEIGHT_DURATION_MS
+      : MOBILE_LAUNCH_DURATION_MS;
 
   useEffect(() => {
     if (!visible) {
       return;
     }
-    const timer = window.setTimeout(
-      () => setVisible(false),
-      MOBILE_LAUNCH_DURATION_MS,
-    );
+    const timer = window.setTimeout(() => setVisible(false), launchDuration);
     return () => window.clearTimeout(timer);
-  }, [visible]);
+  }, [launchDuration, visible]);
 
   if (!visible) {
     return null;
@@ -25,6 +26,7 @@ function MobileLaunchScreen() {
     <div
       aria-label="Opening Plugr"
       className="mobile-launch-screen"
+      data-mobile-launch-mode={launchMode}
       role="status"
     >
       <div className="mobile-launch-screen__glow" aria-hidden="true" />
@@ -76,4 +78,22 @@ function isStandaloneMobile() {
   return standalone && window.matchMedia('(max-width: 767px)').matches;
 }
 
-export { MOBILE_LAUNCH_DURATION_MS, MobileLaunchScreen };
+function getLaunchMode(): MobileLaunchMode {
+  const prefersReducedMotion = window.matchMedia(
+    '(prefers-reduced-motion: reduce)',
+  ).matches;
+  const hasLimitedCpu =
+    navigator.hardwareConcurrency > 0 && navigator.hardwareConcurrency <= 4;
+  return prefersReducedMotion || hasLimitedCpu ? 'lightweight' : 'full';
+}
+
+export {
+  MOBILE_LAUNCH_DURATION_MS,
+  MOBILE_LAUNCH_LIGHTWEIGHT_DURATION_MS,
+  MobileLaunchScreen,
+};
+
+const MOBILE_LAUNCH_DURATION_MS = 560;
+const MOBILE_LAUNCH_LIGHTWEIGHT_DURATION_MS = 240;
+
+type MobileLaunchMode = 'full' | 'lightweight';

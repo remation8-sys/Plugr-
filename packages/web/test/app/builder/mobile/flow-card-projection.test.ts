@@ -33,6 +33,11 @@ describe('projectFlowToMobileCards', () => {
     });
     expect(projection.stepNumberByName.get('step_2')).toBe(3);
     expect(projection.stepByName.get('step_1')).toBe(trigger.nextAction);
+    expect(
+      projection.selectorOwnerStepNameById.get(
+        projection.sequence[1].addAfter.id,
+      ),
+    ).toBe('step_1');
   });
 
   it('keeps a loop body nested instead of flattening it into the main path', () => {
@@ -91,6 +96,9 @@ describe('projectFlowToMobileCards', () => {
       parentStep: 'step_1',
       stepLocationRelativeToParent: StepLocationRelativeToParent.INSIDE_BRANCH,
     });
+    expect(
+      projection.selectorOwnerStepNameById.get(branches[1].emptyAddSlot.id),
+    ).toBe('step_1');
   });
 
   it('preserves success and failure subtrees as separate paths', () => {

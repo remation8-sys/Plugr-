@@ -72,7 +72,11 @@ All routes are prefixed `/v1/templates`.
 | POST | `/:id` | publicPlatform (USER, SERVICE) | Update a CUSTOM template |
 | DELETE | `/:id` | publicPlatform (USER, SERVICE) | Delete a CUSTOM template |
 
-Query params for list: `type`, `pieces[]`, `tags[]`, `search`, `category`.
+Query params for list: `type`, `pieces[]`, `tags[]`, `search`, `category`, `representation`, `limit`, `cursor`.
+
+- `representation=summary` omits the heavyweight optional `flows` and `tables` fields. The default response remains the full template shape.
+- Cursor pagination is opt-in through `limit` (1-100) and requires an explicit `type`; this avoids ambiguous cursors across the official/custom merged legacy response.
+- The mobile gallery requests 24 summaries at a time and fetches the full `/:id` resource only when a template is opened.
 
 ## Service Methods
 
@@ -81,17 +85,18 @@ Query params for list: `type`, `pieces[]`, `tags[]`, `search`, `category`.
 - `getOneOrThrow({ id })` — throws ENTITY_NOT_FOUND
 - `create({ platformId, params })` — validates flows, extracts pieces. CUSTOM type delegates to `platformTemplateService`.
 - `update({ id, params })` — re-validates flows if provided. CUSTOM type delegates to `platformTemplateService`.
-- `list({ platformId, pieces, tags, search, type, category })` — queries with ArrayOverlap for pieces, ArrayContains for categories, ILIKE for search. Only returns PUBLISHED templates.
+- `list({ platformId, pieces, tags, search, type, category, representation, limit, cursor })` — queries with ArrayOverlap for pieces, ArrayContains for categories, ILIKE for search. Only returns PUBLISHED templates. Summary mode excludes flow/table JSON at the SQL projection.
 - `delete({ id })` — hard delete
 
 **communityTemplates** (CE/EE only)
-- `list(query)` — proxies to Cloud API with query string forwarding
+- `list(query)` — proxies to Cloud API with query string forwarding and keeps a bounded five-minute in-memory cache for official list responses
 - `getOrThrow(id)` — proxies single-template fetch to Cloud API
 - `getCategories()` — proxies categories endpoint to Cloud API
 
 ## Business Logic Notes
 
 - The list endpoint merges official and custom templates. Official comes from Cloud DB (on cloud edition) or the community proxy (self-hosted). Custom comes from the local DB filtered by `platformId`.
+- Legacy list calls without `limit`, `cursor`, or `representation` preserve the previous unpaginated response. Type-specific paginated calls propagate cursors. CE/EE paginate the cached upstream official list locally so older Cloud deployments cannot negate the compact mobile response.
 - Only platform owners (verified via `platformMustBeOwnedByCurrentUser`) can create, update, or delete CUSTOM templates.
 - OFFICIAL and SHARED templates cannot be updated or deleted via the API.
 - Template ownership is double-checked: `template.platformId === principal.platform.id`.

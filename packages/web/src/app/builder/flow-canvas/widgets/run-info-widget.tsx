@@ -4,7 +4,6 @@ import {
   isFlowRunStateTerminal,
   StepOutputStatus,
 } from '@activepieces/shared';
-import { useReactFlow } from '@xyflow/react';
 import { t } from 'i18next';
 import { ArrowRight, CircleHelp, Magnet } from 'lucide-react';
 
@@ -17,7 +16,7 @@ import { cn } from '@/lib/utils';
 
 import { EditFlowOrViewDraftButton } from '../../builder-header/flow-status/view-draft-or-edit-flow-button';
 import { useBuilderStateContext } from '../../builder-hooks';
-import { flowCanvasUtils } from '../utils/flow-canvas-utils';
+import { useCanvasNavigation } from '../../canvas-navigation-context';
 
 import LargeWidgetWrapper from './large-widget-wrapper';
 
@@ -202,7 +201,7 @@ const JumpToFailedStepButton = ({
       state.run,
       state.loopsIndexes,
     ]);
-  const { fitView } = useReactFlow();
+  const { focusStep } = useCanvasNavigation();
   const selectedStepOutput =
     run && selectedStep
       ? flowRunUtils.extractStepOutput(
@@ -227,7 +226,7 @@ const JumpToFailedStepButton = ({
       );
       return;
     }
-    fitView(flowCanvasUtils.createFocusStepInGraphParams(failedStepName));
+    focusStep(failedStepName);
   };
   return (
     <Button

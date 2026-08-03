@@ -9,6 +9,7 @@ import {
     ListTemplatesRequestQuery,
     Principal,
     PrincipalType,
+    SeekPage,
     SERVICE_KEY_SECURITY_OPENAPI,
     Template,
     TemplateType,
@@ -56,14 +57,21 @@ export const templateController: FastifyPluginAsyncZod = async (app) => {
     })
 
     app.get('/', ListTemplatesParams, async (request) => {
+        if (!isNil(request.query.type)) {
+            const page = request.query.type === TemplateType.CUSTOM
+                ? await loadCustomTemplatesOrReturnEmpty(app.log, request.query, request.principal)
+                : await loadOfficialTemplatesOrReturnEmpty(app.log, request.query)
+            return prepareTemplatePage({ page, query: request.query })
+        }
+
         const officialTemplates = await loadOfficialTemplatesOrReturnEmpty(app.log, request.query)
         const customTemplates = await loadCustomTemplatesOrReturnEmpty(app.log, request.query, request.principal)
 
-        return {
-            data: [...officialTemplates, ...customTemplates],
+        return prepareTemplatePage({ page: {
+            data: [...officialTemplates.data, ...customTemplates.data],
             next: null,
             previous: null,
-        }
+        }, query: request.query })
     })
 
     app.post('/', {
@@ -246,9 +254,9 @@ function assertTemplateBelongsToPlatform({ templatePlatformId, principalPlatform
 async function loadOfficialTemplatesOrReturnEmpty(
     log: FastifyBaseLogger,
     query: ListTemplatesRequestQuery,
-): Promise<Template[]> {
+): Promise<SeekPage<Template>> {
     if (!isNil(query.type) && query.type !== TemplateType.OFFICIAL) {
-        return []
+        return emptyTemplatePage()
     }
     if (edition === ApEdition.CLOUD) {
         const officialTemplatesFromCloud = await templateService(log).list({
@@ -256,28 +264,98 @@ async function loadOfficialTemplatesOrReturnEmpty(
             type: TemplateType.OFFICIAL,
             ...query,
         })
-        return officialTemplatesFromCloud.data
+        return officialTemplatesFromCloud
     }
-    const loadTemplatesFromCloud = await communityTemplates.list({ ...query, type: TemplateType.OFFICIAL })
-    return loadTemplatesFromCloud.data
+    const communityQuery = { ...query, type: TemplateType.OFFICIAL }
+    delete communityQuery.limit
+    delete communityQuery.cursor
+    const templatesFromCloud = await communityTemplates.list(communityQuery)
+    return paginateCommunityTemplates({
+        page: templatesFromCloud,
+        limit: query.limit,
+        cursor: query.cursor,
+    })
 }
 
 async function loadCustomTemplatesOrReturnEmpty(
     log: FastifyBaseLogger,
     query: ListTemplatesRequestQuery,
     principal: Principal,
-): Promise<Template[]> {
+): Promise<SeekPage<Template>> {
     if ((!isNil(query.type) && query.type !== TemplateType.CUSTOM)) {
-        return []
+        return emptyTemplatePage()
     }
     const platformId = principal.type === PrincipalType.UNKNOWN || principal.type === PrincipalType.WORKER || principal.type === PrincipalType.ONBOARDING ? null : principal.platform.id
     if (isNil(platformId)) {
-        return []
+        return emptyTemplatePage()
     }
     const platform = await platformService(log).getOneWithPlanOrThrow(platformId)
     if (!platform.plan.manageTemplatesEnabled) {
-        return []
+        return emptyTemplatePage()
     }
     const customTemplates = await templateService(log).list({ platformId, type: TemplateType.CUSTOM, ...query })
-    return customTemplates.data
+    return customTemplates
 }
+
+function prepareTemplatePage({ page, query }: PrepareTemplatePageParams): SeekPage<Template> {
+    if (query.representation !== 'summary') {
+        return page
+    }
+    return {
+        ...page,
+        data: page.data.map((template) => {
+            const summary = { ...template }
+            delete summary.flows
+            delete summary.tables
+            return summary
+        }),
+    }
+}
+
+function emptyTemplatePage(): SeekPage<Template> {
+    return {
+        data: [],
+        next: null,
+        previous: null,
+    }
+}
+
+function paginateCommunityTemplates({ page, limit, cursor }: PaginateCommunityTemplatesParams): SeekPage<Template> {
+    if (isNil(limit) && isNil(cursor)) {
+        return page
+    }
+    const pageSize = limit ?? DEFAULT_TEMPLATE_PAGE_SIZE
+    const offset = decodeCommunityCursor(cursor)
+    const nextOffset = offset + pageSize
+    const previousOffset = Math.max(0, offset - pageSize)
+    return {
+        data: page.data.slice(offset, nextOffset),
+        next: nextOffset < page.data.length ? encodeCommunityCursor(nextOffset) : null,
+        previous: offset > 0 ? encodeCommunityCursor(previousOffset) : null,
+    }
+}
+
+function encodeCommunityCursor(offset: number): string {
+    return `community_${offset}`
+}
+
+function decodeCommunityCursor(cursor: string | undefined): number {
+    if (isNil(cursor) || !cursor.startsWith('community_')) {
+        return 0
+    }
+    const offset = Number.parseInt(cursor.slice('community_'.length), 10)
+    return Number.isNaN(offset) || offset < 0 ? 0 : offset
+}
+
+type PrepareTemplatePageParams = {
+    page: SeekPage<Template>
+    query: ListTemplatesRequestQuery
+}
+
+type PaginateCommunityTemplatesParams = {
+    page: SeekPage<Template>
+    limit: number | undefined
+    cursor: string | undefined
+}
+
+const DEFAULT_TEMPLATE_PAGE_SIZE = 100

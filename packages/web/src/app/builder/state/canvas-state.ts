@@ -5,8 +5,9 @@ import { RightSideBarType } from '@/app/builder/types';
 import { flowRunUtils } from '@/features/flow-runs';
 
 import { BuilderState } from '../builder-hooks';
-import { flowCanvasUtils } from '../flow-canvas/utils/flow-canvas-utils';
-import { CanvasOrientation } from '../flow-canvas/utils/types';
+import type { CanvasOrientation } from '../flow-canvas/utils/types';
+
+import { builderInitialSelection } from './builder-initial-selection';
 
 export type StepDataPanelView = 'drawer' | 'split';
 export type EditorLockStatus = 'acquiring' | 'owned' | 'locked' | 'disabled';
@@ -72,10 +73,10 @@ export const createCanvasState = (
   const initiallySelectedStep =
     initialState.initiallySelectStep === false
       ? null
-      : flowCanvasUtils.determineInitiallySelectedStep(
+      : builderInitialSelection.determineInitiallySelectedStep({
           failedStepNameInRun,
-          initialState.flowVersion,
-        );
+          flowVersion: initialState.flowVersion,
+        });
   const isEmptyTriggerInitiallySelected =
     initiallySelectedStep === 'trigger' &&
     initialState.flowVersion.trigger.type === FlowTriggerType.EMPTY;

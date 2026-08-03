@@ -9,31 +9,44 @@ import { Plus } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-import { AllCategoriesView } from './all-categories-view';
-import { CategoryFilterCarousel } from './category-filter-carousel';
-import { EmptyTemplatesView } from './empty-templates-view';
-import { SelectedCategoryView } from './selected-category-view';
-
 import { PageHeader } from '@/components/custom/page-header';
 import { SearchInput } from '@/components/custom/search-input';
 import { Button } from '@/components/ui/button';
 import { flowHooks } from '@/features/flows';
 import { templatesTelemetryApi, templatesHooks } from '@/features/templates';
 import { platformHooks } from '@/hooks/platform-hooks';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { DASHBOARD_CONTENT_PADDING_X } from '@/lib/utils';
+
+import { AllCategoriesView } from './all-categories-view';
+import { CategoryFilterCarousel } from './category-filter-carousel';
+import { EmptyTemplatesView } from './empty-templates-view';
+import { SelectedCategoryView } from './selected-category-view';
 
 const TemplatesPage = () => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const { data: templateCategories } = templatesHooks.useTemplateCategories();
   const { platform } = platformHooks.useCurrentPlatform();
   const isShowingOfficialTemplates = !platform.plan.manageTemplatesEnabled;
+  const templateType = isShowingOfficialTemplates
+    ? TemplateType.OFFICIAL
+    : TemplateType.CUSTOM;
+  const fullTemplatesQuery = templatesHooks.useTemplates(
+    templateType,
+    !isMobile,
+  );
+  const summaryTemplatesQuery = templatesHooks.useTemplateSummaries({
+    type: templateType,
+    enabled: isMobile,
+  });
   const { templates, isLoading, search, setSearch, category, setCategory } =
-    templatesHooks.useTemplates(
-      isShowingOfficialTemplates ? TemplateType.OFFICIAL : TemplateType.CUSTOM,
-    );
+    isMobile ? summaryTemplatesQuery : fullTemplatesQuery;
   const selectedCategory = category as string;
   const { data: allOfficialTemplates, isLoading: isAllTemplatesLoading } =
-    templatesHooks.useAllOfficialTemplates();
+    templatesHooks.useAllOfficialTemplates(
+      !isMobile && isShowingOfficialTemplates,
+    );
   const { mutate: createFlow, isPending: isCreateFlowPending } =
     flowHooks.useStartFromScratch(UncategorizedFolderId);
 
@@ -84,11 +97,15 @@ const TemplatesPage = () => {
     if (selectedCategory === 'All') {
       return templates || [];
     }
+    if (isMobile) {
+      return templates || [];
+    }
     return templatesByCategory[selectedCategory] || [];
-  }, [selectedCategory, templates, templatesByCategory]);
+  }, [isMobile, selectedCategory, templates, templatesByCategory]);
 
   const showLoading =
-    isLoading || (isShowingOfficialTemplates && isAllTemplatesLoading);
+    isLoading ||
+    (!isMobile && isShowingOfficialTemplates && isAllTemplatesLoading);
   const showAllCategories =
     isShowingOfficialTemplates && selectedCategory === 'All';
   const hasTemplates = templates && templates.length > 0;
@@ -137,7 +154,7 @@ const TemplatesPage = () => {
         <div className={DASHBOARD_CONTENT_PADDING_X}>
           {!hasTemplates && !showLoading ? (
             <EmptyTemplatesView />
-          ) : showAllCategories ? (
+          ) : showAllCategories && !isMobile ? (
             <AllCategoriesView
               templatesByCategory={templatesByCategory}
               categories={categories}
@@ -153,7 +170,23 @@ const TemplatesPage = () => {
               onTemplateSelect={handleTemplateSelect}
               isLoading={showLoading}
               showCategoryTitle={showCategoryTitleForOfficialTemplates}
+              compact={isMobile}
             />
+          )}
+          {isMobile && summaryTemplatesQuery.hasNextPage && !showLoading && (
+            <div className="flex justify-center py-6">
+              <Button
+                variant="outline"
+                disabled={summaryTemplatesQuery.isFetchingNextPage}
+                onClick={() => {
+                  void summaryTemplatesQuery.fetchNextPage();
+                }}
+              >
+                {summaryTemplatesQuery.isFetchingNextPage
+                  ? t('Loading...')
+                  : t('Load more')}
+              </Button>
+            </div>
           )}
         </div>
       </div>

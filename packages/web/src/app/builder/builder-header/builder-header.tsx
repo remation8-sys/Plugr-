@@ -17,6 +17,7 @@ import {
 } from 'react-router-dom';
 
 import { useBuilderStateContext } from '@/app/builder/builder-hooks';
+import { builderUiConstants } from '@/app/builder/builder-ui-constants';
 import { RightSideBarType } from '@/app/builder/types';
 import { ActiveUsersWidget } from '@/components/custom/active-users-widget';
 import EditableText from '@/components/custom/editable-text';
@@ -45,7 +46,6 @@ import { NEW_FLOW_QUERY_PARAM } from '@/lib/route-utils';
 import { cn } from '@/lib/utils';
 
 import FlowActionMenu from '../../components/flow-actions-menu';
-import { flowCanvasConsts } from '../flow-canvas/utils/consts';
 import { MobileBuilderHeader } from '../mobile/mobile-builder-header';
 
 import { BuilderFlowStatusSection } from './flow-status';
@@ -218,7 +218,7 @@ export const BuilderHeader = () => {
   return (
     <div
       style={{
-        height: `$${flowCanvasConsts.BUILDER_HEADER_HEIGHT}px`,
+        height: `${builderUiConstants.BUILDER_HEADER_HEIGHT}px`,
       }}
     >
       <PageHeader

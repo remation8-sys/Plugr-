@@ -1,6 +1,5 @@
 import { isNil, PopulatedFlow } from '@activepieces/shared';
 import { useQuery } from '@tanstack/react-query';
-import { ReactFlowProvider } from '@xyflow/react';
 import { t } from 'i18next';
 import { FileX } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
@@ -85,20 +84,18 @@ const FlowBuilderPage = () => {
   }
 
   return (
-    <ReactFlowProvider>
-      <BuilderStateProvider
-        flow={flow}
-        flowVersion={flow!.version}
-        readonly={false}
-        hideTestWidget={false}
-        run={null}
-        outputSampleData={sampleData ?? {}}
-        inputSampleData={sampleDataInput ?? {}}
-        initiallySelectStep={!isMobile}
-      >
-        <BuilderPage />
-      </BuilderStateProvider>
-    </ReactFlowProvider>
+    <BuilderStateProvider
+      flow={flow}
+      flowVersion={flow!.version}
+      readonly={false}
+      hideTestWidget={false}
+      run={null}
+      outputSampleData={sampleData ?? {}}
+      inputSampleData={sampleDataInput ?? {}}
+      initiallySelectStep={!isMobile}
+    >
+      <BuilderPage />
+    </BuilderStateProvider>
   );
 };
 

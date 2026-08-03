@@ -1,6 +1,5 @@
 import { FlowRun, PopulatedFlow } from '@activepieces/shared';
 import { useQuery } from '@tanstack/react-query';
-import { ReactFlowProvider } from '@xyflow/react';
 import { t } from 'i18next';
 import { useParams } from 'react-router-dom';
 
@@ -9,9 +8,11 @@ import { BuilderStateProvider } from '@/app/builder/state/builder-state-provider
 import { PageLoadingSkeleton } from '@/components/custom/page-loading-skeleton';
 import { flowRunsApi } from '@/features/flow-runs';
 import { flowsApi, sampleDataHooks } from '@/features/flows';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 const FlowRunPage = () => {
   const { runId, projectId } = useParams();
+  const isMobile = useIsMobile();
   const { data, isLoading } = useQuery<
     {
       run: FlowRun;
@@ -42,15 +43,20 @@ const FlowRunPage = () => {
     sampleDataHooks.useSampleDataForFlow({
       flowVersion: data?.flow?.version,
       projectId,
+      enabled: !isMobile,
     });
 
   const { data: sampleDataInput, isLoading: isSampleDataInputLoading } =
     sampleDataHooks.useSampleDataInputForFlow({
       flowVersion: data?.flow?.version,
       projectId,
+      enabled: !isMobile,
     });
 
-  if (isLoading || isSampleDataLoading || isSampleDataInputLoading) {
+  if (
+    isLoading ||
+    (!isMobile && (isSampleDataLoading || isSampleDataInputLoading))
+  ) {
     return (
       <PageLoadingSkeleton
         className="h-full"
@@ -62,19 +68,17 @@ const FlowRunPage = () => {
 
   return (
     data && (
-      <ReactFlowProvider>
-        <BuilderStateProvider
-          flow={data.flow}
-          flowVersion={data.flow.version}
-          readonly={true}
-          hideTestWidget={false}
-          run={data.run}
-          outputSampleData={sampleData ?? {}}
-          inputSampleData={sampleDataInput ?? {}}
-        >
-          <BuilderPage />
-        </BuilderStateProvider>
-      </ReactFlowProvider>
+      <BuilderStateProvider
+        flow={data.flow}
+        flowVersion={data.flow.version}
+        readonly={true}
+        hideTestWidget={false}
+        run={data.run}
+        outputSampleData={sampleData ?? {}}
+        inputSampleData={sampleDataInput ?? {}}
+      >
+        <BuilderPage />
+      </BuilderStateProvider>
     )
   );
 };

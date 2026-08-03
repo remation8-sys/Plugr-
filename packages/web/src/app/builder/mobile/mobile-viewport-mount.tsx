@@ -153,7 +153,7 @@ function MobileViewportMount({
 }
 
 const MOBILE_NODE_ESTIMATED_HEIGHT = 140;
-const MOBILE_VIEWPORT_ROOT_MARGIN = '900px 0px';
+const MOBILE_VIEWPORT_ROOT_MARGIN = '480px 0px';
 
 type MobileViewportMountRegistry = {
   register: (params: RegisterMobileViewportNodeParams) => () => void;

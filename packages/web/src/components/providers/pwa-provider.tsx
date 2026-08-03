@@ -14,16 +14,13 @@ import { useEmbedding } from '@/components/providers/embed-provider';
 import { Button } from '@/components/ui/button';
 import { useOnlineStatus } from '@/hooks/use-online-status';
 import { authenticationSession } from '@/lib/authentication-session';
+import { browserLocation } from '@/lib/browser-location';
 import { isNativeApp } from '@/lib/native-app';
 import {
   rememberInstallPromptDismissal,
   shouldSuppressInstallPrompt,
 } from '@/lib/pwa-storage';
-import {
-  getPendingPwaUpdate,
-  hasPendingPwaUpdate,
-  subscribeToPwaUpdates,
-} from '@/lib/pwa-update';
+import { pwaUpdateStore } from '@/lib/pwa-update';
 
 const INSTALL_PROMPT_DELAY_MS = 30_000;
 const UPDATE_REMINDER_DELAY_MS = 10 * 60 * 1000;
@@ -102,9 +99,9 @@ function PwaProvider({ children }: { children: ReactNode }) {
   const [installPrompt, setInstallPrompt] =
     useState<BeforeInstallPromptEvent | null>(null);
   const [showInstallPrompt, setShowInstallPrompt] = useState(false);
-  const [showUpdatePrompt, setShowUpdatePrompt] = useState(() =>
-    hasPendingPwaUpdate(),
-  );
+  const [showUpdatePrompt, setShowUpdatePrompt] = useState(false);
+  const [pathname, setPathname] = useState(browserLocation.getPathname);
+  const [updateStateVersion, setUpdateStateVersion] = useState(0);
 
   const installPromptsAllowed =
     !embedState.isEmbedded &&
@@ -138,13 +135,29 @@ function PwaProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  useEffect(
-    () =>
-      subscribeToPwaUpdates(() => {
-        setShowUpdatePrompt(hasPendingPwaUpdate());
-      }),
-    [],
-  );
+  useEffect(() => {
+    return pwaUpdateStore.subscribeToPwaUpdates(() => {
+      setUpdateStateVersion((current) => current + 1);
+    });
+  }, []);
+
+  useEffect(() => {
+    return browserLocation.subscribe(setPathname);
+  }, []);
+
+  useEffect(() => {
+    const updatePromptSchedule = pwaUpdateStore.getPwaUpdatePromptSchedule();
+    setShowUpdatePrompt(updatePromptSchedule.shouldShowPrompt);
+
+    if (updatePromptSchedule.reminderDelay === null) {
+      return;
+    }
+
+    const timer = window.setTimeout(() => {
+      setUpdateStateVersion((current) => current + 1);
+    }, updatePromptSchedule.reminderDelay);
+    return () => window.clearTimeout(timer);
+  }, [pathname, updateStateVersion]);
 
   useEffect(() => {
     if (
@@ -197,19 +210,18 @@ function PwaProvider({ children }: { children: ReactNode }) {
   }, [dismissInstallPrompt, installPrompt, iosInstallCandidate]);
 
   const updateApp = useCallback(async () => {
-    const pendingUpdate = getPendingPwaUpdate();
+    const pendingUpdate = pwaUpdateStore.getPendingPwaUpdate();
     if (pendingUpdate) {
       await pendingUpdate();
     }
   }, []);
 
   const remindAboutUpdateLater = useCallback(() => {
+    pwaUpdateStore.postponePwaUpdateReminder({
+      delayMs: UPDATE_REMINDER_DELAY_MS,
+    });
     setShowUpdatePrompt(false);
-    window.setTimeout(() => {
-      if (hasPendingPwaUpdate()) {
-        setShowUpdatePrompt(true);
-      }
-    }, UPDATE_REMINDER_DELAY_MS);
+    setUpdateStateVersion((current) => current + 1);
   }, []);
 
   if ((!hasBeenOnline && !isOnline) || showRecovery) {
@@ -243,13 +255,17 @@ function PwaProvider({ children }: { children: ReactNode }) {
       {showUpdatePrompt && isOnline && isMobileExperience && (
         <UpdatePrompt
           avoidBottomNavigation={authenticationSession.isLoggedIn()}
-          isEditingFlow={window.location.pathname.includes('/flows/')}
+          isEditingFlow={isFlowEditorPath(pathname)}
           onLater={remindAboutUpdateLater}
           onUpdate={updateApp}
         />
       )}
     </>
   );
+}
+
+function isFlowEditorPath(pathname: string) {
+  return pathname.includes('/flows/');
 }
 
 export { INSTALL_PROMPT_DELAY_MS, OfflineBootstrapProvider, PwaProvider };

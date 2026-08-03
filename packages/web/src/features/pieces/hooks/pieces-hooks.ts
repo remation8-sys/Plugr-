@@ -23,15 +23,6 @@ import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import semver from 'semver';
 
-import { piecesApi } from '../api/pieces-api';
-import {
-  PieceSelectorTabType,
-  usePieceSelectorTabs,
-} from '../stores/piece-selector-tabs-provider';
-import { pieceSearchUtils } from '../utils/piece-search-utils';
-
-import { stepsHooks } from './steps-hooks';
-
 import { useTelemetry } from '@/components/providers/telemetry-provider';
 import { appConnectionsApi } from '@/features/connections/api/app-connections';
 import {
@@ -41,6 +32,15 @@ import {
 import { flagsHooks } from '@/hooks/flags-hooks';
 import { platformHooks } from '@/hooks/platform-hooks';
 import { authenticationSession } from '@/lib/authentication-session';
+
+import { piecesApi } from '../api/pieces-api';
+import {
+  PieceSelectorTabType,
+  usePieceSelectorTabs,
+} from '../stores/piece-selector-tabs-provider';
+import { pieceSearchUtils } from '../utils/piece-search-utils';
+
+import { stepsHooks } from './steps-hooks';
 
 const {
   getPinnedPieces,
@@ -73,6 +73,7 @@ type UsePiecesProps = {
   includeHidden?: boolean;
   includeTags?: boolean;
   isTableQuery?: boolean;
+  enabled?: boolean;
 };
 type UsePiecesSearchProps = {
   searchQuery: string;
@@ -134,7 +135,9 @@ export const piecesHooks = {
     });
   },
   usePieceSummariesByNames: ({ names }: UseMultiplePiecesProps) => {
-    const { pieces, isLoading } = piecesHooks.usePieces({});
+    const { pieces, isLoading } = piecesHooks.usePieces({
+      enabled: names.length > 0,
+    });
     const summaries = useMemo(() => {
       if (!pieces) return [];
       const byName = new Map(pieces.map((p) => [p.name, p]));
@@ -157,6 +160,7 @@ export const piecesHooks = {
     includeHidden = false,
     includeTags = false,
     isTableQuery = false,
+    enabled = true,
   }: UsePiecesProps) => {
     const { i18n } = useTranslation();
     const query = useQuery<PieceMetadataModelSummary[], Error>({
@@ -174,6 +178,7 @@ export const piecesHooks = {
           locale: i18n.language as LocalesEnum,
         }),
       staleTime: searchQuery ? 0 : Infinity,
+      enabled,
       meta: isTableQuery
         ? { showErrorDialog: true, loadSubsetOptions: {} }
         : undefined,

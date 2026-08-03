@@ -10,31 +10,37 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useCallback, useMemo, useState } from 'react';
 import { useParams } from 'react-router-dom';
 
-import { AutomationsFilters, FolderContent } from '../lib/types';
-import {
-  buildFilteredTreeItems,
-  buildTreeItems,
-  DEFAULT_PAGE_SIZE,
-  FOLDER_PAGE_SIZE,
-  hasNonFolderFilters,
-} from '../lib/utils';
-
 import { useEmbedding } from '@/components/providers/embed-provider';
 import { flowsApi } from '@/features/flows/api/flows-api';
 import { foldersApi } from '@/features/folders/api/folders-api';
 import { tablesApi } from '@/features/tables/api/tables-api';
 import { authenticationSession } from '@/lib/authentication-session';
 
-export function useAutomationsData(
-  filters: AutomationsFilters,
-  pinnedList?: string[],
-) {
+import { AutomationsFilters, FolderContent } from '../lib/types';
+import {
+  buildFilteredTreeItems,
+  buildTreeItems,
+  DEFAULT_PAGE_SIZE,
+  filterFolderContentForRecordFilters,
+  FOLDER_PAGE_SIZE,
+  hasNonFolderFilters,
+} from '../lib/utils';
+
+export function useAutomationsData({
+  filters,
+  pinnedList,
+  isMobile,
+}: UseAutomationsDataParams) {
   const { projectId: projectIdFromUrl } = useParams<{ projectId: string }>();
   const projectId = projectIdFromUrl ?? authenticationSession.getProjectId()!;
   const queryClient = useQueryClient();
   const { embedState } = useEmbedding();
   const hideTables = embedState.hideTables;
   const isFiltered = hasNonFolderFilters(filters);
+  const skipFlows =
+    filters.typeFilter.length > 0 && !filters.typeFilter.includes('flow');
+  const skipTables =
+    filters.typeFilter.length > 0 && !filters.typeFilter.includes('table');
 
   const [rootPage, setRootPage] = useState(0);
   const [pageSize, setPageSize] = useState(DEFAULT_PAGE_SIZE);
@@ -54,6 +60,33 @@ export function useAutomationsData(
   });
 
   const folderIds = foldersQuery.data?.map((f) => f.id).join(',') ?? '';
+  const mobileFolderIds = useMemo(() => {
+    if (!isMobile) {
+      return [];
+    }
+    const requestedIds = new Set([...expandedFolders, ...filters.folderFilter]);
+    const searchTerm = filters.searchTerm.trim().toLowerCase();
+    if (searchTerm) {
+      for (const folder of foldersQuery.data ?? []) {
+        if (folder.displayName.toLowerCase().includes(searchTerm)) {
+          requestedIds.add(folder.id);
+        }
+      }
+    }
+    return Array.from(requestedIds).sort();
+  }, [
+    expandedFolders,
+    filters.folderFilter,
+    filters.searchTerm,
+    foldersQuery.data,
+    isMobile,
+  ]);
+  const mobileFolderRequestKey = mobileFolderIds
+    .map(
+      (folderId) =>
+        `${folderId}:${folderVisibleCounts.get(folderId) ?? FOLDER_PAGE_SIZE}`,
+    )
+    .join(',');
 
   const folderCounts = useMemo(() => {
     const folders = foldersQuery.data ?? [];
@@ -68,9 +101,76 @@ export function useAutomationsData(
   }, [foldersQuery.data, hideTables]);
 
   const folderContentsQuery = useQuery<FolderContentsMap>({
-    queryKey: ['all-folder-contents', projectId, folderIds, hideTables],
+    queryKey: [
+      'all-folder-contents',
+      projectId,
+      isMobile ? mobileFolderRequestKey : folderIds,
+      hideTables,
+      isMobile,
+      ...(isMobile
+        ? [
+            {
+              types: filters.typeFilter,
+              statuses: filters.statusFilter,
+              connections: filters.connectionFilter,
+            },
+          ]
+        : []),
+    ],
     queryFn: async () => {
       const folders = foldersQuery.data!;
+      if (isMobile) {
+        const requestedFolderSet = new Set(mobileFolderIds);
+        const requestedFolders = folders.filter((folder) =>
+          requestedFolderSet.has(folder.id),
+        );
+        const contents = await Promise.all(
+          requestedFolders.map(async (folder) => {
+            const limit =
+              folderVisibleCounts.get(folder.id) ?? FOLDER_PAGE_SIZE;
+            const [flowsPage, tablesPage] = await Promise.all([
+              skipFlows
+                ? Promise.resolve(emptyFlowPage())
+                : flowsApi.list({
+                    projectId,
+                    folderId: folder.id,
+                    limit,
+                    cursor: undefined,
+                    status:
+                      filters.statusFilter.length > 0
+                        ? (filters.statusFilter as FlowStatus[])
+                        : undefined,
+                    connectionExternalIds:
+                      filters.connectionFilter.length > 0
+                        ? filters.connectionFilter
+                        : undefined,
+                  }),
+              hideTables || skipTables
+                ? Promise.resolve(emptyTablePage())
+                : tablesApi.list({
+                    projectId,
+                    folderId: folder.id,
+                    limit,
+                    cursor: undefined,
+                  }),
+            ]);
+            return {
+              folderId: folder.id,
+              content: filterFolderContentForRecordFilters(
+                {
+                  flows: flowsPage.data,
+                  tables: tablesPage.data,
+                  hasMore: Boolean(flowsPage.next) || Boolean(tablesPage.next),
+                },
+                filters,
+              ),
+            };
+          }),
+        );
+        return new Map(
+          contents.map(({ folderId, content }) => [folderId, content]),
+        );
+      }
       const allFolderIds = folders.map((f) => f.id);
       const [flowsPage, tablesPage] = await Promise.all([
         flowsApi.list({
@@ -90,24 +190,30 @@ export function useAutomationsData(
       ]);
       return buildFolderContentsMap(folders, flowsPage.data, tablesPage.data);
     },
-    enabled: !!foldersQuery.data && foldersQuery.data.length > 0,
+    enabled:
+      !!foldersQuery.data &&
+      foldersQuery.data.length > 0 &&
+      (!isMobile || mobileFolderIds.length > 0),
     staleTime: STALE_TIME,
     refetchOnMount: 'always',
     meta: { showErrorDialog: true, loadSubsetOptions: {} },
   });
 
-  const skipFlows =
-    filters.typeFilter.length > 0 && !filters.typeFilter.includes('flow');
-  const skipTables =
-    filters.typeFilter.length > 0 && !filters.typeFilter.includes('table');
+  const rootFetchLimit = isMobile ? (rootPage + 1) * pageSize : 1000;
+  const filteredFolderIds =
+    isFiltered && filters.folderFilter.length > 0
+      ? filters.folderFilter
+      : undefined;
 
   const rootFlowsQuery = useQuery({
-    queryKey: ['root-flows', projectId, filters],
+    queryKey: ['root-flows', projectId, filters, rootFetchLimit, isMobile],
     queryFn: () =>
       flowsApi.list({
         projectId,
-        folderId: isFiltered ? undefined : UncategorizedFolderId,
-        limit: 1000,
+        folderId:
+          isFiltered || filteredFolderIds ? undefined : UncategorizedFolderId,
+        folderIds: filteredFolderIds,
+        limit: rootFetchLimit,
         cursor: undefined,
         name: filters.searchTerm || undefined,
         status:
@@ -126,12 +232,14 @@ export function useAutomationsData(
   });
 
   const rootTablesQuery = useQuery({
-    queryKey: ['root-tables', projectId, filters],
+    queryKey: ['root-tables', projectId, filters, rootFetchLimit, isMobile],
     queryFn: () =>
       tablesApi.list({
         projectId,
-        folderId: isFiltered ? undefined : UncategorizedFolderId,
-        limit: 1000,
+        folderId:
+          isFiltered || filteredFolderIds ? undefined : UncategorizedFolderId,
+        folderIds: filteredFolderIds,
+        limit: rootFetchLimit,
         cursor: undefined,
         name: filters.searchTerm || undefined,
       }),
@@ -210,6 +318,7 @@ export function useAutomationsData(
         filters.searchTerm,
         folderContents,
         folderCounts,
+        !isMobile,
       );
       return { treeItems: items, totalPageItems: totalItems };
     }
@@ -243,6 +352,7 @@ export function useAutomationsData(
     folderVisibleCounts,
     rootPage,
     pageSize,
+    isMobile,
     isFiltered,
     filters.searchTerm,
     filters.folderFilter,
@@ -261,12 +371,19 @@ export function useAutomationsData(
     return all;
   }, [isFiltered, hasFolderFilter, expandedFolders, treeItems]);
 
-  const totalPages = Math.ceil(totalPageItems / pageSize);
+  const hasMoreRootItems =
+    (!skipFlows && Boolean(rootFlowsQuery.data?.next)) ||
+    (!skipTables && !hideTables && Boolean(rootTablesQuery.data?.next));
+  const loadedPageCount = Math.ceil(totalPageItems / pageSize);
+  const totalPages = Math.max(
+    loadedPageCount,
+    isMobile && hasMoreRootItems ? rootPage + 2 : 0,
+  );
   const isLoading =
     foldersQuery.isLoading ||
     (rootFlowsQuery.isLoading && !skipFlows) ||
     (rootTablesQuery.isLoading && !skipTables && !hideTables) ||
-    folderContentsQuery.isLoading;
+    (!isMobile && folderContentsQuery.isLoading);
 
   const invalidateAll = useCallback(() => {
     queryClient.invalidateQueries({ queryKey: ['folders'] });
@@ -313,6 +430,12 @@ export function useAutomationsData(
 
 type FolderContentsMap = Map<string, FolderContent>;
 
+type UseAutomationsDataParams = {
+  filters: AutomationsFilters;
+  pinnedList?: string[];
+  isMobile: boolean;
+};
+
 function buildFolderContentsMap(
   folders: FolderDto[],
   flows: PopulatedFlow[],
@@ -335,6 +458,10 @@ function buildFolderContentsMap(
 }
 
 function emptyTablePage(): SeekPage<Table> {
+  return { data: [], next: null, previous: null };
+}
+
+function emptyFlowPage(): SeekPage<PopulatedFlow> {
   return { data: [], next: null, previous: null };
 }
 

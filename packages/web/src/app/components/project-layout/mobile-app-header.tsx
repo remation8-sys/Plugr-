@@ -43,7 +43,7 @@ function MobileAppHeader() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center justify-between border-b bg-background/95 px-3 backdrop-blur supports-[backdrop-filter]:bg-background/85 md:hidden">
+      <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center justify-between border-b bg-background px-3 md:hidden">
         <Button
           type="button"
           variant="ghost"

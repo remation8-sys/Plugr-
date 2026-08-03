@@ -7,7 +7,7 @@ import { registerSW } from 'virtual:pwa-register';
 import './i18n';
 
 import { detectAndPersistNativeApp } from '@/lib/native-app';
-import { setPendingPwaUpdate } from '@/lib/pwa-update';
+import { pwaUpdateStore } from '@/lib/pwa-update';
 
 import App from './app/app';
 
@@ -15,18 +15,29 @@ detectAndPersistNativeApp();
 
 // Keep the current worker in control until the user accepts the update. This
 // avoids reloading a flow editor while a field is being changed.
+let mobileUpdateApproved = false;
 const updateServiceWorker = registerSW({
   immediate: true,
   onNeedRefresh: () => {
     if (isMobilePwaContext()) {
-      setPendingPwaUpdate(() => updateServiceWorker(true));
+      pwaUpdateStore.setPendingPwaUpdate(async () => {
+        mobileUpdateApproved = true;
+        await updateServiceWorker(true);
+      });
       return;
     }
     void updateServiceWorker(true);
   },
   onNeedReload: () => {
-    if (isMobilePwaContext() && window.location.pathname.includes('/flows/')) {
-      setPendingPwaUpdate(async () => window.location.reload());
+    if (
+      isMobilePwaContext() &&
+      window.location.pathname.includes('/flows/') &&
+      !mobileUpdateApproved
+    ) {
+      pwaUpdateStore.setPendingPwaUpdate(async () => {
+        mobileUpdateApproved = true;
+        window.location.reload();
+      });
       return;
     }
     window.location.reload();

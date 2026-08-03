@@ -1,4 +1,3 @@
-import { setupTestEnvironment, teardownTestEnvironment } from '../../../helpers/test-setup'
 import {
     apId,
     CreateTemplateRequestBody,
@@ -18,6 +17,7 @@ import {
     mockBasicUser,
 } from '../../../helpers/mocks'
 import { createTestContext } from '../../../helpers/test-context'
+import { setupTestEnvironment, teardownTestEnvironment } from '../../../helpers/test-setup'
 
 let app: FastifyInstance | null = null
 
@@ -58,6 +58,76 @@ describe('Templates', () => {
             expect(response?.statusCode).toBe(StatusCodes.OK)
             expect(responseBody.data).toHaveLength(1)
             expect(responseBody.data[0].id).toBe(mockPlatformTemplate.id)
+            expect(responseBody.data[0].flows).toEqual(mockPlatformTemplate.flows)
+        })
+
+        it('should return paginated summaries without flow or table content', async () => {
+            const { mockPlatform, mockUser, mockPlatformTemplate } =
+                await createMockPlatformTemplate({ platformId: apId(), plan: { manageTemplatesEnabled: true } })
+            const secondTemplate = createMockTemplate({
+                platformId: mockPlatform.id,
+                type: TemplateType.CUSTOM,
+                updated: new Date(Date.now() + 1000).toISOString(),
+            })
+            await db.save('template', secondTemplate)
+            const testToken = await generateMockToken({
+                type: PrincipalType.USER,
+                id: mockUser.id,
+                platform: { id: mockPlatform.id },
+            })
+
+            const firstResponse = await app?.inject({
+                method: 'GET',
+                url: '/api/v1/templates',
+                headers: {
+                    authorization: `Bearer ${testToken}`,
+                },
+                query: {
+                    type: TemplateType.CUSTOM,
+                    representation: 'summary',
+                    limit: 1,
+                },
+            })
+            const firstPage = firstResponse?.json()
+
+            expect(firstResponse?.statusCode).toBe(StatusCodes.OK)
+            expect(firstPage.data).toHaveLength(1)
+            expect(firstPage.data[0]).not.toHaveProperty('flows')
+            expect(firstPage.data[0]).not.toHaveProperty('tables')
+            expect(firstPage.next).toEqual(expect.any(String))
+
+            const secondResponse = await app?.inject({
+                method: 'GET',
+                url: '/api/v1/templates',
+                headers: {
+                    authorization: `Bearer ${testToken}`,
+                },
+                query: {
+                    type: TemplateType.CUSTOM,
+                    representation: 'summary',
+                    limit: 1,
+                    cursor: firstPage.next,
+                },
+            })
+            const secondPage = secondResponse?.json()
+
+            expect(secondResponse?.statusCode).toBe(StatusCodes.OK)
+            expect(secondPage.data).toHaveLength(1)
+            expect(secondPage.data[0].id).not.toBe(firstPage.data[0].id)
+            expect(secondPage.previous).toEqual(expect.any(String))
+            expect([mockPlatformTemplate.id, secondTemplate.id]).toContain(secondPage.data[0].id)
+        })
+
+        it('should reject pagination without a template type', async () => {
+            const response = await app?.inject({
+                method: 'GET',
+                url: '/api/v1/templates',
+                query: {
+                    limit: 1,
+                },
+            })
+
+            expect(response?.statusCode).toBe(StatusCodes.BAD_REQUEST)
         })
 
         it('should list cloud platform template for anonymous users', async () => {

@@ -3,11 +3,13 @@ import { FastifyBaseLogger } from 'fastify'
 import { ArrayContains, ArrayOverlap, Equal, IsNull } from 'typeorm'
 import { repoFactory } from '../core/db/repo-factory'
 import { platformTemplateService } from '../ee/template/platform-template.service'
+import { buildPaginator } from '../helper/pagination/build-paginator'
 import { paginationHelper } from '../helper/pagination/pagination-utils'
+import { Order } from '../helper/pagination/paginator'
 import { templateValidator } from './template-validator'
-import { TemplateEntity } from './template.entity'
+import { TemplateEntity, TemplateSchema } from './template.entity'
 
-const templateRepo = repoFactory<Template>(TemplateEntity)
+const templateRepo = repoFactory<TemplateSchema>(TemplateEntity)
 
 export const templateService = (log: FastifyBaseLogger) => ({
     async getOne({ id }: GetParams): Promise<Template | null> {
@@ -108,7 +110,7 @@ export const templateService = (log: FastifyBaseLogger) => ({
         }
     },
 
-    async list({ platformId, pieces, tags, search, type, category }: ListParams): Promise<SeekPage<Template>> {
+    async list({ platformId, pieces, tags, search, type, category, representation, limit, cursor }: ListParams): Promise<SeekPage<Template>> {
         const commonFilters: Record<string, unknown> = {}
 
         if (pieces) {
@@ -160,14 +162,56 @@ export const templateService = (log: FastifyBaseLogger) => ({
             )
         }
 
-        const templates = await queryBuilder.getMany()
-        return paginationHelper.createPage(templates, null)
+        if (representation === 'summary') {
+            queryBuilder.select(TEMPLATE_SUMMARY_COLUMNS)
+        }
+
+        if (isNil(limit) && isNil(cursor)) {
+            const templates = await queryBuilder.getMany()
+            return paginationHelper.createPage(templates, null)
+        }
+
+        const decodedCursor = paginationHelper.decodeCursor(cursor)
+        const paginator = buildPaginator({
+            entity: TemplateEntity,
+            alias: 'template',
+            query: {
+                limit: limit ?? DEFAULT_TEMPLATE_PAGE_SIZE,
+                orderBy: [
+                    { field: 'updated', order: Order.DESC },
+                    { field: 'id', order: Order.DESC },
+                ],
+                afterCursor: decodedCursor.nextCursor,
+                beforeCursor: decodedCursor.previousCursor,
+            },
+        })
+        const result = await paginator.paginate<Template>(queryBuilder)
+        return paginationHelper.createPage(result.data, result.cursor)
     },
 
     async delete({ id }: DeleteParams): Promise<void> {
         await templateRepo().delete({ id })
     },
 })
+
+const DEFAULT_TEMPLATE_PAGE_SIZE = 100
+const TEMPLATE_SUMMARY_COLUMNS = [
+    'template.id',
+    'template.created',
+    'template.updated',
+    'template.name',
+    'template.type',
+    'template.summary',
+    'template.description',
+    'template.tags',
+    'template.blogUrl',
+    'template.metadata',
+    'template.author',
+    'template.categories',
+    'template.pieces',
+    'template.platformId',
+    'template.status',
+]
 
 type GetParams = {
     id: string

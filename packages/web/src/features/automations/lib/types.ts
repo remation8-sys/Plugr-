@@ -34,6 +34,7 @@ export type AutomationsFilters = {
 export type FolderContent = {
   flows: PopulatedFlow[];
   tables: Table[];
+  hasMore?: boolean;
 };
 
 export type RootPage = {

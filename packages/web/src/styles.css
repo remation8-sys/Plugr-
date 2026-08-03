@@ -848,7 +848,7 @@
   background:
     radial-gradient(circle at 50% 38%, rgb(0 85 255 / 0.22), transparent 34%),
     #08090b;
-  animation: mobile-launch-exit 760ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: mobile-launch-exit 560ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .mobile-launch-screen__glow {
@@ -858,7 +858,7 @@
   border-radius: 9999px;
   background: hsl(var(--primary) / 0.16);
   filter: blur(56px);
-  animation: mobile-launch-glow 560ms ease-out both;
+  animation: mobile-launch-glow 400ms ease-out both;
 }
 
 .mobile-launch-screen__content {
@@ -885,7 +885,7 @@
   border-radius: 1.35rem;
   object-fit: contain;
   filter: drop-shadow(0 14px 34px rgb(0 85 255 / 0.28));
-  animation: mobile-launch-logo 560ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: mobile-launch-logo 400ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .mobile-launch-screen__orbit {
@@ -905,7 +905,7 @@
     linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
-  animation: mobile-launch-orbit 620ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: mobile-launch-orbit 450ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .mobile-launch-screen__signal {
@@ -923,7 +923,7 @@
   border-radius: inherit;
   background: linear-gradient(90deg, transparent, hsl(var(--primary)), #fff);
   box-shadow: 0 0 18px hsl(var(--primary) / 0.7);
-  animation: mobile-launch-signal 520ms 90ms ease-in-out both;
+  animation: mobile-launch-signal 400ms 50ms ease-in-out both;
 }
 
 .mobile-launch-screen__content p {
@@ -933,7 +933,32 @@
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: rgb(255 255 255 / 0.58);
-  animation: mobile-launch-copy 420ms 160ms ease-out both;
+  animation: mobile-launch-copy 320ms 90ms ease-out both;
+}
+
+.mobile-launch-screen[data-mobile-launch-mode='lightweight'] {
+  animation-duration: 240ms;
+}
+
+.mobile-launch-screen[data-mobile-launch-mode='lightweight']
+  .mobile-launch-screen__glow,
+.mobile-launch-screen[data-mobile-launch-mode='lightweight']
+  .mobile-launch-screen__orbit,
+.mobile-launch-screen[data-mobile-launch-mode='lightweight']
+  .mobile-launch-screen__signal {
+  display: none;
+}
+
+.mobile-launch-screen[data-mobile-launch-mode='lightweight']
+  .mobile-launch-screen__logo {
+  filter: none;
+  animation-duration: 180ms;
+}
+
+.mobile-launch-screen[data-mobile-launch-mode='lightweight']
+  .mobile-launch-screen__content
+  p {
+  animation: none;
 }
 
 @keyframes mobile-launch-logo {

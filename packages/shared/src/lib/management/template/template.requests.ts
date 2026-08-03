@@ -38,7 +38,16 @@ export const ListFlowTemplatesRequestQuery = z.object({
     tags: OptionalArrayFromQuery(z.string()),
     search: z.string().optional(),
     category: z.string().optional(),
-})
+    representation: z.literal('summary').optional(),
+    limit: z.coerce.number().int().min(1).max(100).optional(),
+    cursor: z.string().optional(),
+}).refine(
+    (query) => (query.limit === undefined && query.cursor === undefined) || query.type !== undefined,
+    {
+        message: 'Template type is required when using pagination',
+        path: ['type'],
+    },
+)
 export type ListFlowTemplatesRequestQuery = z.infer<typeof ListFlowTemplatesRequestQuery>
 
 export const ListTemplatesRequestQuery = ListFlowTemplatesRequestQuery

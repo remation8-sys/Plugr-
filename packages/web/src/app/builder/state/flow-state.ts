@@ -23,7 +23,8 @@ import {
 import { PromiseQueue } from '@/lib/promise-queue';
 
 import { BuilderState } from '../builder-hooks';
-import { flowCanvasUtils } from '../flow-canvas/utils/flow-canvas-utils';
+
+import { builderInitialSelection } from './builder-initial-selection';
 
 export type FlowState = {
   flow: PopulatedFlow;
@@ -320,7 +321,10 @@ export const createFlowState = (
       shouldReselectInitialStep: boolean = true,
     ) => {
       const initiallySelectedStep =
-        flowCanvasUtils.determineInitiallySelectedStep(null, flowVersion);
+        builderInitialSelection.determineInitiallySelectedStep({
+          failedStepNameInRun: null,
+          flowVersion,
+        });
       const isEmptyTriggerInitiallySelected =
         initiallySelectedStep === 'trigger' &&
         flowVersion.trigger.type === FlowTriggerType.EMPTY;

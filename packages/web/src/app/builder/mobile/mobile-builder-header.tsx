@@ -63,7 +63,7 @@ function MobileBuilderHeader() {
 
   return (
     <header
-      className="flex h-16 shrink-0 items-center gap-1 border-b border-border/80 bg-background/95 px-2 backdrop-blur supports-[backdrop-filter]:bg-background/85"
+      className="flex h-16 shrink-0 items-center gap-1 border-b border-border/80 bg-background px-2"
       data-builder-save-state={
         saveError ? 'error' : saving ? 'saving' : 'saved'
       }

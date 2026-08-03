@@ -1,14 +1,14 @@
-import { Template, TemplateType } from '@activepieces/shared';
-import { useQuery } from '@tanstack/react-query';
+import { Template, TemplateType, tryCatch } from '@activepieces/shared';
+import {
+  useInfiniteQuery,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { t } from 'i18next';
 import { LayoutGrid, Search } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { toast } from 'sonner';
 import { useDebounce } from 'use-debounce';
-
-import { templatesApi } from '../api/templates-api';
-
-import { ExploreTemplateCard } from './explore-template-card';
-import { UseTemplateDialog } from './use-template-dialog';
 
 import {
   Empty,
@@ -34,7 +34,13 @@ import {
 import { Input } from '@/components/ui/input';
 import { Skeleton } from '@/components/ui/skeleton';
 import { platformHooks } from '@/hooks/platform-hooks';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
+
+import { templatesApi } from '../api/templates-api';
+
+import { ExploreTemplateCard } from './explore-template-card';
+import { UseTemplateDialog } from './use-template-dialog';
 
 type TemplatesBrowseDialogProps = {
   open: boolean;
@@ -57,12 +63,17 @@ export const TemplatesBrowseDialog = ({
   open,
   onOpenChange,
 }: TemplatesBrowseDialogProps) => {
+  const isMobile = useIsMobile();
   const [search, setSearch] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(
     null,
   );
+  const [loadingTemplateId, setLoadingTemplateId] = useState<string | null>(
+    null,
+  );
   const [useTemplateDialogOpen, setUseTemplateDialogOpen] = useState(false);
+  const queryClient = useQueryClient();
 
   const [debouncedSearch] = useDebounce(search, 300);
 
@@ -84,32 +95,65 @@ export const TemplatesBrowseDialog = ({
   const categoryParam =
     selectedCategory !== 'All' ? selectedCategory : undefined;
 
-  const { data: templates, isLoading } = useQuery<Template[]>({
+  const templatesQuery = useInfiniteQuery({
     queryKey: [
       'templates-browse-dialog',
       templateType,
       debouncedSearch,
       categoryParam,
+      isMobile,
     ],
-    queryFn: async () => {
-      const result = await templatesApi.list({
+    queryFn: ({ pageParam }) =>
+      templatesApi.list({
         type: templateType,
         search: debouncedSearch || undefined,
         category: categoryParam,
-      });
-      return result.data;
-    },
+        representation: isMobile ? 'summary' : undefined,
+        limit: isMobile ? TEMPLATE_PAGE_SIZE : undefined,
+        cursor: isMobile ? pageParam || undefined : undefined,
+      }),
+    initialPageParam: '',
+    getNextPageParam: (lastPage) => lastPage.next ?? undefined,
     staleTime: 5 * 60 * 1000,
     enabled: open,
   });
+  const templates = useMemo(
+    () => templatesQuery.data?.pages.flatMap((page) => page.data),
+    [templatesQuery.data],
+  );
 
   const allCategories = useMemo(
     () => ['All', ...(categories || [])],
     [categories],
   );
 
-  const handleTemplateSelect = (template: Template) => {
-    setSelectedTemplate(template);
+  const handleTemplateSelect = async (template: Template) => {
+    if (!isMobile) {
+      setSelectedTemplate(template);
+      setUseTemplateDialogOpen(true);
+      return;
+    }
+    if (loadingTemplateId) {
+      return;
+    }
+    setLoadingTemplateId(template.id);
+    const { data, error } = await tryCatch(() =>
+      queryClient.fetchQuery({
+        queryKey: ['template', template.id],
+        queryFn: () => templatesApi.getTemplate(template.id),
+      }),
+    );
+    setLoadingTemplateId(null);
+    if (error) {
+      toast.error(t('Could not load template'), {
+        description: t('Please try again.'),
+      });
+      return;
+    }
+    if (!data) {
+      return;
+    }
+    setSelectedTemplate(data);
     setUseTemplateDialogOpen(true);
   };
 
@@ -176,7 +220,7 @@ export const TemplatesBrowseDialog = ({
           )}
 
           <div className="flex-1 overflow-y-auto px-4 md:px-6 py-4">
-            {isLoading ? (
+            {templatesQuery.isLoading ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 {[...Array(6)].map((_, i) => (
                   <TemplateCardSkeleton key={i} />
@@ -200,9 +244,28 @@ export const TemplatesBrowseDialog = ({
                   <ExploreTemplateCard
                     key={template.id}
                     template={template}
-                    onTemplateSelect={handleTemplateSelect}
+                    compact={isMobile}
+                    isLoading={loadingTemplateId === template.id}
+                    onTemplateSelect={(selected) => {
+                      void handleTemplateSelect(selected);
+                    }}
                   />
                 ))}
+              </div>
+            )}
+            {isMobile && templatesQuery.hasNextPage && (
+              <div className="flex justify-center pt-6">
+                <Button
+                  variant="outline"
+                  disabled={templatesQuery.isFetchingNextPage}
+                  onClick={() => {
+                    void templatesQuery.fetchNextPage();
+                  }}
+                >
+                  {templatesQuery.isFetchingNextPage
+                    ? t('Loading...')
+                    : t('Load more')}
+                </Button>
               </div>
             )}
           </div>
@@ -220,3 +283,5 @@ export const TemplatesBrowseDialog = ({
     </>
   );
 };
+
+const TEMPLATE_PAGE_SIZE = 24;

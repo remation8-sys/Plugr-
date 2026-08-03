@@ -17,23 +17,40 @@ function MobileExperienceProvider({ children }: { children: React.ReactNode }) {
     const mobileMediaQuery = window.matchMedia(
       `(max-width: ${MOBILE_BREAKPOINT - 1}px)`,
     );
+    let animationFrameId: number | null = null;
+    let lastViewportMetrics: MobileViewportMetrics | null = null;
+    let mobileMetricsApplied = false;
 
-    function updateViewportMetrics() {
+    function applyViewportMetrics() {
+      animationFrameId = null;
       if (!mobileMediaQuery.matches) {
-        root.removeAttribute('data-mobile-keyboard-open');
-        root.style.removeProperty('--mobile-keyboard-height');
-        root.style.removeProperty('--mobile-viewport-height');
-        root.style.removeProperty('--mobile-viewport-offset-top');
+        if (mobileMetricsApplied) {
+          clearViewportMetrics(root);
+          mobileMetricsApplied = false;
+          lastViewportMetrics = null;
+        }
         return;
       }
 
-      const viewportHeight = visualViewport?.height ?? window.innerHeight;
-      const viewportOffsetTop = visualViewport?.offsetTop ?? 0;
+      const viewportHeight = Math.round(
+        visualViewport?.height ?? window.innerHeight,
+      );
+      const viewportOffsetTop = Math.round(visualViewport?.offsetTop ?? 0);
       const keyboardHeight = Math.max(
         0,
         window.innerHeight - viewportHeight - viewportOffsetTop,
       );
       const keyboardOpen = keyboardHeight > KEYBOARD_THRESHOLD;
+      const nextMetrics = {
+        keyboardHeight,
+        keyboardOpen,
+        viewportHeight,
+        viewportOffsetTop,
+      };
+
+      if (areViewportMetricsEqual(lastViewportMetrics, nextMetrics)) {
+        return;
+      }
 
       root.style.setProperty('--mobile-keyboard-height', `${keyboardHeight}px`);
       root.style.setProperty('--mobile-viewport-height', `${viewportHeight}px`);
@@ -42,6 +59,15 @@ function MobileExperienceProvider({ children }: { children: React.ReactNode }) {
         `${viewportOffsetTop}px`,
       );
       root.toggleAttribute('data-mobile-keyboard-open', keyboardOpen);
+      mobileMetricsApplied = true;
+      lastViewportMetrics = nextMetrics;
+    }
+
+    function scheduleViewportMetricsUpdate() {
+      if (animationFrameId !== null) {
+        return;
+      }
+      animationFrameId = window.requestAnimationFrame(applyViewportMetrics);
     }
 
     function handleDocumentClick(event: MouseEvent) {
@@ -89,23 +115,34 @@ function MobileExperienceProvider({ children }: { children: React.ReactNode }) {
       }, 250);
     }
 
-    updateViewportMetrics();
-    window.addEventListener('resize', updateViewportMetrics);
-    visualViewport?.addEventListener('resize', updateViewportMetrics);
-    visualViewport?.addEventListener('scroll', updateViewportMetrics);
+    applyViewportMetrics();
+    window.addEventListener('resize', scheduleViewportMetricsUpdate);
+    mobileMediaQuery.addEventListener('change', scheduleViewportMetricsUpdate);
+    visualViewport?.addEventListener('resize', scheduleViewportMetricsUpdate);
+    visualViewport?.addEventListener('scroll', scheduleViewportMetricsUpdate);
     document.addEventListener('click', handleDocumentClick, true);
     document.addEventListener('focusin', handleFocusIn);
 
     return () => {
-      window.removeEventListener('resize', updateViewportMetrics);
-      visualViewport?.removeEventListener('resize', updateViewportMetrics);
-      visualViewport?.removeEventListener('scroll', updateViewportMetrics);
+      window.removeEventListener('resize', scheduleViewportMetricsUpdate);
+      mobileMediaQuery.removeEventListener(
+        'change',
+        scheduleViewportMetricsUpdate,
+      );
+      visualViewport?.removeEventListener(
+        'resize',
+        scheduleViewportMetricsUpdate,
+      );
+      visualViewport?.removeEventListener(
+        'scroll',
+        scheduleViewportMetricsUpdate,
+      );
       document.removeEventListener('click', handleDocumentClick, true);
       document.removeEventListener('focusin', handleFocusIn);
-      root.removeAttribute('data-mobile-keyboard-open');
-      root.style.removeProperty('--mobile-keyboard-height');
-      root.style.removeProperty('--mobile-viewport-height');
-      root.style.removeProperty('--mobile-viewport-offset-top');
+      if (animationFrameId !== null) {
+        window.cancelAnimationFrame(animationFrameId);
+      }
+      clearViewportMetrics(root);
     };
   }, []);
 
@@ -117,4 +154,30 @@ function MobileExperienceProvider({ children }: { children: React.ReactNode }) {
   );
 }
 
+function areViewportMetricsEqual(
+  current: MobileViewportMetrics | null,
+  next: MobileViewportMetrics,
+) {
+  return (
+    current?.keyboardHeight === next.keyboardHeight &&
+    current.keyboardOpen === next.keyboardOpen &&
+    current.viewportHeight === next.viewportHeight &&
+    current.viewportOffsetTop === next.viewportOffsetTop
+  );
+}
+
+function clearViewportMetrics(root: HTMLElement) {
+  root.removeAttribute('data-mobile-keyboard-open');
+  root.style.removeProperty('--mobile-keyboard-height');
+  root.style.removeProperty('--mobile-viewport-height');
+  root.style.removeProperty('--mobile-viewport-offset-top');
+}
+
 export { MobileExperienceProvider };
+
+type MobileViewportMetrics = {
+  keyboardHeight: number;
+  keyboardOpen: boolean;
+  viewportHeight: number;
+  viewportOffsetTop: number;
+};

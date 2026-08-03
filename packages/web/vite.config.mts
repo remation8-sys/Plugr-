@@ -133,11 +133,12 @@ export default defineConfig(({ command, mode }) => {
         : []),
       VitePWA({
         registerType: 'prompt',
+        includeManifestIcons: false,
         includeAssets: [
           'favicon.ico',
           'favicon.svg',
           'logo-180.png',
-          'icons/*.png',
+          'icons/icon-192.png',
         ],
         manifest: {
           id: '/',
@@ -247,27 +248,32 @@ export default defineConfig(({ command, mode }) => {
         },
         workbox: {
           importScripts: ['/push-sw.js'],
-          globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,ttf}'],
-          // The chat-suggestion card backgrounds are multi-MB decorative SVGs.
-          // Keep them out of the precache; they load normally at runtime.
-          globIgnores: ['**/blog/**', '**/chat-suggestions/**'],
+          globPatterns: ['**/*.{js,css,html,woff2}'],
           manifestTransforms: [
             (entries) => {
               const indexHtml = readFileSync(
                 path.resolve(__dirname, '../../dist/packages/web/index.html'),
                 'utf8',
               );
-              const initialScriptUrls = new Set(
+              const initialAssetUrls = new Set(
                 Array.from(
                   indexHtml.matchAll(/(?:src|href)="\/([^"]+\.js)"/g),
+                  (match) => match[1],
+                ),
+              );
+              const initialStylesheetUrls = new Set(
+                Array.from(
+                  indexHtml.matchAll(/href="\/([^"]+\.css)"/g),
                   (match) => match[1],
                 ),
               );
               return {
                 manifest: entries.filter(
                   (entry) =>
-                    !entry.url.endsWith('.js') ||
-                    initialScriptUrls.has(entry.url),
+                    entry.url === 'index.html' ||
+                    entry.url.endsWith('.woff2') ||
+                    initialAssetUrls.has(entry.url) ||
+                    initialStylesheetUrls.has(entry.url),
                 ),
                 warnings: [],
               };

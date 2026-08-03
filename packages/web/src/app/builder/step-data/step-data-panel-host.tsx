@@ -1,12 +1,12 @@
 import { FlowActionType, FlowTriggerType, isNil } from '@activepieces/shared';
 import { useCallback, useRef, useSyncExternalStore } from 'react';
 
-import { flowCanvasConsts } from '../flow-canvas/utils/consts';
-import { FlowStepInputOutput } from '../run-details/flow-step-input-output';
-import { TestStepContainer } from '../test-step';
-
 import { useBuilderStateContext } from '@/app/builder/builder-hooks';
 import { cn } from '@/lib/utils';
+
+import { builderUiConstants } from '../builder-ui-constants';
+import { FlowStepInputOutput } from '../run-details/flow-step-input-output';
+import { TestStepContainer } from '../test-step';
 
 const DISMISS_IGNORE_SELECTOR = [
   '[data-test-panel-trigger]',
@@ -55,7 +55,7 @@ const StepDataPanelHost = ({
         if (target.closest(DISMISS_IGNORE_SELECTOR)) return;
         if (
           target.closest(
-            `[data-${flowCanvasConsts.STEP_CONTEXT_MENU_ATTRIBUTE}]`,
+            `[data-${builderUiConstants.STEP_CONTEXT_MENU_ATTRIBUTE}]`,
           ) &&
           !isNil(run)
         )

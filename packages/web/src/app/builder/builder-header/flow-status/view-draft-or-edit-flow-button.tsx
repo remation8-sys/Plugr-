@@ -9,7 +9,7 @@ import { useAuthorization } from '@/hooks/authorization-hooks';
 import { cn } from '@/lib/utils';
 
 import { useBuilderStateContext } from '../../builder-hooks';
-import { flowCanvasHooks } from '../../flow-canvas/hooks';
+import { builderLifecycleHooks } from '../../builder-lifecycle-hooks';
 import { AboveTriggerButton } from '../../flow-canvas/widgets/above-trigger-button';
 
 const EditFlowOrViewDraftButton = ({
@@ -20,7 +20,7 @@ const EditFlowOrViewDraftButton = ({
   const navigate = useNavigate();
   const { checkAccess } = useAuthorization();
   const { switchToDraft, isSwitchingToDraftPending } =
-    flowCanvasHooks.useSwitchToDraft();
+    builderLifecycleHooks.useSwitchToDraft();
   const [flowVersion, flowId, readonly, run] = useBuilderStateContext(
     (state) => [state.flowVersion, state.flow.id, state.readonly, state.run],
   );

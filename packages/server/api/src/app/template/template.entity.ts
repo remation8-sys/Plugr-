@@ -8,7 +8,7 @@ type TemplateSchema = Template & {
     platform: Platform
 }
 
-export const TemplateEntity = new EntitySchema<TemplateSchema>({
+const TemplateEntity = new EntitySchema<TemplateSchema>({
     name: 'template',
     columns: {
         ...BaseColumnSchemaPart,
@@ -98,3 +98,6 @@ export const TemplateEntity = new EntitySchema<TemplateSchema>({
         },
     },
 })
+
+export { TemplateEntity }
+export type { TemplateSchema }

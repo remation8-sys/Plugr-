@@ -10,25 +10,6 @@ import { cn } from '@/lib/utils';
 
 const REFRESH_THRESHOLD = 72;
 const MAX_PULL_DISTANCE = 104;
-const LIST_ROUTE_SUFFIXES = [
-  '/automations',
-  '/runs',
-  '/connections',
-  '/templates',
-  '/leaderboard',
-  '/impact',
-  '/platform/projects',
-  '/platform/users',
-  '/platform/connections',
-  '/platform/setup/pieces',
-  '/platform/setup/templates',
-  '/platform/setup/connections',
-  '/platform/infra/workers',
-  '/platform/infra/audit-logs',
-  '/platform/infra/event-destinations',
-  '/platform/infra/health',
-];
-
 function MobilePullToRefresh({
   children,
   className,
@@ -43,7 +24,8 @@ function MobilePullToRefresh({
   const startYRef = useRef<number | null>(null);
   const [pullDistance, setPullDistance] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const enabled = isMobile && isListRoute(location.pathname);
+  const refreshQueryRoots = getRefreshQueryRoots(location.pathname);
+  const enabled = isMobile && refreshQueryRoots.length > 0;
   const isReady = pullDistance >= REFRESH_THRESHOLD;
 
   function resetPull() {
@@ -105,7 +87,16 @@ function MobilePullToRefresh({
 
     try {
       await queryClient.refetchQueries(
-        { type: 'active' },
+        {
+          type: 'active',
+          predicate: (query) => {
+            const queryRoot = query.queryKey[0];
+            return (
+              typeof queryRoot === 'string' &&
+              refreshQueryRoots.includes(queryRoot)
+            );
+          },
+        },
         { throwOnError: true },
       );
       mobileHaptics.success();
@@ -171,9 +162,99 @@ function MobilePullToRefresh({
   );
 }
 
-function isListRoute(pathname: string) {
+function getRefreshQueryRoots(pathname: string) {
   const normalizedPath = pathname.replace(/\/+$/, '');
-  return LIST_ROUTE_SUFFIXES.some((suffix) => normalizedPath.endsWith(suffix));
+  return (
+    REFRESH_ROUTES.find(({ suffix }) => normalizedPath.endsWith(suffix))
+      ?.queryRoots ?? EMPTY_QUERY_ROOTS
+  );
 }
 
-export { MobilePullToRefresh };
+const mobilePullToRefreshUtils = {
+  getRefreshQueryRoots,
+};
+
+export { MobilePullToRefresh, mobilePullToRefreshUtils };
+
+const EMPTY_QUERY_ROOTS: readonly string[] = [];
+const REFRESH_ROUTES: RefreshRoute[] = [
+  {
+    suffix: '/platform/setup/templates',
+    queryRoots: ['templates'],
+  },
+  {
+    suffix: '/platform/setup/connections',
+    queryRoots: ['globalConnections'],
+  },
+  {
+    suffix: '/platform/setup/pieces',
+    queryRoots: ['oauth2-apps-configured', 'pieces-table'],
+  },
+  {
+    suffix: '/platform/infrastructure/event-destinations',
+    queryRoots: ['event-destinations', 'flow-display-name'],
+  },
+  {
+    suffix: '/platform/security/audit-logs',
+    queryRoots: ['audit-logs'],
+  },
+  {
+    suffix: '/platform/infrastructure/workers',
+    queryRoots: ['worker-machines'],
+  },
+  {
+    suffix: '/platform/infrastructure/health',
+    queryRoots: [
+      'system-health',
+      'platform-metrics-report',
+      'platform-metrics-live',
+      'platform-metrics-health-history',
+    ],
+  },
+  {
+    suffix: '/platform/connections',
+    queryRoots: ['platform-app-connections'],
+  },
+  {
+    suffix: '/platform/projects',
+    queryRoots: ['projects', 'projects-for-platforms', 'globalConnections'],
+  },
+  {
+    suffix: '/platform/users',
+    queryRoots: ['users', 'platform-invitations'],
+  },
+  {
+    suffix: '/automations',
+    queryRoots: ['folders', 'root-flows', 'root-tables', 'all-folder-contents'],
+  },
+  {
+    suffix: '/connections',
+    queryRoots: ['app-connections', 'app-connections-owners'],
+  },
+  {
+    suffix: '/leaderboard',
+    queryRoots: [
+      'analytics',
+      'project-leaderboard',
+      'user-badges',
+      'user-leaderboard',
+    ],
+  },
+  {
+    suffix: '/templates',
+    queryRoots: ['template', 'templates', 'template-summaries'],
+  },
+  {
+    suffix: '/impact',
+    queryRoots: ['analytics'],
+  },
+  {
+    suffix: '/runs',
+    queryRoots: ['flow-run-count-by-status', 'flow-run-table'],
+  },
+];
+
+type RefreshRoute = {
+  suffix: string;
+  queryRoots: readonly string[];
+};

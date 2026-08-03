@@ -25,9 +25,13 @@ const ImageWithColorBackground = ({
     (e: React.SyntheticEvent<HTMLImageElement>) => {
       setIsLoading(false);
       const img = e.currentTarget;
-      colorsUtils.fac
-        .getColorAsync(img, { algorithm: 'simple' })
+      colorsUtils
+        .getAverageColorFromImage(img)
         .then((color) => {
+          if (!color) {
+            setBackgroundColor(null);
+            return;
+          }
           const [r, g, b] = color.value;
           if (colorsUtils.isGrayColor(r, g, b)) {
             setBackgroundColor(null);

@@ -45,7 +45,7 @@ function PlatformMobileHeader() {
   const { setOpen: setSearchOpen } = useGlobalSearch();
 
   return (
-    <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center justify-between border-b bg-background/95 px-3 backdrop-blur supports-[backdrop-filter]:bg-background/85 md:hidden">
+    <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center justify-between border-b bg-background px-3 md:hidden">
       <Button
         type="button"
         variant="ghost"
@@ -96,7 +96,7 @@ function PlatformMobileBottomNav() {
       <nav
         aria-label={t('Primary navigation')}
         data-mobile-bottom-nav
-        className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background/95 pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)] backdrop-blur supports-[backdrop-filter]:bg-background/85 md:hidden"
+        className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-background pb-[env(safe-area-inset-bottom)] pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)] md:hidden"
       >
         <div className="mx-auto flex h-16 max-w-lg items-stretch">
           {primaryItems.map((item) => {

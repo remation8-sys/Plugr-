@@ -1,8 +1,7 @@
-import { useLayoutEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
 import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
 import { sampleDataHooks } from '@/features/flows';
 
 import { useBuilderStateContext } from '../builder-hooks';
@@ -14,6 +13,11 @@ function MobileSampleDataBoundary({ children }: MobileSampleDataBoundaryProps) {
   const hydrateSampleData = useBuilderStateContext(
     (state) => state.hydrateSampleData,
   );
+  const lastHydratedRevision = useRef<{
+    flowVersionId: string;
+    inputDataUpdatedAt: number;
+    outputDataUpdatedAt: number;
+  } | null>(null);
   const outputQuery = sampleDataHooks.useSampleDataForFlow({
     flowVersion,
     projectId,
@@ -23,8 +27,22 @@ function MobileSampleDataBoundary({ children }: MobileSampleDataBoundaryProps) {
     projectId,
   });
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     if (!outputQuery.data || !inputQuery.data) {
+      return;
+    }
+    const revision = {
+      flowVersionId: flowVersion.id,
+      inputDataUpdatedAt: inputQuery.dataUpdatedAt,
+      outputDataUpdatedAt: outputQuery.dataUpdatedAt,
+    };
+    if (
+      lastHydratedRevision.current?.flowVersionId === revision.flowVersionId &&
+      lastHydratedRevision.current.inputDataUpdatedAt ===
+        revision.inputDataUpdatedAt &&
+      lastHydratedRevision.current.outputDataUpdatedAt ===
+        revision.outputDataUpdatedAt
+    ) {
       return;
     }
     hydrateSampleData({
@@ -32,11 +50,15 @@ function MobileSampleDataBoundary({ children }: MobileSampleDataBoundaryProps) {
       input: inputQuery.data,
       output: outputQuery.data,
     });
-  }, [flowVersion.id, hydrateSampleData, inputQuery.data, outputQuery.data]);
-
-  if (outputQuery.isLoading || inputQuery.isLoading) {
-    return <MobileSampleDataSkeleton />;
-  }
+    lastHydratedRevision.current = revision;
+  }, [
+    flowVersion.id,
+    hydrateSampleData,
+    inputQuery.data,
+    inputQuery.dataUpdatedAt,
+    outputQuery.data,
+    outputQuery.dataUpdatedAt,
+  ]);
 
   if (outputQuery.isError || inputQuery.isError) {
     return (
@@ -51,7 +73,7 @@ function MobileSampleDataBoundary({ children }: MobileSampleDataBoundaryProps) {
           <Button
             className="min-h-11 shrink-0"
             onClick={() => {
-              void outputQuery.refetch();
+              void Promise.all([outputQuery.refetch(), inputQuery.refetch()]);
             }}
             type="button"
             variant="outline"
@@ -65,23 +87,6 @@ function MobileSampleDataBoundary({ children }: MobileSampleDataBoundaryProps) {
   }
 
   return children;
-}
-
-function MobileSampleDataSkeleton() {
-  const { t } = useTranslation();
-  return (
-    <div
-      aria-busy="true"
-      aria-label={t('Loading...')}
-      className="space-y-4 p-5"
-      role="status"
-    >
-      <Skeleton className="h-6 w-2/5" />
-      <Skeleton className="h-11 w-full" />
-      <Skeleton className="h-11 w-full" />
-      <Skeleton className="h-24 w-full" />
-    </div>
-  );
 }
 
 export { MobileSampleDataBoundary };

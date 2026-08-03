@@ -19,6 +19,7 @@ type MultiSelectFilterProps = {
   options: { value: string; label: string; icon?: React.ReactNode }[];
   selectedValues: string[];
   onChange: (values: string[]) => void;
+  onOpenChange?: (open: boolean) => void;
   searchable?: boolean;
 };
 
@@ -28,6 +29,7 @@ export const MultiSelectFilter = ({
   options,
   selectedValues,
   onChange,
+  onOpenChange,
   searchable = false,
 }: MultiSelectFilterProps) => {
   const [open, setOpen] = useState(false);
@@ -57,6 +59,7 @@ export const MultiSelectFilter = ({
       open={open}
       onOpenChange={(v) => {
         setOpen(v);
+        onOpenChange?.(v);
         if (!v) setSearch('');
       }}
     >

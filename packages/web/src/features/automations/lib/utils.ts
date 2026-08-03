@@ -51,6 +51,35 @@ export function mergeAndSortItems(
   return items;
 }
 
+export function filterFolderContentForRecordFilters(
+  content: FolderContent,
+  filters: Pick<
+    AutomationsFilters,
+    'typeFilter' | 'statusFilter' | 'connectionFilter'
+  >,
+): FolderContent {
+  const includeFlows =
+    filters.typeFilter.length === 0 || filters.typeFilter.includes('flow');
+  const includeTables =
+    filters.typeFilter.length === 0 || filters.typeFilter.includes('table');
+
+  return {
+    flows: includeFlows
+      ? content.flows.filter(
+          (flow) =>
+            (filters.statusFilter.length === 0 ||
+              filters.statusFilter.includes(flow.status)) &&
+            (filters.connectionFilter.length === 0 ||
+              flow.version.connectionIds.some((connectionId) =>
+                filters.connectionFilter.includes(connectionId),
+              )),
+        )
+      : [],
+    tables: includeTables ? content.tables : [],
+    hasMore: content.hasMore,
+  };
+}
+
 export function buildFolderChildren(
   content: FolderContent,
   folderId: string,
@@ -194,16 +223,23 @@ export function buildFilteredTreeItems(
   searchTerm?: string,
   folderContents?: Map<string, FolderContent>,
   folderCounts?: Map<string, number>,
+  groupByFolder = true,
 ): { items: TreeItem[]; totalItems: number } {
   const folderMap = new Map<string, FolderDto>();
   folders.forEach((f) => folderMap.set(f.id, f));
+  const resultItemKeys = new Set([
+    ...flows.map((flow) => `flow:${flow.id}`),
+    ...tables.map((table) => `table:${table.id}`),
+  ]);
 
   const folderChildren = new Map<string, TreeItem[]>();
   const rootItems: TreeItem[] = [];
 
   flows.forEach((flow) => {
     const itemFolderId =
-      flow.folderId && folderMap.has(flow.folderId) ? flow.folderId : null;
+      groupByFolder && flow.folderId && folderMap.has(flow.folderId)
+        ? flow.folderId
+        : null;
     const item: TreeItem = {
       id: flow.id,
       type: 'flow',
@@ -223,7 +259,9 @@ export function buildFilteredTreeItems(
 
   tables.forEach((table) => {
     const itemFolderId =
-      table.folderId && folderMap.has(table.folderId) ? table.folderId : null;
+      groupByFolder && table.folderId && folderMap.has(table.folderId)
+        ? table.folderId
+        : null;
     const item: TreeItem = {
       id: table.id,
       type: 'table',
@@ -266,8 +304,30 @@ export function buildFilteredTreeItems(
         !addedFolderIds.has(folder.id) &&
         folder.displayName.toLowerCase().includes(term)
       ) {
-        const content = folderContents?.get(folder.id);
-        const totalCount = folderCounts?.get(folder.id) ?? 0;
+        let content = folderContents?.get(folder.id);
+        let totalCount = folderCounts?.get(folder.id) ?? 0;
+        if (content && !groupByFolder) {
+          content = {
+            flows: content.flows.filter(
+              (flow) => !resultItemKeys.has(`flow:${flow.id}`),
+            ),
+            tables: content.tables.filter(
+              (table) => !resultItemKeys.has(`table:${table.id}`),
+            ),
+            hasMore: content.hasMore,
+          };
+          if (content.hasMore !== undefined) {
+            totalCount =
+              content.flows.length +
+              content.tables.length +
+              (content.hasMore ? 1 : 0);
+          } else {
+            const duplicateCount =
+              flows.filter((flow) => flow.folderId === folder.id).length +
+              tables.filter((table) => table.folderId === folder.id).length;
+            totalCount = Math.max(0, totalCount - duplicateCount);
+          }
+        }
         if (content) {
           const children = buildFolderChildren(
             content,

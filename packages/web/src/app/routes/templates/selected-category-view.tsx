@@ -2,8 +2,6 @@ import { Template } from '@activepieces/shared';
 import { t } from 'i18next';
 import { LayoutGrid } from 'lucide-react';
 
-import { TemplateCardSkeleton } from './skeletons/template-card-skeleton';
-
 import {
   Empty,
   EmptyDescription,
@@ -13,6 +11,8 @@ import {
 } from '@/components/custom/empty';
 import { Skeleton } from '@/components/ui/skeleton';
 import { ExploreTemplateCard } from '@/features/templates/components/explore-template-card';
+
+import { TemplateCardSkeleton } from './skeletons/template-card-skeleton';
 
 type SelectedCategoryViewSkeletonProps = {
   showCategoryTitle?: boolean;
@@ -47,6 +47,7 @@ type SelectedCategoryViewProps = {
   onTemplateSelect: (template: Template) => void;
   isLoading?: boolean;
   showCategoryTitle?: boolean;
+  compact?: boolean;
 };
 
 export const SelectedCategoryView = ({
@@ -55,6 +56,7 @@ export const SelectedCategoryView = ({
   onTemplateSelect,
   isLoading = false,
   showCategoryTitle,
+  compact = false,
 }: SelectedCategoryViewProps) => {
   if (isLoading) {
     return (
@@ -89,6 +91,7 @@ export const SelectedCategoryView = ({
               key={template.id}
               template={template}
               onTemplateSelect={onTemplateSelect}
+              compact={compact}
             />
           ))}
         </div>

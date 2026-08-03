@@ -1,5 +1,10 @@
 import { Template, TemplateType } from '@activepieces/shared';
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 import { t } from 'i18next';
 import { useSearchParams } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -26,7 +31,7 @@ export const templatesHooks = {
     });
   },
 
-  useAllOfficialTemplates: () => {
+  useAllOfficialTemplates: (enabled = true) => {
     return useQuery<Template[], Error>({
       queryKey: ['templates', 'all'],
       queryFn: async () => {
@@ -36,10 +41,11 @@ export const templatesHooks = {
         return result.data;
       },
       staleTime: 5 * 60 * 1000,
+      enabled,
     });
   },
 
-  useTemplates: (type?: TemplateType) => {
+  useTemplates: (type?: TemplateType, enabled = true) => {
     const [searchParams, setSearchParams] = useSearchParams();
 
     const search = searchParams.get('search') ?? '';
@@ -58,6 +64,7 @@ export const templatesHooks = {
         return templates.data;
       },
       staleTime: 5 * 60 * 1000,
+      enabled,
     });
 
     const setSearch = (newSearch: string) => {
@@ -93,7 +100,75 @@ export const templatesHooks = {
       setCategory,
     };
   },
+
+  useTemplateSummaries: ({
+    type,
+    enabled = true,
+  }: {
+    type: TemplateType;
+    enabled?: boolean;
+  }) => {
+    const [searchParams, setSearchParams] = useSearchParams();
+    const search = searchParams.get('search') ?? '';
+    const category = searchParams.get('category') ?? undefined;
+    const [debouncedSearch] = useDebounce(search, 300);
+
+    const query = useInfiniteQuery({
+      queryKey: ['template-summaries', type, debouncedSearch, category],
+      queryFn: ({ pageParam }) =>
+        templatesApi.list({
+          type,
+          search: debouncedSearch || undefined,
+          category,
+          representation: 'summary',
+          limit: TEMPLATE_SUMMARY_PAGE_SIZE,
+          cursor: pageParam || undefined,
+        }),
+      initialPageParam: '',
+      getNextPageParam: (lastPage) => lastPage.next ?? undefined,
+      staleTime: 5 * 60 * 1000,
+      enabled,
+    });
+
+    const setSearch = (newSearch: string) => {
+      setSearchParams((prev) => {
+        const params = new URLSearchParams(prev);
+        if (newSearch) {
+          params.set('search', newSearch);
+        } else {
+          params.delete('search');
+        }
+        return params;
+      });
+    };
+
+    const setCategory = (newCategory: string) => {
+      setSearchParams((prev) => {
+        const params = new URLSearchParams(prev);
+        if (newCategory && newCategory !== 'All') {
+          params.set('category', newCategory);
+        } else {
+          params.delete('category');
+        }
+        return params;
+      });
+    };
+
+    return {
+      templates: query.data?.pages.flatMap((page) => page.data),
+      isLoading: query.isLoading,
+      isFetchingNextPage: query.isFetchingNextPage,
+      hasNextPage: query.hasNextPage,
+      fetchNextPage: query.fetchNextPage,
+      search,
+      setSearch,
+      category: category || 'All',
+      setCategory,
+    };
+  },
 };
+
+const TEMPLATE_SUMMARY_PAGE_SIZE = 24;
 
 export const templateKeys = {
   all: ['templates'] as const,

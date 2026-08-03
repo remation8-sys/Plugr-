@@ -2,30 +2,51 @@ import { Template } from '@activepieces/shared';
 import { t } from 'i18next';
 import React from 'react';
 
+import { LoadingSpinner } from '@/components/custom/spinner';
 import { TagWithBright } from '@/components/custom/tag-with-bright';
 import { Card, CardContent } from '@/components/ui/card';
 import { PieceIconList } from '@/features/pieces';
 import { useGradientFromPieces } from '@/features/templates';
+import { cn } from '@/lib/utils';
 
 type TemplateCardProps = {
   template: Template;
   onTemplateSelect: (template: Template) => void;
+  isLoading?: boolean;
+  compact?: boolean;
 };
 
 export const ExploreTemplateCard = React.memo(
-  ({ template, onTemplateSelect }: TemplateCardProps) => {
+  ({
+    template,
+    onTemplateSelect,
+    isLoading = false,
+    compact = false,
+  }: TemplateCardProps) => {
     const displayTags = template.tags.slice(0, 2);
-    const hasFlows = template.flows && template.flows.length > 0;
-    const { gradient } = useGradientFromPieces(
-      hasFlows ? template.flows![0]?.trigger : undefined,
-    );
+    const trigger = template.flows?.[0]?.trigger;
+    const { gradient } = useGradientFromPieces(trigger);
+    const compactPieces = compact ? template.pieces.slice(0, 4) : [];
 
     return (
       <Card
-        onClick={() => onTemplateSelect(template)}
+        aria-busy={isLoading}
+        onClick={() => {
+          if (!isLoading) {
+            onTemplateSelect(template);
+          }
+        }}
         variant={'interactive'}
-        className="h-[250px] w-full flex flex-col"
+        className={cn(
+          'relative h-[250px] w-full flex flex-col',
+          isLoading && 'cursor-wait',
+        )}
       >
+        {isLoading && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg bg-background/65">
+            <LoadingSpinner className="size-6" />
+          </div>
+        )}
         <CardContent className="py-5 px-4 flex flex-col gap-1 flex-1 min-h-0">
           <div className="h-12 flex flex-col justify-start flex-shrink-0">
             <h3 className="font-medium text-base leading-tight line-clamp-2">
@@ -64,18 +85,40 @@ export const ExploreTemplateCard = React.memo(
         <div
           className="h-16 flex items-center px-4 rounded-b-lg transition-all duration-300"
           style={{
-            background: gradient || 'transparent',
+            background:
+              gradient ||
+              (compact
+                ? buildCompactTemplateGradient(template.pieces)
+                : 'transparent'),
           }}
         >
-          {hasFlows && template.flows![0]?.trigger && (
+          {trigger && (
             <PieceIconList
-              trigger={template.flows![0]?.trigger}
+              trigger={trigger}
               maxNumberOfIconsToShow={4}
               size="md"
               className="flex gap-0.5"
               background="white"
               excludeCore={true}
             />
+          )}
+          {!trigger && compact && compactPieces.length > 0 && (
+            <div className="flex items-center gap-1.5">
+              {compactPieces.map((pieceName) => (
+                <span
+                  key={pieceName}
+                  title={pieceName}
+                  className="flex size-8 items-center justify-center rounded-lg border border-white/70 bg-white/85 text-[11px] font-semibold text-slate-700 shadow-sm"
+                >
+                  {getPieceInitials(pieceName)}
+                </span>
+              ))}
+              {template.pieces.length > compactPieces.length && (
+                <span className="text-xs font-semibold text-foreground/65">
+                  +{template.pieces.length - compactPieces.length}
+                </span>
+              )}
+            </div>
           )}
         </div>
       </Card>
@@ -84,3 +127,32 @@ export const ExploreTemplateCard = React.memo(
 );
 
 ExploreTemplateCard.displayName = 'ExploreTemplateCard';
+
+function buildCompactTemplateGradient(pieceNames: string[]): string {
+  if (pieceNames.length === 0) {
+    return 'linear-gradient(135deg, color-mix(in srgb, var(--primary) 9%, transparent), color-mix(in srgb, var(--primary) 18%, transparent))';
+  }
+  const hue = pieceNames
+    .join('|')
+    .split('')
+    .reduce((hash, character) => {
+      return (hash * 31 + character.charCodeAt(0)) % 360;
+    }, 0);
+  return `linear-gradient(135deg, hsl(${hue} 78% 55% / 0.14), hsl(${
+    (hue + 48) % 360
+  } 72% 52% / 0.24))`;
+}
+
+function getPieceInitials(pieceName: string): string {
+  const displayName =
+    pieceName
+      .split('/')
+      .at(-1)
+      ?.replace(/^piece-/, '') ?? '';
+  return displayName
+    .split('-')
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word[0]?.toUpperCase())
+    .join('');
+}

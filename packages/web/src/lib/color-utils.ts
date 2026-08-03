@@ -1,7 +1,31 @@
 import { useQuery } from '@tanstack/react-query';
-import { FastAverageColor } from 'fast-average-color';
 
 const imageCache = new Map<string, Promise<HTMLImageElement>>();
+const averageColorCache = new Map<
+  string,
+  Promise<{ value: number[] } | null>
+>();
+
+const createAverageColorExtractor = async () => {
+  const { FastAverageColor } = await import('fast-average-color');
+  return new FastAverageColor();
+};
+
+let averageColorExtractorPromise:
+  | ReturnType<typeof createAverageColorExtractor>
+  | undefined;
+
+const getAverageColorExtractor = () => {
+  averageColorExtractorPromise ??= createAverageColorExtractor();
+  return averageColorExtractorPromise;
+};
+
+const shouldSkipAverageColorExtraction = () => {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+  return window.matchMedia?.('(max-width: 767px)').matches ?? false;
+};
 
 function loadImage(url: string): Promise<HTMLImageElement> {
   const cached = imageCache.get(url);
@@ -16,6 +40,30 @@ function loadImage(url: string): Promise<HTMLImageElement> {
   });
 
   imageCache.set(url, promise);
+  return promise;
+}
+
+async function getAverageColorFromImage(
+  img: HTMLImageElement,
+): Promise<{ value: number[] } | null> {
+  if (shouldSkipAverageColorExtraction()) {
+    return null;
+  }
+
+  const cacheKey = img.currentSrc || img.src;
+  const cached = cacheKey ? averageColorCache.get(cacheKey) : undefined;
+  if (cached) {
+    return cached;
+  }
+
+  const promise = getAverageColorExtractor().then((extractor) =>
+    extractor.getColorAsync(img, { algorithm: 'simple' }),
+  );
+
+  if (cacheKey) {
+    averageColorCache.set(cacheKey, promise);
+    void promise.catch(() => averageColorCache.delete(cacheKey));
+  }
   return promise;
 }
 
@@ -105,8 +153,8 @@ export const colorsUtils = {
       diffRG <= threshold && diffRB <= threshold && diffGB <= threshold;
     return isDark || isLight || isGray;
   },
-  fac: new FastAverageColor(),
   loadImage,
+  getAverageColorFromImage,
   useAverageColorInImage: ({
     imgUrl,
     transparency,
@@ -114,13 +162,19 @@ export const colorsUtils = {
     imgUrl: string;
     transparency: number;
   }) => {
+    const skipAverageColorExtraction = shouldSkipAverageColorExtraction();
     const { data } = useQuery({
       queryKey: ['averageColorInImage', imgUrl, transparency],
+      enabled: Boolean(imgUrl) && !skipAverageColorExtraction,
+      staleTime: Infinity,
+      gcTime: 1000 * 60 * 60 * 24,
+      retry: false,
       queryFn: async () => {
         const img = await loadImage(imgUrl);
-        const color = await colorsUtils.fac.getColorAsync(img, {
-          algorithm: 'simple',
-        });
+        const color = await getAverageColorFromImage(img);
+        if (!color) {
+          return null;
+        }
         const [r, g, b] = color.value;
         if (colorsUtils.isGrayColor(r, g, b)) {
           return null;

@@ -20,11 +20,6 @@ import {
 } from 'lucide-react';
 import { useState } from 'react';
 
-import { SelectedItemsMap, TreeItem } from '../lib/types';
-import { groupTreeItemsByFolder } from '../lib/utils';
-
-import { CreateInFolderKind } from './create-new-menu';
-
 import { ConfirmationDeleteDialog } from '@/components/custom/delete-dialog';
 import { FormattedDate } from '@/components/custom/formatted-date';
 import { LoadingSpinner } from '@/components/custom/spinner';
@@ -39,8 +34,12 @@ import {
 import { Skeleton } from '@/components/ui/skeleton';
 import { MoveToFolderDialog } from '@/features/automations/components/move-to-folder-dialog';
 import { FlowStatusToggle } from '@/features/flows/components/flow-status-toggle';
-import { PieceIconList } from '@/features/pieces/components/piece-icon-list';
 import { cn } from '@/lib/utils';
+
+import { SelectedItemsMap, TreeItem } from '../lib/types';
+import { groupTreeItemsByFolder } from '../lib/utils';
+
+import { CreateInFolderKind } from './create-new-menu';
 
 type AutomationsCardListProps = {
   items: TreeItem[];
@@ -296,13 +295,6 @@ function AutomationCard({
           {item.name}
         </p>
         <div className="flex items-center gap-2 mt-1">
-          {isFlowItem(item) && (
-            <PieceIconList
-              trigger={item.data.version.trigger}
-              maxNumberOfIconsToShow={3}
-              size="xs"
-            />
-          )}
           {item.data && (item.type === 'flow' || item.type === 'table') && (
             <span className="text-[12px] text-muted-foreground">
               <FormattedDate date={new Date((item.data as any).updated)} />
