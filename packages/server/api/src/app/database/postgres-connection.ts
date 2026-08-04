@@ -383,6 +383,7 @@ import { AddCreatedByToFlow1794000000000 } from './migration/postgres/1794000000
 import { AddDataManipulationEnabledToPlatformPlan1794000000000 } from './migration/postgres/1794000000000-AddDataManipulationEnabledToPlatformPlan'
 import { AddPlugrUserBilling1795000000000 } from './migration/postgres/1795000000000-AddPlugrUserBilling'
 import { AddWebPushSubscription1796000000000 } from './migration/postgres/1796000000000-AddWebPushSubscription'
+import { AddNotifyFlowOwnerOnFailureToProject1811000000000 } from './migration/postgres/1811000000000-AddNotifyFlowOwnerOnFailureToProject'
 
 const getSslConfig = (): boolean | TlsOptions => {
     const useSsl = system.get(AppSystemProp.POSTGRES_USE_SSL)
@@ -781,6 +782,7 @@ export const getMigrations = (): (new () => Migration)[] => {
         AddDataManipulationEnabledToPlatformPlan1794000000000,
         AddPlugrUserBilling1795000000000,
         AddWebPushSubscription1796000000000,
+        AddNotifyFlowOwnerOnFailureToProject1811000000000,
     ]
     return migrations
 }

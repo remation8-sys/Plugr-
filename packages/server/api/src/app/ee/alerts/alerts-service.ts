@@ -1,5 +1,5 @@
 import { apDayjsDuration } from '@activepieces/server-utils'
-import { ActivepiecesError, Alert, AlertChannel, ApEdition, ApId, apId, ErrorCode, FailedStep, flowStructureUtil, ListAlertsParams, ProjectType, SeekPage } from '@activepieces/shared'
+import { ActivepiecesError, Alert, AlertChannel, ApEdition, ApId, apId, ErrorCode, FailedStep, flowStructureUtil, isNil, ListAlertsParams, Project, ProjectType, SeekPage, tryCatch } from '@activepieces/shared'
 
 import dayjs from 'dayjs'
 import timezone from 'dayjs/plugin/timezone'
@@ -50,6 +50,10 @@ export const alertsService = (log: FastifyBaseLogger) => ({
         const project = await projectService(log).getOneOrThrow(issueToAlert.projectId)
         const flowVersion = await flowVersionService(log).getOneOrThrow(issueToAlert.flowVersionId)
 
+        const flowOwnerEmail = project.notifyFlowOwnerOnFailure
+            ? await getFlowOwnerEmail({ log, project })
+            : undefined
+
         const failedStepNumber = flowStructureUtil.getStepNumber(flowVersion.trigger, failedStep.name)
         const alertsInfo: IssueParams = {
             flowVersionId: flowVersion.id,
@@ -65,6 +69,7 @@ export const alertsService = (log: FastifyBaseLogger) => ({
             failedStepDisplayName: failedStep.displayName,
             failedStepNumber: failedStepNumber > 0 ? failedStepNumber : undefined,
             failedStepMessage: failedStep.message,
+            flowOwnerEmail,
         }
 
         await sendAlertOnFlowFailure(log, alertsInfo)
@@ -138,6 +143,20 @@ export const alertsService = (log: FastifyBaseLogger) => ({
     },
 })
 
+async function getFlowOwnerEmail({ log, project }: { log: FastifyBaseLogger, project: Project }): Promise<string | undefined> {
+    // Flows have no individual owner in this fork (unlike upstream) — fall back to the project owner.
+    const { data: email, error } = await tryCatch(async () => {
+        const owner = await userService(log).getOneOrFail({ id: project.ownerId })
+        const identity = await userIdentityService(log).getOneOrFail({ id: owner.identityId })
+        return identity.email.toLowerCase()
+    })
+    if (error) {
+        log.warn({ error, project: { id: project.id } }, '[alertsService#getFlowOwnerEmail] failed to resolve project owner email')
+        return undefined
+    }
+    return isNil(email) ? undefined : email
+}
+
 async function sendAlertOnFlowFailure(log: FastifyBaseLogger, params: IssueParams): Promise<void> {
     const { flowRunId, projectId } = params
 
@@ -169,6 +188,7 @@ type IssueParams = {
     failedStepDisplayName: string
     failedStepNumber?: number
     failedStepMessage?: string
+    flowOwnerEmail?: string
 }
 
 type IssueToAlert = {

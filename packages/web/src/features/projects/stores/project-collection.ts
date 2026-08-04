@@ -49,6 +49,7 @@ export const projectCollection = createCollection<ProjectWithLimits, string>(
           displayName: modified.displayName,
           metadata: modified.metadata ?? undefined,
           releasesEnabled: modified.releasesEnabled,
+          notifyFlowOwnerOnFailure: modified.notifyFlowOwnerOnFailure,
           externalId:
             !isNil(modified.externalId) && modified.externalId.trim() !== ''
               ? modified.externalId

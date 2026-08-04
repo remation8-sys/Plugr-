@@ -1,11 +1,12 @@
 import { Permission } from '@activepieces/shared';
 import { t } from 'i18next';
-import { Bell, Trash } from 'lucide-react';
+import { Bell, Trash, UserRound } from 'lucide-react';
 
 import {
   Item,
   ItemActions,
   ItemContent,
+  ItemDescription,
   ItemGroup,
   ItemMedia,
   ItemTitle,
@@ -13,18 +14,21 @@ import {
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Switch } from '@/components/ui/switch';
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { alertMutations, alertQueries } from '@/features/alerts';
+import { projectCollectionUtils } from '@/features/projects';
 import { useAuthorization } from '@/hooks/authorization-hooks';
 
 import { AddAlertEmailForm } from './add-alert-email-form';
 
 const TeamProjectAlerts = () => {
   const { checkAccess } = useAuthorization();
+  const { project } = projectCollectionUtils.useCurrentProject();
   const {
     data: alertsData,
     isLoading: alertsLoading,
@@ -49,6 +53,41 @@ const TeamProjectAlerts = () => {
           </AlertDescription>
         </div>
       </Alert>
+      <Item variant="outline" size="sm">
+        <ItemMedia variant="icon">
+          <UserRound />
+        </ItemMedia>
+        <ItemContent>
+          <ItemTitle>{t('Notify project owner')}</ItemTitle>
+          <ItemDescription>
+            {t(
+              'Also email the project owner when a flow fails, even if they are not in the list below.',
+            )}
+          </ItemDescription>
+        </ItemContent>
+        <ItemActions>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span>
+                <Switch
+                  checked={project.notifyFlowOwnerOnFailure}
+                  disabled={writeAlertPermission === false}
+                  onCheckedChange={(checked) =>
+                    projectCollectionUtils.update(project.id, {
+                      notifyFlowOwnerOnFailure: checked,
+                    })
+                  }
+                />
+              </span>
+            </TooltipTrigger>
+            {writeAlertPermission === false && (
+              <TooltipContent side="bottom">
+                {t('Only project admins can do this')}
+              </TooltipContent>
+            )}
+          </Tooltip>
+        </ItemActions>
+      </Item>
       <div>
         {alertsLoading && (
           <div aria-busy="true" className="space-y-2 py-4" role="status">

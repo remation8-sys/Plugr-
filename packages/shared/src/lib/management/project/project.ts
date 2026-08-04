@@ -61,6 +61,7 @@ export const Project = z.object({
     icon: ProjectIcon,
     externalId: Nullable(z.string()),
     releasesEnabled: z.boolean(),
+    notifyFlowOwnerOnFailure: z.boolean(),
     metadata: Nullable(Metadata),
     poolId: Nullable(ApId),
 })

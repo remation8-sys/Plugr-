@@ -6,6 +6,7 @@ import { PiecesFilterType, ProjectIcon, ProjectType } from './project'
 
 export const UpdateProjectPlatformRequest = z.object({
     releasesEnabled: z.boolean().optional(),
+    notifyFlowOwnerOnFailure: z.boolean().optional(),
     displayName: z.string().min(1).max(200).regex(new RegExp(SAFE_STRING_PATTERN)).optional(),
     externalId: z.string().optional(),
     metadata: Metadata.optional(),
