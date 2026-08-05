@@ -1,9 +1,8 @@
 import { TemplateType, isNil } from '@activepieces/shared';
 import { Navigate, useParams, useLocation } from 'react-router-dom';
 
-import { PageTitle } from '@/app/components/page-title';
 import { ProjectDashboardLayout } from '@/app/components/project-layout';
-import { TemplateDetailsPage } from '@/app/routes/templates/id';
+import { TemplatesPage } from '@/app/routes/templates';
 import { LoadingScreen } from '@/components/custom/loading-screen';
 import { ShareTemplate, templatesHooks } from '@/features/templates';
 import { authenticationSession } from '@/lib/authentication-session';
@@ -35,14 +34,14 @@ const TemplateDetailsWrapper = () => {
     );
   }
 
-  const content = (
-    <PageTitle title={template.name}>
-      <TemplateDetailsPage template={template} />
-    </PageTitle>
-  );
-
   if (useProjectLayout) {
-    return <ProjectDashboardLayout>{content}</ProjectDashboardLayout>;
+    // Renders the same gallery as /templates; TemplatesPage reads :templateId
+    // itself and shows the details as a dialog on top of it.
+    return (
+      <ProjectDashboardLayout>
+        <TemplatesPage />
+      </ProjectDashboardLayout>
+    );
   }
 
   return <ShareTemplate template={template} />;

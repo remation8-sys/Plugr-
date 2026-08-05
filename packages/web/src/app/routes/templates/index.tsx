@@ -7,7 +7,7 @@ import {
 import { t } from 'i18next';
 import { Plus } from 'lucide-react';
 import { useCallback, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import { PageHeader } from '@/components/custom/page-header';
 import { SearchInput } from '@/components/custom/search-input';
@@ -22,9 +22,13 @@ import { AllCategoriesView } from './all-categories-view';
 import { CategoryFilterCarousel } from './category-filter-carousel';
 import { EmptyTemplatesView } from './empty-templates-view';
 import { SelectedCategoryView } from './selected-category-view';
+import { TemplateDetailsDialog } from './template-details-dialog';
 
 const TemplatesPage = () => {
   const navigate = useNavigate();
+  // Present when the route is /templates/:templateId — the details render as
+  // a dialog over this (still mounted) gallery.
+  const { templateId } = useParams<{ templateId: string }>();
   const isMobile = useIsMobile();
   const { data: templateCategories } = templatesHooks.useTemplateCategories();
   const { platform } = platformHooks.useCurrentPlatform();
@@ -190,6 +194,7 @@ const TemplatesPage = () => {
           )}
         </div>
       </div>
+      {templateId && <TemplateDetailsDialog templateId={templateId} />}
     </div>
   );
 };

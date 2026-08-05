@@ -24,7 +24,6 @@ import { BuilderStateProvider } from '@/app/builder/state/builder-state-provider
 import { TagWithBright } from '@/components/custom/tag-with-bright';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { useSidebar } from '@/components/ui/sidebar-shadcn';
 import { UseTemplateDialog } from '@/features/templates/components/use-template-dialog';
 import { authenticationSession } from '@/lib/authentication-session';
 import { formatUtils } from '@/lib/format-utils';
@@ -44,8 +43,6 @@ const TemplateDetailsPage = ({ template }: TemplateDetailsPageProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedFlowIndex, setSelectedFlowIndex] = useState(0);
   const [renderKey, setRenderKey] = useState(0);
-  const { setOpen } = useSidebar();
-  const hasClosedSidebar = useRef(false);
   const isNotAuthenticated = isNil(token);
 
   const mockFlow = useMemo<PopulatedFlow | null>(() => {
@@ -84,13 +81,6 @@ const TemplateDetailsPage = ({ template }: TemplateDetailsPageProps) => {
       },
     };
   }, [template, selectedFlowIndex]);
-
-  useEffect(() => {
-    if (!hasClosedSidebar.current) {
-      setOpen(false);
-      hasClosedSidebar.current = true;
-    }
-  }, [setOpen]);
 
   useEffect(() => {
     setHasCanvasBeenInitialised(false);
@@ -132,7 +122,7 @@ const TemplateDetailsPage = ({ template }: TemplateDetailsPageProps) => {
   };
 
   return (
-    <div className="h-screen w-full flex flex-col overflow-hidden absolute inset-0">
+    <div className="h-full w-full flex flex-col overflow-hidden">
       {template.type !== TemplateType.SHARED && (
         <div className="flex shrink-0 items-center justify-between gap-2 border-b px-4 py-3 md:px-6 md:py-4">
           <div className="flex items-center gap-2 min-w-0">
