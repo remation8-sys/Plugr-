@@ -7,6 +7,7 @@ import { FastifyInstance, FastifyRequest, HTTPMethods } from 'fastify'
 import { jsonSchemaTransform, jsonSchemaTransformObject } from 'fastify-type-provider-zod'
 import Mustache from 'mustache'
 import { globalRegistry } from 'zod/v4/core'
+import { adhocRunModule } from './adhoc-run/adhoc-run.module'
 import { agentsModule } from './agents/agents-module'
 import { aiProviderService } from './ai/ai-provider-service'
 import { aiProviderModule } from './ai/ai-provider.module'
@@ -185,6 +186,7 @@ export const setupApp = async (app: FastifyInstance): Promise<FastifyInstance> =
     await pieceSyncService(app.log).setup()
     await pieceMetadataService(app.log).setup()
     await app.register(pieceModule)
+    await app.register(adhocRunModule)
     await app.register(collaborativeModule)
     await app.register(flowModule)
     await app.register(flowRunModule)

@@ -4,6 +4,7 @@ import {
     EngineOperationType,
     EngineResponse,
     EngineResponseStatus,
+    ExecuteActionOperation,
     ExecuteExtractPieceMetadataOperation,
     ExecuteFlowOperation,
     ExecutePropsOptions,
@@ -15,6 +16,7 @@ import {
     TriggerHookType,
     tryCatch,
 } from '@activepieces/shared'
+import { actionOperation } from './action.operation'
 import { authValidationOperation } from './auth-validation.operation'
 import { flowOperation } from './flow.operation'
 import { pieceMetadataOperation } from './piece-metadata.operation'
@@ -30,6 +32,9 @@ export async function execute(operationType: EngineOperationType, operation: Eng
             }
             case EngineOperationType.EXECUTE_FLOW: {
                 return flowOperation.execute(operation as ExecuteFlowOperation)
+            }
+            case EngineOperationType.EXECUTE_ACTION: {
+                return actionOperation.execute(operation as ExecuteActionOperation)
             }
             case EngineOperationType.EXECUTE_PROPERTY: {
                 return propertyOperation.execute(operation as ExecutePropsOptions)

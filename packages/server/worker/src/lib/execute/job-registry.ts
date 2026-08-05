@@ -1,6 +1,7 @@
 import { JobData, WorkerJobType } from '@activepieces/shared'
 import { executeChatAgentJob } from './jobs/ee/chat/execute-chat-agent'
 import { eventDestinationJob } from './jobs/event-destination'
+import { executeActionJob } from './jobs/execute-action'
 import { executeFlowJob } from './jobs/execute-flow'
 import { executePollingJob } from './jobs/execute-polling'
 import { executePropertyJob } from './jobs/execute-property'
@@ -13,6 +14,7 @@ import { JobHandler } from './types'
 
 const registry: Record<WorkerJobType, JobHandler> = {
     [WorkerJobType.EXECUTE_FLOW]: executeFlowJob,
+    [WorkerJobType.EXECUTE_ACTION]: executeActionJob,
     [WorkerJobType.EXECUTE_POLLING]: executePollingJob,
     [WorkerJobType.EXECUTE_WEBHOOK]: executeWebhookJob,
     [WorkerJobType.RENEW_WEBHOOK]: renewWebhookJob,
