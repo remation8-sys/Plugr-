@@ -23,24 +23,33 @@ git fetch origin phase-1-rebrand --depth 1 2>&1 | tail -1
 git reset --hard origin/phase-1-rebrand 2>&1 | tail -1
 echo "commit: $(git rev-parse --short HEAD)"
 
-echo "=== dev pieces (fork-modified core pieces) ==="
+echo "=== dev pieces (fork-modified pieces) ==="
 # The forms piece (Chat UI trigger + Respond on UI), the ai piece (Run Agent,
 # etc.), and the gmail piece (New Email / New Labeled Email now expose the real
 # Gmail message id) are all modified in this fork, so none must be installed
 # from the npm registry / worker package cache (that would fetch/keep upstream
 # code). AP_DEV_PIECES makes the API serve their metadata from the local dist
-# and the engine/worker load their code from packages/pieces/{core/forms,community/ai,community/gmail}/dist.
+# and the engine/worker load their code from packages/pieces/{.../<name>}/dist.
+#
+# sendgrid, zendesk, mailchimp, xero, openai, quickbooks, intercom,
+# azure-openai, letmepost, and produktly were added the same way (aiMetadata
+# additions, new actions, or brand-new pieces cherry-picked from upstream) -
+# without this they'd keep resolving from the public npm registry and none of
+# that work would actually run.
+#
 # IMPORTANT: dev-piece code loads by NAME, not by version - never bump a dev
 # piece's package.json version without also updating every existing flow that
 # pins the old version, or those flows fail their exact-version piece lookup
 # and get auto-disabled (see provisionFlowPieces -> pieceCache.getPiece ->
-# fetchPieceVersion in piece-metadata-service.ts).
+# fetchPieceVersion in piece-metadata-service.ts). openai stayed pinned at
+# 0.9.1 for exactly this reason (one disabled draft flow references it).
+DEV_PIECES="forms,ai,gmail,sendgrid,zendesk,mailchimp,xero,openai,quickbooks,intercom,azure-openai,letmepost,produktly"
 if ! grep -q '^AP_DEV_PIECES=' .env; then
-  echo 'AP_DEV_PIECES=forms,ai,gmail' >> .env
-  echo "added AP_DEV_PIECES=forms,ai,gmail to .env"
-elif ! grep -q '^AP_DEV_PIECES=.*gmail' .env; then
-  sed -i.bak 's/^AP_DEV_PIECES=.*/AP_DEV_PIECES=forms,ai,gmail/' .env
-  echo "updated AP_DEV_PIECES to include forms,ai,gmail in .env"
+  echo "AP_DEV_PIECES=$DEV_PIECES" >> .env
+  echo "added AP_DEV_PIECES=$DEV_PIECES to .env"
+elif ! grep -q "^AP_DEV_PIECES=$DEV_PIECES$" .env; then
+  sed -i.bak "s/^AP_DEV_PIECES=.*/AP_DEV_PIECES=$DEV_PIECES/" .env
+  echo "updated AP_DEV_PIECES to $DEV_PIECES in .env"
 fi
 
 echo "=== load env ==="
@@ -50,17 +59,21 @@ echo "=== install deps ==="
 bun install 2>&1 | tail -10
 
 echo "=== build engine + api + worker + dev pieces ==="
-npx turbo run build --filter=@activepieces/engine --filter=api --filter=worker --filter=@activepieces/piece-forms --filter=@activepieces/piece-ai --filter=@activepieces/piece-gmail 2>&1 | tail -8
+npx turbo run build --filter=@activepieces/engine --filter=api --filter=worker \
+  --filter=@activepieces/piece-forms --filter=@activepieces/piece-ai --filter=@activepieces/piece-gmail \
+  --filter=@activepieces/piece-sendgrid --filter=@activepieces/piece-zendesk --filter=@activepieces/piece-mailchimp \
+  --filter=@activepieces/piece-xero --filter=@activepieces/piece-openai --filter=@activepieces/piece-quickbooks \
+  --filter=@activepieces/piece-intercom --filter=@activepieces/piece-azure-openai --filter=@activepieces/piece-letmepost \
+  --filter=@activepieces/piece-produktly 2>&1 | tail -8
 
 test -f dist/packages/engine/main.js                  || { echo "FATAL: engine build missing"; exit 1; }
 test -f packages/server/api/dist/src/bootstrap.js     || { echo "FATAL: api build missing"; exit 1; }
 test -f packages/server/worker/dist/src/bootstrap.js  || { echo "FATAL: worker build missing"; exit 1; }
-test -f packages/pieces/core/forms/dist/src/index.js  || { echo "FATAL: forms piece build missing"; exit 1; }
-test -f packages/pieces/core/forms/dist/package.json  || { echo "FATAL: forms piece dist package.json missing"; exit 1; }
-test -f packages/pieces/community/ai/dist/src/index.js || { echo "FATAL: ai piece build missing"; exit 1; }
-test -f packages/pieces/community/ai/dist/package.json || { echo "FATAL: ai piece dist package.json missing"; exit 1; }
-test -f packages/pieces/community/gmail/dist/src/index.js || { echo "FATAL: gmail piece build missing"; exit 1; }
-test -f packages/pieces/community/gmail/dist/package.json || { echo "FATAL: gmail piece dist package.json missing"; exit 1; }
+for p in core/forms:forms community/ai:ai community/gmail:gmail community/sendgrid:sendgrid community/zendesk:zendesk community/mailchimp:mailchimp community/xero:xero community/openai:openai community/quickbooks:quickbooks community/intercom:intercom community/azure-openai:azure-openai community/letmepost:letmepost community/produktly:produktly; do
+  dir="${p%%:*}"; label="${p##*:}"
+  test -f "packages/pieces/$dir/dist/src/index.js" || { echo "FATAL: $label piece build missing"; exit 1; }
+  test -f "packages/pieces/$dir/dist/package.json" || { echo "FATAL: $label piece dist package.json missing"; exit 1; }
+done
 
 echo "=== esbuild on PATH (Code steps) ==="
 # The worker compiles Code steps by spawning a bare `esbuild`, which must be on
