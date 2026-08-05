@@ -14,12 +14,15 @@ import { securityAccess } from '../core/security/authorization/fastify-security'
 import { getPiecePackageWithoutArchive } from '../pieces/metadata/piece-metadata-service'
 import { userInteractionWatcher } from '../workers/user-interaction-watcher'
 
-// TEMPORARY local-only proof-of-concept endpoint used to verify the new
-// EXECUTE_ACTION engine/worker path in isolation, without touching the
-// existing MCP executeAdhocAction (temp-flow) mechanism at all. Not wired
-// into production — see conversation for context before promoting this.
+// Runs a single piece action outside of any flow, using the EXECUTE_ACTION
+// engine/worker path (see adhocStepRunner / action.operation.ts). Kept
+// deliberately separate from the existing MCP executeAdhocAction mechanism
+// in flow-run-utils.ts (which builds a real throwaway flow + test-steps it)
+// — that mechanism is unchanged and still what Raymond's tool-calling uses.
+// This is a lighter-weight alternative for internal/tooling use: no flow is
+// created, and results aren't persisted (no run history yet).
 export const adhocRunController: FastifyPluginCallbackZod = (app, _opts, done) => {
-    app.post('/test-piece-action', TestPieceActionRequest, async (request) => {
+    app.post('/run-piece-action', RunPieceActionRequest, async (request) => {
         const { projectId, pieceName, pieceVersion, actionName, input } = request.body
         const platformId = request.principal.platform.id
 
@@ -60,7 +63,7 @@ export const adhocRunController: FastifyPluginCallbackZod = (app, _opts, done) =
     done()
 }
 
-const TestPieceActionRequest = {
+const RunPieceActionRequest = {
     config: {
         security: securityAccess.project(
             [PrincipalType.USER, PrincipalType.SERVICE],
@@ -72,7 +75,7 @@ const TestPieceActionRequest = {
     },
     schema: {
         tags: ['adhoc-run'],
-        description: 'TEMPORARY test-only endpoint for the ad-hoc single-step run proof of concept',
+        description: 'Run a single piece action outside of any flow and return its result directly',
         body: z.object({
             projectId: ApId,
             pieceName: z.string(),
