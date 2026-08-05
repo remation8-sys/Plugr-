@@ -53,6 +53,12 @@ import { tagAddedToUserTrigger } from './lib/triggers/tag-added-to-user';
 import { contactUpdatedTrigger } from './lib/triggers/contact-updated';
 import { intercomAuth } from './lib/auth';
 import { assignConversationAction } from './lib/actions/assign-conversation-to-admin';
+import { createOrUpdateCompanyAction } from './lib/actions/create-update-company';
+import { createDataEventAction } from './lib/actions/create-data-event';
+import { findOrCreateCompanyAction } from './lib/actions/find-or-create-company';
+import { findOrCreateLeadAction } from './lib/actions/find-or-create-lead';
+import { updatedTicketTrigger } from './lib/triggers/updated-ticket';
+import { newUnsubscriptionTrigger } from './lib/triggers/new-unsubscription';
 
 export const intercom = createPiece({
 	displayName: 'Intercom',
@@ -79,8 +85,10 @@ export const intercom = createPiece({
 		assignConversationAction,
 		createArticleAction,
 		createConversationAction,
+		createDataEventAction,
 		createTicketAction,
 		createUserAction,
+		createOrUpdateCompanyAction,
 		createOrUpdateLeadAction,
 		createOrUpdateUserAction,
 		replyToConversation,
@@ -89,6 +97,8 @@ export const intercom = createPiece({
 		findCompanyAction,
 		findConversationAction,
 		findLeadAction,
+		findOrCreateCompanyAction,
+		findOrCreateLeadAction,
 		findUserAction,
 		listAllTagsAction,
 		getConversationAction,
@@ -114,7 +124,9 @@ export const intercom = createPiece({
 		conversationRated,
 		newLeadTrigger,
 		newTicketTrigger,
+		newUnsubscriptionTrigger,
 		newUserTrigger,
+		updatedTicketTrigger,
 		conversationPartTagged,
 		tagAddedToLeadTrigger,
 		tagAddedToUserTrigger,
