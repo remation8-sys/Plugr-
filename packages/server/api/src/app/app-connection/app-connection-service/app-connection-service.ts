@@ -211,6 +211,25 @@ export const appConnectionService = (log: FastifyBaseLogger) => ({
         return this.removeSensitiveData(connectionById)
     },
 
+    async revalidate({ id, projectId, platformId }: RevalidateParams): Promise<AppConnectionWithoutSensitiveData> {
+        const metadata = await this.getOneOrThrowWithoutValue({ id, projectId, platformId })
+        const connection = await appConnectionHandler(log).revalidateConnection({
+            id,
+            platformId,
+            projectId,
+            externalId: metadata.externalId,
+            validate: ({ pieceName, value }) => engineValidateAuth({ pieceName, projectId, platformId, auth: value }, log),
+            log,
+        })
+        if (isNil(connection)) {
+            throw new ActivepiecesError({
+                code: ErrorCode.ENTITY_NOT_FOUND,
+                params: { entityType: 'AppConnection', entityId: id },
+            })
+        }
+        return this.removeSensitiveData(connection)
+    },
+
     async getManyConnectionStates(params: GetManyParams): Promise<ConnectionState[]> {
         const connections = await appConnectionsRepo().find({
             where: {
@@ -748,6 +767,12 @@ type GetOneParams = {
 
 type GetManyParams = {
     projectId: ProjectId
+}
+
+type RevalidateParams = {
+    id: AppConnectionId
+    projectId: ProjectId
+    platformId: PlatformId
 }
 
 type DeleteParams = {

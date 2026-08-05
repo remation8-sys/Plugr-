@@ -50,6 +50,7 @@ import {
 import {
   EditGlobalConnectionDialog,
   RenameConnectionDialog,
+  RevalidateConnectionButton,
   appConnectionsMutations,
   appConnectionsQueries,
   appConnectionUtils,
@@ -292,6 +293,9 @@ function AppConnectionsPage() {
             : userHasPermissionToWriteAppConnection;
           return (
             <div className="flex items-center gap-2 justify-end">
+              {userHasPermissionToRename && (
+                <RevalidateConnectionButton connectionId={row.original.id} />
+              )}
               {row.original.scope === AppConnectionScope.PROJECT ? (
                 <RenameConnectionDialog
                   connectionId={row.original.id}
@@ -478,6 +482,9 @@ function AppConnectionsPage() {
                 className="flex items-center gap-1 shrink-0"
                 onClick={(e) => e.stopPropagation()}
               >
+                {userHasPermissionToRename && (
+                  <RevalidateConnectionButton connectionId={row.id} />
+                )}
                 {row.scope === AppConnectionScope.PROJECT ? (
                   <RenameConnectionDialog
                     connectionId={row.id}

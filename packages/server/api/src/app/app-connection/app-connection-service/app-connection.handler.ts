@@ -1,4 +1,4 @@
-import { AppConnection, AppConnectionStatus, AppConnectionType, AppConnectionValue, AppConnectionWithoutSensitiveData, assertNotNullOrUndefined, Flow, FlowOperationType, flowStructureUtil, FlowVersion, FlowVersionState, isNil, PlatformId, PopulatedFlow, ProjectId, UserId } from '@activepieces/shared'
+import { ActivepiecesError, AppConnection, AppConnectionStatus, AppConnectionType, AppConnectionValue, AppConnectionWithoutSensitiveData, assertNotNullOrUndefined, ErrorCode, Flow, FlowOperationType, flowStructureUtil, FlowVersion, FlowVersionState, isNil, PlatformId, PopulatedFlow, ProjectId, tryCatch, UserId } from '@activepieces/shared'
 import dayjs from 'dayjs'
 import { FastifyBaseLogger } from 'fastify'
 import { ArrayContains } from 'typeorm'
@@ -115,6 +115,68 @@ export const appConnectionHandler = (log: FastifyBaseLogger) => ({
             },
         })
     },
+    async revalidateConnection({ id, platformId, projectId, externalId, validate, log }: {
+        id: string
+        platformId: PlatformId
+        projectId: ProjectId
+        externalId: string
+        validate: (params: { pieceName: string, value: AppConnectionValue }) => Promise<void>
+        log: FastifyBaseLogger
+    }): Promise<AppConnection | null> {
+        return distributedLock(log).runExclusive({
+            key: `${platformId}_${externalId}`,
+            timeoutInSeconds: 60,
+            fn: async () => {
+                const encryptedAppConnection = await appConnectionsRepo().findOneBy({
+                    id,
+                    platformId,
+                    projectIds: ArrayContains([projectId]),
+                })
+                if (isNil(encryptedAppConnection)) {
+                    return null
+                }
+                let appConnection = await this.decryptConnection(encryptedAppConnection)
+                if (appConnection.value.type === AppConnectionType.NO_AUTH) {
+                    return appConnection
+                }
+                const forceRefresh = REVALIDATE_FORCE_REFRESH_TYPES.has(appConnection.value.type)
+                const skipRefresh = appConnection.value.type === AppConnectionType.PLATFORM_OAUTH2
+                try {
+                    if (!skipRefresh && (forceRefresh || this.needRefresh(appConnection, log))) {
+                        appConnection = await this.refresh(appConnection, projectId, log)
+                        await appConnectionsRepo().update(appConnection.id, {
+                            status: AppConnectionStatus.ACTIVE,
+                            value: await encryptUtils.encryptObject(appConnection.value),
+                        })
+                    }
+                }
+                catch (e) {
+                    exceptionHandler.handle(e, log)
+                    // Upstream also treats CustomAuthRefreshError as a user error here; that class
+                    // doesn't exist in this fork, so only OAuth2 user errors are caught as non-fatal.
+                    if (!oauth2Util(log).isUserError(e)) {
+                        throw e
+                    }
+                    appConnection.status = AppConnectionStatus.ERROR
+                    await appConnectionsRepo().update(appConnection.id, {
+                        status: AppConnectionStatus.ERROR,
+                        updated: dayjs().toISOString(),
+                    })
+                    return appConnection
+                }
+                const { error } = await tryCatch(() => validate({ pieceName: appConnection.pieceName, value: appConnection.value }))
+                if (!isNil(error) && !(error instanceof ActivepiecesError && error.error.code === ErrorCode.INVALID_APP_CONNECTION)) {
+                    throw error
+                }
+                appConnection.status = isNil(error) ? AppConnectionStatus.ACTIVE : AppConnectionStatus.ERROR
+                await appConnectionsRepo().update(appConnection.id, {
+                    status: appConnection.status,
+                    updated: dayjs().toISOString(),
+                })
+                return appConnection
+            },
+        })
+    },
     async decryptConnection(
         encryptedConnection: AppConnectionSchema,
     ): Promise<AppConnection> {
@@ -189,6 +251,11 @@ async function handleDraftVersion(flow: Flow, lastVersion: FlowVersion, userId: 
     })
 
 }
+const REVALIDATE_FORCE_REFRESH_TYPES: ReadonlySet<AppConnectionType> = new Set([
+    AppConnectionType.OAUTH2,
+    AppConnectionType.CLOUD_OAUTH2,
+])
+
 function replaceConnectionInFlowVersion(flowVersion: FlowVersion, appConnection: AppConnectionWithoutSensitiveData, newAppConnection: AppConnectionWithoutSensitiveData) {
     return flowStructureUtil.transferFlow(flowVersion, (step) => {
         if (step.settings?.input?.auth?.includes(appConnection.externalId)) {
