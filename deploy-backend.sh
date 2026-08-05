@@ -37,13 +37,20 @@ echo "=== dev pieces (fork-modified pieces) ==="
 # without this they'd keep resolving from the public npm registry and none of
 # that work would actually run.
 #
+# tables carries a real fork bug fix (find-records defaulted to an effectively
+# unbounded limit, 999999999, instead of 1000) that sat inert in git for days
+# because this piece was never added here either - caught via an audit of
+# every fork commit touching packages/pieces/ after the sendgrid/etc. rollout
+# surfaced the general risk.
+#
 # IMPORTANT: dev-piece code loads by NAME, not by version - never bump a dev
 # piece's package.json version without also updating every existing flow that
 # pins the old version, or those flows fail their exact-version piece lookup
 # and get auto-disabled (see provisionFlowPieces -> pieceCache.getPiece ->
 # fetchPieceVersion in piece-metadata-service.ts). openai stayed pinned at
-# 0.9.1 for exactly this reason (one disabled draft flow references it).
-DEV_PIECES="forms,ai,gmail,sendgrid,zendesk,mailchimp,xero,openai,quickbooks,intercom,azure-openai,letmepost,produktly"
+# 0.9.1 (one disabled draft flow) and tables at 0.3.2 (6 live enabled flows)
+# for exactly this reason.
+DEV_PIECES="forms,ai,gmail,sendgrid,zendesk,mailchimp,xero,openai,quickbooks,intercom,azure-openai,letmepost,produktly,tables"
 if ! grep -q '^AP_DEV_PIECES=' .env; then
   echo "AP_DEV_PIECES=$DEV_PIECES" >> .env
   echo "added AP_DEV_PIECES=$DEV_PIECES to .env"
@@ -64,12 +71,12 @@ npx turbo run build --filter=@activepieces/engine --filter=api --filter=worker \
   --filter=@activepieces/piece-sendgrid --filter=@activepieces/piece-zendesk --filter=@activepieces/piece-mailchimp \
   --filter=@activepieces/piece-xero --filter=@activepieces/piece-openai --filter=@activepieces/piece-quickbooks \
   --filter=@activepieces/piece-intercom --filter=@activepieces/piece-azure-openai --filter=@activepieces/piece-letmepost \
-  --filter=@activepieces/piece-produktly 2>&1 | tail -8
+  --filter=@activepieces/piece-produktly --filter=@activepieces/piece-tables 2>&1 | tail -8
 
 test -f dist/packages/engine/main.js                  || { echo "FATAL: engine build missing"; exit 1; }
 test -f packages/server/api/dist/src/bootstrap.js     || { echo "FATAL: api build missing"; exit 1; }
 test -f packages/server/worker/dist/src/bootstrap.js  || { echo "FATAL: worker build missing"; exit 1; }
-for p in core/forms:forms community/ai:ai community/gmail:gmail community/sendgrid:sendgrid community/zendesk:zendesk community/mailchimp:mailchimp community/xero:xero community/openai:openai community/quickbooks:quickbooks community/intercom:intercom community/azure-openai:azure-openai community/letmepost:letmepost community/produktly:produktly; do
+for p in core/forms:forms community/ai:ai community/gmail:gmail community/sendgrid:sendgrid community/zendesk:zendesk community/mailchimp:mailchimp community/xero:xero community/openai:openai community/quickbooks:quickbooks community/intercom:intercom community/azure-openai:azure-openai community/letmepost:letmepost community/produktly:produktly core/tables:tables; do
   dir="${p%%:*}"; label="${p##*:}"
   test -f "packages/pieces/$dir/dist/src/index.js" || { echo "FATAL: $label piece build missing"; exit 1; }
   test -f "packages/pieces/$dir/dist/package.json" || { echo "FATAL: $label piece dist package.json missing"; exit 1; }
