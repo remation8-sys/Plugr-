@@ -23,6 +23,24 @@ git fetch origin phase-1-rebrand --depth 1 2>&1 | tail -1
 git reset --hard origin/phase-1-rebrand 2>&1 | tail -1
 echo "commit: $(git rev-parse --short HEAD)"
 
+# git reset --hard above can rewrite THIS file's own bytes on disk while bash
+# is still mid-execution of it. Bash doesn't re-read a script line-by-line
+# from disk - it reads ahead in buffered chunks - so a deploy that changes
+# this script (as most do; the dev-pieces list below is edited often) can run
+# the rest of the file from a stale in-memory copy instead of what's now on
+# disk. This bit us twice in practice: the AP_DEV_PIECES update below silently
+# no-opped while later sections (already-buffered-ahead) ran the new content,
+# so .env fell out of sync with the build step until a manual second run.
+# Fix: once per invocation, re-exec this exact file as a brand-new process,
+# forcing a fresh read of whatever git just checked out. The guard var stops
+# this from looping (the second pass's git reset is a no-op, so nothing
+# changes and no second re-exec happens).
+if [ -z "${PLUGR_DEPLOY_REEXECED:-}" ]; then
+  echo "=== re-executing deploy script from freshly-checked-out disk content ==="
+  export PLUGR_DEPLOY_REEXECED=1
+  exec bash "$0" "$@"
+fi
+
 echo "=== dev pieces (fork-modified pieces) ==="
 # The forms piece (Chat UI trigger + Respond on UI), the ai piece (Run Agent,
 # etc.), and the gmail piece (New Email / New Labeled Email now expose the real
