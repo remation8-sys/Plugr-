@@ -15,7 +15,8 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     testTimeout: 20000,
-    include: [path.resolve(__dirname, 'test/**/*.test.ts')],
+    // globs must use forward slashes, path.resolve breaks them on Windows
+    include: [`${path.resolve(__dirname, 'test').split(path.sep).join('/')}/**/*.test.ts`],
   },
   resolve: {
     alias: {
