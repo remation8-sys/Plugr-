@@ -167,6 +167,47 @@ describe('agentTools.tools - direct-schema fast path', () => {
         expect(withoutChannel.success).toBe(true)
     })
 
+    it('bounds recursion when a dynamic property nests another dynamic property too deeply, then falls back', async () => {
+        mockPieceAction({
+            name: 'send_message',
+            displayName: 'Send Message',
+            description: 'Sends a message',
+            requireAuth: true,
+            props: {
+                root: {
+                    displayName: 'Root',
+                    type: PropertyType.DYNAMIC,
+                    required: true,
+                },
+            },
+        })
+        // Every call returns another DYNAMIC property, however deep we go -
+        // this must terminate via the depth limit, not recurse forever.
+        vi.mocked(pieceHelper.executeProps).mockResolvedValue({
+            options: {
+                nested: {
+                    displayName: 'Nested',
+                    type: PropertyType.DYNAMIC,
+                    required: true,
+                },
+            },
+        } as any)
+
+        const tools = await agentTools.tools({
+            engineConstants: generateMockEngineConstants(),
+            tools: [buildTool()],
+            model: {} as any,
+        })
+
+        const tool = tools.agentTool as any
+        expect(tool).toBeDefined()
+        // fast path failed (depth exceeded) -> fell back to the instruction schema
+        const withInstruction = await tool.inputSchema.safeParseAsync({ instruction: 'do it' })
+        expect(withInstruction.success).toBe(true)
+        // must terminate, not recurse without bound
+        expect(vi.mocked(pieceHelper.executeProps).mock.calls.length).toBeLessThanOrEqual(3)
+    })
+
     it('falls back to the legacy instruction-based tool when the fast path fails to build a schema', async () => {
         mockPieceAction({
             name: 'send_message',

@@ -377,7 +377,17 @@ type ExecuteToolOperationWithModel = ExecuteToolOperation & {
 // fast path (tryBuildDirectTool) can call them without inventing a fake one.
 type SchemaBuildOperation = Omit<ExecuteToolOperation, 'instruction'>
 
-async function propertyToSchema(propertyName: string, property: PieceProperty, operation: SchemaBuildOperation, resolvedInput: Record<string, unknown>): Promise<z.ZodTypeAny> {
+// How many DYNAMIC properties deep we'll follow when a dynamic property's
+// own sub-fields contain another dynamic property (each level costs a real
+// pieceHelper.executeProps call). Only DYNAMIC-to-DYNAMIC transitions count -
+// ARRAY/OBJECT nesting of ordinary fields doesn't. Matches upstream's chosen
+// bound (piece-input-filler.ts's MAX_DYNAMIC_DEPTH) for the same reason: bound
+// a real (if rare) unbounded-recursion/API-call risk with a clear error
+// instead of letting a pathological or misconfigured piece hang or spam
+// requests.
+const MAX_DYNAMIC_DEPTH = 3
+
+async function propertyToSchema(propertyName: string, property: PieceProperty, operation: SchemaBuildOperation, resolvedInput: Record<string, unknown>, dynamicDepth = 0): Promise<z.ZodTypeAny> {
     let schema: z.ZodTypeAny
 
     switch (property.type) {
@@ -404,7 +414,7 @@ async function propertyToSchema(propertyName: string, property: PieceProperty, o
             break
         case PropertyType.ARRAY: {
             if (property.properties) {
-                schema = z.array(await buildObjectSchemaFromProperties(property.properties, operation, resolvedInput))
+                schema = z.array(await buildObjectSchemaFromProperties(property.properties, operation, resolvedInput, dynamicDepth))
             }
             else {
                 schema = z.array(z.union([z.string(), z.number(), z.boolean(), z.object({}).loose()]))
@@ -418,7 +428,7 @@ async function propertyToSchema(propertyName: string, property: PieceProperty, o
             schema = z.union([z.object({}).loose(), z.array(z.unknown())])
             break
         case PropertyType.DYNAMIC: {
-            schema = await buildDynamicSchema(propertyName, operation, resolvedInput)
+            schema = await buildDynamicSchema(propertyName, operation, resolvedInput, dynamicDepth)
             break
         }
         case PropertyType.CHECKBOX:
@@ -439,10 +449,10 @@ async function propertyToSchema(propertyName: string, property: PieceProperty, o
     return property.required ? schema : schema.nullable()
 }
 
-async function buildObjectSchemaFromProperties(properties: Record<string, PieceProperty>, operation: SchemaBuildOperation, resolvedInput: Record<string, unknown>): Promise<z.ZodTypeAny> {
+async function buildObjectSchemaFromProperties(properties: Record<string, PieceProperty>, operation: SchemaBuildOperation, resolvedInput: Record<string, unknown>, dynamicDepth = 0): Promise<z.ZodTypeAny> {
     const entries = Object.entries(properties)
     const schemas = await Promise.all(entries.map(([key, value]) =>
-        propertyToSchema(key, value, operation, resolvedInput),
+        propertyToSchema(key, value, operation, resolvedInput, dynamicDepth),
     ))
     const schemaMap: Record<string, z.ZodTypeAny> = {}
     for (let i = 0; i < entries.length; i++) {
@@ -451,7 +461,10 @@ async function buildObjectSchemaFromProperties(properties: Record<string, PieceP
     return z.object(schemaMap).loose()
 }
 
-async function buildDynamicSchema(propertyName: string, operation: SchemaBuildOperation, resolvedInput: Record<string, unknown>): Promise<z.ZodTypeAny> {
+async function buildDynamicSchema(propertyName: string, operation: SchemaBuildOperation, resolvedInput: Record<string, unknown>, dynamicDepth = 0): Promise<z.ZodTypeAny> {
+    if (dynamicDepth >= MAX_DYNAMIC_DEPTH) {
+        throw new Error(`"${propertyName}" nests dynamic fields more than ${MAX_DYNAMIC_DEPTH} levels deep`)
+    }
     const response = await pieceHelper.executeProps({
         ...operation,
         propertyName,
@@ -460,7 +473,7 @@ async function buildDynamicSchema(propertyName: string, operation: SchemaBuildOp
         sampleData: {},
         searchValue: undefined,
     }) as unknown as ExecutePropsResult<PropertyType.DYNAMIC>
-    return buildObjectSchemaFromProperties(response.options, operation, resolvedInput)
+    return buildObjectSchemaFromProperties(response.options, operation, resolvedInput, dynamicDepth + 1)
 }
 
 type PropertyDetail = {
