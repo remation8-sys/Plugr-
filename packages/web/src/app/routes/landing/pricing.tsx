@@ -85,7 +85,7 @@ export function Pricing() {
           </p>
         </div>
 
-        <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mx-auto mt-14 grid max-w-3xl gap-6 sm:grid-cols-2">
           <div className="relative flex h-full flex-col rounded-2xl border p-4 backdrop-blur-xl sm:p-6 bg-white/[0.03] border-white/10">
             <h3 className="text-lg font-semibold text-white">Free</h3>
             <div className="mt-5 flex items-baseline gap-1.5">
