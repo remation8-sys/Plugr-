@@ -94,14 +94,28 @@ export function AIModelSelector({
   }, [providers]);
 
   React.useEffect(() => {
-    if (!selectedProvider && !providersLoading && providers.length > 0) {
+    if (providersLoading || providers.length === 0) {
+      return;
+    }
+    const hasSelected =
+      !!selectedProvider &&
+      providers.some((p) => p.provider === selectedProvider);
+    if (!hasSelected) {
       const preferred =
         activepiecesProvider?.provider || providers[0]?.provider;
       if (preferred) {
         setSelectedProvider(preferred as AIProviderName);
+        setSelectedModel(undefined);
+        onChange({ provider: preferred, model: undefined });
       }
     }
-  }, [providers, providersLoading, selectedProvider, activepiecesProvider]);
+  }, [
+    providers,
+    providersLoading,
+    selectedProvider,
+    activepiecesProvider,
+    onChange,
+  ]);
 
   React.useEffect(() => {
     if (
