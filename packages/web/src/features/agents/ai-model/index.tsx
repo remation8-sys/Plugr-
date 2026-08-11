@@ -1,7 +1,8 @@
 import { AIProviderName } from '@activepieces/shared';
 import { t } from 'i18next';
-import { Check, ChevronsUpDown, Loader2 } from 'lucide-react';
+import { Check, ChevronsUpDown, Loader2, Settings } from 'lucide-react';
 import * as React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -17,6 +18,7 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import { SUPPORTED_AI_PROVIDERS } from '@/features/agents/ai-providers';
+import { useIsPlatformAdmin } from '@/hooks/authorization-hooks';
 import { cn } from '@/lib/utils';
 
 import { aiModelHooks } from './hooks';
@@ -46,6 +48,38 @@ const ACTIVEPIECES_PROVIDER_CONFIG = {
 };
 
 const ALL_PROVIDERS = [...SUPPORTED_AI_PROVIDERS, ACTIVEPIECES_PROVIDER_CONFIG];
+
+function NoProvidersState() {
+  const navigate = useNavigate();
+  const isPlatformAdmin = useIsPlatformAdmin();
+
+  return (
+    <div className="flex flex-col items-center gap-3 rounded-md border border-dashed bg-muted/30 px-4 py-6 text-center">
+      <div className="flex h-10 w-10 items-center justify-center rounded-full bg-muted">
+        <Settings className="h-5 w-5 text-muted-foreground" />
+      </div>
+      <div className="space-y-1">
+        <p className="text-sm font-medium">{t('No AI provider connected')}</p>
+        <p className="text-xs text-muted-foreground">
+          {isPlatformAdmin
+            ? t('Connect an AI provider to use this step.')
+            : t('Ask your workspace admin to connect an AI provider.')}
+        </p>
+      </div>
+      {isPlatformAdmin && (
+        <Button
+          size="sm"
+          variant="outline"
+          className="gap-2"
+          onClick={() => navigate('/platform/setup/ai')}
+        >
+          <Settings className="h-3.5 w-3.5" />
+          {t('Connect a provider')}
+        </Button>
+      )}
+    </div>
+  );
+}
 
 export function AIModelSelector({
   defaultProvider,
@@ -159,6 +193,9 @@ export function AIModelSelector({
     <div className="space-y-2">
       <h2 className="text-sm font-medium">{t('AI Model *')}</h2>
 
+      {!providersLoading && providers.length === 0 ? (
+        <NoProvidersState />
+      ) : (
       <div className="flex items-stretch border rounded-md bg-background overflow-hidden">
         <Popover open={providerOpen} onOpenChange={setProviderOpen}>
           <PopoverTrigger asChild>
@@ -316,8 +353,9 @@ export function AIModelSelector({
           </PopoverContent>
         </Popover>
       </div>
+      )}
 
-      {selectedProvider && (
+      {providers.length > 0 && selectedProvider && (
         <p className="text-xs text-muted-foreground">
           {PROVIDER_EMBEDDING_MODELS[selectedProvider]
             ? t('Embedding model for knowledge base: {model}', {
