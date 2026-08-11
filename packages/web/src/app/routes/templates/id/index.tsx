@@ -16,6 +16,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 
 import { FlowCard } from './flow-card';
+import { TemplateFlowMobilePreview } from './mobile-flow-preview';
 import { PieceCard } from './piece-card';
 
 import { FlowCanvas } from '@/app/builder/flow-canvas';
@@ -25,6 +26,7 @@ import { TagWithBright } from '@/components/custom/tag-with-bright';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { UseTemplateDialog } from '@/features/templates/components/use-template-dialog';
+import { useIsMobile } from '@/hooks/use-mobile';
 import { authenticationSession } from '@/lib/authentication-session';
 import { formatUtils } from '@/lib/format-utils';
 import { FROM_QUERY_PARAM } from '@/lib/navigation-utils';
@@ -37,6 +39,7 @@ const TemplateDetailsPage = ({ template }: TemplateDetailsPageProps) => {
   const token = authenticationSession.getToken();
   const location = useLocation();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [hasCanvasBeenInitialised, setHasCanvasBeenInitialised] =
     useState(false);
   const canvasContainerRef = useRef<HTMLDivElement>(null);
@@ -252,7 +255,13 @@ const TemplateDetailsPage = ({ template }: TemplateDetailsPageProps) => {
             ref={canvasContainerRef}
             className="bg-muted/30 h-full w-full relative overflow-hidden border-l"
           >
-            {mockFlow && renderKey > 0 ? (
+            {mockFlow && isMobile ? (
+              // Drag-and-zoom canvas interaction is a poor fit for a phone -
+              // the mobile flow builder itself abandoned it for a step list
+              // (see app/builder/mobile). Template previews follow the same
+              // reasoning: a read-only card list, not a pannable canvas.
+              <TemplateFlowMobilePreview trigger={mockFlow.version.trigger} />
+            ) : mockFlow && renderKey > 0 ? (
               <div key={renderKey} className="h-full w-full">
                 <ReactFlowProvider>
                   <BuilderStateProvider
