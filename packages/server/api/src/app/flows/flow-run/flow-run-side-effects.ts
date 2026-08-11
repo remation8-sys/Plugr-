@@ -3,6 +3,7 @@ import { ApplicationEventName,
     isFlowRunStateTerminal,
 } from '@activepieces/shared'
 import { FastifyBaseLogger } from 'fastify'
+import { plugrBillingService } from '../../billing/billing.service'
 import { applicationEvents } from '../../helper/application-events'
 import { flowRunHooks } from './flow-run-hooks'
 import { waitpointService } from './waitpoint/waitpoint-service'
@@ -16,6 +17,7 @@ export const flowRunSideEffects = (log: FastifyBaseLogger) => ({
             return
         }
         await waitpointService(log).deleteByFlowRunId(flowRun.id)
+        await plugrBillingService(log).recordFlowRunExecution({ flowId: flowRun.flowId, environment: flowRun.environment })
         await flowRunHooks(log).onFinish(flowRun)
         applicationEvents(log).sendWorkerEvent(flowRun.projectId, {
             action: ApplicationEventName.FLOW_RUN_FINISHED,

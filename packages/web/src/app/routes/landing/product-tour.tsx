@@ -60,7 +60,7 @@ const TABS: {
     bullets: [
       'Build, validate, test, and troubleshoot from chat',
       'Live discovery instead of stale integration guesses',
-      'Business adds tool-using AI agent steps inside workflows',
+      'Plugr Plus adds tool-using AI agent steps inside workflows',
     ],
   },
   {
@@ -69,11 +69,11 @@ const TABS: {
     icon: BarChart3,
     title: 'See what ran and what happened.',
     description:
-      'Review run history and step results, retry failed runs, and use Pro analytics to track volume and estimated time saved.',
+      'Review run history and step results, retry failed runs, and use Plugr Plus analytics to track volume and estimated time saved.',
     bullets: [
       'Step-by-step run status and output',
       'Retry failed runs in one click',
-      'Advanced analytics on Pro and Business',
+      'Advanced analytics on Plugr Plus',
     ],
   },
 ];
@@ -150,7 +150,7 @@ function StatsMock() {
       }}
     >
       <div className="mb-3 font-mono text-xs uppercase tracking-wider text-white/60">
-        Illustrative Pro analytics
+        Illustrative Plugr Plus analytics
       </div>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
         {stats.map((s) => (
@@ -275,8 +275,8 @@ export function ProductTour() {
                 <ArrowRight className="size-4" strokeWidth={1.5} />
               </Link>
               <p className="mt-3 text-xs" style={{ color: '#6b6e7c' }}>
-                Plugr has no free trial. Your first paid subscription has a
-                3-day refund window.
+                Free forever — 2 canvases, 2,000 executions a month. No card
+                required.
               </p>
             </div>
             <div>

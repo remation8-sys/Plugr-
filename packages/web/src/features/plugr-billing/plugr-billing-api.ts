@@ -2,8 +2,10 @@
   PlugrBillingCurrency,
   PlugrBillingInfo,
   PlugrCheckoutResponse,
+  PlugrCreateCanvasSlotCheckoutRequest,
   PlugrCreateCheckoutRequest,
   PlugrCreateCreditCheckoutRequest,
+  PlugrCreateExecutionCreditCheckoutRequest,
   PlugrPricingInfo,
   PlugrVerifyTransactionRequest,
   PlugrVerifyTransactionResponse,
@@ -29,6 +31,18 @@ export const plugrBillingApi = {
   createCreditCheckout(request: PlugrCreateCreditCheckoutRequest) {
     return api.post<PlugrCheckoutResponse>(
       '/v1/user-billing/credits/checkout',
+      request,
+    );
+  },
+  createExecutionCreditCheckout(request: PlugrCreateExecutionCreditCheckoutRequest) {
+    return api.post<PlugrCheckoutResponse>(
+      '/v1/user-billing/credits/execution/checkout',
+      request,
+    );
+  },
+  createCanvasSlotCheckout(request: PlugrCreateCanvasSlotCheckoutRequest) {
+    return api.post<PlugrCheckoutResponse>(
+      '/v1/user-billing/credits/canvas-slot/checkout',
       request,
     );
   },

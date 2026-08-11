@@ -63,8 +63,8 @@ const OBS_FEATURES = [
   },
   {
     icon: BarChart3,
-    title: 'Advanced analytics on Pro',
-    body: 'Pro and Business track run volume, active flows, active users, and estimated time saved from values you set.',
+    title: 'Advanced analytics on Plugr Plus',
+    body: 'Plugr Plus tracks run volume, active flows, active users, and estimated time saved from values you set.',
   },
 ];
 
@@ -89,13 +89,13 @@ const DEPLOY_COLS = [
 const REFUND_POLICY_POINTS = [
   {
     icon: ReceiptText,
-    title: 'No free trial',
-    body: 'Paid plans begin when payment is successfully completed.',
+    title: 'Free tier, no card needed',
+    body: '2 canvases and 2,000 shared executions a month, free forever. Nothing to cancel, nothing to refund.',
   },
   {
     icon: RotateCcw,
-    title: '3-day first-payment window',
-    body: 'If Plugr is not the right fit, request a refund within 3 days of your first paid subscription.',
+    title: '3-day window on Plugr Plus',
+    body: 'If Plugr Plus is not the right fit, request a refund within 3 days of your first subscription payment.',
   },
   {
     icon: CreditCard,
@@ -257,8 +257,8 @@ function Hero() {
             </a>
           </div>
           <p className="mt-3 text-xs text-white/60">
-            No free trial. Your first paid subscription has a 3-day refund
-            window.
+            Free forever — 2 canvases, 2,000 executions a month. No card
+            required.
           </p>
         </div>
         <WorkflowCanvas />
@@ -439,18 +439,19 @@ function RefundPolicySection() {
               className="mt-4 text-3xl font-semibold tracking-tight sm:text-4xl"
               style={{ color: INK }}
             >
-              Clear billing, no surprise trial.
+              Clear billing, always.
             </h2>
             <p
               className="mt-4 text-lg leading-relaxed"
               style={{ color: '#434656' }}
             >
-              Plugr does not offer a free trial. If your first paid subscription
-              is not a fit, you can request a refund within 3 days of your
-              initial payment.
+              The Free tier costs nothing, so there is nothing to refund. Buy a
+              canvas slot or execution credits and it is yours permanently, no
+              subscription attached. If Plugr Plus is not the right fit, request
+              a refund within 3 days of your first subscription payment.
             </p>
             <p className="mt-4 text-sm" style={{ color: '#6b6e7c' }}>
-              Last updated: July 15, 2026
+              Last updated: August 11, 2026
             </p>
           </div>
 
@@ -499,12 +500,21 @@ function RefundPolicySection() {
                 style={{ color: '#434656' }}
               >
                 <li>
-                  After the 3-day refund window, subscription payments are
-                  generally non-refundable.
+                  The 3-day refund window applies to your first Plugr Plus
+                  subscription payment only. After that, subscription payments
+                  are generally non-refundable.
                 </li>
                 <li>
-                  You may cancel your subscription at any time. Paid access
-                  continues until the end of the current billing period.
+                  You may cancel Plugr Plus at any time. Paid access continues
+                  until the end of the current billing period, then your account
+                  returns to the Free tier — any canvas slots or execution
+                  credits you have bought stay yours.
+                </li>
+                <li>
+                  Canvas slot and execution credit purchases are one-time
+                  charges, not subscriptions. They do not renew and are
+                  generally non-refundable once granted, aside from billing
+                  errors.
                 </li>
                 <li>
                   Refunds may not be available after significant use of paid
@@ -559,8 +569,9 @@ function ClosingCta() {
           Turn the next manual process into a workflow.
         </h2>
         <p className="mx-auto mt-5 max-w-xl text-lg text-white/65">
-          Create an account, choose a paid plan, and start building with the
-          Plugr AI builder and monthly Plugr credits.
+          Create a free account and start building in minutes — no card
+          required. Upgrade to Plugr Plus whenever you want the AI builder to
+          do the building for you.
         </p>
         <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
           <PrimaryCta to="/sign-up">

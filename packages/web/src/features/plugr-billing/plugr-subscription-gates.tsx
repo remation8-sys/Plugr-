@@ -1,11 +1,7 @@
-import {
-  PlugrPaidTier,
-  PlugrSubscriptionStatus,
-  PlugrSubscriptionTier,
-} from '@activepieces/shared';
+import { PlugrSubscriptionStatus, PlugrSubscriptionTier } from '@activepieces/shared';
 import { LockKeyhole } from 'lucide-react';
 import React from 'react';
-import { Link, Navigate, useLocation } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 import { Button } from '@/components/ui/button';
 import { userHooks } from '@/hooks/user-hooks';
@@ -18,25 +14,40 @@ type PlugrBillingUser = {
   aiCreditsIncluded?: number;
   aiCreditsUsed?: number;
   aiCreditsPurchased?: number;
+  canvasSlotsPurchased?: number;
+  executionCreditsIncluded?: number;
+  executionCreditsUsed?: number;
+  executionCreditsPurchased?: number;
 };
 
-const tierRank: Record<PlugrSubscriptionTier, number> = {
-  trial: 0,
-  starter: 1,
-  builder: 2,
-  pro: 3,
-  business: 4,
-};
+const FREE_TIER_CANVAS_SLOTS = 2;
 
 const tierLabels: Record<PlugrSubscriptionTier, string> = {
-  trial: 'Unpaid',
-  starter: 'Starter',
-  builder: 'Builder',
-  pro: 'Pro',
-  business: 'Business',
+  free: 'Free',
+  plus: 'Plugr Plus',
 };
 
-export function hasPlugrAppAccess(user: PlugrBillingUser | null | undefined) {
+function isPaidPlugrTier(tier: PlugrSubscriptionTier | undefined) {
+  return tier === 'plus';
+}
+
+/**
+ * Every account has core product access (free tier included) - flows,
+ * connections, tables, AI-as-a-workflow-step. This is only false for a
+ * lapsed/expired Plus subscriber before normalization has run client-side,
+ * which shouldn't happen in practice since the backend flips them back to
+ * free automatically.
+ */
+export function hasPlugrAppAccess(_user: PlugrBillingUser | null | undefined) {
+  return true;
+}
+
+/**
+ * Plugr AI assistant + MCP/API access + specialist agents + advanced
+ * analytics are all Plugr Plus-only. There's a single paid tier now, so this
+ * is just "does the user have an active Plus subscription."
+ */
+export function hasPlugrPlusAccess(user: PlugrBillingUser | null | undefined) {
   if (!user) return false;
   if (!isPaidPlugrTier(user.subscriptionTier)) return false;
   if (user.subscriptionStatus === 'expired') return false;
@@ -47,41 +58,16 @@ export function hasPlugrAppAccess(user: PlugrBillingUser | null | undefined) {
   return false;
 }
 
-export function canUsePlugr(user: PlugrBillingUser | null | undefined) {
-  return hasPlugrAppAccess(user);
-}
-
-/**
- * AI access = the plan includes AI credits (Builder/Pro/Business) or the user
- * bought credits. Starter includes 0 credits, so Starter users get the upsell
- * teaser instead of the chat. Credit *exhaustion* (used all included) is a
- * separate in-chat state, so we key off entitlement, not remaining balance.
- */
-export function hasPlugrAiAccess(user: PlugrBillingUser | null | undefined) {
-  if (!canUsePlugr(user)) return false;
-  return (
-    (user!.aiCreditsIncluded ?? 0) > 0 || (user!.aiCreditsPurchased ?? 0) > 0
-  );
-}
-
-export function hasMinimumPlugrTier(
-  user: PlugrBillingUser | null | undefined,
-  minimumTier: PlugrPaidTier,
-) {
-  const tier = user?.subscriptionTier;
-  return (
-    hasPlugrAppAccess(user) && !!tier && tierRank[tier] >= tierRank[minimumTier]
-  );
-}
+export const hasPlugrAiAccess = hasPlugrPlusAccess;
 
 export function getPlugrTierLabel(tier: PlugrSubscriptionTier | undefined) {
-  return tier ? tierLabels[tier] : tierLabels.trial;
+  return tier ? tierLabels[tier] : tierLabels.free;
 }
 
 export function getPlugrCreditsRemaining(
   user: PlugrBillingUser | null | undefined,
 ) {
-  if (!user || user.subscriptionTier === 'trial') return 0;
+  if (!user || !hasPlugrPlusAccess(user)) return 0;
   return Math.max(
     0,
     (user.aiCreditsIncluded ?? 0) +
@@ -90,40 +76,31 @@ export function getPlugrCreditsRemaining(
   );
 }
 
-export function PlugrAppAccessGuard({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
-  const { data: user } = userHooks.useCurrentUser();
-  const location = useLocation();
-  const isBillingRoute =
-    location.pathname.startsWith('/pricing') ||
-    location.pathname.startsWith('/billing');
-
-  if (!user || isBillingRoute || hasPlugrAppAccess(user)) {
-    return <>{children}</>;
-  }
-
-  return <Navigate to="/pricing" replace />;
-}
-
-export function PlugrAccessGuard({ children }: { children: React.ReactNode }) {
-  const { data: user } = userHooks.useCurrentUser();
-
-  if (!user) return null;
-  if (!hasPlugrAppAccess(user)) return <Navigate to="/pricing" replace />;
-  if (canUsePlugr(user)) return <>{children}</>;
-
-  return (
-    <PlugrLockedFeature
-      title="Choose a plan to automate"
-      description="Choose a paid plan and add a payment method before building or running automations."
-      ctaLabel="View plans"
-    />
+export function getPlugrExecutionCreditsRemaining(
+  user: PlugrBillingUser | null | undefined,
+) {
+  if (!user) return 0;
+  return Math.max(
+    0,
+    (user.executionCreditsIncluded ?? 0) +
+      (user.executionCreditsPurchased ?? 0) -
+      (user.executionCreditsUsed ?? 0),
   );
 }
 
+/** null = unlimited (Plugr Plus) */
+export function getPlugrCanvasSlotLimit(
+  user: PlugrBillingUser | null | undefined,
+): number | null {
+  if (!user) return FREE_TIER_CANVAS_SLOTS;
+  if (isPaidPlugrTier(user.subscriptionTier)) return null;
+  return FREE_TIER_CANVAS_SLOTS + (user.canvasSlotsPurchased ?? 0);
+}
+
+/**
+ * Gates surfaces that require an active Plugr Plus subscription: the Plugr
+ * AI assistant, MCP settings, specialist agents, advanced analytics.
+ */
 export function PlugrAiAccessGuard({
   children,
 }: {
@@ -132,13 +109,12 @@ export function PlugrAiAccessGuard({
   const { data: user } = userHooks.useCurrentUser();
 
   if (!user) return null;
-  if (!hasPlugrAppAccess(user)) return <Navigate to="/pricing" replace />;
-  if (hasPlugrAiAccess(user)) return <>{children}</>;
+  if (hasPlugrPlusAccess(user)) return <>{children}</>;
 
   return (
     <PlugrLockedFeature
       title="Build with Plugr AI"
-      description="Describe what you want in plain words and Plugr builds the automation for you. Available on the Builder, Pro, and Business plans."
+      description="Describe what you want in plain words and Plugr builds the automation for you. Available on Plugr Plus."
       ctaLabel="See plans"
     />
   );
@@ -183,13 +159,4 @@ export function PlugrLockedFeature({
 function isFuture(value: string | Date | null | undefined) {
   if (!value) return false;
   return new Date(value).getTime() > Date.now();
-}
-
-function isPaidPlugrTier(tier: PlugrSubscriptionTier | undefined) {
-  return (
-    tier === 'starter' ||
-    tier === 'builder' ||
-    tier === 'pro' ||
-    tier === 'business'
-  );
 }

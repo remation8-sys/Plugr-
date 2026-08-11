@@ -10,6 +10,7 @@ import {
     PlatformRole,
     PlugrBillingCountry,
     PlugrBillingCurrency,
+    plugrFreeTierConfig,
     ProjectId,
     ProjectType,
     SeekPage,
@@ -44,7 +45,7 @@ export const userRepo = repoFactory(UserEntity)
 export const userService = (log: FastifyBaseLogger) => ({
     async create(params: CreateParams): Promise<User> {
         const isActive = params.isActive ?? true
-        const billingDefaults = createTrialBillingDefaults({
+        const billingDefaults = createFreeBillingDefaults({
             billingCountry: params.billingCountry ?? 'OTHER',
             billingCurrency: params.billingCurrency ?? 'USD',
         })
@@ -278,14 +279,14 @@ export const userService = (log: FastifyBaseLogger) => ({
 })
 
 
-function createTrialBillingDefaults({ billingCountry, billingCurrency }: CreateTrialBillingDefaultsParams): UserBillingFields {
+function createFreeBillingDefaults({ billingCountry, billingCurrency }: CreateFreeBillingDefaultsParams): UserBillingFields {
     const now = dayjs()
     return {
-        subscriptionTier: 'trial',
-        subscriptionStatus: 'trial',
+        subscriptionTier: 'free',
+        subscriptionStatus: 'none',
         subscriptionPeriod: 'monthly',
-        trialStartsAt: now.toISOString(),
-        trialEndsAt: now.add(7, 'day').toISOString(),
+        trialStartsAt: null,
+        trialEndsAt: null,
         subscriptionStartsAt: null,
         subscriptionEndsAt: null,
         flutterwaveCustomerId: null,
@@ -297,6 +298,11 @@ function createTrialBillingDefaults({ billingCountry, billingCurrency }: CreateT
         aiCreditsUsed: 0,
         aiCreditsPurchased: 0,
         aiCreditsResetAt: null,
+        canvasSlotsPurchased: 0,
+        executionCreditsIncluded: plugrFreeTierConfig.executionCredits,
+        executionCreditsUsed: 0,
+        executionCreditsPurchased: 0,
+        executionCreditsResetAt: now.add(1, 'month').toISOString(),
     }
 }
 
@@ -318,6 +324,11 @@ function pickUserBillingFields(user: User): UserBillingFields {
         aiCreditsUsed: user.aiCreditsUsed,
         aiCreditsPurchased: user.aiCreditsPurchased,
         aiCreditsResetAt: user.aiCreditsResetAt,
+        canvasSlotsPurchased: user.canvasSlotsPurchased,
+        executionCreditsIncluded: user.executionCreditsIncluded,
+        executionCreditsUsed: user.executionCreditsUsed,
+        executionCreditsPurchased: user.executionCreditsPurchased,
+        executionCreditsResetAt: user.executionCreditsResetAt,
     }
 }
 
@@ -428,9 +439,9 @@ type GetUsersByIdentityIdParams = {
 
 type NewUser = Omit<User, 'created' | 'updated'>
 
-type UserBillingFields = Pick<User, 'subscriptionTier' | 'subscriptionStatus' | 'subscriptionPeriod' | 'trialStartsAt' | 'trialEndsAt' | 'subscriptionStartsAt' | 'subscriptionEndsAt' | 'flutterwaveCustomerId' | 'flutterwaveSubscriptionId' | 'flutterwavePlanId' | 'billingCountry' | 'billingCurrency' | 'aiCreditsIncluded' | 'aiCreditsUsed' | 'aiCreditsPurchased' | 'aiCreditsResetAt'>
+type UserBillingFields = Pick<User, 'subscriptionTier' | 'subscriptionStatus' | 'subscriptionPeriod' | 'trialStartsAt' | 'trialEndsAt' | 'subscriptionStartsAt' | 'subscriptionEndsAt' | 'flutterwaveCustomerId' | 'flutterwaveSubscriptionId' | 'flutterwavePlanId' | 'billingCountry' | 'billingCurrency' | 'aiCreditsIncluded' | 'aiCreditsUsed' | 'aiCreditsPurchased' | 'aiCreditsResetAt' | 'canvasSlotsPurchased' | 'executionCreditsIncluded' | 'executionCreditsUsed' | 'executionCreditsPurchased' | 'executionCreditsResetAt'>
 
-type CreateTrialBillingDefaultsParams = {
+type CreateFreeBillingDefaultsParams = {
     billingCountry: PlugrBillingCountry
     billingCurrency: PlugrBillingCurrency
 }

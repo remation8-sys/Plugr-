@@ -100,7 +100,7 @@ const PlugrChatPanel = () => {
       <PlugrLockedFeature
         title={t('Build with Plugr AI')}
         description={t(
-          'Describe what you want in plain words and Plugr builds the automation for you. Available on the Builder, Pro, and Business plans.',
+          'Describe what you want in plain words and Plugr builds the automation for you. Available on Plugr Plus.',
         )}
         ctaLabel={t('See plans')}
       />

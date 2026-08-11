@@ -58,7 +58,7 @@ import {
   RefreshAnalyticsContext,
   RefreshAnalyticsProvider,
 } from '@/features/platform-admin';
-import { hasMinimumPlugrTier } from '@/features/plugr-billing';
+import { hasPlugrPlusAccess } from '@/features/plugr-billing';
 import { projectCollectionUtils } from '@/features/projects';
 import { platformHooks } from '@/hooks/platform-hooks';
 import { userHooks } from '@/hooks/user-hooks';
@@ -104,7 +104,7 @@ export default function LeaderboardPage() {
   const { platform } = platformHooks.useCurrentPlatform();
   const { data: user } = userHooks.useCurrentUser();
   const analyticsLocked =
-    !platform.plan.analyticsEnabled || !hasMinimumPlugrTier(user, 'pro');
+    !platform.plan.analyticsEnabled || !hasPlugrPlusAccess(user);
   const [timePeriod, setTimePeriod] = useState<AnalyticsTimePeriod>(
     AnalyticsTimePeriod.LAST_WEEK,
   );
@@ -349,7 +349,7 @@ export default function LeaderboardPage() {
       featureKey="ANALYTICS"
       locked={analyticsLocked}
       lockTitle={t('Unlock Advanced Analytics')}
-      lockDescription={t('Available on Pro plan.')}
+      lockDescription={t('Available on Plugr Plus.')}
       upgradeHref="/pricing"
       upgradeLabel={t('Upgrade')}
     >

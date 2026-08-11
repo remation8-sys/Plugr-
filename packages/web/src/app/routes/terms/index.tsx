@@ -7,7 +7,7 @@ const BLUE = '#0055ff';
 const BLUE_TEXT = '#6b8cff';
 const INK = '#0d0e1a';
 
-const LAST_UPDATED = 'July 18, 2026';
+const LAST_UPDATED = 'August 11, 2026';
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
@@ -222,18 +222,27 @@ export function TermsPage() {
           </Ul>
         </Section>
 
-        <Section title="4. Subscriptions, Billing, and Renewals">
+        <Section title="4. Free Tier, Pay-As-You-Go, and Plugr Plus">
           <P>
-            Plugr is a paid subscription service. We do not provide a free trial
-            unless a trial or promotion is expressly shown to you in writing at
-            checkout.
+            Plugr has a permanent free tier. You do not need to pay or provide
+            payment details to create an account, build workflows, or run them
+            within the free tier&apos;s canvas and execution limits shown on the
+            pricing page. This is not a trial — it does not expire, and it does
+            not require a card.
           </P>
           <P>
-            Paid access begins after a successful payment. By starting a
-            subscription, you authorise us and our payment processors to charge
-            your selected payment method at checkout and automatically on each
-            renewal date for the billing cycle you choose, such as monthly,
-            quarterly, biannual, or annual billing.
+            Beyond the free tier, Plugr offers two ways to pay: pay-as-you-go
+            purchases (such as additional canvas slots or execution credits),
+            which are one-time, non-recurring charges that do not renew and do
+            not require a subscription; and Plugr Plus, an optional recurring
+            monthly subscription that unlocks unlimited canvases and executions
+            plus additional features shown on the pricing page.
+          </P>
+          <P>
+            By starting a Plugr Plus subscription, you authorise us and our
+            payment processors to charge your selected payment method at
+            checkout and automatically on each monthly renewal date, until you
+            cancel.
           </P>
           <P>
             Prices, currencies, plan limits, credits, and available features are
@@ -242,29 +251,36 @@ export function TermsPage() {
             fees may apply and are your responsibility unless stated otherwise.
           </P>
           <P>
-            If a payment fails, is reversed, is disputed, or cannot be verified,
-            we may withhold, downgrade, or suspend paid access until payment is
-            completed.
+            If a Plugr Plus payment fails, is reversed, is disputed, or cannot
+            be verified, we may withhold, downgrade, or suspend paid access
+            until payment is completed; your account reverts to the free tier
+            rather than losing access to Plugr entirely.
           </P>
         </Section>
 
         <Section title="5. Cancellation and Refunds">
           <P>
-            You may cancel your subscription at any time. Cancellation stops the
-            next renewal charge, but paid access continues until the end of the
-            current billing period.
+            You may cancel your Plugr Plus subscription at any time.
+            Cancellation stops the next renewal charge, but paid access
+            continues until the end of the current billing period, after which
+            your account returns to the free tier. Canvas slots and execution
+            credits you have purchased are yours permanently and are not
+            affected by cancelling Plugr Plus.
           </P>
           <P>
             Except where required by law, subscription payments are generally
-            non-refundable after purchase. However, if Plugr is not the right
-            fit, you may request a refund within 3 days of your first paid
-            subscription payment.
+            non-refundable after purchase. However, if Plugr Plus is not the
+            right fit, you may request a refund within 3 days of your first
+            Plugr Plus subscription payment.
           </P>
           <P>
-            Duplicate charges, accidental overbilling, or clear billing errors
-            will be corrected and refunded to the original payment method.
-            Refunds may be denied for heavy paid-resource usage, fraud,
-            chargeback misuse, policy abuse, or violations of these Terms.
+            Pay-as-you-go purchases (canvas slots, execution credits) are
+            one-time charges and are generally non-refundable once granted,
+            except for duplicate charges, accidental overbilling, or clear
+            billing errors, which will be corrected and refunded to the
+            original payment method. Refunds may be denied for heavy
+            paid-resource usage, fraud, chargeback misuse, policy abuse, or
+            violations of these Terms.
           </P>
           <P>
             Refunds are returned to the original payment method and may take

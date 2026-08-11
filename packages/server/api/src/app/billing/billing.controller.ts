@@ -2,8 +2,10 @@ import {
     PlugrBillingInfo,
     PlugrCancelSubscriptionRequest,
     PlugrCheckoutResponse,
+    PlugrCreateCanvasSlotCheckoutRequest,
     PlugrCreateCheckoutRequest,
     PlugrCreateCreditCheckoutRequest,
+    PlugrCreateExecutionCreditCheckoutRequest,
     PlugrPricingInfo,
     PlugrPricingQuery,
     PlugrVerifyTransactionRequest,
@@ -48,6 +50,22 @@ export const plugrBillingController: FastifyPluginAsyncZod = async (app) => {
             request,
             userId: request.principal.id,
             pack: request.body.pack,
+            currency: request.body.currency,
+        })
+    })
+
+    app.post('/credits/execution/checkout', ExecutionCreditCheckoutRoute, async (request) => {
+        return plugrBillingService(request.log).createExecutionCreditCheckout({
+            request,
+            userId: request.principal.id,
+            currency: request.body.currency,
+        })
+    })
+
+    app.post('/credits/canvas-slot/checkout', CanvasSlotCheckoutRoute, async (request) => {
+        return plugrBillingService(request.log).createCanvasSlotCheckout({
+            request,
+            userId: request.principal.id,
             currency: request.body.currency,
         })
     })
@@ -193,6 +211,36 @@ const CreditCheckoutRoute = {
         tags: ['plugr-billing'],
         security: [SERVICE_KEY_SECURITY_OPENAPI],
         body: PlugrCreateCreditCheckoutRequest,
+        response: {
+            [StatusCodes.OK]: PlugrCheckoutResponse,
+        },
+    },
+}
+
+const ExecutionCreditCheckoutRoute = {
+    config: {
+        security: securityAccess.publicPlatform(BILLING_PRINCIPALS),
+        rateLimit: BillingRateLimit,
+    },
+    schema: {
+        tags: ['plugr-billing'],
+        security: [SERVICE_KEY_SECURITY_OPENAPI],
+        body: PlugrCreateExecutionCreditCheckoutRequest,
+        response: {
+            [StatusCodes.OK]: PlugrCheckoutResponse,
+        },
+    },
+}
+
+const CanvasSlotCheckoutRoute = {
+    config: {
+        security: securityAccess.publicPlatform(BILLING_PRINCIPALS),
+        rateLimit: BillingRateLimit,
+    },
+    schema: {
+        tags: ['plugr-billing'],
+        security: [SERVICE_KEY_SECURITY_OPENAPI],
+        body: PlugrCreateCanvasSlotCheckoutRequest,
         response: {
             [StatusCodes.OK]: PlugrCheckoutResponse,
         },

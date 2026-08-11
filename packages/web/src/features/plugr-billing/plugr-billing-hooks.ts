@@ -1,7 +1,9 @@
 ﻿import {
   PlugrBillingCurrency,
+  PlugrCreateCanvasSlotCheckoutRequest,
   PlugrCreateCheckoutRequest,
   PlugrCreateCreditCheckoutRequest,
+  PlugrCreateExecutionCreditCheckoutRequest,
 } from '@activepieces/shared';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { t } from 'i18next';
@@ -66,6 +68,36 @@ export const plugrBillingMutations = {
     return useMutation({
       mutationFn: async (request: PlugrCreateCreditCheckoutRequest) => {
         const response = await plugrBillingApi.createCreditCheckout(request);
+        await startCheckout(response);
+      },
+      onError: (error) => {
+        toast.error(t('Could not start checkout'), {
+          description: error instanceof Error ? error.message : undefined,
+        });
+      },
+    });
+  },
+  useCreateExecutionCreditCheckout() {
+    return useMutation({
+      mutationFn: async (request: PlugrCreateExecutionCreditCheckoutRequest) => {
+        const response = await plugrBillingApi.createExecutionCreditCheckout(
+          request,
+        );
+        await startCheckout(response);
+      },
+      onError: (error) => {
+        toast.error(t('Could not start checkout'), {
+          description: error instanceof Error ? error.message : undefined,
+        });
+      },
+    });
+  },
+  useCreateCanvasSlotCheckout() {
+    return useMutation({
+      mutationFn: async (request: PlugrCreateCanvasSlotCheckoutRequest) => {
+        const response = await plugrBillingApi.createCanvasSlotCheckout(
+          request,
+        );
         await startCheckout(response);
       },
       onError: (error) => {

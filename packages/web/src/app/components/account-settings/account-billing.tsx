@@ -6,6 +6,8 @@ import { Separator } from '@/components/ui/separator';
 import {
   formatPlugrDate,
   formatPlugrMoney,
+  getPlugrCanvasSlotLimit,
+  hasPlugrPlusAccess,
   plugrBillingMutations,
   plugrBillingQueries,
 } from '@/features/plugr-billing';
@@ -16,6 +18,9 @@ export function AccountBilling() {
   const billingQuery = plugrBillingQueries.useInfo();
   const pricingQuery = plugrBillingQueries.usePricing();
   const creditCheckout = plugrBillingMutations.useCreateCreditCheckout();
+  const executionCreditCheckout =
+    plugrBillingMutations.useCreateExecutionCreditCheckout();
+  const canvasSlotCheckout = plugrBillingMutations.useCreateCanvasSlotCheckout();
   const cancelSubscription = plugrBillingMutations.useCancelSubscription();
 
   if (billingQuery.isLoading || !billingQuery.data) {
@@ -26,6 +31,8 @@ export function AccountBilling() {
 
   const billing = billingQuery.data;
   const user = billing.user;
+  const isPlus = hasPlugrPlusAccess(user);
+  const canvasSlotLimit = getPlugrCanvasSlotLimit(user);
   const canCancel =
     user.subscriptionStatus === 'active' ||
     user.subscriptionStatus === 'cancelled';
@@ -39,11 +46,11 @@ export function AccountBilling() {
         </p>
       </div>
 
-      <div className="grid gap-3 md:grid-cols-2">
+      <div className="grid gap-3 md:grid-cols-3">
         <div className="rounded-lg border p-3">
           <div className="text-xs text-muted-foreground">Current plan</div>
           <div className="mt-1 text-lg font-semibold capitalize">
-            {user.subscriptionTier}
+            {isPlus ? 'Plugr Plus' : 'Free'}
           </div>
           <div className="mt-1 text-xs text-muted-foreground capitalize">
             {user.subscriptionStatus}
@@ -53,43 +60,112 @@ export function AccountBilling() {
           </div>
         </div>
         <div className="rounded-lg border p-3">
-          <div className="text-xs text-muted-foreground">Plugr credits</div>
+          <div className="text-xs text-muted-foreground">Canvas slots</div>
           <div className="mt-1 text-lg font-semibold">
-            {billing.creditsRemaining.toLocaleString()} remaining
+            {canvasSlotLimit === null ? 'Unlimited' : `${canvasSlotLimit} total`}
           </div>
           <div className="mt-1 text-xs text-muted-foreground">
-            monthly reset
+            {canvasSlotLimit === null
+              ? 'included with Plugr Plus'
+              : `${user.canvasSlotsPurchased} purchased`}
+          </div>
+        </div>
+        <div className="rounded-lg border p-3">
+          <div className="text-xs text-muted-foreground">Executions</div>
+          <div className="mt-1 text-lg font-semibold">
+            {isPlus
+              ? 'Unlimited'
+              : `${billing.executionCreditsRemaining.toLocaleString()} remaining`}
+          </div>
+          <div className="mt-1 text-xs text-muted-foreground">
+            {isPlus ? 'included with Plugr Plus' : 'monthly reset'}
           </div>
         </div>
       </div>
 
-      <div className="rounded-lg border p-3">
-        <div className="mb-3">
-          <div className="text-sm font-medium">Add Plugr credits</div>
-          <div className="text-xs text-muted-foreground">
-            Use packs when your plan credits run low.
+      {!isPlus && (
+        <div className="rounded-lg border p-3">
+          <div className="mb-3">
+            <div className="text-sm font-medium">Pay-as-you-go</div>
+            <div className="text-xs text-muted-foreground">
+              One-time purchases, yours permanently - no subscription needed.
+            </div>
+          </div>
+          <div className="grid gap-2 sm:grid-cols-2">
+            <Button
+              variant="outline"
+              className="justify-between"
+              disabled={
+                !pricingQuery.data?.canvasSlotProduct ||
+                canvasSlotCheckout.isPending
+              }
+              onClick={() => canvasSlotCheckout.mutate({})}
+            >
+              <span>+1 canvas slot</span>
+              {pricingQuery.data?.canvasSlotProduct ? (
+                <span>
+                  {formatPlugrMoney(
+                    pricingQuery.data.canvasSlotProduct.amount,
+                    pricingQuery.data.canvasSlotProduct.currency,
+                  )}
+                </span>
+              ) : null}
+            </Button>
+            <Button
+              variant="outline"
+              className="justify-between"
+              disabled={
+                !pricingQuery.data?.executionCreditPack ||
+                executionCreditCheckout.isPending
+              }
+              onClick={() => executionCreditCheckout.mutate({})}
+            >
+              <span>
+                +{pricingQuery.data?.executionCreditPack.credits ?? 5000}{' '}
+                executions
+              </span>
+              {pricingQuery.data?.executionCreditPack ? (
+                <span>
+                  {formatPlugrMoney(
+                    pricingQuery.data.executionCreditPack.amount,
+                    pricingQuery.data.executionCreditPack.currency,
+                  )}
+                </span>
+              ) : null}
+            </Button>
           </div>
         </div>
-        <div className="grid gap-2 sm:grid-cols-3">
-          {creditPacks.map((pack) => {
-            const price = pricingQuery.data?.creditPacks[pack];
-            return (
-              <Button
-                key={pack}
-                variant="outline"
-                className="justify-between"
-                disabled={!price || creditCheckout.isPending}
-                onClick={() => creditCheckout.mutate({ pack })}
-              >
-                <span>{pack} credits</span>
-                {price ? (
-                  <span>{formatPlugrMoney(price.amount, price.currency)}</span>
-                ) : null}
-              </Button>
-            );
-          })}
+      )}
+
+      {isPlus && (
+        <div className="rounded-lg border p-3">
+          <div className="mb-3">
+            <div className="text-sm font-medium">Add Plugr AI credits</div>
+            <div className="text-xs text-muted-foreground">
+              Use packs when your monthly credits run low.
+            </div>
+          </div>
+          <div className="grid gap-2 sm:grid-cols-3">
+            {creditPacks.map((pack) => {
+              const price = pricingQuery.data?.creditPacks[pack];
+              return (
+                <Button
+                  key={pack}
+                  variant="outline"
+                  className="justify-between"
+                  disabled={!price || creditCheckout.isPending}
+                  onClick={() => creditCheckout.mutate({ pack })}
+                >
+                  <span>{pack} credits</span>
+                  {price ? (
+                    <span>{formatPlugrMoney(price.amount, price.currency)}</span>
+                  ) : null}
+                </Button>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      )}
 
       {canCancel && (
         <div className="flex items-center justify-between gap-3 rounded-lg border p-3">

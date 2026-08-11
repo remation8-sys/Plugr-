@@ -38,12 +38,12 @@ export const UserEntity = new EntitySchema<UserSchema>({
         subscriptionTier: {
             type: String,
             nullable: false,
-            default: 'trial',
+            default: 'free',
         },
         subscriptionStatus: {
             type: String,
             nullable: false,
-            default: 'trial',
+            default: 'none',
         },
         subscriptionPeriod: {
             type: String,
@@ -104,6 +104,30 @@ export const UserEntity = new EntitySchema<UserSchema>({
             default: 0,
         },
         aiCreditsResetAt: {
+            type: 'timestamp with time zone',
+            nullable: true,
+        },
+        canvasSlotsPurchased: {
+            type: Number,
+            nullable: false,
+            default: 0,
+        },
+        executionCreditsIncluded: {
+            type: Number,
+            nullable: false,
+            default: 2000,
+        },
+        executionCreditsUsed: {
+            type: Number,
+            nullable: false,
+            default: 0,
+        },
+        executionCreditsPurchased: {
+            type: Number,
+            nullable: false,
+            default: 0,
+        },
+        executionCreditsResetAt: {
             type: 'timestamp with time zone',
             nullable: true,
         },

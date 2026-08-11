@@ -43,8 +43,8 @@ function ConnectToolsContent() {
   const projectId = authenticationSession.getProjectId();
 
   // After onboarding, land the user in the templates gallery — the fastest path
-  // to a first working automation on ANY plan (Starter has no AI, so chat is not
-  // a universal entry point). Honor an explicit deep-link (`from`) if present.
+  // to a first working automation on ANY tier (the Free tier has no Plugr AI, so
+  // chat is not a universal entry point). Honor an explicit deep-link (`from`) if present.
   const goToFirstAutomation = () => {
     const from = searchParams.get('from');
     navigate(from ?? '/templates');

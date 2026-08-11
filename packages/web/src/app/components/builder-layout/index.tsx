@@ -3,7 +3,6 @@ import { ApEdition, ApFlagId } from '@activepieces/shared';
 import { useEmbedding } from '@/components/providers/embed-provider';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar-shadcn';
 import { PurchaseExtraFlowsDialog } from '@/features/billing/components/active-flows-addon/purchase-active-flows-dialog';
-import { PlugrAppAccessGuard } from '@/features/plugr-billing';
 import { flagsHooks } from '@/hooks/flags-hooks';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
@@ -17,11 +16,9 @@ import { ProjectDashboardSidebar } from '../sidebar/dashboard';
 
 function BuilderLayout({ children }: { children: React.ReactNode }) {
   return (
-    <PlugrAppAccessGuard>
-      <GlobalSearchProvider>
-        <BuilderLayoutInner>{children}</BuilderLayoutInner>
-      </GlobalSearchProvider>
-    </PlugrAppAccessGuard>
+    <GlobalSearchProvider>
+      <BuilderLayoutInner>{children}</BuilderLayoutInner>
+    </GlobalSearchProvider>
   );
 }
 

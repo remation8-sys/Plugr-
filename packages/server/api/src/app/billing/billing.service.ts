@@ -2,6 +2,7 @@ import {
     ActivepiecesError,
     apId,
     ErrorCode,
+    getPlugrCanvasSlotLimit,
     getPlugrCreditPackPrice,
     getPlugrCreditsRemaining,
     getPlugrPlanPrice,
@@ -13,9 +14,12 @@ import {
     PlugrBillingTransaction,
     PlugrBillingTransactionStatus,
     PlugrBillingTransactionType,
+    plugrCanvasSlotProduct,
     plugrCreditActionCosts,
     PlugrCreditActionType,
     PlugrCreditPackSize,
+    plugrExecutionCreditPack,
+    plugrFreeTierConfig,
     PlugrInlineCheckoutParams,
     PlugrPaidTier,
     plugrPlanCatalog,
@@ -23,6 +27,7 @@ import {
     PlugrSubscriptionPeriod,
     PlugrUserBilling,
     PlugrVerifyTransactionResponse,
+    RunEnvironment,
     User,
 } from '@activepieces/shared'
 import dayjs from 'dayjs'
@@ -67,6 +72,15 @@ export const plugrBillingService = (log: FastifyBaseLogger) => ({
                 purchased: user.aiCreditsPurchased,
                 used: user.aiCreditsUsed,
             }),
+            executionCreditsRemaining: getPlugrCreditsRemaining({
+                included: user.executionCreditsIncluded,
+                purchased: user.executionCreditsPurchased,
+                used: user.executionCreditsUsed,
+            }),
+            canvasSlotLimit: getPlugrCanvasSlotLimit({
+                subscriptionTier: user.subscriptionTier,
+                canvasSlotsPurchased: user.canvasSlotsPurchased,
+            }),
             history: history.map(toBillingTransaction),
         }
     },
@@ -75,7 +89,7 @@ export const plugrBillingService = (log: FastifyBaseLogger) => ({
         // Plugr bills monthly only - ignore any other period the client sends.
         params.period = 'monthly'
         const user = await getNormalizedUser({ userId: params.userId, log })
-        assertCanStartCheckout({ user, tier: params.tier })
+        assertCanStartCheckout({ user })
         const location = await resolveBillingLocation({ request: params.request, user, log, currencyOverride: params.currency })
         const price = getPlugrPlanPrice({ tier: params.tier, period: params.period, currency: location.currency })
         const paymentPlanId = params.period === 'monthly'
@@ -140,14 +154,14 @@ export const plugrBillingService = (log: FastifyBaseLogger) => ({
     },
     async createCreditCheckout(params: CreateCreditCheckoutParams): Promise<{ checkoutUrl: string, reference: string, inline?: PlugrInlineCheckoutParams }> {
         const user = await getNormalizedUser({ userId: params.userId, log })
-        assertPlugrAccess(user)
+        assertPlusAccess(user)
         const location = await resolveBillingLocation({ request: params.request, user, log, currencyOverride: params.currency })
         const price = getPlugrCreditPackPrice({ pack: params.pack, currency: location.currency })
         const userMeta = await userService(log).getMetaInformation({ id: params.userId })
         const reference = `plg_crd_${apId()}`
         await savePendingTransaction({
             userId: params.userId,
-            type: 'credits',
+            type: 'ai_credits',
             tier: null,
             period: null,
             creditsPurchased: price.credits,
@@ -159,7 +173,7 @@ export const plugrBillingService = (log: FastifyBaseLogger) => ({
         const title = `${price.credits} Plugr credits`
         const description = `${price.credits} Plugr credits`
         const metadata = {
-            plugrPaymentType: 'credits',
+            plugrPaymentType: 'ai_credits',
             userId: params.userId,
             pack: params.pack,
             credits: price.credits,
@@ -182,6 +196,109 @@ export const plugrBillingService = (log: FastifyBaseLogger) => ({
             reference,
             inline: buildInlineParams({
                 amount: price.amount,
+                currency: location.currency,
+                reference,
+                customerEmail: userMeta.email,
+                customerName,
+                title,
+                description,
+                metadata,
+            }),
+        }
+    },
+
+    async createExecutionCreditCheckout(params: CreateExecutionCreditCheckoutParams): Promise<{ checkoutUrl: string, reference: string, inline?: PlugrInlineCheckoutParams }> {
+        const user = await getNormalizedUser({ userId: params.userId, log })
+        const location = await resolveBillingLocation({ request: params.request, user, log, currencyOverride: params.currency })
+        const amount = plugrExecutionCreditPack.prices[location.currency]
+        const userMeta = await userService(log).getMetaInformation({ id: params.userId })
+        const reference = `plg_exc_${apId()}`
+        await savePendingTransaction({
+            userId: params.userId,
+            type: 'execution_credits',
+            tier: null,
+            period: null,
+            creditsPurchased: plugrExecutionCreditPack.credits,
+            amountPaid: amount,
+            currency: location.currency,
+            reference,
+        })
+        const customerName = `${userMeta.firstName} ${userMeta.lastName}`.trim()
+        const title = `${plugrExecutionCreditPack.credits} Plugr execution credits`
+        const description = `${plugrExecutionCreditPack.credits} execution credits, applied account-wide`
+        const metadata = {
+            plugrPaymentType: 'execution_credits',
+            userId: params.userId,
+            currency: location.currency,
+            billingCountry: location.country,
+        }
+        const checkoutUrl = await flutterwaveBillingService(log).createCheckout({
+            amount,
+            currency: location.currency,
+            customerEmail: userMeta.email,
+            customerName,
+            reference,
+            redirectUrl: buildRedirectUrl({ status: 'success' }),
+            title,
+            description,
+            metadata,
+        })
+        return {
+            checkoutUrl,
+            reference,
+            inline: buildInlineParams({
+                amount,
+                currency: location.currency,
+                reference,
+                customerEmail: userMeta.email,
+                customerName,
+                title,
+                description,
+                metadata,
+            }),
+        }
+    },
+    async createCanvasSlotCheckout(params: CreateCanvasSlotCheckoutParams): Promise<{ checkoutUrl: string, reference: string, inline?: PlugrInlineCheckoutParams }> {
+        const user = await getNormalizedUser({ userId: params.userId, log })
+        const location = await resolveBillingLocation({ request: params.request, user, log, currencyOverride: params.currency })
+        const amount = plugrCanvasSlotProduct.prices[location.currency]
+        const userMeta = await userService(log).getMetaInformation({ id: params.userId })
+        const reference = `plg_cvs_${apId()}`
+        await savePendingTransaction({
+            userId: params.userId,
+            type: 'canvas_slot',
+            tier: null,
+            period: null,
+            creditsPurchased: 1,
+            amountPaid: amount,
+            currency: location.currency,
+            reference,
+        })
+        const customerName = `${userMeta.firstName} ${userMeta.lastName}`.trim()
+        const title = '1 additional Plugr canvas slot'
+        const description = 'One additional canvas slot, yours permanently'
+        const metadata = {
+            plugrPaymentType: 'canvas_slot',
+            userId: params.userId,
+            currency: location.currency,
+            billingCountry: location.country,
+        }
+        const checkoutUrl = await flutterwaveBillingService(log).createCheckout({
+            amount,
+            currency: location.currency,
+            customerEmail: userMeta.email,
+            customerName,
+            reference,
+            redirectUrl: buildRedirectUrl({ status: 'success' }),
+            title,
+            description,
+            metadata,
+        })
+        return {
+            checkoutUrl,
+            reference,
+            inline: buildInlineParams({
+                amount,
                 currency: location.currency,
                 reference,
                 customerEmail: userMeta.email,
@@ -224,8 +341,14 @@ export const plugrBillingService = (log: FastifyBaseLogger) => ({
             case 'subscription':
                 await applySubscriptionPayment({ transaction, log })
                 return
-            case 'credits':
+            case 'ai_credits':
                 await applyCreditPayment({ transaction, log })
+                return
+            case 'execution_credits':
+                await applyExecutionCreditPayment({ transaction, log })
+                return
+            case 'canvas_slot':
+                await applyCanvasSlotPayment({ transaction, log })
                 return
             default:
                 log.info({ reference: transaction.reference }, 'Ignoring Flutterwave payment without Plugr metadata')
@@ -286,28 +409,53 @@ export const plugrBillingService = (log: FastifyBaseLogger) => ({
         })
     },
 
-    async assertUserHasAppAccess({ userId }: UserIdParams): Promise<void> {
-        const user = await getNormalizedUser({ userId, log })
-        assertAppAccess(user)
-    },
-
     async assertUserHasPlugrAccess({ userId }: UserIdParams): Promise<void> {
         const user = await getNormalizedUser({ userId, log })
-        assertPlugrAccess(user)
-    },
-
-    async assertUserHasMinimumTier(params: MinimumTierParams): Promise<void> {
-        const user = await getNormalizedUser({ userId: params.userId, log })
-        assertMinimumTier({ user, minimumTier: params.minimumTier, message: params.message })
+        assertPlusAccess(user)
     },
 
     async deductCredits(params: DeductCreditsParams): Promise<void> {
         await deductCredits({ ...params, log })
     },
 
-    async assertActiveFlowsAllowed({ userId }: ActiveFlowLimitParams): Promise<void> {
+    async assertCanvasSlotAvailable({ userId }: UserIdParams): Promise<void> {
         const user = await getNormalizedUser({ userId, log })
-        assertAppAccess(user)
+        const limit = getPlugrCanvasSlotLimit({
+            subscriptionTier: user.subscriptionTier,
+            canvasSlotsPurchased: user.canvasSlotsPurchased,
+        })
+        if (isNil(limit)) {
+            return
+        }
+        const ownedFlows = await flowRepo().count({ where: { ownerId: userId } })
+        if (ownedFlows >= limit) {
+            throw new ActivepiecesError({
+                code: ErrorCode.FEATURE_DISABLED,
+                params: { message: `You've used all ${limit} of your canvas slots. Delete a flow, buy another slot, or upgrade to Plugr Plus for unlimited canvases.` },
+            })
+        }
+    },
+
+    async recordFlowRunExecution({ flowId, environment }: RecordFlowRunExecutionParams): Promise<void> {
+        if (environment !== RunEnvironment.PRODUCTION) {
+            return
+        }
+        try {
+            const flow = await flowRepo().findOneBy({ id: flowId })
+            if (isNil(flow?.ownerId)) {
+                return
+            }
+            const user = await getNormalizedUser({ userId: flow.ownerId, log })
+            if (hasPlusAccess(user)) {
+                return
+            }
+            await userRepo().update({ id: flow.ownerId }, {
+                executionCreditsUsed: user.executionCreditsUsed + 1,
+            })
+        }
+        catch (error) {
+            log.warn({ err: error, flowId }, 'Failed to record Plugr execution-credit usage; flow run was not affected')
+        }
     },
 
     async canExecuteFlow({ flowId }: FlowIdParams): Promise<boolean> {
@@ -316,14 +464,22 @@ export const plugrBillingService = (log: FastifyBaseLogger) => ({
             return true
         }
         const user = await getNormalizedUser({ userId: flow.ownerId, log })
-        return hasAppAccess(user)
+        if (hasPlusAccess(user)) {
+            return true
+        }
+        const remaining = getPlugrCreditsRemaining({
+            included: user.executionCreditsIncluded,
+            purchased: user.executionCreditsPurchased,
+            used: user.executionCreditsUsed,
+        })
+        return remaining > 0
     },
 })
 async function deductCredits(params: DeductCreditsParams & { log: FastifyBaseLogger }): Promise<void> {
     const cost = plugrCreditActionCosts[params.actionType]
     await databaseConnection().transaction(async (entityManager) => {
         const user = await getNormalizedUser({ userId: params.userId, log: params.log, entityManager, lock: true })
-        assertPlugrAccess(user)
+        assertPlusAccess(user)
         const remaining = getPlugrCreditsRemaining({
             included: user.aiCreditsIncluded,
             purchased: user.aiCreditsPurchased,
@@ -398,6 +554,7 @@ async function applyCreditPayment({ transaction, log }: ApplyTransactionParams):
         await creditPurchaseRepo(entityManager).save({
             id: apId(),
             userId,
+            productType: 'ai_credits',
             creditsPurchased: expectedPrice.credits,
             amountPaid: expectedPrice.amount,
             currency: transaction.currency,
@@ -408,6 +565,64 @@ async function applyCreditPayment({ transaction, log }: ApplyTransactionParams):
     })
     if (applied) {
         log.info({ userId, credits: expectedPrice.credits, reference: transaction.reference }, 'Plugr credits added')
+    }
+}
+
+async function applyExecutionCreditPayment({ transaction, log }: ApplyTransactionParams): Promise<void> {
+    const userId = getRequiredMeta(transaction.meta, 'userId')
+    const expectedAmount = plugrExecutionCreditPack.prices[transaction.currency]
+    assertAmountMatches({ actual: transaction.amount, expected: expectedAmount, currency: transaction.currency })
+    const applied = await databaseConnection().transaction(async (entityManager) => {
+        if (await isTransactionAlreadyApplied({ reference: transaction.reference, entityManager })) {
+            return false
+        }
+        const user = await getNormalizedUser({ userId, log, entityManager, lock: true })
+        await userRepo(entityManager).update({ id: userId }, {
+            executionCreditsPurchased: user.executionCreditsPurchased + plugrExecutionCreditPack.credits,
+        })
+        await creditPurchaseRepo(entityManager).save({
+            id: apId(),
+            userId,
+            productType: 'execution_credits',
+            creditsPurchased: plugrExecutionCreditPack.credits,
+            amountPaid: expectedAmount,
+            currency: transaction.currency,
+            flutterwaveReference: transaction.reference,
+        })
+        await markTransactionByReference({ reference: transaction.reference, status: 'successful', transactionId: transaction.id, entityManager })
+        return true
+    })
+    if (applied) {
+        log.info({ userId, credits: plugrExecutionCreditPack.credits, reference: transaction.reference }, 'Plugr execution credits added')
+    }
+}
+
+async function applyCanvasSlotPayment({ transaction, log }: ApplyTransactionParams): Promise<void> {
+    const userId = getRequiredMeta(transaction.meta, 'userId')
+    const expectedAmount = plugrCanvasSlotProduct.prices[transaction.currency]
+    assertAmountMatches({ actual: transaction.amount, expected: expectedAmount, currency: transaction.currency })
+    const applied = await databaseConnection().transaction(async (entityManager) => {
+        if (await isTransactionAlreadyApplied({ reference: transaction.reference, entityManager })) {
+            return false
+        }
+        const user = await getNormalizedUser({ userId, log, entityManager, lock: true })
+        await userRepo(entityManager).update({ id: userId }, {
+            canvasSlotsPurchased: user.canvasSlotsPurchased + 1,
+        })
+        await creditPurchaseRepo(entityManager).save({
+            id: apId(),
+            userId,
+            productType: 'canvas_slot',
+            creditsPurchased: 1,
+            amountPaid: expectedAmount,
+            currency: transaction.currency,
+            flutterwaveReference: transaction.reference,
+        })
+        await markTransactionByReference({ reference: transaction.reference, status: 'successful', transactionId: transaction.id, entityManager })
+        return true
+    })
+    if (applied) {
+        log.info({ userId, reference: transaction.reference }, 'Plugr canvas slot added')
     }
 }
 
@@ -471,16 +686,27 @@ async function getNormalizedUser(params: NormalizeUserParams): Promise<User> {
 function getBillingNormalizationUpdates(user: User): Partial<User> {
     const now = dayjs()
     const updates: Partial<User> = {}
-    if (user.subscriptionStatus === 'trial' && !isNil(user.trialEndsAt) && dayjs(user.trialEndsAt).isBefore(now)) {
-        updates.subscriptionStatus = 'expired'
-    }
     if ((user.subscriptionStatus === 'active' || user.subscriptionStatus === 'cancelled') && !isNil(user.subscriptionEndsAt) && dayjs(user.subscriptionEndsAt).isBefore(now)) {
         updates.subscriptionStatus = 'expired'
+        // A lapsed Plus subscription falls back to the free tier automatically -
+        // whatever canvas slots / execution credits the user has permanently
+        // purchased stay intact, since those live in separate *Purchased columns
+        // that this normalization never touches.
+        updates.subscriptionTier = 'free'
     }
+    const tierAfterUpdate = updates.subscriptionTier ?? user.subscriptionTier
     if (user.subscriptionStatus === 'active' && isPlugrPaidTier(user.subscriptionTier) && !isNil(user.aiCreditsResetAt) && dayjs(user.aiCreditsResetAt).isBefore(now)) {
         updates.aiCreditsIncluded = plugrPlanCatalog[user.subscriptionTier].includedCredits
         updates.aiCreditsUsed = 0
         updates.aiCreditsResetAt = now.add(1, 'month').toISOString()
+    }
+    if (!isPlugrPaidTier(tierAfterUpdate)) {
+        const resetDue = isNil(user.executionCreditsResetAt) || dayjs(user.executionCreditsResetAt).isBefore(now)
+        if (resetDue) {
+            updates.executionCreditsIncluded = plugrFreeTierConfig.executionCredits
+            updates.executionCreditsUsed = 0
+            updates.executionCreditsResetAt = now.add(1, 'month').toISOString()
+        }
     }
     return updates
 }
@@ -521,51 +747,26 @@ async function findUserFromWebhook(params: MarkSubscriptionEndedParams): Promise
     }
     return null
 }
-function assertCanStartCheckout({ user, tier }: AssertCheckoutParams): void {
-    if (user.subscriptionStatus === 'expired' || !isPlugrPaidTier(user.subscriptionTier)) {
-        return
-    }
-    assertAppAccess(user)
-    if (getPlugrTierRank(tier) < getPlugrTierRank(user.subscriptionTier)) {
+function assertCanStartCheckout({ user }: AssertCheckoutParams): void {
+    if (isPlugrPaidTier(user.subscriptionTier) && hasPlusAccess(user)) {
         throw new ActivepiecesError({
             code: ErrorCode.VALIDATION,
-            params: { message: 'Downgrades wait until the current paid period ends. Cancel your current plan first, then choose the lower plan after the period ends.' },
+            params: { message: 'You already have an active Plugr Plus subscription. Manage or cancel it before starting a new checkout.' },
         })
     }
 }
 
-const PAID_PLAN_REQUIRED_MESSAGE = 'Choose a paid plan and add a payment method before automating tasks.'
-
-function assertAppAccess(user: User): void {
-    if (hasAppAccess(user)) {
+function assertPlusAccess(user: User): void {
+    if (hasPlusAccess(user)) {
         return
     }
-    const message = user.subscriptionStatus === 'trial' || user.subscriptionTier === 'trial'
-        ? PAID_PLAN_REQUIRED_MESSAGE
-        : 'Your subscription has ended. Reactivate to continue using Plugr.'
     throw new ActivepiecesError({
         code: ErrorCode.FEATURE_DISABLED,
-        params: { message },
+        params: { message: 'This feature is available on Plugr Plus. Upgrade to unlock it.' },
     })
 }
 
-function assertPlugrAccess(user: User): void {
-    assertAppAccess(user)
-}
-
-function assertMinimumTier({ user, minimumTier, message }: AssertMinimumTierParams): void {
-    assertAppAccess(user)
-    if (getPlugrTierRank(user.subscriptionTier) >= getPlugrTierRank(minimumTier)) {
-        return
-    }
-    const planName = plugrPlanCatalog[minimumTier].name
-    throw new ActivepiecesError({
-        code: ErrorCode.FEATURE_DISABLED,
-        params: { message: message ?? 'Available on ' + planName + ' plan.' },
-    })
-}
-
-function hasAppAccess(user: User): boolean {
+function hasPlusAccess(user: User): boolean {
     if (!isPlugrPaidTier(user.subscriptionTier)) {
         return false
     }
@@ -586,15 +787,22 @@ function buildPricingInfo({ currency, country }: BuildPricingInfoParams): PlugrP
         country,
         currency,
         plans: {
-            starter: buildPlanPricing({ tier: 'starter', currency }),
-            builder: buildPlanPricing({ tier: 'builder', currency }),
-            pro: buildPlanPricing({ tier: 'pro', currency }),
-            business: buildPlanPricing({ tier: 'business', currency }),
+            plus: buildPlanPricing({ tier: 'plus', currency }),
         },
         creditPacks: {
             100: getPlugrCreditPackPrice({ pack: '100', currency }),
             500: getPlugrCreditPackPrice({ pack: '500', currency }),
             1000: getPlugrCreditPackPrice({ pack: '1000', currency }),
+        },
+        freeTier: plugrFreeTierConfig,
+        executionCreditPack: {
+            credits: plugrExecutionCreditPack.credits,
+            currency,
+            amount: plugrExecutionCreditPack.prices[currency],
+        },
+        canvasSlotProduct: {
+            currency,
+            amount: plugrCanvasSlotProduct.prices[currency],
         },
     }
 }
@@ -635,6 +843,11 @@ function pickBillingFields(user: User): PlugrUserBilling {
         aiCreditsUsed: user.aiCreditsUsed,
         aiCreditsPurchased: user.aiCreditsPurchased,
         aiCreditsResetAt: user.aiCreditsResetAt,
+        canvasSlotsPurchased: user.canvasSlotsPurchased,
+        executionCreditsIncluded: user.executionCreditsIncluded,
+        executionCreditsUsed: user.executionCreditsUsed,
+        executionCreditsPurchased: user.executionCreditsPurchased,
+        executionCreditsResetAt: user.executionCreditsResetAt,
     }
 }
 
@@ -657,10 +870,7 @@ function toBillingTransaction(transaction: BillingTransactionSchema): PlugrBilli
 
 function parsePaidTier(value: string): PlugrPaidTier {
     switch (value) {
-        case 'starter':
-        case 'builder':
-        case 'pro':
-        case 'business':
+        case 'plus':
             return value
     }
     throw new Error(`Invalid Plugr plan tier ${value}`)
@@ -758,16 +968,6 @@ function buildInlineParams(params: BuildInlineParams): PlugrInlineCheckoutParams
     }
 }
 
-type ActiveFlowLimitParams = UserIdParams & {
-    flowId: string
-}
-
-type AssertMinimumTierParams = {
-    user: User
-    minimumTier: PlugrPaidTier
-    message?: string
-}
-
 type ApplyTransactionParams = {
     transaction: FlutterwaveVerifiedTransaction
     log: FastifyBaseLogger
@@ -781,7 +981,6 @@ type AssertAmountMatchesParams = {
 
 type AssertCheckoutParams = {
     user: User
-    tier: PlugrPaidTier
 }
 
 type BuildPlanPricingParams = {
@@ -810,9 +1009,19 @@ type BuildInlineParams = {
     paymentPlanId?: string
 }
 
+type CreateCanvasSlotCheckoutParams = UserIdParams & {
+    request: FastifyRequest
+    currency?: PlugrBillingCurrency
+}
+
 type CreateCreditCheckoutParams = UserIdParams & {
     request: FastifyRequest
     pack: PlugrCreditPackSize
+    currency?: PlugrBillingCurrency
+}
+
+type CreateExecutionCreditCheckoutParams = UserIdParams & {
+    request: FastifyRequest
     currency?: PlugrBillingCurrency
 }
 
@@ -842,9 +1051,9 @@ type MarkSubscriptionEndedParams = {
     subscriptionId?: string
 }
 
-type MinimumTierParams = UserIdParams & {
-    minimumTier: PlugrPaidTier
-    message?: string
+type RecordFlowRunExecutionParams = {
+    flowId: string
+    environment: RunEnvironment
 }
 
 type VerifyTransactionParams = UserIdParams & {

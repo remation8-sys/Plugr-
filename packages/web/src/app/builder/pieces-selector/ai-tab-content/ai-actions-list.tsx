@@ -20,7 +20,7 @@ import {
   StepMetadataWithSuggestions,
   usePieceSearchContext,
 } from '@/features/pieces';
-import { hasMinimumPlugrTier } from '@/features/plugr-billing';
+import { hasPlugrPlusAccess } from '@/features/plugr-billing';
 import { flagsHooks } from '@/hooks/flags-hooks';
 import { userHooks } from '@/hooks/user-hooks';
 
@@ -81,16 +81,16 @@ export const AIPieceActionsList: React.FC<AIPieceActionsListProps> = ({
                 if (
                   item.type === FlowActionType.PIECE &&
                   item.actionOrTrigger.name === 'run_agent' &&
-                  !hasMinimumPlugrTier(user, 'business')
+                  !hasPlugrPlusAccess(user)
                 ) {
                   toast(
-                    'The specialist agent is available on the Business plan.',
+                    'The specialist agent is available on Plugr Plus.',
                     {
                       description: t(
                         'A real expert will build and fix your flows within 24-48hrs.',
                       ),
                       action: {
-                        label: t('Upgrade to Business'),
+                        label: t('Upgrade to Plugr Plus'),
                         onClick: () => {
                           navigate('/pricing');
                         },

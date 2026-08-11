@@ -6,7 +6,6 @@ import { MobilePullToRefresh } from '@/components/custom/mobile-pull-to-refresh'
 import { useEmbedding } from '@/components/providers/embed-provider';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar-shadcn';
 import { PurchaseExtraFlowsDialog } from '@/features/billing/components/active-flows-addon/purchase-active-flows-dialog';
-import { PlugrAppAccessGuard } from '@/features/plugr-billing';
 import { projectHooks } from '@/features/projects';
 import { flagsHooks } from '@/hooks/flags-hooks';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -88,45 +87,43 @@ function ProjectDashboardLayoutInner({
   const isMobile = useIsMobile();
 
   return (
-    <PlugrAppAccessGuard>
-      <SidebarProvider hoverMode={!searchOpen}>
-        {!isEmbedded && !isMobile && <ProjectDashboardSidebar />}
-        <SidebarInset className="flex h-full flex-col overflow-hidden bg-sidebar">
+    <SidebarProvider hoverMode={!searchOpen}>
+      {!isEmbedded && !isMobile && <ProjectDashboardSidebar />}
+      <SidebarInset className="flex h-full flex-col overflow-hidden bg-sidebar">
+        <div
+          className={cn(
+            'flex flex-1 flex-col overflow-hidden',
+            !isEmbedded && !isMobile && 'pb-3 pr-3 pt-3',
+          )}
+        >
           <div
+            id="dashboard-content-container"
             className={cn(
-              'flex flex-1 flex-col overflow-hidden',
-              !isEmbedded && !isMobile && 'pb-3 pr-3 pt-3',
+              'relative flex h-full flex-col overflow-clip bg-background',
+              isMobile &&
+                'pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)] pt-[env(safe-area-inset-top)]',
+              !isEmbedded && !isMobile && 'rounded-xl border shadow-sm',
             )}
           >
-            <div
-              id="dashboard-content-container"
+            {!isEmbedded && isMobile && <MobileAppHeader />}
+            {!isEmbedded && !isMobile && !hideDesktopHeader && (
+              <ProjectDashboardLayoutHeader key={currentProjectId} />
+            )}
+            <MobilePullToRefresh
               className={cn(
-                'relative flex h-full flex-col overflow-clip bg-background',
-                isMobile &&
-                  'pl-[env(safe-area-inset-left)] pr-[env(safe-area-inset-right)] pt-[env(safe-area-inset-top)]',
-                !isEmbedded && !isMobile && 'rounded-xl border shadow-sm',
+                'min-h-0 flex-1 overflow-auto',
+                !isEmbedded &&
+                  isMobile &&
+                  'pb-[calc(4rem+env(safe-area-inset-bottom))]',
               )}
             >
-              {!isEmbedded && isMobile && <MobileAppHeader />}
-              {!isEmbedded && !isMobile && !hideDesktopHeader && (
-                <ProjectDashboardLayoutHeader key={currentProjectId} />
-              )}
-              <MobilePullToRefresh
-                className={cn(
-                  'min-h-0 flex-1 overflow-auto',
-                  !isEmbedded &&
-                    isMobile &&
-                    'pb-[calc(4rem+env(safe-area-inset-bottom))]',
-                )}
-              >
-                {children}
-              </MobilePullToRefresh>
-            </div>
+              {children}
+            </MobilePullToRefresh>
           </div>
-        </SidebarInset>
-        {!isEmbedded && isMobile && <MobileBottomNav />}
-      </SidebarProvider>
-    </PlugrAppAccessGuard>
+        </div>
+      </SidebarInset>
+      {!isEmbedded && isMobile && <MobileBottomNav />}
+    </SidebarProvider>
   );
 }
 

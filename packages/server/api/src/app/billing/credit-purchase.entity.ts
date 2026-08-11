@@ -1,4 +1,4 @@
-import { PlugrBillingCurrency, User } from '@activepieces/shared'
+import { PlugrBillingCurrency, PlugrPurchaseProductType, User } from '@activepieces/shared'
 import { EntitySchema } from 'typeorm'
 import { BaseColumnSchemaPart } from '../database/database-common'
 
@@ -7,6 +7,7 @@ export type CreditPurchaseSchema = {
     created: string
     updated: string
     userId: string
+    productType: PlugrPurchaseProductType
     creditsPurchased: number
     amountPaid: number
     currency: PlugrBillingCurrency
@@ -21,6 +22,11 @@ export const CreditPurchaseEntity = new EntitySchema<CreditPurchaseSchema>({
         userId: {
             type: String,
             nullable: false,
+        },
+        productType: {
+            type: String,
+            nullable: false,
+            default: 'ai_credits',
         },
         creditsPurchased: {
             type: Number,

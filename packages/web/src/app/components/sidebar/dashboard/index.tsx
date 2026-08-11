@@ -39,7 +39,7 @@ import {
   SidebarMenu,
   useSidebar,
 } from '@/components/ui/sidebar-shadcn';
-import { canUsePlugr, hasMinimumPlugrTier } from '@/features/plugr-billing';
+import { hasPlugrPlusAccess } from '@/features/plugr-billing';
 import { projectCollectionUtils } from '@/features/projects';
 import { templatesTelemetryApi } from '@/features/templates';
 import {
@@ -66,9 +66,9 @@ export function ProjectDashboardSidebar({
   const { data: currentUser } = userHooks.useCurrentUser();
   const { project } = projectCollectionUtils.useCurrentProject();
   const { checkAccess } = useAuthorization();
-  const plugrLocked = currentUser ? !canUsePlugr(currentUser) : false;
+  const plugrLocked = currentUser ? !hasPlugrPlusAccess(currentUser) : false;
   const analyticsLocked = currentUser
-    ? !hasMinimumPlugrTier(currentUser, 'pro')
+    ? !hasPlugrPlusAccess(currentUser)
     : false;
 
   const handleExploreClick = useCallback(() => {
@@ -107,7 +107,7 @@ export function ProjectDashboardSidebar({
       isSubItem: false,
       badge: plugrLocked ? undefined : t('Beta'),
       locked: plugrLocked,
-      lockedTooltip: t('Available on Starter plan'),
+      lockedTooltip: t('Available on Plugr Plus'),
     },
     {
       type: 'link',
@@ -204,7 +204,7 @@ export function ProjectDashboardSidebar({
       hasPermission: true,
       isSubItem: false,
       locked: analyticsLocked,
-      lockedTooltip: t('Available on Pro plan'),
+      lockedTooltip: t('Available on Plugr Plus'),
       onClick: () => recordStaticPageAccess('/impact'),
     },
     {
@@ -216,7 +216,7 @@ export function ProjectDashboardSidebar({
       hasPermission: true,
       isSubItem: false,
       locked: analyticsLocked,
-      lockedTooltip: t('Available on Pro plan'),
+      lockedTooltip: t('Available on Plugr Plus'),
       onClick: () => recordStaticPageAccess('/leaderboard'),
     },
   ];

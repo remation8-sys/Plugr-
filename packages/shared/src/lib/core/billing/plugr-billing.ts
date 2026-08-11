@@ -1,15 +1,16 @@
 import { z } from 'zod'
 import { DateOrString, Nullable } from '../common/base-model'
 
-const plugrSubscriptionTierValues = ['trial', 'starter', 'builder', 'pro', 'business'] as const
-const plugrPaidTierValues = ['starter', 'builder', 'pro', 'business'] as const
-const plugrSubscriptionStatusValues = ['trial', 'active', 'cancelled', 'expired'] as const
+const plugrSubscriptionTierValues = ['free', 'plus'] as const
+const plugrPaidTierValues = ['plus'] as const
+const plugrSubscriptionStatusValues = ['none', 'active', 'cancelled', 'expired'] as const
 const plugrSubscriptionPeriodValues = ['monthly', 'quarterly', 'biannual', 'annual'] as const
 const plugrBillingCountryValues = ['NG', 'OTHER'] as const
 const plugrBillingCurrencyValues = ['NGN', 'USD'] as const
 const plugrCreditActionTypeValues = ['build_simple', 'build_complex', 'audit', 'fix', 'modify', 'report'] as const
 const plugrCreditPackSizeValues = ['100', '500', '1000'] as const
-const plugrBillingTransactionTypeValues = ['subscription', 'credits'] as const
+const plugrPurchaseProductTypeValues = ['ai_credits', 'execution_credits', 'canvas_slot'] as const
+const plugrBillingTransactionTypeValues = ['subscription', 'ai_credits', 'execution_credits', 'canvas_slot'] as const
 const plugrBillingTransactionStatusValues = ['pending', 'successful', 'failed', 'cancelled'] as const
 
 const PlugrSubscriptionTierSchema = z.enum(plugrSubscriptionTierValues)
@@ -20,6 +21,7 @@ const PlugrBillingCountrySchema = z.enum(plugrBillingCountryValues)
 const PlugrBillingCurrencySchema = z.enum(plugrBillingCurrencyValues)
 const PlugrCreditActionTypeSchema = z.enum(plugrCreditActionTypeValues)
 const PlugrCreditPackSizeSchema = z.enum(plugrCreditPackSizeValues)
+const PlugrPurchaseProductTypeSchema = z.enum(plugrPurchaseProductTypeValues)
 const PlugrBillingTransactionTypeSchema = z.enum(plugrBillingTransactionTypeValues)
 const PlugrBillingTransactionStatusSchema = z.enum(plugrBillingTransactionStatusValues)
 
@@ -53,19 +55,23 @@ function getPlugrTierRank(tier: PlugrSubscriptionTier): number {
 }
 
 function isPlugrPaidTier(tier: PlugrSubscriptionTier): tier is PlugrPaidTier {
-    return tier !== 'trial'
+    return tier !== 'free'
 }
 
 function getPlugrCreditsRemaining(params: GetPlugrCreditsRemainingParams): number {
     return Math.max(0, params.included + params.purchased - params.used)
 }
 
+function getPlugrCanvasSlotLimit(params: GetPlugrCanvasSlotLimitParams): number | null {
+    if (isPlugrPaidTier(params.subscriptionTier)) {
+        return null
+    }
+    return plugrFreeTierConfig.canvasSlots + params.canvasSlotsPurchased
+}
+
 const plugrTierRank: Record<PlugrSubscriptionTier, number> = {
-    trial: 0,
-    starter: 1,
-    builder: 2,
-    pro: 3,
-    business: 4,
+    free: 0,
+    plus: 1,
 }
 
 const plugrSubscriptionPeriods: Record<PlugrSubscriptionPeriod, PlugrSubscriptionPeriodConfig> = {
@@ -96,81 +102,49 @@ const plugrSubscriptionPeriods: Record<PlugrSubscriptionPeriod, PlugrSubscriptio
 }
 
 const plugrPlanCatalog: Record<PlugrPaidTier, PlugrPlanCatalogEntry> = {
-    starter: {
-        tier: 'starter',
-        name: 'Starter',
+    plus: {
+        tier: 'plus',
+        name: 'Plugr Plus',
         prices: {
-            USD: 9,
-            NGN: 14400,
-        },
-        includedCredits: 0,
-        activeFlowsLimit: null,
-        features: [
-            'Unlimited flows',
-            'Unlimited executions',
-            'All 700+ Plugs',
-            'Templates',
-            'Community support',
-            'Plugr AI not included',
-        ],
-    },
-    builder: {
-        tier: 'builder',
-        name: 'Builder',
-        prices: {
-            USD: 24,
-            NGN: 38400,
-        },
-        includedCredits: 30,
-        activeFlowsLimit: null,
-        popular: true,
-        features: [
-            '30 Plugr credits monthly',
-            'Unlimited flows',
-            'Unlimited executions',
-            'All 700+ Plugs',
-            'Templates',
-            'Email support',
-        ],
-    },
-    pro: {
-        tier: 'pro',
-        name: 'Pro',
-        prices: {
-            USD: 49,
-            NGN: 78400,
+            USD: 15,
+            NGN: 24000,
         },
         includedCredits: 75,
         activeFlowsLimit: null,
+        popular: true,
         features: [
-            '75 Plugr credits monthly',
-            'Unlimited flows',
+            'Unlimited canvases',
             'Unlimited executions',
+            '75 Plugr AI credits monthly',
+            'Plugr AI assistant',
+            'MCP & API access',
+            'Specialist workflow agents',
+            'Advanced analytics',
+            'Priority execution speed',
             'All 700+ Plugs',
             'Templates',
-            'Priority support 24-48hrs',
-            'Advanced analytics',
+            'Priority support',
         ],
     },
-    business: {
-        tier: 'business',
-        name: 'Business',
-        prices: {
-            USD: 99,
-            NGN: 158400,
-        },
-        includedCredits: 150,
-        activeFlowsLimit: null,
-        features: [
-            '150 Plugr credits monthly',
-            'Unlimited flows',
-            'Unlimited executions',
-            'All 700+ Plugs',
-            'Templates',
-            'Specialist workflow agent',
-            'Dedicated account manager',
-            'Fastest priority support',
-        ],
+}
+
+const plugrFreeTierConfig: PlugrFreeTierConfig = {
+    canvasSlots: 2,
+    executionCredits: 2000,
+}
+
+const plugrCanvasSlotProduct: PlugrOneTimeProduct = {
+    prices: {
+        USD: 5,
+        NGN: 8000,
+    },
+}
+
+const plugrExecutionCreditPack: PlugrExecutionCreditPack = {
+    credits: 5000,
+    prices: {
+        USD: 5,
+        NGN: 8000,
     },
 }
 
@@ -224,6 +198,11 @@ const PlugrUserBilling = z.object({
     aiCreditsUsed: z.number(),
     aiCreditsPurchased: z.number(),
     aiCreditsResetAt: Nullable(DateOrString),
+    canvasSlotsPurchased: z.number(),
+    executionCreditsIncluded: z.number(),
+    executionCreditsUsed: z.number(),
+    executionCreditsPurchased: z.number(),
+    executionCreditsResetAt: Nullable(DateOrString),
 })
 
 const PlugrBillingTransaction = z.object({
@@ -244,6 +223,8 @@ const PlugrBillingTransaction = z.object({
 const PlugrBillingInfo = z.object({
     user: PlugrUserBilling,
     creditsRemaining: z.number(),
+    executionCreditsRemaining: z.number(),
+    canvasSlotLimit: Nullable(z.number()),
     history: z.array(PlugrBillingTransaction),
 })
 
@@ -272,6 +253,19 @@ const PlugrPricingInfo = z.object({
         currency: PlugrBillingCurrencySchema,
         amount: z.number(),
     })),
+    freeTier: z.object({
+        canvasSlots: z.number(),
+        executionCredits: z.number(),
+    }),
+    executionCreditPack: z.object({
+        credits: z.number(),
+        currency: PlugrBillingCurrencySchema,
+        amount: z.number(),
+    }),
+    canvasSlotProduct: z.object({
+        currency: PlugrBillingCurrencySchema,
+        amount: z.number(),
+    }),
 })
 
 const PlugrCreateCheckoutRequest = z.object({
@@ -282,6 +276,14 @@ const PlugrCreateCheckoutRequest = z.object({
 
 const PlugrCreateCreditCheckoutRequest = z.object({
     pack: PlugrCreditPackSizeSchema,
+    currency: PlugrBillingCurrencySchema.optional(),
+})
+
+const PlugrCreateExecutionCreditCheckoutRequest = z.object({
+    currency: PlugrBillingCurrencySchema.optional(),
+})
+
+const PlugrCreateCanvasSlotCheckoutRequest = z.object({
     currency: PlugrBillingCurrencySchema.optional(),
 })
 
@@ -334,6 +336,7 @@ const PlugrTrialStartResponse = z.object({
 })
 
 export {
+    getPlugrCanvasSlotLimit,
     getPlugrCreditPackPrice,
     getPlugrCreditsRemaining,
     getPlugrPlanPrice,
@@ -347,10 +350,15 @@ export {
     PlugrBillingTransactionStatusSchema,
     plugrBillingTransactionTypeValues,
     PlugrBillingTransactionTypeSchema,
+    plugrCanvasSlotProduct,
     PlugrCancelSubscriptionRequest,
     PlugrCheckoutResponse,
+    PlugrCreateCanvasSlotCheckoutRequest,
     PlugrCreateCheckoutRequest,
     PlugrCreateCreditCheckoutRequest,
+    PlugrCreateExecutionCreditCheckoutRequest,
+    plugrExecutionCreditPack,
+    plugrFreeTierConfig,
     PlugrInlineCheckoutParams,
     PlugrPricingQuery,
     plugrCreditActionCosts,
@@ -363,6 +371,8 @@ export {
     PlugrPaidTierSchema,
     plugrPlanCatalog,
     PlugrPricingInfo,
+    plugrPurchaseProductTypeValues,
+    PlugrPurchaseProductTypeSchema,
     plugrSubscriptionPeriods,
     plugrSubscriptionPeriodValues,
     PlugrSubscriptionPeriodSchema,
@@ -379,6 +389,11 @@ export {
 export type GetPlugrCreditPackPriceParams = {
     pack: PlugrCreditPackSize
     currency: PlugrBillingCurrency
+}
+
+export type GetPlugrCanvasSlotLimitParams = {
+    subscriptionTier: PlugrSubscriptionTier
+    canvasSlotsPurchased: number
 }
 
 export type GetPlugrCreditsRemainingParams = {
@@ -402,9 +417,12 @@ export type PlugrBillingTransactionType = z.infer<typeof PlugrBillingTransaction
 export type PlugrCancelSubscriptionRequest = z.infer<typeof PlugrCancelSubscriptionRequest>
 export type PlugrCheckoutResponse = z.infer<typeof PlugrCheckoutResponse>
 export type PlugrInlineCheckoutParams = z.infer<typeof PlugrInlineCheckoutParams>
+export type PlugrCreateCanvasSlotCheckoutRequest = z.infer<typeof PlugrCreateCanvasSlotCheckoutRequest>
 export type PlugrCreateCheckoutRequest = z.infer<typeof PlugrCreateCheckoutRequest>
 export type PlugrCreateCreditCheckoutRequest = z.infer<typeof PlugrCreateCreditCheckoutRequest>
+export type PlugrCreateExecutionCreditCheckoutRequest = z.infer<typeof PlugrCreateExecutionCreditCheckoutRequest>
 export type PlugrPricingQuery = z.infer<typeof PlugrPricingQuery>
+export type PlugrPurchaseProductType = z.infer<typeof PlugrPurchaseProductTypeSchema>
 export type PlugrVerifyTransactionRequest = z.infer<typeof PlugrVerifyTransactionRequest>
 export type PlugrVerifyTransactionResponse = z.infer<typeof PlugrVerifyTransactionResponse>
 export type PlugrCreditActionType = z.infer<typeof PlugrCreditActionTypeSchema>
@@ -435,6 +453,20 @@ type PlugrCreditPackPrice = {
     credits: number
     currency: PlugrBillingCurrency
     amount: number
+}
+
+type PlugrExecutionCreditPack = {
+    credits: number
+    prices: Record<PlugrBillingCurrency, number>
+}
+
+type PlugrFreeTierConfig = {
+    canvasSlots: number
+    executionCredits: number
+}
+
+type PlugrOneTimeProduct = {
+    prices: Record<PlugrBillingCurrency, number>
 }
 
 type PlugrPlanCatalogEntry = {

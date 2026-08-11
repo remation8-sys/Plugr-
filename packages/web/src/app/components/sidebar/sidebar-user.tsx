@@ -169,16 +169,14 @@ function TierBadge({
   tier: Parameters<typeof getPlugrTierLabel>[0];
   compact?: boolean;
 }) {
-  const isBusiness = tier === 'business';
-  const isTrial = tier === 'trial';
+  const isPlus = tier === 'plus';
   return (
     <span
       className={cn(
         'w-fit rounded px-1.5 py-0.5 text-xs font-medium leading-none',
         compact && 'mt-0.5',
-        isTrial && 'bg-muted text-muted-foreground',
-        !isTrial && !isBusiness && 'bg-primary/10 text-primary',
-        isBusiness &&
+        !isPlus && 'bg-muted text-muted-foreground',
+        isPlus &&
           'border border-primary/40 bg-primary/10 text-primary shadow-[0_0_10px_rgba(34,211,238,0.28)]',
       )}
     >

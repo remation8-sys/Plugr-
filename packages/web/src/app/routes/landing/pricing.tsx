@@ -1,4 +1,8 @@
-import { plugrPaidTierValues, plugrPlanCatalog } from '@activepieces/shared';
+import {
+  plugrFreeTierConfig,
+  plugrPaidTierValues,
+  plugrPlanCatalog,
+} from '@activepieces/shared';
 import { Check } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -8,19 +12,29 @@ import { Link } from 'react-router-dom';
  * Adapted from the 21st.dev glassy-pricing community component — frosted cards
  * with a "most popular" highlight — recolored to the Stitch blue palette.
  *
- * Tiers, USD prices and features are read straight from the shared
+ * The paid tier's price/features are read straight from the shared
  * `plugrPlanCatalog` (the same source the billing API and in-app pricing page
  * use), so this section can never drift from what customers are actually
  * charged. It stays static — the catalog is a bundled constant, so no API or
- * auth call is needed and it renders for logged-out visitors.
+ * auth call is needed and it renders for logged-out visitors. The Free tier
+ * card below is hand-written since there's nothing to fetch for it - it's
+ * always free.
  */
 
 const BLUE = '#0055ff';
 const INK = '#0d0e1a';
 
+const freeTierFeatures = [
+  `${plugrFreeTierConfig.canvasSlots} canvas slots, forever`,
+  `${plugrFreeTierConfig.executionCredits.toLocaleString()} shared executions/month`,
+  'Instant execution, no throttling',
+  'Full mobile app access',
+  'Use any AI model as a workflow step',
+  'All 700+ Plugs',
+];
+
 export function Pricing() {
   const plans = plugrPaidTierValues.map((tier) => plugrPlanCatalog[tier]);
-  const startingPrice = Math.min(...plans.map((plan) => plan.prices.USD));
 
   return (
     <section
@@ -63,16 +77,52 @@ export function Pricing() {
             Pricing
           </span>
           <h2 className="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-            Simple plans that scale with you.
+            Start free. Pay as you go, or go unlimited.
           </h2>
           <p className="mt-4 text-lg text-white/65">
-            Start at ${startingPrice} a month. All plans include unlimited
-            flows, executions, and the full integration library. Builder and
-            above include Plugr AI credits.
+            Two canvases and a shared execution pool, free forever. Top up
+            with one-time purchases anytime, or go unlimited with Plugr Plus.
           </p>
         </div>
 
         <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="relative flex h-full flex-col rounded-2xl border p-4 backdrop-blur-xl sm:p-6 bg-white/[0.03] border-white/10">
+            <h3 className="text-lg font-semibold text-white">Free</h3>
+            <div className="mt-5 flex items-baseline gap-1.5">
+              <span className="text-5xl font-light text-white">$0</span>
+              <span className="text-sm text-white/55">forever</span>
+            </div>
+            <div
+              className="my-6 h-px w-full"
+              style={{
+                background:
+                  'linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent)',
+              }}
+            />
+            <ul className="flex flex-1 flex-col gap-3">
+              {freeTierFeatures.map((feature) => (
+                <li key={feature} className="flex items-start gap-2.5">
+                  <Check
+                    className="mt-0.5 size-4 shrink-0"
+                    style={{ color: BLUE }}
+                    strokeWidth={2.5}
+                  />
+                  <span className="text-sm text-white/85">{feature}</span>
+                </li>
+              ))}
+            </ul>
+            <Link
+              to="/sign-up"
+              className="mt-8 inline-flex h-11 w-full items-center justify-center rounded-xl text-sm font-semibold transition-opacity hover:opacity-90"
+              style={{
+                backgroundColor: 'rgba(255,255,255,0.08)',
+                color: '#ffffff',
+                border: '1px solid rgba(255,255,255,0.15)',
+              }}
+            >
+              Create account
+            </Link>
+          </div>
           {plans.map((plan) => {
             return (
               <div
@@ -148,10 +198,11 @@ export function Pricing() {
 
         <div className="mt-10 space-y-2 text-center text-xs text-white/60">
           <p>
-            Prices in USD, billed monthly. Local currency is shown at checkout.
+            Plugr Plus is billed monthly in USD; local currency is shown at
+            checkout. Pay-as-you-go purchases are one-time, no subscription.
           </p>
           <p>
-            No free trial. First paid subscriptions have a{' '}
+            First paid subscriptions have a{' '}
             <a
               href="#refund-policy"
               className="text-white/65 underline underline-offset-4 hover:text-white"
@@ -161,7 +212,7 @@ export function Pricing() {
             .
           </p>
           <p>
-            Plugr credits cover AI-assisted building, audits, fixes,
+            Plugr AI credits cover AI-assisted building, audits, fixes,
             modifications, and reports.
           </p>
         </div>
