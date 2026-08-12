@@ -389,14 +389,16 @@ async function fetchPieceVersion({ pieceName, version, platformId, log }: FetchP
         return devPiece
     }
 
-    const foundPiece = await pieceRepos().findOne({
-        where: {
-            name: pieceName,
-            version,
-            platformId: platformId ?? IsNull(),
-        },
+    return pieceCache(log).loadPieceVersion(`${pieceName}:${version}:${platformId ?? ''}`, async () => {
+        const foundPiece = await pieceRepos().findOne({
+            where: {
+                name: pieceName,
+                version,
+                platformId: platformId ?? IsNull(),
+            },
+        })
+        return foundPiece ?? null
     })
-    return foundPiece ?? null
 }
 
 async function fetchLatestCompatiblePiecesFromDB(currentRelease: string): Promise<PieceMetadataSchema[]> {

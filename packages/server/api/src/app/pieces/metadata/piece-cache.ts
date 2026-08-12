@@ -13,6 +13,7 @@ const isTestingEnvironment = environment === ApEnvironment.TESTING
 
 let cachedRegistry: PieceRegistryEntry[] | null = null
 const cachedFullPieces = new Map<string, PieceMetadataSchema[]>()
+const cachedPieceVersions = new Map<string, PieceMetadataSchema | null>()
 let registryGeneration = 0
 
 export const pieceCache = (log: FastifyBaseLogger) => {
@@ -23,6 +24,7 @@ export const pieceCache = (log: FastifyBaseLogger) => {
                 await pubsub.subscribe(PIECE_REGISTRY_INVALIDATION_CHANNEL, () => {
                     cachedRegistry = null
                     cachedFullPieces.clear()
+                    cachedPieceVersions.clear()
                     registryGeneration++
                     log.debug('[pieceCache] Registry invalidated via pubsub')
                 })
@@ -43,9 +45,18 @@ export const pieceCache = (log: FastifyBaseLogger) => {
             return loadPersistedFullPieces(currentRelease, fetchFn)
         },
 
+        // A single (name, version, platformId) piece row is immutable once
+        // published - safe to cache indefinitely until the next publish/delete
+        // invalidation. Hit on every step-settings open, one DB round trip each
+        // time otherwise.
+        async loadPieceVersion(key: string, fetchFn: () => Promise<PieceMetadataSchema | null>): Promise<PieceMetadataSchema | null> {
+            return loadPersistedPieceVersion(key, fetchFn)
+        },
+
         async invalidate(): Promise<void> {
             cachedRegistry = null
             cachedFullPieces.clear()
+            cachedPieceVersions.clear()
             registryGeneration++
             if (!isTestingEnvironment) {
                 await pubsub.publish(PIECE_REGISTRY_INVALIDATION_CHANNEL, '1')
@@ -95,6 +106,22 @@ async function loadPersistedFullPieces(currentRelease: string, fetchFn: () => Pr
         return loadPersistedFullPieces(currentRelease, fetchFn)
     }
     cachedFullPieces.set(currentRelease, result)
+    return result
+}
+
+async function loadPersistedPieceVersion(key: string, fetchFn: () => Promise<PieceMetadataSchema | null>): Promise<PieceMetadataSchema | null> {
+    if (isTestingEnvironment) {
+        return fetchFn()
+    }
+    if (cachedPieceVersions.has(key)) {
+        return cachedPieceVersions.get(key) ?? null
+    }
+    const startGeneration = registryGeneration
+    const result = await fetchFn()
+    if (registryGeneration !== startGeneration) {
+        return loadPersistedPieceVersion(key, fetchFn)
+    }
+    cachedPieceVersions.set(key, result)
     return result
 }
 
