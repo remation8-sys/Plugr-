@@ -23,6 +23,9 @@ import {
 import '@xyflow/react/dist/style.css';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 
+import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
+
 import { useBuilderStateContext } from '../builder-hooks';
 import { useHandleKeyPressOnCanvas } from '../shortcuts';
 import { useCursorPosition } from '../state/cursor-position-context';
@@ -33,14 +36,12 @@ import {
 } from './context-menu/canvas-context-menu';
 import { FlowDragLayer } from './flow-drag-layer';
 import { flowCanvasHooks } from './hooks';
+import { StepDerivedDataProvider } from './step-number-context';
 import { flowCanvasConsts } from './utils/consts';
 import { flowCanvasUtils } from './utils/flow-canvas-utils';
 import { AboveFlowWidgets } from './widgets';
 import Minimap from './widgets/minimap';
 import { useShowChevronNextToSelection } from './widgets/selection-chevron-button';
-
-import { useIsMobile } from '@/hooks/use-mobile';
-import { cn } from '@/lib/utils';
 
 export const FlowCanvas = React.memo(
   ({
@@ -103,6 +104,19 @@ export const FlowCanvas = React.memo(
         notes,
         orientation: canvasOrientation,
       });
+    }, [graphKey]);
+    const stepDerivedData = useMemo(() => {
+      const stepNumberByName = new Map<string, number>();
+      const skippedStepNames = new Set<string>();
+      flowStructureUtil
+        .getAllSteps(flowVersion.trigger)
+        .forEach((step, index) => {
+          stepNumberByName.set(step.name, index + 1);
+          if (flowCanvasUtils.isSkipped(step.name, flowVersion.trigger)) {
+            skippedStepNames.add(step.name);
+          }
+        });
+      return { stepNumberByName, skippedStepNames };
     }, [graphKey]);
     const [contextMenuType, setContextMenuType] = useState<ContextMenuType>(
       ContextMenuType.CANVAS,
@@ -219,53 +233,55 @@ export const FlowCanvas = React.memo(
       >
         <FlowDragLayer>
           <CanvasContextMenu contextMenuType={contextMenuType}>
-            <ReactFlow
-              key={`canvas-${canvasOrientation}`}
-              className={cn('bg-builder-background', {
-                'canvas-grab-mode': inGrabPanningMode,
-              })}
-              onContextMenu={onContextMenu}
-              onPaneClick={() => {
-                reactFlowStore.getState().unselectNodesAndEdges();
-              }}
-              translateExtent={translateExtent}
-              nodeTypes={flowCanvasConsts.nodeTypes}
-              nodes={graph.nodes}
-              edgeTypes={flowCanvasConsts.edgeTypes}
-              edges={graph.edges}
-              draggable={false}
-              edgesFocusable={false}
-              elevateEdgesOnSelect={false}
-              maxZoom={1.5}
-              minZoom={isMobile ? 0.3 : 0.5}
-              panOnDrag={inGrabPanningMode ? [0, 1] : [1]}
-              zoomOnPinch={true}
-              zoomOnDoubleClick={false}
-              panOnScroll={true}
-              panOnScrollMode={PanOnScrollMode.Free}
-              fitView={false}
-              nodesConnectable={false}
-              elementsSelectable={true}
-              nodesDraggable={false}
-              nodesFocusable={false}
-              selectionKeyCode={inGrabPanningMode ? 'Shift' : null}
-              multiSelectionKeyCode={inGrabPanningMode ? 'Shift' : null}
-              selectionOnDrag={inGrabPanningMode ? false : true}
-              selectNodesOnDrag={true}
-              selectionMode={SelectionMode.Partial}
-              onSelectionChange={onSelectionChange}
-              onSelectionEnd={onSelectionEnd}
-            >
-              <AboveFlowWidgets></AboveFlowWidgets>
-              <Background
-                gap={20}
-                size={1.5}
-                variant={BackgroundVariant.Dots}
-                bgColor={`var(--builder-background)`}
-                color={`var(--builder-background-pattern)`}
-              />
-              <Minimap key={graphKey} />
-            </ReactFlow>
+            <StepDerivedDataProvider value={stepDerivedData}>
+              <ReactFlow
+                key={`canvas-${canvasOrientation}`}
+                className={cn('bg-builder-background', {
+                  'canvas-grab-mode': inGrabPanningMode,
+                })}
+                onContextMenu={onContextMenu}
+                onPaneClick={() => {
+                  reactFlowStore.getState().unselectNodesAndEdges();
+                }}
+                translateExtent={translateExtent}
+                nodeTypes={flowCanvasConsts.nodeTypes}
+                nodes={graph.nodes}
+                edgeTypes={flowCanvasConsts.edgeTypes}
+                edges={graph.edges}
+                draggable={false}
+                edgesFocusable={false}
+                elevateEdgesOnSelect={false}
+                maxZoom={1.5}
+                minZoom={isMobile ? 0.3 : 0.5}
+                panOnDrag={inGrabPanningMode ? [0, 1] : [1]}
+                zoomOnPinch={true}
+                zoomOnDoubleClick={false}
+                panOnScroll={true}
+                panOnScrollMode={PanOnScrollMode.Free}
+                fitView={false}
+                nodesConnectable={false}
+                elementsSelectable={true}
+                nodesDraggable={false}
+                nodesFocusable={false}
+                selectionKeyCode={inGrabPanningMode ? 'Shift' : null}
+                multiSelectionKeyCode={inGrabPanningMode ? 'Shift' : null}
+                selectionOnDrag={inGrabPanningMode ? false : true}
+                selectNodesOnDrag={true}
+                selectionMode={SelectionMode.Partial}
+                onSelectionChange={onSelectionChange}
+                onSelectionEnd={onSelectionEnd}
+              >
+                <AboveFlowWidgets></AboveFlowWidgets>
+                <Background
+                  gap={20}
+                  size={1.5}
+                  variant={BackgroundVariant.Dots}
+                  bgColor={`var(--builder-background)`}
+                  color={`var(--builder-background-pattern)`}
+                />
+                <Minimap key={graphKey} />
+              </ReactFlow>
+            </StepDerivedDataProvider>
           </CanvasContextMenu>
         </FlowDragLayer>
       </div>
@@ -329,7 +345,9 @@ const createGraphKey = (
         step.type === FlowTriggerType.PIECE
           ? `${step.settings.pieceName}-${step.settings.pieceVersion}`
           : ''
-      }-${branchesNames}-${childrenKey}}`;
+      }-${branchesNames}-${childrenKey}-skip:${!!(
+        'skip' in step && step.skip
+      )}}`;
     }, '');
   const notesGraphKey = notes
     .map((note) => `${note.id}-${note.position.x}-${note.position.y}`)

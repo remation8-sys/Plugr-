@@ -6,10 +6,18 @@ import {
 } from '@activepieces/shared';
 import { useDraggable } from '@dnd-kit/core';
 import { Handle, NodeProps, Position, useKeyPress } from '@xyflow/react';
-import React, { useMemo } from 'react';
+import React from 'react';
+import { useShallow } from 'zustand/react/shallow';
 
+import { useBuilderStateContext } from '@/app/builder/builder-hooks';
+import { PieceSelector } from '@/app/builder/pieces-selector';
+import { LoopIterationInput } from '@/app/builder/run-details/loop-iteration-input';
+import { RightSideBarType } from '@/app/builder/types';
+import { stepsHooks } from '@/features/pieces';
+import { cn } from '@/lib/utils';
+
+import { useIsStepSkipped, useStepNumber } from '../../step-number-context';
 import { flowCanvasConsts } from '../../utils/consts';
-import { flowCanvasUtils } from '../../utils/flow-canvas-utils';
 import { ApStepNode } from '../../utils/types';
 
 import { StepNodeChevron } from './step-node-chevron';
@@ -21,13 +29,6 @@ import { ApStepNodeStatusInRun } from './step-node-status-in-run';
 import { ApStepNodeStatusRing } from './step-node-status-ring';
 import { TriggerWidget } from './trigger-widget';
 
-import { useBuilderStateContext } from '@/app/builder/builder-hooks';
-import { PieceSelector } from '@/app/builder/pieces-selector';
-import { LoopIterationInput } from '@/app/builder/run-details/loop-iteration-input';
-import { RightSideBarType } from '@/app/builder/types';
-import { stepsHooks } from '@/features/pieces';
-import { cn } from '@/lib/utils';
-
 const ApStepCanvasNode = React.memo(
   ({ data: { step } }: NodeProps & Omit<ApStepNode, 'position'>) => {
     const [
@@ -35,26 +36,26 @@ const ApStepCanvasNode = React.memo(
       isSelected,
       isDragging,
       readonly,
-      flowVersion,
       setSelectedBranchIndex,
       isPieceSelectorOpened,
       setOpenedPieceSelectorStepNameOrAddButtonId,
       isRightSidebarOpen,
       canvasOrientation,
       panningMode,
-    ] = useBuilderStateContext((state) => [
-      state.selectStepByName,
-      state.selectedStep === step.name,
-      state.activeDraggingStep === step.name,
-      state.readonly,
-      state.flowVersion,
-      state.setSelectedBranchIndex,
-      state.openedPieceSelectorStepNameOrAddButtonId === step.name,
-      state.setOpenedPieceSelectorStepNameOrAddButtonId,
-      state.rightSidebar !== RightSideBarType.NONE,
-      state.canvasOrientation,
-      state.panningMode,
-    ]);
+    ] = useBuilderStateContext(
+      useShallow((state) => [
+        state.selectStepByName,
+        state.selectedStep === step.name,
+        state.activeDraggingStep === step.name,
+        state.readonly,
+        state.setSelectedBranchIndex,
+        state.openedPieceSelectorStepNameOrAddButtonId === step.name,
+        state.setOpenedPieceSelectorStepNameOrAddButtonId,
+        state.rightSidebar !== RightSideBarType.NONE,
+        state.canvasOrientation,
+        state.panningMode,
+      ]),
+    );
     const isHorizontal = canvasOrientation === 'horizontal';
     const spacePressed = useKeyPress('Space');
     const shiftPressed = useKeyPress('Shift');
@@ -63,12 +64,12 @@ const ApStepCanvasNode = React.memo(
     const { stepMetadata } = stepsHooks.useStepMetadata({
       step,
     });
-    const stepIndex = useMemo(
-      () => flowStructureUtil.getStepNumber(flowVersion.trigger, step.name),
-      [step, flowVersion],
-    );
+    // From context, not the zustand store - avoids re-rendering every step
+    // node on the canvas whenever any OTHER step is edited (see
+    // step-number-context.tsx).
+    const stepIndex = useStepNumber(step.name);
     const isTrigger = flowStructureUtil.isTrigger(step.type);
-    const isSkipped = flowCanvasUtils.isSkipped(step.name, flowVersion.trigger);
+    const isSkipped = useIsStepSkipped(step.name);
 
     const { attributes, listeners, setNodeRef } = useDraggable({
       id: step.name,

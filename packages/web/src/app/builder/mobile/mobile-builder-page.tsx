@@ -15,7 +15,6 @@ import { builderPageUtils } from '../builder-page-utils';
 import { builderUiConstants } from '../builder-ui-constants';
 import { BuilderBanner } from '../flow-canvas/widgets/builder-banner';
 import { FlowVersionsList } from '../flow-versions';
-import { PlugrChatPanel } from '../plugr-chat/plugr-chat-panel';
 import { PlugrChatWidget } from '../plugr-chat/plugr-chat-widget';
 import { RunsList } from '../run-list';
 import { StepSettingsContainer } from '../step-settings';
@@ -23,6 +22,15 @@ import { StepSettingsContainer } from '../step-settings';
 import { MobileBuilderHeader } from './mobile-builder-header';
 import { MobileFlowBuilder } from './mobile-flow-builder';
 import { MobileSampleDataBoundary } from './mobile-sample-data-boundary';
+
+// Lazy: pulls in the markdown renderer + shiki (full syntax highlighter,
+// wasm regex engine, per-language grammars) which every builder page load
+// was otherwise paying for even when chat is never opened.
+const PlugrChatPanel = lazy(() =>
+  import('../plugr-chat/plugr-chat-panel').then((m) => ({
+    default: m.PlugrChatPanel,
+  })),
+);
 
 const MemoizedMobileFlowBuilder = memo(MobileFlowBuilder);
 MemoizedMobileFlowBuilder.displayName = 'MemoizedMobileFlowBuilder';
@@ -119,7 +127,9 @@ function MobileBuilderPage() {
       </Drawer>
 
       <ChatDrawer />
-      <PlugrChatPanel />
+      <Suspense fallback={null}>
+        <PlugrChatPanel />
+      </Suspense>
     </div>
   );
 }

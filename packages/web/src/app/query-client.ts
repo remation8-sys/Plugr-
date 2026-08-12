@@ -9,6 +9,15 @@ import { api } from '@/lib/api';
 import { mobileHaptics } from '@/lib/mobile-haptics';
 
 export const queryClient = new QueryClient({
+  // Global default only - any useQuery with its own staleTime (e.g. Infinity
+  // for immutable piece metadata, 0 for live search) overrides this. Without
+  // it, react-query's own default (staleTime: 0) meant every window refocus
+  // or remount refetched every list on screen, even ones that rarely change.
+  defaultOptions: {
+    queries: {
+      staleTime: 15_000,
+    },
+  },
   queryCache: new QueryCache({
     onError: (error, query) => {
       if (query.meta?.showErrorDialog) {

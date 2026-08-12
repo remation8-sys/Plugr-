@@ -1,6 +1,8 @@
 import { ReactFlowProvider, useReactFlow } from '@xyflow/react';
 import {
+  lazy,
   ReactNode,
+  Suspense,
   useCallback,
   useEffect,
   useLayoutEffect,
@@ -34,11 +36,19 @@ import { flowCanvasConsts } from './flow-canvas/utils/consts';
 import { flowCanvasUtils } from './flow-canvas/utils/flow-canvas-utils';
 import { BuilderBanner } from './flow-canvas/widgets/builder-banner';
 import { FlowVersionsList } from './flow-versions';
-import { PlugrChatPanel } from './plugr-chat/plugr-chat-panel';
 import { PlugrChatWidget } from './plugr-chat/plugr-chat-widget';
 import { RunsList } from './run-list';
 import { CursorPositionProvider } from './state/cursor-position-context';
 import { StepSettingsContainer } from './step-settings';
+
+// Lazy: pulls in the markdown renderer + shiki (full syntax highlighter,
+// wasm regex engine, per-language grammars) which every builder page load
+// was otherwise paying for even when chat is never opened.
+const PlugrChatPanel = lazy(() =>
+  import('./plugr-chat/plugr-chat-panel').then((m) => ({
+    default: m.PlugrChatPanel,
+  })),
+);
 
 const ANIMATE_RESIZE_CLASS_NAME = 'transition-all';
 const SPLIT_MODE_INITIAL_OPEN_SIZE_PX = 1000;
@@ -241,7 +251,9 @@ function DesktopBuilderContent() {
             </div>
           </ResizablePanel>
         </ResizablePanelGroup>
-        <PlugrChatPanel />
+        <Suspense fallback={null}>
+          <PlugrChatPanel />
+        </Suspense>
       </div>
 
       <ChatDrawer />
