@@ -367,7 +367,7 @@ const increaseMajorVersion = (version: string): string => {
 async function fetchLatestPieces({ platformId, locale = LocalesEnum.ENGLISH, log }: FetchLatestPiecesParams): Promise<PieceMetadataSchema[]> {
     const currentRelease = apVersionUtil.getCurrentRelease()
 
-    const latestPieces = await dedupe(`latest-pieces:${currentRelease}`, () => fetchLatestCompatiblePiecesFromDB(currentRelease))
+    const latestPieces = await dedupe(`latest-pieces:${currentRelease}`, () => pieceCache(log).loadFullPieces(currentRelease, () => fetchLatestCompatiblePiecesFromDB(currentRelease)))
     const translatedPieces = translatePieces(latestPieces, locale)
 
     const devPieces = await loadDevPiecesIfEnabled(log)

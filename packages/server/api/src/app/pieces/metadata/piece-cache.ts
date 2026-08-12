@@ -12,6 +12,7 @@ const environment = system.get<ApEnvironment>(AppSystemProp.ENVIRONMENT)
 const isTestingEnvironment = environment === ApEnvironment.TESTING
 
 let cachedRegistry: PieceRegistryEntry[] | null = null
+const cachedFullPieces = new Map<string, PieceMetadataSchema[]>()
 let registryGeneration = 0
 
 export const pieceCache = (log: FastifyBaseLogger) => {
@@ -21,6 +22,7 @@ export const pieceCache = (log: FastifyBaseLogger) => {
             if (!isTestingEnvironment) {
                 await pubsub.subscribe(PIECE_REGISTRY_INVALIDATION_CHANNEL, () => {
                     cachedRegistry = null
+                    cachedFullPieces.clear()
                     registryGeneration++
                     log.debug('[pieceCache] Registry invalidated via pubsub')
                 })
@@ -33,8 +35,17 @@ export const pieceCache = (log: FastifyBaseLogger) => {
             return [...persistedRegistry, ...devPieces]
         },
 
+        // Full piece rows (including complete action/trigger prop schemas) are
+        // expensive to pull from Postgres - two round trips for ~700 rows every
+        // call. Cache them the same way the registry is cached, keyed by release
+        // since that's the only thing that changes which rows are "latest".
+        async loadFullPieces(currentRelease: string, fetchFn: () => Promise<PieceMetadataSchema[]>): Promise<PieceMetadataSchema[]> {
+            return loadPersistedFullPieces(currentRelease, fetchFn)
+        },
+
         async invalidate(): Promise<void> {
             cachedRegistry = null
+            cachedFullPieces.clear()
             registryGeneration++
             if (!isTestingEnvironment) {
                 await pubsub.publish(PIECE_REGISTRY_INVALIDATION_CHANNEL, '1')
@@ -68,6 +79,23 @@ function toRegistryEntry(piece: PieceMetadataSchema): PieceRegistryEntry {
         platformId: piece.platformId,
         pieceType: piece.pieceType,
     }
+}
+
+async function loadPersistedFullPieces(currentRelease: string, fetchFn: () => Promise<PieceMetadataSchema[]>): Promise<PieceMetadataSchema[]> {
+    if (isTestingEnvironment) {
+        return fetchFn()
+    }
+    const cached = cachedFullPieces.get(currentRelease)
+    if (!isNil(cached)) {
+        return cached
+    }
+    const startGeneration = registryGeneration
+    const result = await fetchFn()
+    if (registryGeneration !== startGeneration) {
+        return loadPersistedFullPieces(currentRelease, fetchFn)
+    }
+    cachedFullPieces.set(currentRelease, result)
+    return result
 }
 
 async function fetchRegistryFromDB(): Promise<PieceRegistryEntry[]> {
