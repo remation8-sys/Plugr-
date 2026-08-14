@@ -19,6 +19,8 @@ import { FastifyBaseLogger } from 'fastify'
 import { EntityManager, In } from 'typeorm'
 import { repoFactory } from '../../core/db/repo-factory'
 import { transaction } from '../../core/db/transaction'
+import { buildPaginator } from '../../helper/pagination/build-paginator'
+import { paginationHelper } from '../../helper/pagination/pagination-utils'
 import { system } from '../../helper/system/system'
 import { AppSystemProp } from '../../helper/system/system-props'
 import { WebhookFlowVersionToRun, webhookService } from '../../webhooks/webhook.service'
@@ -84,6 +86,7 @@ export const recordService = {
     async list({
         tableId,
         projectId,
+        cursorRequest,
         filters,
         limit,
         fields: prefetchedFields,
@@ -92,6 +95,17 @@ export const recordService = {
             tableId,
             projectId,
         })
+
+        const hasFilters = !isNil(filters) && filters.length > 0
+        if (!hasFilters) {
+            return this.listWithoutFilters({ tableId, projectId, cursorRequest, limit, fields })
+        }
+
+        // Filters match against cell values in application code (below), so
+        // which rows belong on "page N" can't be known without evaluating
+        // every row first - this path scans the whole table. Unfiltered
+        // browsing (the common case) uses real DB-level pagination instead,
+        // see listWithoutFilters.
         const records = await recordRepo().find({
             where: {
                 projectId,
@@ -101,31 +115,9 @@ export const recordService = {
                 created: 'ASC',
             },
         })
+        await attachCells({ records, projectId, fieldIds: fields.map((field) => field.id) })
 
-        const cells = await cellsRepo().find({
-            where: {
-                projectId,
-                fieldId: In(fields.map((field) => field.id)),
-                recordId: In(records.map((record) => record.id)),
-            },
-        })
-        const cellsByRecordId = new Map<string, typeof cells>()
-        for (const cell of cells) {
-            const group = cellsByRecordId.get(cell.recordId)
-            if (group) {
-                group.push(cell)
-            }
-            else {
-                cellsByRecordId.set(cell.recordId, [cell])
-            }
-        }
-        for (const record of records) {
-            record.cells = cellsByRecordId.get(record.id) ?? []
-        }
         const filteredOutRecords = records.filter((record) => {
-            if (!filters || filters.length === 0) {
-                return true
-            }
             return filters.every((filter) => {
                 const cell = record.cells.find(c => c.fieldId === filter.fieldId)
                 if (!cell) {
@@ -142,6 +134,29 @@ export const recordService = {
             next: null,
             previous: null,
         }
+    },
+
+    async listWithoutFilters({ tableId, projectId, cursorRequest, limit, fields }: ListWithoutFiltersParams): Promise<SeekPage<PopulatedRecord>> {
+        const decodedCursor = paginationHelper.decodeCursor(cursorRequest ?? null)
+        const paginator = buildPaginator({
+            entity: RecordEntity,
+            query: {
+                limit,
+                order: 'ASC',
+                afterCursor: decodedCursor.nextCursor,
+                beforeCursor: decodedCursor.previousCursor,
+            },
+        })
+        const queryBuilder = recordRepo()
+            .createQueryBuilder('record')
+            .where({ projectId, tableId })
+
+        const paginationResult = await paginator.paginate<RecordSchema>(queryBuilder)
+        const pageRecords = paginationResult.data
+        await attachCells({ records: pageRecords, projectId, fieldIds: fields.map((field) => field.id) })
+
+        const populatedRecords = await formatRecordsAndFetchField({ records: pageRecords, tableId, projectId, fields })
+        return paginationHelper.createPage(populatedRecords, paginationResult.cursor)
     },
 
     async getById({
@@ -377,6 +392,14 @@ type ListParams = {
     fields?: Field[]
 }
 
+type ListWithoutFiltersParams = {
+    tableId: string
+    projectId: string
+    cursorRequest: Cursor | null
+    limit: number
+    fields: Field[]
+}
+
 type GetByIdParams = {
     id: string
     projectId: string
@@ -459,6 +482,32 @@ function prepareCellInsertions(
             }
         }),
     )
+}
+
+async function attachCells({ records, projectId, fieldIds }: { records: RecordSchema[], projectId: string, fieldIds: string[] }): Promise<void> {
+    if (records.length === 0) {
+        return
+    }
+    const cells = await cellsRepo().find({
+        where: {
+            projectId,
+            fieldId: In(fieldIds),
+            recordId: In(records.map((record) => record.id)),
+        },
+    })
+    const cellsByRecordId = new Map<string, typeof cells>()
+    for (const cell of cells) {
+        const group = cellsByRecordId.get(cell.recordId)
+        if (group) {
+            group.push(cell)
+        }
+        else {
+            cellsByRecordId.set(cell.recordId, [cell])
+        }
+    }
+    for (const record of records) {
+        record.cells = cellsByRecordId.get(record.id) ?? []
+    }
 }
 
 async function formatRecordsAndFetchField({ records, tableId, projectId, fields: prefetchedFields }: { records: RecordSchema[], tableId: string, projectId: string, fields?: Field[] }): Promise<PopulatedRecord[]> {

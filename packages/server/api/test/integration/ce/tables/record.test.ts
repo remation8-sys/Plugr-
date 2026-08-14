@@ -164,6 +164,38 @@ describe('Record API', () => {
             const body = response?.json()
             expect(body.data.length).toBe(0)
         })
+
+        it('should paginate via cursor instead of returning everything at once', async () => {
+            const ctx = await setup()
+            const { table } = await createTableWithField(ctx)
+            const records = Array.from({ length: 3 }, (_, i) => {
+                const record = createMockRecord({ tableId: table.id, projectId: ctx.project.id })
+                record.created = new Date(2024, 0, i + 1).toISOString()
+                return record
+            })
+            await db.save('record', records)
+
+            const firstPage = await ctx.get('/v1/records', {
+                tableId: table.id,
+                limit: '2',
+            })
+            expect(firstPage?.statusCode).toBe(StatusCodes.OK)
+            const firstBody = firstPage?.json()
+            expect(firstBody.data.length).toBe(2)
+            expect(firstBody.data.map((r: { id: string }) => r.id)).toEqual([records[0].id, records[1].id])
+            expect(firstBody.next).not.toBeNull()
+
+            const secondPage = await ctx.get('/v1/records', {
+                tableId: table.id,
+                limit: '2',
+                cursor: firstBody.next,
+            })
+            expect(secondPage?.statusCode).toBe(StatusCodes.OK)
+            const secondBody = secondPage?.json()
+            expect(secondBody.data.length).toBe(1)
+            expect(secondBody.data[0].id).toBe(records[2].id)
+            expect(secondBody.next).toBeNull()
+        })
     })
 
     describeWithAuth('GET /v1/records/:id (Get by ID)', () => app!, (setup) => {
