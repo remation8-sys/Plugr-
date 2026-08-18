@@ -359,7 +359,7 @@ export const TiptapEditor = ({
       attributes: {
         class: cn(
           className ??
-            cn(inputClass, 'block h-[unset] min-h-9 py-2'),
+            cn(inputClass, 'block h-[unset] md:h-[unset] min-h-9 py-2'),
           textMentionUtils.inputWithMentionsCssClass,
           { 'cursor-not-allowed opacity-50': disabled },
         ),
