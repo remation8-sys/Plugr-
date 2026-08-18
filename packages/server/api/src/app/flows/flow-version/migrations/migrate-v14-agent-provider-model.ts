@@ -15,9 +15,18 @@ export const migrateV14AgentProviderModel: Migration = {
                 const input = step.settings?.input as Record<string, unknown>
 
                 if (actionName === 'run_agent') {
+                    // Already using the modern aiProviderModel shape - nothing to
+                    // migrate, and re-running this legacy conversion would clobber
+                    // it with undefined provider/model since the old flat fields
+                    // never existed on a step authored directly in the new shape.
+                    const existing = input[AgentPieceProps.AI_PROVIDER_MODEL] as Record<string, unknown> | undefined
+                    if (existing?.['provider']) {
+                        return step
+                    }
+
                     const provider = input['provider'] as string
                     const model = input['model'] as string
-                    
+
                     return {
                         ...step,
                         settings: {
