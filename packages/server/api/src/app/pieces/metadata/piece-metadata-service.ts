@@ -290,6 +290,15 @@ const findExactVersion = async (
     params: { name: string, version: string | undefined, platformId: string | undefined },
 ): Promise<{ name: string, version: string, platformId: string | undefined } | undefined> => {
     const { name, version, platformId } = params
+    const devPieces = await loadDevPiecesIfEnabled(log)
+    const devPiece = devPieces.find((entry) => entry.name === name)
+    if (!isNil(devPiece)) {
+        return {
+            name: devPiece.name,
+            version: devPiece.version,
+            platformId: devPiece.platformId ?? undefined,
+        }
+    }
     const versionToSearch = findNextExcludedVersion(version)
     const currentRelease = apVersionUtil.getCurrentRelease()
     const registry = filterRegistry(await loadRegistry(log), { release: currentRelease, platformId })
